@@ -1,0 +1,62 @@
+export enum EstadoReserva {
+  PENDIENTE = 'PENDIENTE',
+  CONFIRMADA = 'CONFIRMADA',
+  REPROGRAMADA = 'REPROGRAMADA',
+  COMPLETADA = 'COMPLETADA',
+  CANCELADA = 'CANCELADA',
+}
+
+export enum EstadoEvento {
+  SOLICITADA = 'SOLICITADA',
+  CONFIRMADA = 'CONFIRMADA',
+  COMPLETADA = 'COMPLETADA',
+  CANCELADA = 'CANCELADA',
+}
+
+export enum EstadoContrato {
+  BORRADOR = 'BORRADOR',
+  FIRMADO = 'FIRMADO',
+}
+
+export enum EstadoComprobante {
+  PENDIENTE = 'PENDIENTE',
+  EMITIDO = 'EMITIDO',
+  RECHAZADO = 'RECHAZADO',
+  ANULADO = 'ANULADO',
+}
+
+export enum MedioPago {
+  YAPE = 'YAPE',
+  EFECTIVO = 'EFECTIVO',
+  TRANSFERENCIA = 'TRANSFERENCIA',
+  TARJETA = 'TARJETA',
+}
+
+export enum TipoPago {
+  UNICO = 'UNICO',
+  ADELANTO = 'ADELANTO',
+  SALDO = 'SALDO',
+}
+
+export enum TipoComprobante {
+  BOLETA = 'BOLETA',
+  FACTURA = 'FACTURA',
+  NOTA_VENTA = 'NOTA_VENTA',
+}
+
+export enum TipoDia {
+  SEMANA = 'SEMANA',
+  FIN_SEMANA_FERIADO = 'FIN_SEMANA_FERIADO',
+}
+
+export enum CanalReserva {
+  ONLINE = 'ONLINE',
+  PRESENCIAL = 'PRESENCIAL',
+}
+
+export enum TipoMovimiento {
+  ENTRADA = 'ENTRADA',
+  SALIDA = 'SALIDA',
+  AJUSTE = 'AJUSTE',
+  BAJA = 'BAJA',
+}
