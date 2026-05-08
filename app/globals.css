@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Kiki y Lala — paleta de marca */
+    --brand-rosa:       #F64B8A;
+    --brand-azul:       #00AEEF;
+    --brand-amarillo:   #FFD84D;
+    --brand-menta:      #6EE7B7;
+
+    /* shadcn tokens — tema claro */
+    --background:       oklch(1 0 0);
+    --foreground:       oklch(0.145 0 0);
+    --card:       oklch(1 0 0);
+    --card-foreground:       oklch(0.145 0 0);
+    --popover:       oklch(1 0 0);
+    --popover-foreground:       oklch(0.145 0 0);
+
+    /* Primario = azul turquesa #00AEEF */
+    --primary:       oklch(0.205 0 0);
+    --primary-foreground:       oklch(0.985 0 0);
+
+    /* Secundario = rosa #F64B8A */
+    --secondary:       oklch(0.97 0 0);
+    --secondary-foreground:       oklch(0.205 0 0);
+
+    --muted:       oklch(0.97 0 0);
+    --muted-foreground:       oklch(0.556 0 0);
+    --accent:       oklch(0.97 0 0);
+    --accent-foreground:       oklch(0.205 0 0);
+    --destructive:       oklch(0.577 0.245 27.325);
+    --destructive-foreground: 0 0% 98%;
+    --border:       oklch(0.922 0 0);
+    --input:       oklch(0.922 0 0);
+    --ring:       oklch(0.708 0 0);
+    --radius:       0.625rem;
+
+    /* Amarillo para badges/promo */
+    --promo:            45 100% 65%;
+    --promo-foreground: 0 0% 15%;
+    --chart-1:       oklch(0.87 0 0);
+    --chart-2:       oklch(0.556 0 0);
+    --chart-3:       oklch(0.439 0 0);
+    --chart-4:       oklch(0.371 0 0);
+    --chart-5:       oklch(0.269 0 0);
+    --sidebar:       oklch(0.985 0 0);
+    --sidebar-foreground:       oklch(0.145 0 0);
+    --sidebar-primary:       oklch(0.205 0 0);
+    --sidebar-primary-foreground:       oklch(0.985 0 0);
+    --sidebar-accent:       oklch(0.97 0 0);
+    --sidebar-accent-foreground:       oklch(0.205 0 0);
+    --sidebar-border:       oklch(0.922 0 0);
+    --sidebar-ring:       oklch(0.708 0 0);
+  }
+  .theme {
+    --font-heading:       var(--font-sans);
+    --font-sans:       var(--font-sans);
+  }
+  .dark {
+    --background:       oklch(0.145 0 0);
+    --foreground:       oklch(0.985 0 0);
+    --card:       oklch(0.205 0 0);
+    --card-foreground:       oklch(0.985 0 0);
+    --popover:       oklch(0.205 0 0);
+    --popover-foreground:       oklch(0.985 0 0);
+    --primary:       oklch(0.922 0 0);
+    --primary-foreground:       oklch(0.205 0 0);
+    --secondary:       oklch(0.269 0 0);
+    --secondary-foreground:       oklch(0.985 0 0);
+    --muted:       oklch(0.269 0 0);
+    --muted-foreground:       oklch(0.708 0 0);
+    --accent:       oklch(0.269 0 0);
+    --accent-foreground:       oklch(0.985 0 0);
+    --destructive:       oklch(0.704 0.191 22.216);
+    --border:       oklch(1 0 0 / 10%);
+    --input:       oklch(1 0 0 / 15%);
+    --ring:       oklch(0.556 0 0);
+    --chart-1:       oklch(0.87 0 0);
+    --chart-2:       oklch(0.556 0 0);
+    --chart-3:       oklch(0.439 0 0);
+    --chart-4:       oklch(0.371 0 0);
+    --chart-5:       oklch(0.269 0 0);
+    --sidebar:       oklch(0.205 0 0);
+    --sidebar-foreground:       oklch(0.985 0 0);
+    --sidebar-primary:       oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground:       oklch(0.985 0 0);
+    --sidebar-accent:       oklch(0.269 0 0);
+    --sidebar-accent-foreground:       oklch(0.985 0 0);
+    --sidebar-border:       oklch(1 0 0 / 10%);
+    --sidebar-ring:       oklch(0.556 0 0);
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+  }
+  h1, h2, h3, h4 { @apply font-bold tracking-tight; }
+}
+
+/* Gradientes de marca */
+@layer utilities {
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, #00AEEF 0%, #F64B8A 100%);
+  }
+  .bg-brand-gradient-soft {
+    background: linear-gradient(135deg, #e0f7ff 0%, #ffe0f0 100%);
+  }
+  .text-brand-rosa    { color: #F64B8A; }
+  .text-brand-azul    { color: #00AEEF; }
+  .text-brand-amarillo{ color: #FFD84D; }
+  .text-brand-menta   { color: #6EE7B7; }
+  .bg-brand-rosa      { background-color: #F64B8A; }
+  .bg-brand-azul      { background-color: #00AEEF; }
+  .bg-brand-amarillo  { background-color: #FFD84D; }
+  .bg-brand-menta     { background-color: #6EE7B7; }
+  .border-brand-rosa  { border-color: #F64B8A; }
+  .border-brand-azul  { border-color: #00AEEF; }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #00AEEF transparent;
+  }
+}
