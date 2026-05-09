@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import {
   Menu, X, Ticket, LogIn, ChevronDown,
-  User, CalendarDays, Gamepad2, Info, Home
+  User, CalendarDays, Gamepad2, Info, Home, Tag,
 } from 'lucide-react'
 import { Logo } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/Button'
@@ -23,9 +23,10 @@ import {
 
 const navLinks = [
   { href: '/',                label: 'Inicio',         icon: Home         },
-  { href: '/eventos',        label: 'Eventos',        icon: CalendarDays },
-  { href: '/zona-de-juegos', label: 'Zona de Juegos', icon: Gamepad2     },
-  { href: '/nosotros',       label: 'Nosotros',       icon: Info         },
+  { href: '/eventos',         label: 'Eventos',        icon: CalendarDays },
+  { href: '/zona-de-juegos',  label: 'Zona de Juegos', icon: Gamepad2     },
+  { href: '/promociones',     label: 'Promociones',    icon: Tag          },
+  { href: '/nosotros',        label: 'Nosotros',       icon: Info         },
 ]
 
 const SCROLL_THRESHOLD = 60

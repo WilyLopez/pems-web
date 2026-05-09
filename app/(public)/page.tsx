@@ -1,12 +1,10 @@
 // app/(public)/page.tsx
 
 import Link from "next/link";
-import Image from "next/image";
 import {
     Ticket,
     Star,
     Shield,
-    Clock,
     ChevronRight,
     Users,
     User,
@@ -23,9 +21,11 @@ import {
     Award,
     Camera,
 } from "lucide-react";
+import { HeroBanner } from "@/components/cms/HeroBanner";
+import { PromocionesDestacadas } from "@/components/cms/PromocionesDestacadas";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent } from "@/components/ui/Card";
+
 
 const paquetes = [
     {
@@ -195,28 +195,7 @@ export default function LandingPage() {
                             </div>
                         </div>
 
-                        <div className="hidden lg:flex justify-center relative">
-                            <div className="relative w-[420px] h-[420px]">
-                                <div className="absolute inset-0 bg-brand-gradient rounded-3xl opacity-30 blur-2xl scale-110" />
-                                <div className="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-gradient-to-br from-brand-azul/30 to-brand-rosa/30 backdrop-blur h-full flex items-center justify-center">
-                                    <Image
-                                        src="/logo-principal.png"
-                                        alt="Kiki y Lala"
-                                        width={340}
-                                        height={340}
-                                        className="object-contain drop-shadow-2xl animate-float"
-                                    />
-                                </div>
-                                <div className="absolute -top-4 -right-4 bg-brand-amarillo text-gray-900 rounded-2xl px-4 py-2 text-sm font-black shadow-lg rotate-6 flex items-center gap-1.5">
-                                    <Zap className="h-4 w-4" />
-                                    Nuevo show
-                                </div>
-                                <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl px-4 py-2 text-sm font-bold shadow-lg -rotate-3 flex items-center gap-2">
-                                    <Shield className="h-4 w-4 text-brand-azul" />
-                                    100% Seguro
-                                </div>
-                            </div>
-                        </div>
+                        <HeroBanner />
                     </div>
                 </div>
 
@@ -233,6 +212,9 @@ export default function LandingPage() {
                     </svg>
                 </div>
             </section>
+
+            {/* Promociones destacadas — solo se renderiza si hay promos con mostrarEnInicio:true */}
+            <PromocionesDestacadas />
 
             {/* Novedades */}
             <section className="py-16 bg-white">
