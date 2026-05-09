@@ -15,10 +15,12 @@ export function formatDate(date: string | Date) {
   })
 }
 
-export function formatCurrency(amount: number) {
+export function formatCurrency(amount: number, decimals?: number) {
   return new Intl.NumberFormat('es-PE', {
     style: 'currency',
     currency: 'PEN',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   }).format(amount)
 }
 

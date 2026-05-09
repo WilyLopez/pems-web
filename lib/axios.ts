@@ -22,7 +22,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiError>) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       await signOut({ callbackUrl: '/auth/login' })
       return Promise.reject(error)
     }

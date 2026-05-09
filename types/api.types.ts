@@ -11,8 +11,9 @@ export interface PagedResponse<T>{
     size: number;
     totalElements: number;
     totalPages: number;
-    last: boolean;
     first: boolean;
+    last: boolean;
+    empty: boolean;
 }
 
 export interface ApiError {
