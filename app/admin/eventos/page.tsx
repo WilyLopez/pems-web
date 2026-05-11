@@ -2,167 +2,257 @@
 
 import { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal, CheckCircle, XCircle, Search, RefreshCw } from 'lucide-react'
-
-import { EventoPrivado } from '@/types/evento.types'
-import { useEventos, useConfirmarEvento, useCancelarEvento } from '@/hooks/useEventos'
+import { useRouter } from 'next/navigation'
+import {
+  Search, RefreshCw, Eye, X, ArrowUpDown,
+  AlertTriangle, CheckCircle2, CreditCard, ClipboardList, FileText,
+} from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-
+import { useDebounce } from '@/hooks/useDebounce'
+import { useEventos, useConfirmarEvento, useCancelarEvento } from '@/hooks/useEventos'
+import { EventoPrivado, EstadoEvento, calcularIndicadores } from '@/types/evento.types'
 import { PageHeader } from '@/components/common/PageHeader'
 import { DataTable } from '@/components/common/DataTable/DataTable'
 import { DataTablePagination } from '@/components/common/DataTable/DataTablePagination'
-import { StatusBadge } from '@/components/common/Statusbadge'
-import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/Errorstate'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/Select'
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuSeparator, DropdownMenuTrigger,
-} from '@/components/ui/DropdownMenu'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { Badge } from '@/components/ui/Badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
+import { formatDate, formatCurrency, cn } from '@/lib/utils'
 
-const ESTADOS_EVENTO = ['SOLICITADA', 'CONFIRMADA', 'COMPLETADA', 'CANCELADA']
+const ESTADOS: { value: EstadoEvento | ''; label: string }[] = [
+  { value: '',           label: 'Todos'      },
+  { value: 'SOLICITADA', label: 'Solicitada' },
+  { value: 'CONFIRMADA', label: 'Confirmada' },
+  { value: 'COMPLETADA', label: 'Completada' },
+  { value: 'CANCELADA',  label: 'Cancelada'  },
+]
 
-type DialogType = 'confirmar' | 'cancelar' | null
+const ESTADO_BADGE: Record<string, string> = {
+  SOLICITADA: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  CONFIRMADA: 'bg-green-100 text-green-800 border-green-200',
+  COMPLETADA: 'bg-blue-100 text-blue-700 border-blue-200',
+  CANCELADA:  'bg-red-100 text-red-700 border-red-200',
+}
+
+const INDICADOR_ICON: Record<string, React.ElementType> = {
+  CONTRATO:   FileText,
+  PAGO:       CreditCard,
+  CHECKLIST:  ClipboardList,
+  PROVEEDOR:  AlertTriangle,
+}
+
+const INDICADOR_COLOR: Record<string, string> = {
+  DANGER:  'text-red-500',
+  WARNING: 'text-amber-500',
+  OK:      'text-green-500',
+}
+
+type DialogType = 'confirmar' | 'cancelar'
+type Dialog = { type: DialogType; evento: EventoPrivado } | null
 
 export default function EventosPage() {
+  const router   = useRouter()
   const { idSede } = useAuth()
-  const [page, setPage] = useState(0)
-  const [estado, setEstado] = useState('')
-  const [dialog, setDialog] = useState<{ type: DialogType; evento: EventoPrivado | null }>({
-    type: null, evento: null,
-  })
+  const [page,   setPage]   = useState(0)
+  const [search, setSearch] = useState('')
+  const [estado, setEstado] = useState<EstadoEvento | ''>('')
+  const [fecha,  setFecha]  = useState('')
+  const [dialog, setDialog] = useState<Dialog>(null)
+
+  const dSearch = useDebounce(search, 350)
 
   const { data, isLoading, isError, refetch } = useEventos({
-    page, size: 15, estado: estado || undefined, idSede: idSede ?? undefined,
+    page, size: 15, idSede: idSede ?? undefined,
+    estado: estado || undefined,
+    fecha:  fecha  || undefined,
+    search: dSearch || undefined,
   })
 
   const confirmar = useConfirmarEvento()
-  const cancelar = useCancelarEvento()
+  const cancelar  = useCancelarEvento()
+  const closeDialog = () => setDialog(null)
 
-  const closeDialog = () => setDialog({ type: null, evento: null })
+  const handleSearch = (v: string) => { setSearch(v); setPage(0) }
+  const handleEstado = (v: string) => { setEstado(v as EstadoEvento); setPage(0) }
 
   const columns: ColumnDef<EventoPrivado>[] = [
     {
       accessorKey: 'fechaEvento',
-      header: 'Fecha',
-      cell: ({ row }) => formatDate(row.original.fechaEvento),
-    },
-    {
-      accessorKey: 'nombreCliente',
-      header: 'Cliente',
+      header: ({ column }) => (
+        <button
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className="flex items-center gap-1 text-xs font-bold text-gray-400 uppercase hover:text-brand-azul"
+        >
+          Fecha <ArrowUpDown className="h-3 w-3" />
+        </button>
+      ),
       cell: ({ row }) => (
         <div>
-          <p className="font-medium text-sm">{row.original.nombreCliente}</p>
-          <p className="text-xs text-muted-foreground">{row.original.correoCliente}</p>
+          <p className="text-sm font-semibold text-gray-900">{formatDate(row.original.fechaEvento)}</p>
+          <p className="text-xs text-gray-400">{row.original.turno} · {row.original.horaInicio}</p>
         </div>
       ),
     },
     {
-      accessorKey: 'turno',
-      header: 'Turno',
+      accessorKey: 'nombreCliente',
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Cliente</span>,
       cell: ({ row }) => (
         <div>
-          <p className="text-sm font-medium">{row.original.turno}</p>
-          <p className="text-xs text-muted-foreground">
-            {row.original.horaInicio} – {row.original.horaFin}
-          </p>
+          <p className="text-sm font-semibold text-gray-900">{row.original.nombreCliente}</p>
+          <p className="text-xs text-gray-400 truncate max-w-[140px]">{row.original.correoCliente}</p>
         </div>
       ),
     },
     {
       accessorKey: 'tipoEvento',
-      header: 'Tipo de evento',
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Tipo</span>,
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-700 truncate max-w-[120px] block">
+          {row.original.tipoEvento}
+        </span>
+      ),
     },
     {
-      accessorKey: 'precioTotalContrato',
-      header: 'Monto',
-      cell: ({ row }) =>
-        row.original.precioTotalContrato
-          ? formatCurrency(row.original.precioTotalContrato)
-          : '—',
+      accessorKey: 'aforoDeclarado',
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Aforo</span>,
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-700">{row.original.aforoDeclarado ?? '—'}</span>
+      ),
     },
     {
       accessorKey: 'estado',
-      header: 'Estado',
-      cell: ({ row }) => <StatusBadge status={row.original.estado} />,
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Estado</span>,
+      cell: ({ row }) => (
+        <Badge variant="outline" className={cn('text-[10px] font-bold', ESTADO_BADGE[row.original.estado])}>
+          {row.original.estado}
+        </Badge>
+      ),
     },
     {
-      id: 'acciones',
-      header: '',
+      id: 'indicadores',
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Alertas</span>,
+      cell: ({ row }) => {
+        const indicadores = calcularIndicadores(row.original)
+        if (!indicadores.length) {
+          return <CheckCircle2 className="h-4 w-4 text-green-400" />
+        }
+        return (
+          <div className="flex items-center gap-1">
+            {indicadores.map((ind, i) => {
+              const Icon = INDICADOR_ICON[ind.tipo] ?? AlertTriangle
+              return (
+                <div key={i} title={ind.mensaje}>
+                  <Icon className={cn('h-3.5 w-3.5', INDICADOR_COLOR[ind.nivel])} />
+                </div>
+              )
+            })}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'precioTotalContrato',
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Contrato</span>,
       cell: ({ row }) => {
         const e = row.original
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                disabled={e.estado !== 'SOLICITADA'}
-                onClick={() => setDialog({ type: 'confirmar', evento: e })}
-              >
-                <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
-                Confirmar evento
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                disabled={['COMPLETADA', 'CANCELADA'].includes(e.estado)}
-                onClick={() => setDialog({ type: 'cancelar', evento: e })}
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Cancelar evento
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div>
+            <p className="text-sm font-semibold text-gray-900">
+              {e.precioTotalContrato ? formatCurrency(e.precioTotalContrato) : '—'}
+            </p>
+            {e.montoSaldo && e.montoSaldo > 0 && (
+              <p className="text-xs text-amber-600 font-semibold">
+                Saldo: {formatCurrency(e.montoSaldo)}
+              </p>
+            )}
+          </div>
         )
       },
+    },
+    {
+      id: 'acciones',
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-lg gap-1.5 text-xs text-gray-500 hover:text-brand-azul hover:bg-brand-azul/8"
+          onClick={() => router.push(`/admin/eventos/${row.original.id}`)}
+        >
+          <Eye className="h-3.5 w-3.5" />
+          Ver
+        </Button>
+      ),
     },
   ]
 
   if (isError) return <ErrorState onRetry={refetch} />
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader
         title="Eventos Privados"
-        description="Solicitudes y eventos privados del local"
+        description="Gestion comercial y operativa de eventos"
+        actions={
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl gap-1.5">
+            <RefreshCw className="h-4 w-4" />
+            Actualizar
+          </Button>
+        }
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por cliente o tipo..." className="pl-9" />
+      <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-48 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Buscar por cliente o tipo..."
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="pl-9 h-10 rounded-xl border-gray-200"
+          />
+          {search && (
+            <button onClick={() => handleSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
-        <Select value={estado} onValueChange={(v) => { setEstado(v === 'TODOS' ? '' : v); setPage(0) }}>
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="Todos los estados" />
+
+        <Input
+          type="date"
+          value={fecha}
+          onChange={(e) => { setFecha(e.target.value); setPage(0) }}
+          className="h-10 rounded-xl border-gray-200 w-44"
+        />
+
+        <Select value={estado} onValueChange={handleEstado}>
+          <SelectTrigger className="h-10 w-44 rounded-xl border-gray-200 text-sm">
+            <SelectValue placeholder="Estado..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="TODOS">Todos los estados</SelectItem>
-            {ESTADOS_EVENTO.map((e) => (
-              <SelectItem key={e} value={e}>{e}</SelectItem>
+            {ESTADOS.map(({ value, label }) => (
+              <SelectItem key={value || 'todos'} value={value || 'todos'}>{label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" size="icon" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4" />
-        </Button>
+
+        {data?.totalElements !== undefined && (
+          <Badge variant="secondary" className="bg-gray-100 text-gray-600 h-10 px-3 text-sm self-start sm:self-auto">
+            {data.totalElements} eventos
+          </Badge>
+        )}
       </div>
 
-      <DataTable
-        columns={columns}
-        data={data?.content ?? []}
-        isLoading={isLoading}
-        emptyMessage="No se encontraron eventos con los filtros seleccionados."
-      />
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
+        <DataTable
+          columns={columns}
+          data={data?.content ?? []}
+          isLoading={isLoading}
+          emptyMessage="No se encontraron eventos con los filtros aplicados."
+        />
+      </div>
 
       {data && data.totalPages > 1 && (
         <DataTablePagination
@@ -171,41 +261,6 @@ export default function EventosPage() {
           onPageChange={setPage}
         />
       )}
-
-      <ConfirmDialog
-        open={dialog.type === 'confirmar'}
-        onOpenChange={(o) => !o && closeDialog()}
-        title="¿Confirmar evento?"
-        description={`Se confirmará el evento del ${dialog.evento ? formatDate(dialog.evento.fechaEvento) : ''}. Se notificará al cliente por correo.`}
-        confirmLabel="Confirmar"
-        loading={confirmar.isPending}
-        onConfirm={() => {
-          if (dialog.evento) {
-            confirmar.mutate(
-              { id: dialog.evento.id, precioTotal: dialog.evento.precioTotalContrato ?? 0 },
-              { onSettled: closeDialog }
-            )
-          }
-        }}
-      />
-
-      <ConfirmDialog
-        open={dialog.type === 'cancelar'}
-        onOpenChange={(o) => !o && closeDialog()}
-        title="¿Cancelar evento?"
-        description="Se cancelará el evento y se notificará al cliente. Esta acción no se puede deshacer."
-        confirmLabel="Sí, cancelar"
-        destructive
-        loading={cancelar.isPending}
-        onConfirm={() => {
-          if (dialog.evento) {
-            cancelar.mutate(
-              { id: dialog.evento.id, motivo: 'Cancelado por administrador' },
-              { onSettled: closeDialog }
-            )
-          }
-        }}
-      />
     </div>
   )
 }
