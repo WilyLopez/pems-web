@@ -1,51 +1,65 @@
-'use client'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { reservaService } from '@/services/reserva.service'
 import { toast } from 'sonner'
-import { CrearReservaPayload } from '@/types/reserva.types'
+import { reservaService, BuscarReservasParams } from '@/services/reserva.service'
 
-export const RESERVAS_KEY = 'reservas'
+export const RESERVAS_KEY     = 'reservas'
+export const RESERVAS_ADM_KEY = 'reservas-admin'
+export const METRICAS_KEY     = 'metricas-reservas'
 
-export function useReservas(params: {
-  page?: number
-  size?: number
-  estado?: string
-  idSede?: number
-  fecha?: string
-} = {}) {
+export function useReservas(params: BuscarReservasParams = {}) {
   return useQuery({
-    queryKey: [RESERVAS_KEY, params],
-    queryFn: () => reservaService.listar(params),
+    queryKey: [RESERVAS_ADM_KEY, params],
+    queryFn:  () => reservaService.buscarAdmin(params),
+  })
+}
+
+export function useMetricasReservas(idSede?: number, fecha?: string) {
+  return useQuery({
+    queryKey: [METRICAS_KEY, idSede, fecha],
+    queryFn:  () => reservaService.metricas(idSede, fecha),
+    staleTime: 1000 * 30,
   })
 }
 
 export function useCancelarReserva() {
-  const queryClient = useQueryClient()
+  const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, motivo }: { id: number; motivo: string }) =>
       reservaService.cancelar(id, motivo),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [RESERVAS_KEY] })
-      toast.success('Reserva cancelada correctamente.')
+      qc.invalidateQueries({ queryKey: [RESERVAS_ADM_KEY] })
+      qc.invalidateQueries({ queryKey: [METRICAS_KEY] })
+      toast.success('Reserva cancelada.')
     },
-    onError: (err: { message?: string }) => {
-      toast.error(err?.message ?? 'No se pudo cancelar la reserva.')
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo cancelar la reserva.'),
+  })
+}
+
+export function useConfirmarIngreso() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => reservaService.confirmarIngreso(id),
+    onSuccess: (reserva) => {
+      qc.invalidateQueries({ queryKey: [RESERVAS_ADM_KEY] })
+      qc.invalidateQueries({ queryKey: [METRICAS_KEY] })
+      toast.success(`Ingreso registrado para ticket ${reserva.numeroTicket}`)
     },
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo registrar el ingreso.'),
   })
 }
 
 export function useReprogramarReserva() {
-  const queryClient = useQueryClient()
+  const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, nuevaFecha }: { id: number; nuevaFecha: string }) =>
       reservaService.reprogramar(id, { nuevaFechaEvento: nuevaFecha }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [RESERVAS_KEY] })
+      qc.invalidateQueries({ queryKey: [RESERVAS_ADM_KEY] })
       toast.success('Reserva reprogramada correctamente.')
     },
-    onError: (err: { message?: string }) => {
-      toast.error(err?.message ?? 'No se pudo reprogramar la reserva.')
-    },
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo reprogramar la reserva.'),
   })
 }

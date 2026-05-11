@@ -1,32 +1,68 @@
-import { CanalReserva, EstadoReserva, TipoDia } from './enums'
+import { PagedResponse } from '@/types/api.types'
+
+export type EstadoReserva =
+  | 'PENDIENTE'
+  | 'CONFIRMADA'
+  | 'REPROGRAMADA'
+  | 'COMPLETADA'
+  | 'CANCELADA'
+
+export type MedioPago = 'YAPE' | 'PLIN' | 'TRANSFERENCIA' | 'EFECTIVO' | 'TARJETA'
 
 export interface Reserva {
-  id: number
-  numeroTicket: string
-  estado: EstadoReserva
-  tipoDia: TipoDia
-  fechaEvento: string
-  nombreNino: string
-  edadNino: number
-  nombreAcompanante: string
-  precioHistorico: number
-  descuentoAplicado: number
-  totalPagado: number
-  esReprogramacion: boolean
-  vecesReprogramada: number
+  id:                  number
+  idCliente:           number
+  nombreCliente?:      string
+  correoCliente?:      string
+  idSede:              number
+  estado:              EstadoReserva
+  canalReserva:        string
+  tipoDia:             string
+  fechaEvento:         string
+  numeroTicket:        string
+  precioHistorico:     number
+  descuentoAplicado:   number
+  totalPagado:         number
+  nombreNino:          string
+  edadNino:            number
+  nombreAcompanante:   string
+  dniAcompanante?:     string
   firmoConsentimiento: boolean
-  fechaCreacion: string
+  esReprogramacion:    boolean
+  vecesReprogramada:   number
+  motivoCancelacion?:  string
+  ingresado:           boolean
+  fechaIngreso?:       string
+  codigoQr?:           string
+  medioPago?:          MedioPago | string
+  referenciaPago?:     string
+  fechaCreacion:       string
 }
 
+export interface MetricasReserva {
+  fecha:         string
+  totalReservas: number
+  pendientes:    number
+  confirmadas:   number
+  canceladas:    number
+  ingresados:    number
+  aforoMaximo:   number
+  aforoOcupado:  number
+  aforoRestante: number
+  ingresosDia:   number
+}
+
+export interface ReservaPage extends PagedResponse<Reserva> {}
+
 export interface CrearReservaPayload {
-  canalReserva: CanalReserva
-  fechaEvento: string
-  nombreNino: string
-  edadNino: number
-  nombreAcompanante: string
-  dniAcompanante: string
+  canalReserva:        string
+  fechaEvento:         string
+  nombreNino:          string
+  edadNino:            number
+  nombreAcompanante:   string
+  dniAcompanante:      string
   firmoConsentimiento: boolean
-  idPromocionManual?: number
+  idPromocionManual?:  number
 }
 
 export interface ReprogramarReservaPayload {
