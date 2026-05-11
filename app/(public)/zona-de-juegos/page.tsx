@@ -129,12 +129,12 @@ export default function ZonaDeJuegosPage() {
                         Zona de Juegos
                     </Badge>
                     <h1 className="text-5xl font-black text-gray-900 max-w-3xl mx-auto leading-tight">
-                        El mundo de diversion de{" "}
+                        El mundo de diversión de{" "}
                         <span className="text-brand-azul">Kiki y Lala</span>
                     </h1>
                     <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                        Mas de 15 atracciones para ninos de 1 a 12 anos.
-                        Diversion garantizada con la seguridad que merece tu
+                        Más de 15 atracciones para niños de 1 a 12 años.
+                        Diversión garantizada con la seguridad que merece tu
                         familia.
                     </p>
                     <Button
@@ -358,3 +358,4 @@ export default function ZonaDeJuegosPage() {
         </>
     );
 }
+

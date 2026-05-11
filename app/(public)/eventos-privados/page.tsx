@@ -27,7 +27,6 @@ import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
-// ─── Schema ──────────────────────────────────────────────────────────────────
 
 const solicitudSchema = z.object({
   idTurno:            z.string().min(1, 'Selecciona un turno'),
@@ -39,7 +38,6 @@ const solicitudSchema = z.object({
 
 type SolicitudFormValues = z.infer<typeof solicitudSchema>
 
-// ─── Datos estaticos ─────────────────────────────────────────────────────────
 
 const TURNOS = [
   { id: '1', label: 'Turno manana',  horario: '10:00 - 14:00' },
@@ -55,7 +53,6 @@ const BENEFICIOS = [
   { icon: CheckCircle,  text: 'Facturacion electronica'            },
 ]
 
-// ─── Vista de exito ───────────────────────────────────────────────────────────
 
 function SuccessView({ evento }: { evento: EventoPrivado }) {
   return (
@@ -113,7 +110,6 @@ function SuccessView({ evento }: { evento: EventoPrivado }) {
   )
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function EventosPrivadosPage() {
   const { data: session } = useSession()
@@ -242,12 +238,12 @@ export default function EventosPrivadosPage() {
               <div className="flex items-center gap-2 mb-2">
                 <Users className="h-4 w-4 text-yellow-700" />
                 <span className="text-sm font-bold text-yellow-800">
-                  Capacidad maxima
+                  Capacidad máxima
                 </span>
               </div>
               <p className="text-2xl font-black text-yellow-900">60 personas</p>
               <p className="text-xs text-yellow-700 mt-0.5">
-                Ninos y adultos incluidos
+                Niños y adultos incluidos
               </p>
             </CardContent>
           </Card>
@@ -404,4 +400,4 @@ export default function EventosPrivadosPage() {
       </div>
     </div>
   )
-}
+} 

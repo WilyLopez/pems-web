@@ -31,7 +31,7 @@ export function ActividadReciente({ idAdmin }: { idAdmin: number }) {
           </div>
           <div>
             <h3 className="font-bold text-gray-900">Actividad reciente</h3>
-            <p className="text-xs text-gray-500">Ultimas 8 acciones</p>
+            <p className="text-xs text-gray-500">Últimas 8 acciones</p>
           </div>
         </div>
         <Link

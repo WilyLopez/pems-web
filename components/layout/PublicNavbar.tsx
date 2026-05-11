@@ -135,7 +135,7 @@ export function PublicNavbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/auth/login" className="text-destructive">
-                    Cerrar sesion
+                    Cerrar sesión
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -154,7 +154,7 @@ export function PublicNavbar() {
             >
               <Link href="/auth/login">
                 <LogIn className="h-4 w-4" />
-                Iniciar sesion
+                Iniciar sesión
               </Link>
             </Button>
           )}

@@ -364,7 +364,7 @@ export default function NosotrosPage() {
                                     rel="noopener noreferrer"
                                 >
                                     <MessageCircle className="h-4 w-4" />
-                                    Escribenos por WhatsApp
+                                    Escríbenos por WhatsApp
                                 </a>
                             </Button>
                         </div>
@@ -373,10 +373,10 @@ export default function NosotrosPage() {
                             <div className="text-center space-y-3 p-8">
                                 <MapPin className="h-10 w-10 text-brand-azul mx-auto" />
                                 <p className="font-semibold text-white">
-                                    Ubicacion en el mapa
+                                    Ubicación en el mapa
                                 </p>
                                 <p className="text-white/60 text-sm">
-                                    Av. Principal 123, Chiclayo, Peru
+                                    Av. Principal 123, Chiclayo, Perú
                                 </p>
                                 <Button
                                     asChild
@@ -400,3 +400,5 @@ export default function NosotrosPage() {
         </>
     );
 }
+;
+

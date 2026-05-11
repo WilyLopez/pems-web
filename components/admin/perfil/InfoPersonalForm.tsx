@@ -13,7 +13,7 @@ import { useActualizarPerfil } from '@/hooks/usePerfil'
 import { cn } from '@/lib/utils'
 
 const schema = z.object({
-  nombre:   z.string().min(2, 'Minimo 2 caracteres').max(120),
+  nombre:   z.string().min(2, 'Mínimo 2 caracteres').max(120),
   telefono: z.string().optional(),
 })
 
@@ -72,7 +72,7 @@ export function InfoPersonalForm({ admin }: { admin: UsuarioAdmin }) {
           <User className="h-4 w-4 text-brand-azul" />
         </div>
         <div>
-          <h3 className="font-bold text-gray-900">Informacion personal</h3>
+          <h3 className="font-bold text-gray-900">Información personal</h3>
           <p className="text-xs text-gray-500">Actualiza tu nombre y datos de contacto</p>
         </div>
       </div>
@@ -101,9 +101,9 @@ export function InfoPersonalForm({ admin }: { admin: UsuarioAdmin }) {
 
           <ReadonlyField
             icon={Mail}
-            label="Correo electronico"
+            label="Correo electrónico"
             value={admin.correo}
-            hint="El correo no puede modificarse desde aqui."
+            hint="El correo no puede modificarse desde aquí."
           />
 
           <FieldWrapper>
@@ -111,7 +111,7 @@ export function InfoPersonalForm({ admin }: { admin: UsuarioAdmin }) {
               htmlFor="telefono"
               className="text-xs font-semibold text-gray-500 uppercase tracking-wide"
             >
-              Telefono
+              Teléfono
             </Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />

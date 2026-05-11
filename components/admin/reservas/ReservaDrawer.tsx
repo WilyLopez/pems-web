@@ -157,7 +157,7 @@ export function ReservaDrawer({ reserva, onClose }: ReservaDrawerProps) {
 
           {reserva.motivoCancelacion && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-              <p className="text-xs font-bold text-red-700">Motivo de cancelacion</p>
+              <p className="text-xs font-bold text-red-700">Motivo de cancelación</p>
               <p className="text-xs text-red-600 mt-0.5">{reserva.motivoCancelacion}</p>
             </div>
           )}
@@ -169,4 +169,4 @@ export function ReservaDrawer({ reserva, onClose }: ReservaDrawerProps) {
       </aside>
     </>
   )
-}
+} 

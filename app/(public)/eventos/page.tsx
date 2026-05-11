@@ -382,9 +382,9 @@ export default function EventosPage() {
             {/* CTA */}
             <section className="py-16 bg-brand-gradient text-white">
                 <div className="container max-w-3xl mx-auto px-4 text-center space-y-5">
-                    <h2 className="text-3xl font-black">Tienes alguna duda?</h2>
+                    <h2 className="text-3xl font-black">¿Tienes alguna duda?</h2>
                     <p className="text-white/80">
-                        Nuestro equipo esta listo para ayudarte a planificar el
+                        Nuestro equipo está listo para ayudarte a planificar el
                         evento perfecto.
                     </p>
                     <Button

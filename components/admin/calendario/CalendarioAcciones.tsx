@@ -201,9 +201,9 @@ export function CalendarioAcciones({ idSede }: CalendarioAccionesProps) {
               <Input type="date" className="h-10 rounded-xl" {...feriadoForm.register('fecha')} />
             </div>
             <div className="space-y-2">
-              <Label>Descripcion</Label>
+              <Label>Descripción</Label>
               <Input
-                placeholder="Ej: Dia del Trabajo"
+                placeholder="Ej: Día del Trabajo"
                 className="h-10 rounded-xl"
                 {...feriadoForm.register('descripcion')}
               />
@@ -226,4 +226,4 @@ export function CalendarioAcciones({ idSede }: CalendarioAccionesProps) {
       </Dialog>
     </>
   )
-}
+} 

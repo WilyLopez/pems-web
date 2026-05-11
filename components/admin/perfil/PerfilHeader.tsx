@@ -93,7 +93,7 @@ export function PerfilHeader({ admin, onTabChange }: PerfilHeaderProps) {
               <StatItem icon={Building2} label="Sede" value={`ID ${admin.idSede}`} />
               <StatItem
                 icon={Clock}
-                label="Ultimo acceso"
+                label="Último acceso"
                 value={admin.ultimoAcceso ? formatDateTime(admin.ultimoAcceso) : 'Nunca'}
               />
               <StatItem
@@ -123,7 +123,7 @@ export function PerfilHeader({ admin, onTabChange }: PerfilHeaderProps) {
                   onClick={() => onTabChange('contrasena')}
                 >
                   <KeyRound className="h-3.5 w-3.5" />
-                  Contrasena
+                  Contraseña
                 </Button>
               </>
             )}
@@ -134,7 +134,7 @@ export function PerfilHeader({ admin, onTabChange }: PerfilHeaderProps) {
       <div className="bg-white px-6 py-3 flex flex-wrap gap-x-8 gap-y-1.5 border-t border-gray-100">
         {[
           { label: 'Intentos fallidos', value: admin.intentosFallidos?.toString() ?? '0', danger: (admin.intentosFallidos ?? 0) > 0 },
-          { label: 'Cambio de contrasena', value: admin.debeCambiarContrasena ? 'Requerido' : 'No requerido', danger: !!admin.debeCambiarContrasena },
+          { label: 'Cambio de contraseña', value: admin.debeCambiarContrasena ? 'Requerido' : 'No requerido', danger: !!admin.debeCambiarContrasena },
           { label: 'Estado', value: estado === 'BLOQUEADO' ? 'Bloqueado' : 'Activo', danger: estado === 'BLOQUEADO' },
         ].map(({ label, value, danger }) => (
           <div key={label} className="flex items-center gap-1.5 text-xs">

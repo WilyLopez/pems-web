@@ -316,10 +316,10 @@ export default function ReservarPage() {
             <CardContent className="p-5 space-y-3">
               <div className="flex items-center gap-2 text-sm font-bold text-gray-900">
                 <PartyPopper className="h-4 w-4 text-brand-rosa" />
-                Quieres el local completo?
+                ¿Quieres el local completo?
               </div>
               <p className="text-xs text-gray-500">
-                Organiza un cumpleanos exclusivo con decoracion personalizada
+                Organiza un cumpleaños exclusivo con decoración personalizada
                 para hasta 60 personas.
               </p>
               <Button

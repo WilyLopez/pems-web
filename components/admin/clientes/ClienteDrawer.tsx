@@ -26,7 +26,6 @@ interface ClienteDrawerProps {
   onClose: () => void
 }
 
-/* ── Fila de detalle ─────────────────────────────────────────────────────────── */
 function DetalleRow({
   icon: Icon,
   label,
@@ -50,7 +49,6 @@ function DetalleRow({
   )
 }
 
-/* ── Tarjeta de estadistica ──────────────────────────────────────────────────── */
 function StatCard({
   icon: Icon,
   label,
@@ -73,7 +71,6 @@ function StatCard({
   )
 }
 
-/* ── Drawer principal ────────────────────────────────────────────────────────── */
 export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
   const queryClient = useQueryClient()
 
@@ -244,20 +241,20 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
             </div>
           </div>
 
-          {/* Informacion de contacto */}
+          {/* Información de contacto */}
           <div className="bg-white rounded-2xl border border-gray-100 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">
-              Informacion
+              Información
             </p>
-            <DetalleRow icon={Phone}       label="Telefono"        value={cliente.telefono} />
+            <DetalleRow icon={Phone}       label="Teléfono"        value={cliente.telefono} />
             <DetalleRow icon={Mail}        label="Correo"          value={cliente.correo}   />
             <DetalleRow icon={BadgeCheck}  label="DNI"             value={cliente.dni}      />
-            <DetalleRow icon={MapPin}      label="Direccion"       value={cliente.direccion}/>
+            <DetalleRow icon={MapPin}      label="Dirección"       value={cliente.direccion}/>
             {cliente.tipoCliente === 'EMPRESA' && (
               <>
                 <Separator className="my-1" />
                 <DetalleRow icon={Building2} label="RUC"          value={cliente.ruc}          />
-                <DetalleRow icon={Building2} label="Razon social"  value={cliente.razonSocial}  />
+                <DetalleRow icon={Building2} label="Razón social"  value={cliente.razonSocial}  />
               </>
             )}
             <Separator className="my-1" />
@@ -278,7 +275,7 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
             />
             <DetalleRow
               icon={Clock}
-              label="Ultimo acceso"
+              label="Último acceso"
               value={cliente.ultimoLogin ? formatDate(cliente.ultimoLogin) : 'Nunca'}
             />
           </div>

@@ -111,7 +111,7 @@ export function ContratoEditor({ value, onChange, contrato, readOnly }: Contrato
             >
               {value || (
                 <span className="text-gray-300 italic">
-                  El contenido del contrato aparecera aqui...
+                  El contenido del contrato aparecerá aquí...
                 </span>
               )}
             </div>

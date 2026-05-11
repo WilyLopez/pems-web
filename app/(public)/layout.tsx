@@ -155,7 +155,7 @@ export default function PublicLayout({
                             &copy; {new Date().getFullYear()} Kiki y Lala
                             &middot; Todos los derechos reservados
                         </p>
-                        <p>Hecho con dedicacion para las familias del Peru</p>
+                        <p>Hecho con dedicación para las familias del Perú</p>
                     </div>
                 </div>
             </footer>

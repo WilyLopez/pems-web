@@ -160,7 +160,7 @@ export function CalendarioDayDrawer({ idSede, fecha, onClose }: CalendarioDayDra
 
               <div className="space-y-2">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Turnos</p>
-                <TurnoCard turno={data.turnoT1} label="Manana" horario="10:00 - 14:00" />
+                <TurnoCard turno={data.turnoT1} label="Mañana" horario="10:00 - 14:00" />
                 <TurnoCard turno={data.turnoT2} label="Tarde"  horario="16:00 - 20:00" />
               </div>
 
@@ -168,7 +168,7 @@ export function CalendarioDayDrawer({ idSede, fecha, onClose }: CalendarioDayDra
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                      Reservas publicas
+                      Reservas públicas
                     </p>
                     <Link
                       href={`/admin/reservas?fecha=${fecha}`}

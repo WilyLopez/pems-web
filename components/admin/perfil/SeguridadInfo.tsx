@@ -60,9 +60,9 @@ export function SeguridadInfo({ admin }: { admin: UsuarioAdmin }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <StatCard
           icon={Clock}
-          label="Ultimo acceso"
+          label="Último acceso"
           value={admin.ultimoAcceso ? formatDateTime(admin.ultimoAcceso) : 'Sin registros'}
-          sub="Ultima sesion iniciada con exito"
+          sub="Última sesión iniciada con éxito"
           variant="default"
         />
 
@@ -81,18 +81,18 @@ export function SeguridadInfo({ admin }: { admin: UsuarioAdmin }) {
           label="Intentos de acceso fallidos"
           value={`${admin.intentosFallidos} intento${admin.intentosFallidos !== 1 ? 's' : ''}`}
           sub={admin.intentosFallidos > 0
-            ? 'Revisa si alguien intento acceder a tu cuenta'
+            ? 'Revisa si alguien intentó acceder a tu cuenta'
             : 'Sin actividad sospechosa'}
           variant={admin.intentosFallidos > 0 ? 'warning' : 'success'}
         />
 
         <StatCard
           icon={Shield}
-          label="Cambio de contrasena"
+          label="Cambio de contraseña"
           value={admin.debeCambiarContrasena ? 'Requerido' : 'No requerido'}
           sub={admin.debeCambiarContrasena
-            ? 'Por politica de seguridad debes actualizar tu contrasena'
-            : 'Tu contrasena esta al dia'}
+            ? 'Por política de seguridad debes actualizar tu contraseña'
+            : 'Tu contraseña está al día'}
           variant={admin.debeCambiarContrasena ? 'warning' : 'success'}
         />
       </div>
@@ -103,8 +103,8 @@ export function SeguridadInfo({ admin }: { admin: UsuarioAdmin }) {
           <div>
             <p className="text-sm font-bold text-red-800">Cuenta bloqueada temporalmente</p>
             <p className="text-xs text-red-600 mt-1">
-              Tu cuenta esta bloqueada por exceso de intentos fallidos.
-              Se desbloqueara automaticamente el {formatDateTime(admin.bloqueadoHasta!)}.
+              Tu cuenta está bloqueada por exceso de intentos fallidos.
+              Se desbloqueará automáticamente el {formatDateTime(admin.bloqueadoHasta!)}.
               Si necesitas acceso urgente contacta al administrador principal.
             </p>
           </div>
@@ -115,10 +115,10 @@ export function SeguridadInfo({ admin }: { admin: UsuarioAdmin }) {
         <div className="mt-5 rounded-xl bg-amber-50 border border-amber-200 p-4 flex items-start gap-3">
           <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-bold text-amber-800">Se requiere cambiar la contrasena</p>
+            <p className="text-sm font-bold text-amber-800">Se requiere cambiar la contraseña</p>
             <p className="text-xs text-amber-600 mt-1">
-              Por politica de seguridad debes actualizar tu contrasena.
-              Ve a la pestana de Contrasena para actualizarla.
+              Por política de seguridad debes actualizar tu contraseña.
+              Ve a la pestaña de Contraseña para actualizarla.
             </p>
           </div>
         </div>
@@ -131,7 +131,7 @@ export function SeguridadInfo({ admin }: { admin: UsuarioAdmin }) {
         <div className="grid gap-2 sm:grid-cols-2">
           {[
             { ok: admin.intentosFallidos === 0,         msg: 'Sin intentos de acceso sospechosos' },
-            { ok: !admin.debeCambiarContrasena,          msg: 'Contrasena actualizada' },
+            { ok: !admin.debeCambiarContrasena,          msg: 'Contraseña actualizada' },
             { ok: !estaBloqueado,                        msg: 'Cuenta sin bloqueos' },
             { ok: !!admin.ultimoAcceso,                  msg: 'Historial de acceso registrado' },
           ].map(({ ok, msg }) => (

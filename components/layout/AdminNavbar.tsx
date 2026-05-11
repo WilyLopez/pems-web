@@ -516,7 +516,7 @@ export function AdminNavbar() {
                                 <LogOut className="h-3.5 w-3.5 text-destructive" />
                             </div>
                             <span className="text-sm font-medium">
-                                Cerrar sesion
+                                Cerrar sesión
                             </span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -525,3 +525,4 @@ export function AdminNavbar() {
         </header>
     );
 }
+

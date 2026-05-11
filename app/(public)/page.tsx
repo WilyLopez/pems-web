@@ -29,15 +29,15 @@ import { Badge } from "@/components/ui/Badge";
 
 const paquetes = [
     {
-        nombre: "Paquete Basico",
+        nombre: "Paquete Básico",
         icon: PartyPopper,
         precio: "S/ 350",
         colorGradient: "from-brand-azul/10 to-brand-azul/5",
         badge: null,
         detalles: [
-            "Hasta 15 ninos",
+            "Hasta 15 niños",
             "2 horas de juego",
-            "Decoracion basica",
+            "Decoración básica",
             "Mesa de snacks",
         ],
     },
@@ -46,13 +46,13 @@ const paquetes = [
         icon: Award,
         precio: "S/ 650",
         colorGradient: "from-brand-rosa/15 to-brand-amarillo/10",
-        badge: "Mas popular",
+        badge: "Más popular",
         detalles: [
-            "Hasta 30 ninos",
+            "Hasta 30 niños",
             "3 horas exclusivas",
-            "Decoracion tematica",
+            "Decoración temática",
             "Torta + snacks",
-            "Animacion incluida",
+            "Animación incluida",
         ],
     },
     {
@@ -62,12 +62,12 @@ const paquetes = [
         colorGradient: "from-brand-amarillo/15 to-brand-menta/10",
         badge: "Todo incluido",
         detalles: [
-            "Hasta 50 ninos",
+            "Hasta 50 niños",
             "4 horas exclusivas",
-            "Decoracion premium",
+            "Decoración premium",
             "Catering completo",
-            "DJ + animacion",
-            "Cobertura fotografica",
+            "DJ + animación",
+            "Cobertura fotográfica",
         ],
     },
 ];
@@ -75,26 +75,26 @@ const paquetes = [
 const testimonios = [
     {
         nombre: "Valeria M.",
-        texto: "El cumpleanos de mi hijo fue magico. Todo estaba perfecto, los ninos no querian irse.",
+        texto: "El cumpleaños de mi hijo fue mágico. Todo estaba perfecto, los niños no querían irse.",
         estrellas: 5,
     },
     {
         nombre: "Carlos R.",
-        texto: "Excelente atencion, las instalaciones muy limpias y el personal muy amable. Volvemos pronto.",
+        texto: "Excelente atención, las instalaciones muy limpias y el personal muy amable. Volvemos pronto.",
         estrellas: 5,
     },
     {
-        nombre: "Lucia P.",
-        texto: "Mis hijos adoran Kiki y Lala. Ya es nuestra tradicion de fin de semana. Los juegos son seguros y divertidos.",
+        nombre: "Lucía P.",
+        texto: "Mis hijos adoran Kiki y Lala. Ya es nuestra tradición de fin de semana. Los juegos son seguros y divertidos.",
         estrellas: 5,
     },
 ];
 
 const actividades = [
     { icon: Zap, nombre: "Escalada", desc: "Muros adaptados por edades" },
-    { icon: Gamepad2, nombre: "Arcade", desc: "Juegos electronicos y premios" },
+    { icon: Gamepad2, nombre: "Arcade", desc: "Juegos electrónicos y premios" },
     { icon: Palette, nombre: "Arte", desc: "Taller de pintura y manualidades" },
-    { icon: Baby, nombre: "Piscina de pelotas", desc: "Para los mas pequenos" },
+    { icon: Baby, nombre: "Piscina de pelotas", desc: "Para los más pequeños" },
     {
         icon: Music,
         nombre: "Show en vivo",
@@ -576,11 +576,11 @@ export default function LandingPage() {
                         <Zap className="h-8 w-8 text-white" />
                     </div>
                     <h2 className="text-4xl sm:text-5xl font-black">
-                        Listo para la diversion?
+                        ¿Listo para la diversión?
                     </h2>
                     <p className="text-white/70 text-lg">
-                        Reserva tu proxima visita o empieza a planificar el
-                        cumpleanos perfecto.
+                        Reserva tu próxima visita o empieza a planificar el
+                        cumpleaños perfecto.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button
@@ -610,3 +610,4 @@ export default function LandingPage() {
         </>
     );
 }
+

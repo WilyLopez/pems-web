@@ -103,7 +103,7 @@ export function ClienteFiltros({
         )}
       </div>
 
-      {/* Filtros rapidos */}
+      {/* Filtros rápidos */}
       <div className="flex items-center gap-2 flex-wrap">
         {FILTROS.map(({ key, label, icon: Icon, activeClass }) => (
           <button

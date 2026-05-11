@@ -304,12 +304,12 @@ export default function RegistroPage() {
 
           <div className="flex flex-col items-center gap-3">
             <p className="text-sm text-gray-500">
-              Ya tienes cuenta?{' '}
+              ¿Ya tienes cuenta?{' '}
               <Link
                 href="/auth/login"
                 className="font-bold text-brand-azul hover:underline"
               >
-                Inicia sesion
+                Inicia sesión
               </Link>
             </p>
             <Link
@@ -324,4 +324,4 @@ export default function RegistroPage() {
       </div>
     </div>
   )
-}
+}  

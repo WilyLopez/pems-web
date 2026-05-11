@@ -13,20 +13,20 @@ import { cn } from '@/lib/utils'
 
 const schema = z.object({
   contrasenaActual:     z.string().min(1, 'Requerido'),
-  contrasenaNueva:      z.string().min(8, 'Minimo 8 caracteres'),
+  contrasenaNueva:      z.string().min(8, 'Mínimo 8 caracteres'),
   confirmarContrasena:  z.string(),
 }).refine((d) => d.contrasenaNueva === d.confirmarContrasena, {
-  message: 'Las contrasenas no coinciden',
+  message: 'Las contraseñas no coinciden',
   path: ['confirmarContrasena'],
 })
 
 type FormValues = z.infer<typeof schema>
 
 const CHECKS = [
-  { label: 'Minimo 8 caracteres',          test: (p: string) => p.length >= 8      },
-  { label: 'Al menos una mayuscula',        test: (p: string) => /[A-Z]/.test(p)   },
-  { label: 'Al menos un numero',            test: (p: string) => /\d/.test(p)      },
-  { label: 'Al menos un caracter especial', test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+  { label: 'Mínimo 8 caracteres',          test: (p: string) => p.length >= 8      },
+  { label: 'Al menos una mayúscula',        test: (p: string) => /[A-Z]/.test(p)   },
+  { label: 'Al menos un número',            test: (p: string) => /\d/.test(p)      },
+  { label: 'Al menos un carácter especial', test: (p: string) => /[^A-Za-z0-9]/.test(p) },
 ]
 
 function PasswordInput({

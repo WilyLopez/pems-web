@@ -89,7 +89,7 @@ export function AuditoriaFiltrosPanel({ filtros, onChange, onBuscar }: Props) {
         <div className="space-y-1.5">
           <Label className="text-xs">Entidad</Label>
           <Input
-            placeholder="ej: Contrato"
+            placeholder="Ej: Contrato"
             value={filtros.entidad ?? ''}
             onChange={e => set('entidad', e.target.value || undefined)}
             className="w-32 h-9"

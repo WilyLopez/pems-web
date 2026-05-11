@@ -209,19 +209,19 @@ export default function FormularioReservaPage() {
         onSubmit={handleSubmit((v) => crear.mutate(v))}
         className="space-y-4"
       >
-        {/* Datos del nino */}
+        {/* Datos del niño */}
         <Section
           icon={<Baby className="h-4 w-4 text-brand-azul" />}
-          title="Datos del nino"
+          title="Datos del niño"
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="nombreNino" className="text-sm font-semibold">
-                Nombre completo del nino
+                Nombre completo del niño
               </Label>
               <Input
                 id="nombreNino"
-                placeholder="Ana Garcia"
+                placeholder="Ana García"
                 className="h-11 rounded-xl"
                 {...register('nombreNino')}
               />
@@ -232,7 +232,7 @@ export default function FormularioReservaPage() {
 
             <div className="space-y-2">
               <Label htmlFor="edadNino" className="text-sm font-semibold">
-                Edad del nino
+                Edad del niño
               </Label>
               <Input
                 id="edadNino"
@@ -250,10 +250,10 @@ export default function FormularioReservaPage() {
           </div>
         </Section>
 
-        {/* Datos del acompanante */}
+        {/* Datos del acompañante */}
         <Section
           icon={<User className="h-4 w-4 text-brand-azul" />}
-          title="Datos del acompanante adulto"
+          title="Datos del acompañante adulto"
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -262,7 +262,7 @@ export default function FormularioReservaPage() {
               </Label>
               <Input
                 id="nombreAcompanante"
-                placeholder="Carlos Garcia"
+                placeholder="Carlos García"
                 className="h-11 rounded-xl"
                 {...register('nombreAcompanante')}
               />
@@ -273,7 +273,7 @@ export default function FormularioReservaPage() {
 
             <div className="space-y-2">
               <Label htmlFor="dniAcompanante" className="text-sm font-semibold">
-                DNI del acompanante
+                DNI del acompañante
               </Label>
               <Input
                 id="dniAcompanante"
@@ -292,19 +292,19 @@ export default function FormularioReservaPage() {
         {/* Consentimiento */}
         <Section
           icon={<FileCheck className="h-4 w-4 text-brand-azul" />}
-          title="Consentimiento y confirmacion"
+          title="Consentimiento y confirmación"
         >
           <div className="space-y-4">
             <div className="rounded-xl bg-gray-50 border border-gray-100 p-4 text-sm text-gray-600 space-y-2">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="h-4 w-4 text-brand-azul shrink-0" />
-                <p className="font-bold text-gray-900">Terminos de uso del local</p>
+                <p className="font-bold text-gray-900">Términos de uso del local</p>
               </div>
               <ul className="space-y-1.5 list-none">
                 {[
-                  'El adulto acompanante es responsable del nino en todo momento.',
+                  'El adulto acompañante es responsable del niño en todo momento.',
                   'El local no se responsabiliza por lesiones derivadas del uso inadecuado.',
-                  'Esta prohibido el ingreso con alimentos o bebidas externas.',
+                  'Está prohibido el ingreso con alimentos o bebidas externas.',
                   'Kiki y Lala se reserva el derecho de cancelar por fuerza mayor.',
                 ].map((rule) => (
                   <li key={rule} className="flex items-start gap-2">
@@ -331,8 +331,8 @@ export default function FormularioReservaPage() {
                 htmlFor="consentimiento"
                 className="text-sm leading-relaxed cursor-pointer text-gray-700"
               >
-                He leido y acepto los terminos de uso. Confirmo que soy mayor de edad y
-                acompanare al nino durante toda la visita.
+                He leído y acepto los términos de uso. Confirmo que soy mayor de edad y
+                acompañaré al niño durante toda la visita.
               </Label>
             </div>
             {errors.firmoConsentimiento && (
@@ -346,7 +346,7 @@ export default function FormularioReservaPage() {
           <p className="text-sm text-gray-500">
             Precio:{' '}
             <span className="font-bold text-gray-900">
-              {disp?.tipoDia === 'SEMANA' ? 'S/ 25' : 'S/ 35'} por nino
+              {disp?.tipoDia === 'SEMANA' ? 'S/ 25' : 'S/ 35'} por niño
             </span>
           </p>
           <Button
