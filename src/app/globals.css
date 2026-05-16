@@ -1,0 +1,163 @@
+/* app/globals.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Paleta de marca Kiki y Lala ── */
+    --brand-rosa: #f64b8a;
+    --brand-azul: #00aeef;
+    --brand-amarillo: #ffd84d;
+    --brand-menta: #6ee7b7;
+
+    /* ── Tokens shadcn (hsl para compatibilidad con Tailwind) ── */
+    --background: 0 0% 100%;
+    --foreground: 222 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 20% 15%;
+
+    /* Primario → azul turquesa #00AEEF */
+    --primary: 197 100% 47%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secundario → rosa #F64B8A */
+    --secondary: 335 91% 64%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 197 100% 95%;
+    --accent-foreground: 197 100% 28%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 20% 91%;
+    --input: 214 20% 91%;
+    --ring: 197 100% 47%;
+    --radius: 0.625rem;
+
+    /* ── Sidebar tokens (panel admin) ── */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 222 20% 15%;
+    --sidebar-border: 214 20% 91%;
+    --sidebar-accent: 197 100% 97%;
+    --sidebar-accent-foreground: 197 100% 30%;
+    --sidebar-primary: 197 100% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-ring: 197 100% 47%;
+  }
+
+  .dark {
+    --background: 222 20% 9%;
+    --foreground: 210 20% 95%;
+    --card: 222 20% 12%;
+    --card-foreground: 210 20% 95%;
+    --popover: 222 20% 12%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 197 100% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 335 91% 60%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 217 20% 18%;
+    --muted-foreground: 215 20% 60%;
+    --accent: 217 20% 18%;
+    --accent-foreground: 210 20% 95%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 20% 18%;
+    --input: 217 20% 18%;
+    --ring: 197 100% 55%;
+    --sidebar: 222 20% 11%;
+    --sidebar-foreground: 210 20% 95%;
+    --sidebar-border: 217 20% 18%;
+    --sidebar-accent: 217 20% 16%;
+    --sidebar-accent-foreground: 197 100% 70%;
+    --sidebar-primary: 197 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-ring: 197 100% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+/* ── Utilidades de marca ── */
+@layer utilities {
+  /* Gradientes */
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, #00aeef 0%, #f64b8a 100%);
+  }
+  .bg-brand-gradient-soft {
+    background: linear-gradient(135deg, #e0f7ff 0%, #ffe0f0 100%);
+  }
+  .bg-brand-gradient-dark {
+    background: linear-gradient(135deg, #001a2c 0%, #003a5c 50%, #001a2c 100%);
+  }
+
+  /* Texto */
+  .text-brand-rosa {
+    color: #f64b8a;
+  }
+  .text-brand-azul {
+    color: #00aeef;
+  }
+  .text-brand-amarillo {
+    color: #ffd84d;
+  }
+  .text-brand-menta {
+    color: #6ee7b7;
+  }
+
+  /* Fondos */
+  .bg-brand-rosa {
+    background-color: #f64b8a;
+  }
+  .bg-brand-azul {
+    background-color: #00aeef;
+  }
+  .bg-brand-amarillo {
+    background-color: #ffd84d;
+  }
+  .bg-brand-menta {
+    background-color: #6ee7b7;
+  }
+
+  /* Bordes */
+  .border-brand-rosa {
+    border-color: #f64b8a;
+  }
+  .border-brand-azul {
+    border-color: #00aeef;
+  }
+
+  /* Scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #00aeef transparent;
+  }
+
+  /* Glassmorphism — navbar admin */
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}

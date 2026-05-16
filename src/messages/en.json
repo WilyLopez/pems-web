@@ -1,0 +1,80 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "confirm": "Confirm",
+    "back": "Back",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "actions": "Actions",
+    "yes": "Yes",
+    "no": "No",
+    "active": "Active",
+    "inactive": "Inactive",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "auth": {
+    "login": "Sign in",
+    "logout": "Sign out",
+    "register": "Register",
+    "email": "Email address",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account?",
+    "alreadyAccount": "Already have an account?",
+    "invalidCredentials": "Invalid credentials"
+  },
+  "nav": {
+    "home": "Home",
+    "events": "Events",
+    "reserve": "Book now",
+    "promotions": "Promotions",
+    "about": "About us",
+    "faq": "FAQ",
+    "contact": "Contact"
+  },
+  "reservations": {
+    "title": "My Reservations",
+    "new": "New reservation",
+    "status": {
+      "pendiente": "Pending",
+      "confirmada": "Confirmed",
+      "cancelada": "Cancelled",
+      "reprogramada": "Rescheduled"
+    }
+  },
+  "events": {
+    "title": "Events",
+    "private": "Private event",
+    "public": "Public event"
+  },
+  "cms": {
+    "banners": "Banners",
+    "gallery": "Gallery",
+    "faq": "FAQ",
+    "reviews": "Reviews",
+    "legal": "Legal content",
+    "settings": "Public settings"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "clients": "Clients",
+    "inventory": "Inventory",
+    "sales": "Sales",
+    "payments": "Payments",
+    "contracts": "Contracts",
+    "suppliers": "Suppliers",
+    "users": "Users",
+    "audit": "Audit logs",
+    "settings": "Settings"
+  }
+}
