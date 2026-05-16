@@ -7,11 +7,15 @@ export default withAuth(
     const pathname = req.nextUrl.pathname
 
     if (pathname.startsWith('/admin') && token?.rol !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/auth/login?error=unauthorized', req.url))
+      return NextResponse.redirect(
+        new URL('/auth/login?error=unauthorized', req.url)
+      )
     }
 
     if (pathname.startsWith('/cliente') && token?.rol !== 'CLIENTE') {
-      return NextResponse.redirect(new URL('/auth/login?error=unauthorized', req.url))
+      return NextResponse.redirect(
+        new URL('/auth/login?error=unauthorized', req.url)
+      )
     }
 
     return NextResponse.next()
