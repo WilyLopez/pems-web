@@ -11,51 +11,29 @@ import {
   Instagram,
   Facebook,
   MessageCircle,
-  ChevronDown,
   Users,
   Award,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { faqService } from '@/services/faq.service'
+import { FaqAccordion } from '@/components/public/faq/FaqAccordion'
+
+export const revalidate = 300
 
 export const metadata: Metadata = { title: 'Nosotros | Kiki y Lala' }
 
-const faqs = [
-  {
-    q: 'Cual es la edad minima para ingresar?',
-    a: 'Recibimos ninos desde 1 ano hasta 12 anos. Los bebes menores de 1 ano ingresan gratis acompanados de un adulto.',
-  },
-  {
-    q: 'Los adultos pagan entrada?',
-    a: 'Los adultos acompanantes ingresan sin costo adicional. Solo se cobran entradas a los ninos.',
-  },
-  {
-    q: 'Necesito reservar con anticipacion?',
-    a: 'Para visitas regulares no es obligatorio, pero recomendamos comprar en linea para garantizar tu turno, especialmente los fines de semana.',
-  },
-  {
-    q: 'Se puede llevar comida al local?',
-    a: 'No se permite ingresar con alimentos externos. Contamos con cafeteria propia con opciones para ninos y adultos.',
-  },
-  {
-    q: 'Como funciona el proceso de reserva de eventos privados?',
-    a: 'Selecciona tu paquete, elige fecha y turno, y confirma con un adelanto del 30%. El saldo se paga el dia del evento.',
-  },
-  {
-    q: 'Que pasa si necesito cancelar mi reserva?',
-    a: 'Puedes reprogramar sin costo con al menos 48 horas de anticipacion. Cancelaciones dentro de las 24 horas tienen penalidad del 20%.',
-  },
-  {
-    q: 'Tienen estacionamiento?',
-    a: 'Contamos con estacionamiento gratuito para clientes con capacidad para 30 vehiculos.',
-  },
-  {
-    q: 'Que medios de pago aceptan?',
-    a: 'Aceptamos Visa, Mastercard, Yape, Plin y efectivo. Tambien disponible Mercado Pago y Culqi.',
-  },
-]
+async function getFaqs() {
+  try {
+    return await faqService.listarPublico()
+  } catch {
+    return []
+  }
+}
 
-export default function NosotrosPage() {
+export default async function NosotrosPage() {
+  const faqs = await getFaqs()
+
   return (
     <>
       {/* Hero */}
@@ -73,7 +51,7 @@ export default function NosotrosPage() {
             <span className="text-brand-rosa">Lala</span>
           </h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto">
-            Mas de 6 anos creando sonrisas, aventuras y recuerdos inolvidables
+            Más de 6 años creando sonrisas, aventuras y recuerdos inolvidables
             para las familias de Chiclayo.
           </p>
         </div>
@@ -88,24 +66,24 @@ export default function NosotrosPage() {
                 Nuestra historia
               </Badge>
               <h2 className="text-4xl font-black text-gray-900">
-                Nacimos de un sueno familiar
+                Nacimos de un sueño familiar
               </h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  Kiki y Lala nacio en 2018 con una mision clara: crear un
-                  espacio donde los ninos pudieran ser completamente libres de
-                  jugar, reir y descubrir el mundo de una manera segura y
+                  Kiki y Lala nació en 2018 con una misión clara: crear un
+                  espacio donde los niños pudieran ser completamente libres de
+                  jugar, reír y descubrir el mundo de una manera segura y
                   divertida.
                 </p>
                 <p>
-                  Lo que comenzo como un pequeno local con 5 atracciones, hoy es
-                  uno de los centros de entretenimiento infantil mas queridos de
-                  Chiclayo, con mas de 15 zonas de juego y cientos de eventos
+                  Lo que comenzó como un pequeño local con 5 atracciones, hoy es
+                  uno de los centros de entretenimiento infantil más queridos de
+                  Chiclayo, con más de 15 zonas de juego y cientos de eventos
                   realizados.
                 </p>
                 <p>
                   Nuestros personajes Kiki y Lala representan la amistad, la
-                  diversion y la magia de la infancia.
+                  diversión y la magia de la infancia.
                 </p>
               </div>
             </div>
@@ -127,13 +105,13 @@ export default function NosotrosPage() {
                 {
                   icon: Star,
                   n: '6+',
-                  label: 'Anos de experiencia',
+                  label: 'Años de experiencia',
                   bg: 'bg-brand-amarillo/15',
                 },
                 {
                   icon: Heart,
                   n: '4.9',
-                  label: 'Calificacion promedio',
+                  label: 'Calificación promedio',
                   bg: 'bg-brand-menta/20',
                 },
               ].map(({ icon: Icon, n, label, bg }) => (
@@ -164,21 +142,21 @@ export default function NosotrosPage() {
               {
                 icon: Shield,
                 titulo: 'Seguridad primero',
-                desc: 'Todas nuestras instalaciones cumplen estrictos estandares de seguridad. Revision diaria de equipos y supervision constante del personal.',
+                desc: 'Todas nuestras instalaciones cumplen estrictos estándares de seguridad. Revisión diaria de equipos y supervisión constante del personal.',
                 iconColor: 'text-brand-azul',
                 iconBg: 'bg-brand-azul/10',
               },
               {
                 icon: Heart,
-                titulo: 'Amor por los ninos',
-                desc: 'Cada detalle del local esta pensado para que los ninos se sientan felices, libres y especiales. Su sonrisa es nuestra mayor recompensa.',
+                titulo: 'Amor por los niños',
+                desc: 'Cada detalle del local está pensado para que los niños se sientan felices, libres y especiales. Su sonrisa es nuestra mayor recompensa.',
                 iconColor: 'text-brand-rosa',
                 iconBg: 'bg-brand-rosa/10',
               },
               {
                 icon: Star,
                 titulo: 'Excelencia en servicio',
-                desc: 'Nos comprometemos a superar las expectativas en cada visita. Personal capacitado, instalaciones limpias y atencion personalizada.',
+                desc: 'Nos comprometemos a superar las expectativas en cada visita. Personal capacitado, instalaciones limpias y atención personalizada.',
                 iconColor: 'text-yellow-600',
                 iconBg: 'bg-brand-amarillo/15',
               },
@@ -211,22 +189,13 @@ export default function NosotrosPage() {
               Todo lo que necesitas saber antes de visitarnos
             </p>
           </div>
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <details
-                key={i}
-                className="group bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden"
-              >
-                <summary className="flex items-center justify-between p-5 cursor-pointer font-semibold text-gray-900 hover:text-brand-azul transition-colors list-none">
-                  <span>{faq.q}</span>
-                  <ChevronDown className="h-5 w-5 text-gray-400 group-open:rotate-180 transition-transform shrink-0 ml-3" />
-                </summary>
-                <div className="px-5 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-3">
-                  {faq.a}
-                </div>
-              </details>
-            ))}
-          </div>
+          {faqs.length > 0 ? (
+            <FaqAccordion faqs={faqs} showSearch={false} />
+          ) : (
+            <p className="text-center text-gray-500">
+              No hay preguntas frecuentes disponibles.
+            </p>
+          )}
         </div>
       </section>
 
@@ -235,15 +204,15 @@ export default function NosotrosPage() {
         <div className="container max-w-5xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12">
             <div className="space-y-6">
-              <h2 className="text-3xl font-black">Donde estamos?</h2>
+              <h2 className="text-3xl font-black">¿Dónde estamos?</h2>
               <div className="space-y-4">
                 {[
                   {
                     icon: MapPin,
                     iconBg: 'bg-brand-azul/20',
                     iconColor: 'text-brand-azul',
-                    label: 'Direccion',
-                    content: 'Av. Principal 123, Chiclayo, Peru',
+                    label: 'Dirección',
+                    content: 'Av. Principal 123, Chiclayo, Perú',
                   },
                   {
                     icon: Clock,

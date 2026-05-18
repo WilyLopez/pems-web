@@ -35,6 +35,7 @@ export interface EventoPrivado {
   precioTotalContrato?: number
   montoAdelanto?: number
   montoSaldo?: number
+  observaciones?: string
   notasInternas?: string
   usuarioGestor?: string
   estadoOperativo?: string

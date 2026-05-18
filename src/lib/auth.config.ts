@@ -93,5 +93,5 @@ export const authOptions: NextAuthOptions = {
     error: '/auth/login',
   },
   session: { strategy: 'jwt', maxAge: 60 * 60 * 8 },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || 'secret-fallback-123456',
 }

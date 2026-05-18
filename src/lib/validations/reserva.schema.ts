@@ -9,7 +9,7 @@ export const crearReservaSchema = z.object({
   nombreAcompanante: z.string().min(2).max(120),
   dniAcompanante: z.string().length(8, 'DNI debe tener 8 dígitos'),
   firmoConsentimiento: z.literal(true, {
-    errorMap: () => ({ message: 'Debes aceptar el consentimiento' }),
+    message: 'Debes aceptar el consentimiento',
   }),
   idPromocionManual: z.number().optional(),
 })
