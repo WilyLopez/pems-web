@@ -21,8 +21,8 @@ import {
   Award,
   Camera,
 } from 'lucide-react'
-import { HeroBanner } from '@/components/admin/cms/HeroBanner'
-import { PromocionesDestacadas } from '@/components/admin/cms/PromocionesDestacadas'
+import { HeroBanner } from '@/components/cms/HeroBanner'
+import { PromocionesDestacadas } from '@/components/cms/PromocionesDestacadas'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 
@@ -121,19 +121,19 @@ export default function LandingPage() {
             <div className="space-y-8 text-white">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm font-semibold text-brand-amarillo">
                 <Zap className="h-4 w-4" />
-                El local mas divertido de Chiclayo
+                El local más divertido de Chiclayo
               </div>
 
               <div className="space-y-4">
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-none">
-                  <span className="text-white">Diversion</span>
+                  <span className="text-white">Diversión</span>
                   <br />
-                  <span className="text-brand-azul">sin limites</span>
+                  <span className="text-brand-azul">sin límites</span>
                 </h1>
                 <p className="text-lg text-white/70 max-w-lg leading-relaxed">
-                  El espacio donde los ninos son los protagonistas. Juegos,
-                  eventos privados y momentos que jamas olvidaran, en un
-                  ambiente seguro y lleno de alegria.
+                  El espacio donde los niños son los protagonistas. Juegos,
+                  eventos privados y momentos que jamás olvidarán, en un
+                  ambiente seguro y lleno de alegría.
                 </p>
               </div>
 
@@ -173,14 +173,14 @@ export default function LandingPage() {
                   <div className="text-3xl font-black text-brand-azul">4.9</div>
                   <div className="text-xs text-white/60 flex items-center gap-1">
                     <Star className="h-3 w-3 fill-brand-amarillo text-brand-amarillo" />
-                    Calificacion
+                    Calificación
                   </div>
                 </div>
                 <div className="w-px h-10 bg-white/20" />
                 <div className="text-center">
                   <div className="text-3xl font-black text-brand-menta">6+</div>
                   <div className="text-xs text-white/60">
-                    Anos de experiencia
+                    Años de experiencia
                   </div>
                 </div>
               </div>
@@ -232,13 +232,13 @@ export default function LandingPage() {
               {
                 icon: Music,
                 titulo: 'Show de Personajes',
-                desc: 'Todos los sabados y domingos a las 3pm y 6pm',
+                desc: 'Todos los sábados y domingos a las 3pm y 6pm',
                 badge: 'Gratis',
                 color: 'bg-brand-azul/5 border-brand-azul/20',
               },
               {
                 icon: Star,
-                titulo: 'Semana Tematica',
+                titulo: 'Semana Temática',
                 desc: 'Actividades especiales cada semana con sorpresas',
                 badge: 'Esta semana',
                 color: 'bg-brand-rosa/5 border-brand-rosa/20',
@@ -246,8 +246,8 @@ export default function LandingPage() {
               {
                 icon: Award,
                 titulo: 'Torneo de Juegos',
-                desc: 'Compite con otros ninos y gana premios increibles',
-                badge: 'Proximo',
+                desc: 'Compite con otros niños y gana premios increíbles',
+                badge: 'Próximo',
                 color: 'bg-brand-amarillo/10 border-brand-amarillo/30',
               },
             ].map(({ icon: Icon, titulo, desc, badge, color }) => (
@@ -277,11 +277,11 @@ export default function LandingPage() {
               Zona de Juegos
             </Badge>
             <h2 className="text-4xl font-black text-gray-900 mb-3">
-              Horas de diversion garantizada
+              Horas de diversión garantizada
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Mas de 15 atracciones disenadas para ninos de 1 a 12 anos, con
-              supervision constante y medidas de seguridad en cada rincon.
+              Más de 15 atracciones diseñadas para niños de 1 a 12 años, con
+              supervisión constante y medidas de seguridad en cada rincón.
             </p>
           </div>
 
@@ -324,19 +324,19 @@ export default function LandingPage() {
                 Eventos Privados
               </Badge>
               <h2 className="text-4xl font-black text-gray-900 leading-tight">
-                El cumpleanos de tu hijo merece ser{' '}
+                El cumpleaños de tu hijo merece ser{' '}
                 <span className="text-brand-rosa">inolvidable</span>
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                Organizamos eventos privados exclusivos con decoracion
-                personalizada, animacion, catering y todo lo que necesitas para
+                Organizamos eventos privados exclusivos con decoración
+                personalizada, animación, catering y todo lo que necesitas para
                 crear recuerdos que duran para siempre.
               </p>
               <ul className="space-y-3">
                 {[
                   'Hasta 60 invitados',
-                  'Decoracion personalizada',
-                  'Animacion y shows',
+                  'Decoración personalizada',
+                  'Animación y shows',
                   'Catering incluido',
                   'Coordinador dedicado',
                 ].map((item) => (
@@ -454,21 +454,21 @@ export default function LandingPage() {
               La seguridad de tus hijos, nuestra prioridad
             </h2>
             <p className="text-white/80">
-              Cada rincon de Kiki y Lala esta disenado pensando en el bienestar
-              de los ninos
+              Cada rincón de Kiki y Lala está diseñado pensando en el bienestar
+              de los niños
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: Shield,
-                titulo: 'Supervision constante',
+                titulo: 'Supervisión constante',
                 desc: 'Personal capacitado en cada zona',
               },
               {
                 icon: Heart,
                 titulo: 'Higiene garantizada',
-                desc: 'Desinfeccion despues de cada turno',
+                desc: 'Desinfección después de cada turno',
               },
               {
                 icon: Users,
@@ -478,7 +478,7 @@ export default function LandingPage() {
               {
                 icon: Zap,
                 titulo: 'Equipos seguros',
-                desc: 'Revision diaria de instalaciones',
+                desc: 'Revisión diaria de instalaciones',
               },
             ].map(({ icon: Icon, titulo, desc }) => (
               <div

@@ -42,7 +42,7 @@ import { Separator } from '@/components/ui/Separator'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-const DAYS_LABELS = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab']
+const DAYS_LABELS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const SEDE_ID = 1
 
 interface DayCellProps {

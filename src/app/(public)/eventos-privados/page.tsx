@@ -45,17 +45,17 @@ const solicitudSchema = z.object({
 type SolicitudFormValues = z.infer<typeof solicitudSchema>
 
 const TURNOS = [
-  { id: '1', label: 'Turno manana', horario: '10:00 - 14:00' },
+  { id: '1', label: 'Turno mañana', horario: '10:00 - 14:00' },
   { id: '2', label: 'Turno tarde', horario: '16:00 - 20:00' },
 ]
 
 const BENEFICIOS = [
   { icon: Users, text: 'Uso exclusivo de todo el local' },
-  { icon: PartyPopper, text: 'Decoracion personalizada incluida' },
+  { icon: PartyPopper, text: 'Decoración personalizada incluida' },
   { icon: CheckCircle, text: 'Coordinador de eventos dedicado' },
   { icon: Users, text: 'Hasta 60 invitados' },
   { icon: Ticket, text: 'Contrato y ticket digital' },
-  { icon: CheckCircle, text: 'Facturacion electronica' },
+  { icon: CheckCircle, text: 'Facturación electrónica' },
 ]
 
 function SuccessView({ evento }: { evento: EventoPrivado }) {
@@ -145,7 +145,7 @@ export default function EventosPrivadosPage() {
 
   const solicitar = useMutation({
     mutationFn: (values: SolicitudFormValues) => {
-      if (!session) throw new Error('Debes iniciar sesion')
+      if (!session) throw new Error('Debes iniciar sesión')
       return eventoService.solicitar(parseInt(session.user.id), 1, {
         idTurno: parseInt(values.idTurno),
         fechaEvento: values.fechaEvento,
@@ -192,7 +192,7 @@ export default function EventosPrivadosPage() {
             Solicita tu evento privado
           </h1>
           <p className="text-gray-500 max-w-xl">
-            Completa el formulario y nuestro equipo se comunicara contigo en
+            Completa el formulario y nuestro equipo se comunicará contigo en
             menos de 24 horas para confirmar todos los detalles.
           </p>
         </div>
@@ -203,7 +203,7 @@ export default function EventosPrivadosPage() {
         <div className="lg:col-span-2 space-y-4">
           <Card className="border border-gray-100 shadow-card rounded-2xl">
             <CardContent className="p-6 space-y-4">
-              <h2 className="font-bold text-gray-900">Que incluye?</h2>
+              <h2 className="font-bold text-gray-900">¿Qué incluye?</h2>
               <ul className="space-y-3">
                 {BENEFICIOS.map(({ icon: Icon, text }) => (
                   <li key={text} className="flex items-center gap-3 text-sm">
@@ -336,7 +336,7 @@ export default function EventosPrivadosPage() {
                 </Label>
                 <Input
                   id="tipoEvento"
-                  placeholder="Ej: Cumpleanos de 5 anos, Baby shower..."
+                  placeholder="Ej: Cumpleaños de 5 años, Baby shower..."
                   className="h-11 rounded-xl"
                   {...register('tipoEvento')}
                 />
@@ -353,7 +353,7 @@ export default function EventosPrivadosPage() {
                   htmlFor="aforoDeclarado"
                   className="text-sm font-semibold"
                 >
-                  Numero de invitados{' '}
+                  Número de invitados{' '}
                   <span className="text-gray-400 font-normal">
                     (aproximado)
                   </span>
@@ -378,7 +378,7 @@ export default function EventosPrivadosPage() {
                   htmlFor="contactoAdicional"
                   className="text-sm font-semibold"
                 >
-                  Telefono adicional{' '}
+                  Teléfono adicional{' '}
                   <span className="text-gray-400 font-normal">(opcional)</span>
                 </Label>
                 <div className="relative">
@@ -413,12 +413,12 @@ export default function EventosPrivadosPage() {
 
               {!session && (
                 <p className="text-xs text-center text-gray-400">
-                  Necesitaras{' '}
+                  Necesitarás{' '}
                   <Link
                     href="/auth/login"
                     className="underline text-brand-azul font-semibold"
                   >
-                    iniciar sesion
+                    iniciar sesión
                   </Link>{' '}
                   para enviar la solicitud
                 </p>

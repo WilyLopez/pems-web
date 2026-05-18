@@ -74,7 +74,7 @@ function SuccessView({ reserva }: { reserva: Reserva }) {
         </CardHeader>
         <CardContent className="space-y-2.5 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">Numero de ticket</span>
+            <span className="text-gray-500">Número de ticket</span>
             <span className="font-mono font-black text-gray-900">
               {reserva.numeroTicket}
             </span>

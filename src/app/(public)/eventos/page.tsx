@@ -25,8 +25,8 @@ export const metadata: Metadata = { title: 'Eventos Privados | Kiki y Lala' }
 const tiposEventos = [
   {
     icon: Cake,
-    nombre: 'Cumpleanos infantiles',
-    desc: 'El clasico que nunca falla. Personaliza cada detalle.',
+    nombre: 'Cumpleaños infantiles',
+    desc: 'El clásico que nunca falla. Personaliza cada detalle.',
   },
   {
     icon: Baby,
@@ -35,18 +35,18 @@ const tiposEventos = [
   },
   {
     icon: GraduationCap,
-    nombre: 'Fin de ano escolar',
-    desc: 'Premia a los ninos con una fiesta increible.',
+    nombre: 'Fin de año escolar',
+    desc: 'Premia a los niños con una fiesta increíble.',
   },
   {
     icon: Star,
-    nombre: 'Eventos tematicos',
-    desc: 'Superheroes, princesas, dinosaurios y mas.',
+    nombre: 'Eventos temáticos',
+    desc: 'Superhéroes, princesas, dinosaurios y más.',
   },
   {
     icon: Building2,
     nombre: 'Salidas escolares',
-    desc: 'Grupos de hasta 60 ninos con actividades dirigidas.',
+    desc: 'Grupos de hasta 60 niños con actividades dirigidas.',
   },
   {
     icon: CalendarDays,
@@ -58,19 +58,19 @@ const tiposEventos = [
 const paquetes = [
   {
     id: 'basico',
-    nombre: 'Paquete Basico',
+    nombre: 'Paquete Básico',
     icon: PartyPopper,
     precio: 350,
     duracion: '2 horas',
-    capacidad: '15 ninos',
+    capacidad: '15 niños',
     colorBorder: 'border-brand-azul/30',
     colorHeader: 'bg-brand-azul/10',
     badge: null,
     incluye: [
-      'Uso exclusivo del area de juegos',
-      'Decoracion basica de cumpleanos',
+      'Uso exclusivo del área de juegos',
+      'Decoración básica de cumpleaños',
       'Mesa de dulces y snacks',
-      'Musica y ambiente festivo',
+      'Música y ambiente festivo',
       'Coordinador de evento',
     ],
     extras: ['Torta personalizada +S/80', 'Pinata +S/40'],
@@ -81,16 +81,16 @@ const paquetes = [
     icon: Star,
     precio: 650,
     duracion: '3 horas',
-    capacidad: '30 ninos',
+    capacidad: '30 niños',
     colorBorder: 'border-brand-rosa/40',
     colorHeader: 'bg-gradient-to-br from-brand-rosa/15 to-brand-amarillo/10',
-    badge: 'Mas popular',
+    badge: 'Más popular',
     incluye: [
       'Uso exclusivo de todo el local',
-      'Decoracion tematica a eleccion',
+      'Decoración temática a elección',
       'Torta de 2 pisos incluida',
-      'Catering para ninos y adultos',
-      'Animacion y juegos dirigidos',
+      'Catering para niños y adultos',
+      'Animación y juegos dirigidos',
       'Recuerdos para los invitados',
       'Coordinador + asistente',
     ],
@@ -102,18 +102,18 @@ const paquetes = [
     icon: Palette,
     precio: 1100,
     duracion: '4 horas',
-    capacidad: '50 ninos',
+    capacidad: '50 niños',
     colorBorder: 'border-brand-amarillo/40',
     colorHeader: 'bg-gradient-to-br from-brand-amarillo/15 to-brand-menta/10',
     badge: 'Todo incluido',
     incluye: [
       'Uso exclusivo total del local',
-      'Decoracion premium personalizada',
-      'Torta tematica 3 pisos',
+      'Decoración premium personalizada',
+      'Torta temática 3 pisos',
       'Catering completo buffet',
-      'DJ + animacion profesional',
+      'DJ + animación profesional',
       'Show de personajes (1 hora)',
-      'Cobertura fotografica y video',
+      'Cobertura fotográfica y video',
       'Recuerdos premium para invitados',
       '2 coordinadores dedicados',
     ],
@@ -132,12 +132,12 @@ export default function EventosPage() {
             Eventos Privados
           </Badge>
           <h1 className="text-5xl font-black text-gray-900 max-w-3xl mx-auto leading-tight">
-            Celebraciones magicas en{' '}
+            Celebraciones mágicas en{' '}
             <span className="text-brand-rosa">Kiki y Lala</span>
           </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Organizamos cada detalle para que tu solo tengas que disfrutar.
-            Desde cumpleanos hasta eventos tematicos.
+            Organizamos cada detalle para que tú solo tengas que disfrutar.
+            Desde cumpleaños hasta eventos temáticos.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
@@ -174,7 +174,7 @@ export default function EventosPage() {
         <div className="container max-w-6xl mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-black text-gray-900">
-              Que tipo de evento quieres celebrar?
+              ¿Qué tipo de evento quieres celebrar?
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -204,7 +204,7 @@ export default function EventosPage() {
               Elige tu paquete
             </h2>
             <p className="text-gray-600">
-              Todos incluyen coordinacion completa y acceso exclusivo al local
+              Todos incluyen coordinación completa y acceso exclusivo al local
             </p>
           </div>
 
@@ -319,7 +319,7 @@ export default function EventosPage() {
       <section className="py-16 bg-white">
         <div className="container max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-black text-gray-900 mb-10">
-            Como reservar tu evento?
+            ¿Cómo reservar tu evento?
           </h2>
           <div className="grid gap-6 sm:grid-cols-4">
             {[

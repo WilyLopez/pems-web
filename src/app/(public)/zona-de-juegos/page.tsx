@@ -29,7 +29,7 @@ const precios = [
     badge: 'Tarifa regular',
     badgeClass: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20',
     borderClass: 'border-brand-azul/30 bg-brand-azul/5',
-    desc: 'Acceso a todas las zonas de juego por sesion de 90 minutos',
+    desc: 'Acceso a todas las zonas de juego por sesión de 90 minutos',
   },
   {
     tipo: 'Fin de Semana',
@@ -44,10 +44,10 @@ const precios = [
     tipo: 'Pack Familiar',
     icon: Users,
     precio: 'S/ 90',
-    badge: '3 ninos + 1 gratis',
+    badge: '3 niños + 1 gratis',
     badgeClass: 'bg-brand-amarillo/20 text-yellow-700 border-brand-amarillo/30',
     borderClass: 'border-brand-amarillo/40 bg-brand-amarillo/5',
-    desc: '4 entradas (3 ninos + 1 adicional gratis). Valido todos los dias',
+    desc: '4 entradas (3 niños + 1 adicional gratis). Válido todos los días',
   },
 ]
 
@@ -55,31 +55,31 @@ const zonas = [
   {
     icon: Zap,
     nombre: 'Escalada',
-    edad: '3 a 12 anos',
+    edad: '3 a 12 años',
     colorClass: 'bg-blue-50 border-blue-200',
   },
   {
     icon: Music,
     nombre: 'Carrusel',
-    edad: '1 a 6 anos',
+    edad: '1 a 6 años',
     colorClass: 'bg-pink-50 border-pink-200',
   },
   {
     icon: Baby,
     nombre: 'Piscina de pelotas',
-    edad: '1 a 5 anos',
+    edad: '1 a 5 años',
     colorClass: 'bg-purple-50 border-purple-200',
   },
   {
     icon: Gamepad2,
     nombre: 'Arcade',
-    edad: '5 a 12 anos',
+    edad: '5 a 12 años',
     colorClass: 'bg-yellow-50 border-yellow-200',
   },
   {
     icon: Palette,
     nombre: 'Arte',
-    edad: '3 a 10 anos',
+    edad: '3 a 10 años',
     colorClass: 'bg-green-50 border-green-200',
   },
   {
@@ -97,7 +97,7 @@ const horarios = [
     turnos: ['10:00 am', '12:30 pm', '3:00 pm', '5:30 pm'],
   },
   {
-    dia: 'Sabado',
+    dia: 'Sábado',
     horario: '9:00 am - 9:00 pm',
     turnos: ['9:00 am', '11:30 am', '2:00 pm', '4:30 pm', '7:00 pm'],
   },
@@ -109,7 +109,7 @@ const horarios = [
 ]
 
 const reglas = [
-  'Ninos de 1 a 12 anos',
+  'Niños de 1 a 12 años',
   'Calcetines obligatorios para todos',
   'Prohibido ingresar con comida externa',
   'Adultos deben permanecer en el local',
@@ -188,7 +188,7 @@ export default function ZonaDeJuegosPage() {
                     <span className="text-5xl font-black text-brand-azul">
                       {precio}
                     </span>
-                    <span className="text-gray-400 mb-1 text-sm">/ nino</span>
+                    <span className="text-gray-400 mb-1 text-sm">/ niño</span>
                   </div>
                   <p className="text-sm text-gray-600">{desc}</p>
                   <Button
@@ -224,7 +224,7 @@ export default function ZonaDeJuegosPage() {
               Nuestras zonas de juego
             </h2>
             <p className="text-gray-600 mt-1">
-              Cada zona tiene personal de supervision y equipamiento certificado
+              Cada zona tiene personal de supervisión y equipamiento certificado
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
