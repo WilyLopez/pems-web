@@ -352,13 +352,9 @@ export function AdminNavbar() {
         <Menu className="h-5 w-5 text-gray-600" />
       </Button>
 
-      {/* Buscador */}
-      <div className="flex-1 flex justify-center lg:justify-end lg:flex-none">
-        <GlobalSearch />
-      </div>
-
       {/* Acciones derecha */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 ml-auto flex-1 justify-end">
+        <GlobalSearch />
         <NotificacionesMenu />
 
         <Separator orientation="vertical" className="h-6 mx-1" />
