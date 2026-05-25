@@ -4,7 +4,7 @@ import { Tag, Calendar, ArrowRight, Ticket, Clock, Zap } from 'lucide-react'
 import { promocionService, Promocion } from '@/services/promocion.service'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -306,8 +306,8 @@ export default async function PromocionesPublicaPage() {
               variant="outline"
               className="rounded-full border-[#00AEEF] text-[#00AEEF] hover:bg-[#00AEEF]/5 gap-2"
             >
-              <Link href="/eventos">
-                Ver eventos privados <ArrowRight className="h-4 w-4" />
+              <Link href="/celebraciones">
+                Ver celebraciones <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>

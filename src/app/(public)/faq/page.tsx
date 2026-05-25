@@ -23,8 +23,23 @@ async function getFaqs() {
   }
 }
 
+async function getWhatsApp(): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/cms/configuracion/publica`,
+      { next: { revalidate: 300 } }
+    )
+    if (!res.ok) return null
+    const json = await res.json()
+    const numero = (json.data?.whatsapp as string | undefined)?.replace(/\D/g, '')
+    return numero ? `https://wa.me/${numero}` : null
+  } catch {
+    return null
+  }
+}
+
 export default async function FaqPage() {
-  const faqs = await getFaqs()
+  const [faqs, whatsappUrl] = await Promise.all([getFaqs(), getWhatsApp()])
 
   return (
     <section className="py-16 px-4">
@@ -59,14 +74,16 @@ export default async function FaqPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Escríbenos y te responderemos a la brevedad.
           </p>
-          <a
-            href="https://wa.me/51999999999"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors"
-          >
-            Contactar por WhatsApp
-          </a>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors"
+            >
+              Contactar por WhatsApp
+            </a>
+          )}
         </div>
       </div>
     </section>

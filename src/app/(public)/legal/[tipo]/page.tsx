@@ -1,7 +1,9 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { FileText, Clock, Hash } from 'lucide-react'
+import { FileText, Clock, Hash, Pencil } from 'lucide-react'
 import Link from 'next/link'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth.config'
 import { legalService } from '@/services/legal.service'
 import { buildMetadata } from '@/lib/seo'
 import { TipoLegal, TIPO_LEGAL_LABELS, SLUG_TO_TIPO } from '@/types/legal.types'
@@ -38,14 +40,14 @@ export default async function LegalPublicPage({ params }: Props) {
 
   if (!tipo) notFound()
 
-  let doc = null
-  try {
-    doc = await legalService.obtenerPublico(tipo)
-  } catch {
-    notFound()
-  }
+  const [doc, session] = await Promise.all([
+    legalService.obtenerPublico(tipo).catch(() => null),
+    getServerSession(authOptions),
+  ])
 
   if (!doc) notFound()
+
+  const esAdmin = session?.user?.rol === 'ADMIN'
 
   return (
     <section className="py-12 px-4">
@@ -75,10 +77,19 @@ export default async function LegalPublicPage({ params }: Props) {
 
         {/* Header del documento */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-azul/10 flex items-center justify-center">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-brand-azul/10 flex items-center justify-center shrink-0">
               <FileText className="h-5 w-5 text-brand-azul" />
             </div>
+            {esAdmin && (
+              <Link
+                href="/admin/cms/legal"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-azul/30 bg-brand-azul/5 px-3 py-1.5 text-xs font-medium text-brand-azul hover:bg-brand-azul/10 transition-colors"
+              >
+                <Pencil className="h-3 w-3" />
+                Editar documento
+              </Link>
+            )}
           </div>
           <h1 className="text-2xl font-black text-gray-900">{doc.titulo}</h1>
           <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
