@@ -20,7 +20,7 @@ export function useAuditoria(filtros: AuditoriaFiltros, page: number) {
             accion: filtros.accion || undefined,
             entidad: filtros.entidad || undefined,
             pagina: page,
-            tamano: 20,
+            tamaño: 20,
           },
         }
       )

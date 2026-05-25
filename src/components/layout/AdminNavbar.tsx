@@ -174,7 +174,7 @@ const NOTIFICACIONES = [
   {
     id: 3,
     tipo: 'evento',
-    texto: 'Cumpleanos manana — 3pm Salon A',
+    texto: 'Cumpleaños manana — 3pm Salon A',
     tiempo: 'Hace 1 hora',
     leida: true,
   },

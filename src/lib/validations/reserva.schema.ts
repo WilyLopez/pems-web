@@ -3,13 +3,13 @@ import { z } from 'zod'
 export const reservaSchema = z.object({
   nombreNino: z
     .string()
-    .min(2, 'El nombre del nino debe tener al menos 2 caracteres')
+    .min(2, 'El nombre del niño debe tener al menos 2 caracteres')
     .max(120, 'El nombre no puede superar 120 caracteres'),
 
   edadNino: z.coerce
-    .number({ invalid_type_error: 'Ingresa la edad del nino' })
-    .min(0, 'La edad minima es 0 anos')
-    .max(17, 'La edad maxima es 17 anos'),
+    .number({ invalid_type_error: 'Ingresa la edad del niño' })
+    .min(0, 'La edad minima es 0 años')
+    .max(17, 'La edad maxima es 17 años'),
 
   nombreAcompanante: z
     .string()

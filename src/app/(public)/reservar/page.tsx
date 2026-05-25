@@ -451,7 +451,7 @@ export default function ReservarPage() {
               Como funciona
             </p>
             <ol className="space-y-1.5 text-xs text-gray-500 list-none">
-              {['Elige la fecha disponible', 'Completa los datos del nino', 'Selecciona como pagas', 'Recibe tu ticket en PDF'].map((s, i) => (
+              {['Elige la fecha disponible', 'Completa los datos del niño', 'Selecciona como pagas', 'Recibe tu ticket en PDF'].map((s, i) => (
                 <li key={i} className="flex items-center gap-2">
                   <span className="w-4 h-4 rounded-full bg-brand-azul text-white text-[9px] font-black flex items-center justify-center shrink-0">
                     {i + 1}
@@ -493,7 +493,7 @@ export default function ReservarPage() {
               </h3>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                  Nombre completo del nino <span className="text-red-500">*</span>
+                  Nombre completo del niño <span className="text-red-500">*</span>
                 </label>
                 <Input
                   placeholder="Valentina Garcia"
@@ -509,7 +509,7 @@ export default function ReservarPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                  Edad del nino <span className="text-red-500">*</span>
+                  Edad del niño <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="number"

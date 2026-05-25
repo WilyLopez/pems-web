@@ -1,23 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { format, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { ColumnDef } from '@tanstack/react-table'
 import {
   Search,
   RefreshCw,
   Ticket,
-  Users,
   XCircle,
   LogIn,
   TrendingUp,
   BarChart2,
   X,
-  Filter,
   CheckCircle2,
   ArrowUpDown,
   Eye,
+  AlertTriangle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -26,6 +23,7 @@ import {
   useMetricasReservas,
   useCancelarReserva,
   useConfirmarIngreso,
+  useConfirmarPago,
 } from '@/hooks/useReservas'
 import { Reserva, EstadoReserva } from '@/types/reserva.types'
 import { PageHeader } from '@/components/common/PageHeader'
@@ -98,7 +96,7 @@ function MetricaCard({
   )
 }
 
-type Dialog = { type: 'cancelar' | 'ingreso'; reserva: Reserva } | null
+type Dialog = { type: 'cancelar' | 'ingreso' | 'validar-yape'; reserva: Reserva } | null
 
 export default function ReservasPage() {
   const { idSede } = useAuth()
@@ -107,6 +105,7 @@ export default function ReservasPage() {
   const [estado, setEstado] = useState<EstadoReserva | ''>('')
   const [fecha, setFecha] = useState('')
   const [ingresado, setIngresado] = useState<boolean | undefined>()
+  const [medioPago, setMedioPago] = useState<string | undefined>()
   const [dialog, setDialog] = useState<Dialog>(null)
   const [drawer, setDrawer] = useState<Reserva | null>(null)
 
@@ -119,6 +118,7 @@ export default function ReservasPage() {
     estado: estado || undefined,
     fecha: fecha || undefined,
     ingresado,
+    medioPago,
     search: dSearch || undefined,
   })
 
@@ -129,6 +129,11 @@ export default function ReservasPage() {
 
   const cancelar = useCancelarReserva()
   const ingreso = useConfirmarIngreso()
+  const confirmarPago = useConfirmarPago()
+
+  const cantidadYapePendientes = data?.content.filter(
+    (r) => r.estado === 'PENDIENTE' && r.medioPago === 'YAPE'
+  ).length ?? 0
 
   const handleSearch = (v: string) => {
     setSearch(v)
@@ -204,7 +209,7 @@ export default function ReservasPage() {
           <p className="text-sm font-semibold text-gray-900">
             {row.original.nombreNino}
           </p>
-          <p className="text-xs text-gray-400">{row.original.edadNino} anos</p>
+          <p className="text-xs text-gray-400">{row.original.edadNino} años</p>
         </div>
       ),
     },
@@ -246,6 +251,7 @@ export default function ReservasPage() {
         const cancelable = ['PENDIENTE', 'CONFIRMADA'].includes(r.estado)
         const puedeIngreso =
           !r.ingresado && ['PENDIENTE', 'CONFIRMADA'].includes(r.estado)
+        const esYapePendiente = r.estado === 'PENDIENTE' && r.medioPago === 'YAPE'
         return (
           <div className="flex items-center gap-1">
             <Button
@@ -256,6 +262,17 @@ export default function ReservasPage() {
             >
               <Eye className="h-3.5 w-3.5" />
             </Button>
+            {esYapePendiente && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-lg text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                title="Validar pago Yape"
+                onClick={() => setDialog({ type: 'validar-yape', reserva: r })}
+              >
+                <AlertTriangle className="h-3.5 w-3.5" />
+              </Button>
+            )}
             {puedeIngreso && (
               <Button
                 variant="ghost"
@@ -344,7 +361,7 @@ export default function ReservasPage() {
         <div className="relative flex-1 min-w-48 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Ticket, nino, acompanante..."
+            placeholder="Ticket, niño, acompañante..."
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-9 h-10 rounded-xl border-gray-200"
@@ -408,6 +425,27 @@ export default function ReservasPage() {
           ))}
         </div>
 
+        <button
+          onClick={() => {
+            setMedioPago(medioPago === 'YAPE' ? undefined : 'YAPE')
+            setPage(0)
+          }}
+          className={cn(
+            'relative px-3 h-10 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5',
+            medioPago === 'YAPE'
+              ? 'bg-amber-500 text-white border-amber-500'
+              : 'bg-white text-amber-600 border-amber-200 hover:border-amber-400'
+          )}
+        >
+          <AlertTriangle className="h-3.5 w-3.5" />
+          Yape por validar
+          {cantidadYapePendientes > 0 && medioPago !== 'YAPE' && (
+            <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-bold">
+              {cantidadYapePendientes}
+            </span>
+          )}
+        </button>
+
         {data?.totalElements !== undefined && (
           <Badge
             variant="secondary"
@@ -466,6 +504,19 @@ export default function ReservasPage() {
             { id: dialog.reserva.id, motivo: 'Cancelacion por administrador' },
             { onSettled: closeDialog }
           )
+        }
+      />
+
+      <ConfirmDialog
+        open={dialog?.type === 'validar-yape'}
+        onOpenChange={(o) => !o && closeDialog()}
+        title="Validar pago Yape"
+        description={`Se confirmara el pago Yape del ticket ${dialog?.reserva.numeroTicket} y la reserva pasara a estado CONFIRMADA.`}
+        confirmLabel="Confirmar pago"
+        loading={confirmarPago.isPending}
+        onConfirm={() =>
+          dialog?.reserva &&
+          confirmarPago.mutate(dialog.reserva.id, { onSettled: closeDialog })
         }
       />
     </div>
