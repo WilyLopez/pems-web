@@ -1,5 +1,4 @@
-// srs/app/layout.tsx
-
+import '@/lib/zod-messages'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Poppins, Inter } from 'next/font/google'
 import { Toaster } from 'sonner'
@@ -26,16 +25,6 @@ export const metadata: Metadata = {
   description: 'Sistema de gestión de eventos Kiki y Lala',
 }
 
-const themeScript = `
-  (function() {
-    try {
-      var t = JSON.parse(localStorage.getItem('kiki-theme') || '{}').state?.theme || 'system';
-      var d = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      if (d) document.documentElement.classList.add('dark');
-    } catch(e) {}
-  })()
-`
-
 export default function RootLayout({
   children,
 }: {
@@ -43,9 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+      <head />
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} antialiased`}
       >

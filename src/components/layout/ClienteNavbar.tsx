@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/DropdownMenu'
 
 const navLinks = [
-  { href: '/cliente/mis-entradas', label: 'Mis entradas', icon: Ticket },
+  { href: '/cliente', label: 'Inicio', icon: Ticket, exact: true },
   { href: '/cliente/mis-reservas', label: 'Mis reservas', icon: CalendarDays },
   { href: '/cliente/mis-eventos', label: 'Mis eventos', icon: PartyPopper },
   { href: '/cliente/mi-cuenta', label: 'Mi cuenta', icon: User },
@@ -40,19 +40,22 @@ export function ClienteNavbar() {
   const { user, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
+
   return (
     <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
       <div className="container max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
         <Logo variant="secundario" size="sm" href="/" />
 
         <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map(({ href, label, icon: Icon }) => (
+          {navLinks.map(({ href, label, icon: Icon, exact }) => (
             <Link
               key={href}
               href={href}
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all',
-                pathname === href
+                isActive(href, exact)
                   ? 'bg-brand-azul/10 text-brand-azul'
                   : 'text-gray-600 hover:text-brand-azul hover:bg-brand-azul/8'
               )}
@@ -120,14 +123,14 @@ export function ClienteNavbar() {
 
       {mobileOpen && (
         <div className="md:hidden border-t bg-white px-4 py-3 space-y-1">
-          {navLinks.map(({ href, label, icon: Icon }) => (
+          {navLinks.map(({ href, label, icon: Icon, exact }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setMobileOpen(false)}
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold',
-                pathname === href
+                isActive(href, exact)
                   ? 'bg-brand-azul/10 text-brand-azul'
                   : 'text-gray-700 hover:bg-gray-50'
               )}

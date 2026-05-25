@@ -14,6 +14,8 @@ import {
   CreditCard,
   Receipt,
   Tag,
+  Tags,
+  Mail,
   Users,
   Globe,
   ClipboardList,
@@ -27,6 +29,10 @@ import {
   BarChart3,
   HeadphonesIcon,
   Settings,
+  Package2,
+  MapPin,
+  Zap,
+  Newspaper,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSidebarStore } from '@/lib/store/sidebar.store'
@@ -79,6 +85,36 @@ const navGroups = [
     ],
   },
   {
+    label: 'Comercial',
+    items: [
+      {
+        label: 'Paquetes',
+        href: '/admin/comercial/paquetes',
+        icon: Package2,
+      },
+      {
+        label: 'Zonas',
+        href: '/admin/comercial/zonas',
+        icon: MapPin,
+      },
+      {
+        label: 'Actividades',
+        href: '/admin/comercial/actividades',
+        icon: Zap,
+      },
+      {
+        label: 'Novedades',
+        href: '/admin/comercial/novedades',
+        icon: Newspaper,
+      },
+      {
+        label: 'Promociones',
+        href: '/admin/promociones',
+        icon: Tag,
+      },
+    ],
+  },
+  {
     label: 'Clientes y Marketing',
     items: [
       {
@@ -87,9 +123,9 @@ const navGroups = [
         icon: Users,
       },
       {
-        label: 'Promociones',
-        href: '/admin/promociones',
-        icon: Tag,
+        label: 'Marketing',
+        href: '/admin/marketing',
+        icon: Mail,
       },
     ],
   },
@@ -112,8 +148,8 @@ const navGroups = [
     label: 'Finanzas',
     items: [
       {
-        label: 'Ingresos',
-        href: '/admin/finanzas/ingresos',
+        label: 'Dashboard',
+        href: '/admin/finanzas',
         icon: TrendingUp,
       },
       {
@@ -122,14 +158,9 @@ const navGroups = [
         icon: ArrowDownCircle,
       },
       {
-        label: 'Pagos',
-        href: '/admin/pagos',
-        icon: CreditCard,
-      },
-      {
-        label: 'Comprobantes',
-        href: '/admin/comprobantes',
-        icon: Receipt,
+        label: 'Tipos de egreso',
+        href: '/admin/finanzas/tipos-egreso',
+        icon: Tags,
       },
       {
         label: 'Reportes',

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth.config'
 import { AdminSidebar } from '@/components/layout/AdminSidebar'
 import { AdminNavbar } from '@/components/layout/AdminNavbar'
+import { AdminThemeRoot } from '@/components/layout/AdminThemeRoot'
 
 export default async function AdminLayout({
   children,
@@ -16,12 +17,12 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background font-inter">
+    <AdminThemeRoot>
       <AdminSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <AdminNavbar />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
-    </div>
+    </AdminThemeRoot>
   )
 }
