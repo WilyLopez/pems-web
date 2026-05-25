@@ -16,7 +16,7 @@ export function ActividadReciente({ idAdmin }: { idAdmin: number }) {
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<PagedResponse<LogAuditoria>>>(
         `/auditoria/usuarios/${idAdmin}`,
-        { params: { pagina: 0, tamano: 8 } }
+        { params: { pagina: 0, tamaño: 8 } }
       )
       return data.data.content
     },

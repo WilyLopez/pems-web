@@ -53,6 +53,20 @@ export function useConfirmarIngreso() {
   })
 }
 
+export function useConfirmarPago() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => reservaService.confirmarPago(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [RESERVAS_ADM_KEY] })
+      qc.invalidateQueries({ queryKey: [METRICAS_KEY] })
+      toast.success('Pago confirmado. Reserva en estado CONFIRMADA.')
+    },
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo confirmar el pago.'),
+  })
+}
+
 export function useReprogramarReserva() {
   const qc = useQueryClient()
   return useMutation({

@@ -124,7 +124,7 @@ export function ReservaDrawer({ reserva, onClose }: ReservaDrawerProps) {
               <div>
                 <p className="font-black text-gray-900">{reserva.nombreNino}</p>
                 <p className="text-xs text-gray-400">
-                  {reserva.edadNino} anos de edad
+                  {reserva.edadNino} s de edad
                 </p>
               </div>
             </div>
@@ -138,7 +138,7 @@ export function ReservaDrawer({ reserva, onClose }: ReservaDrawerProps) {
             <Row icon={Mail} label="Correo" value={reserva.correoCliente} />
             <Row
               icon={User}
-              label="Acompanante"
+              label="Acompañante"
               value={reserva.nombreAcompanante}
             />
             <Row

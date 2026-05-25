@@ -16,6 +16,7 @@ export interface BuscarReservasParams {
   ingresado?: boolean
   esReprogramacion?: boolean
   search?: string
+  medioPago?: string
   sort?: string
 }
 
@@ -89,6 +90,23 @@ export const reservaService = {
     const { data } = await api.post<ApiResponse<Reserva>>(
       `/reservas/${idReserva}/ingreso`
     )
+    return data.data
+  },
+
+  obtenerPorId: async (id: number): Promise<Reserva> => {
+    const { data } = await api.get<ApiResponse<Reserva>>(`/reservas/${id}`)
+    return data.data
+  },
+
+  obtenerPorTicket: async (numeroTicket: string): Promise<Reserva> => {
+    const { data } = await api.get<ApiResponse<Reserva>>(
+      `/reservas/ticket/${encodeURIComponent(numeroTicket)}`
+    )
+    return data.data
+  },
+
+  confirmarPago: async (id: number): Promise<Reserva> => {
+    const { data } = await api.post<ApiResponse<Reserva>>(`/reservas/${id}/confirmar-pago`)
     return data.data
   },
 

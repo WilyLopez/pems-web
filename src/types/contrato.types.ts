@@ -83,13 +83,13 @@ CLAUSULAS:
 1. El cliente se compromete a respetar el horario pactado.
 2. El adelanto no es reembolsable en caso de cancelacion con menos de 48 horas de anticipacion.
 3. El local no se responsabiliza por objetos de valor dejados en las instalaciones.
-4. Cualquier dano causado al local sera responsabilidad del contratante.
+4. Cualquier daño causado al local sera responsabilidad del contratante.
 
 FIRMA DEL CLIENTE: ____________________  FECHA: __________
 FIRMA EMPRESA:     ____________________  FECHA: __________`,
   },
   CUMPLEANOS_PREMIUM: {
-    label: 'Cumpleanos Premium',
+    label: 'Cumpleaños Premium',
     plantilla: `CONTRATO PREMIUM DE EVENTO PRIVADO
 
 El presente contrato es celebrado entre KIKI Y LALA y el cliente {{nombreCliente}}.

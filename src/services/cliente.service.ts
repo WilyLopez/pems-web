@@ -86,4 +86,12 @@ export const clienteService = {
   actualizarSegmento: async (id: number, segmento: string): Promise<void> => {
     await api.put(`/clientes/${id}/segmento`, null, { params: { segmento } })
   },
+
+  buscarPorCorreo: async (correo: string): Promise<Cliente | null> => {
+    const { data } = await api.get<ApiResponse<PagedResponse<Cliente>>>(
+      '/clientes',
+      { params: { search: correo, size: 1 } }
+    )
+    return data.data.content?.[0] ?? null
+  },
 }
