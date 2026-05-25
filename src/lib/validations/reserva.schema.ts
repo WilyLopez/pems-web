@@ -1,17 +1,38 @@
 import { z } from 'zod'
-import { CanalReserva } from '@/types/enums'
 
-export const crearReservaSchema = z.object({
-  canalReserva: z.nativeEnum(CanalReserva),
-  fechaEvento: z.string().min(1, 'Selecciona una fecha'),
-  nombreNino: z.string().min(2).max(120),
-  edadNino: z.number().min(0).max(17),
-  nombreAcompanante: z.string().min(2).max(120),
-  dniAcompanante: z.string().length(8, 'DNI debe tener 8 dígitos'),
-  firmoConsentimiento: z.literal(true, {
-    message: 'Debes aceptar el consentimiento',
+export const reservaSchema = z.object({
+  nombreNino: z
+    .string()
+    .min(2, 'El nombre del nino debe tener al menos 2 caracteres')
+    .max(120, 'El nombre no puede superar 120 caracteres'),
+
+  edadNino: z.coerce
+    .number({ invalid_type_error: 'Ingresa la edad del nino' })
+    .min(0, 'La edad minima es 0 anos')
+    .max(17, 'La edad maxima es 17 anos'),
+
+  nombreAcompanante: z
+    .string()
+    .min(2, 'El nombre del acompanante debe tener al menos 2 caracteres')
+    .max(120, 'El nombre no puede superar 120 caracteres'),
+
+  dniAcompanante: z
+    .string()
+    .length(8, 'El DNI debe tener exactamente 8 digitos')
+    .regex(/^\d{8}$/, 'El DNI solo debe contener numeros'),
+
+  aceptaReglamento: z.literal(true, {
+    errorMap: () => ({ message: 'Debes aceptar el reglamento para continuar' }),
   }),
-  idPromocionManual: z.number().optional(),
+
+  conoceActa: z.literal(true, {
+    errorMap: () => ({
+      message: 'Debes confirmar que conoces el Acta de Responsabilidad',
+    }),
+  }),
 })
 
-export type CrearReservaFormValues = z.infer<typeof crearReservaSchema>
+export type ReservaFormValues = z.infer<typeof reservaSchema>
+
+export const crearReservaSchema = reservaSchema
+export type CrearReservaFormValues = ReservaFormValues
