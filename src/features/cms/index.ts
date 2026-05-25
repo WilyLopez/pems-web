@@ -1,6 +1,5 @@
 // Hooks
 export * from '@/hooks/useBanners'
-export * from '@/hooks/useCms'
 export * from '@/hooks/useConfiguracionPublica'
 export * from '@/hooks/useContenidoLegal'
 export * from '@/hooks/useContenidoWeb'
@@ -10,7 +9,6 @@ export * from '@/hooks/useResenas'
 
 // Services
 export * from '@/services/banner.service'
-export * from '@/services/cms.service'
 export * from '@/services/configuracion-publica.service'
 export * from '@/services/faq.service'
 export * from '@/services/galeria.service'

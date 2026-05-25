@@ -1,7 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Shield, Zap } from 'lucide-react'
-import { Banner } from '@/services/cms.service'
+import { Banner } from '@/types/banner.types'
+import { fileUrl } from '@/lib/utils'
 
 async function getActiveBanners(): Promise<Banner[]> {
   try {
@@ -56,11 +57,12 @@ export async function HeroBanner() {
         <div className="absolute inset-0 bg-brand-gradient rounded-3xl opacity-30 blur-2xl scale-110" />
         <div className="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-gradient-to-br from-brand-azul/30 to-brand-rosa/30 backdrop-blur h-full flex items-center justify-center">
           <Image
-            src={banner.imagenUrl}
+            src={fileUrl(banner.imagenUrl) ?? banner.imagenUrl}
             alt={banner.titulo}
             fill
             className="object-cover"
             sizes="420px"
+            unoptimized
           />
           {banner.descripcion && (
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-5">

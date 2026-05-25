@@ -371,7 +371,7 @@ export default function ResenasPage() {
           )}
           {!pendientes.isLoading &&
             !pendientes.isError &&
-            ((pendientes.data?.content.length ?? 0) === 0 ? (
+            ((pendientes.data?.content?.length ?? 0) === 0 ? (
               <EmptyState
                 title="No hay reseñas pendientes"
                 description="Todas las reseñas han sido moderadas."
@@ -379,7 +379,7 @@ export default function ResenasPage() {
               />
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
-                {pendientes.data?.content.map((r) => (
+                {pendientes.data?.content?.map((r) => (
                   <ResenaCard
                     key={r.id}
                     resena={r}
@@ -415,7 +415,7 @@ export default function ResenasPage() {
             </div>
           )}
           {!aprobadas.isLoading &&
-            ((aprobadas.data?.content.length ?? 0) === 0 ? (
+            ((aprobadas.data?.content?.length ?? 0) === 0 ? (
               <EmptyState
                 title="Sin reseñas publicadas"
                 description="Aprueba reseñas para que aparezcan aquí."
@@ -423,7 +423,7 @@ export default function ResenasPage() {
               />
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
-                {aprobadas.data?.content.map((r) => (
+                {aprobadas.data?.content?.map((r) => (
                   <ResenaCard
                     key={r.id}
                     resena={r}
