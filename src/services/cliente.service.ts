@@ -6,6 +6,8 @@ import {
   Cliente,
   ActualizarClientePayload,
   ListarClientesParams,
+  MigrarClienteWebPayload,
+  RegistrarClienteAdminPayload,
 } from '@/types/cliente.types'
 
 import { ApiResponse, PagedResponse } from '@/types/api.types'
@@ -18,13 +20,29 @@ export const clienteService = {
       '/clientes',
       { params }
     )
-
     return data.data
   },
 
   obtener: async (id: number): Promise<Cliente> => {
     const { data } = await api.get<ApiResponse<Cliente>>(`/clientes/${id}`)
+    return data.data
+  },
 
+  registrarAdmin: async (
+    payload: RegistrarClienteAdminPayload
+  ): Promise<Cliente> => {
+    const { data } = await api.post<ApiResponse<Cliente>>(
+      '/clientes/admin',
+      payload
+    )
+    return data.data
+  },
+
+  migrarWeb: async (payload: MigrarClienteWebPayload): Promise<Cliente> => {
+    const { data } = await api.post<ApiResponse<Cliente>>(
+      '/clientes/migrar-web',
+      payload
+    )
     return data.data
   },
 
@@ -36,7 +54,6 @@ export const clienteService = {
       `/clientes/${id}`,
       payload
     )
-
     return data.data
   },
 
@@ -52,7 +69,6 @@ export const clienteService = {
     const { data } = await api.post<ApiResponse<Cliente>>(
       `/clientes/${id}/vip?descuento=${descuento}`
     )
-
     return data.data
   },
 
@@ -60,11 +76,14 @@ export const clienteService = {
     const { data } = await api.delete<ApiResponse<Cliente>>(
       `/clientes/${id}/vip`
     )
-
     return data.data
   },
 
   registrarVisita: async (id: number): Promise<void> => {
     await api.post(`/clientes/${id}/visitas`)
+  },
+
+  actualizarSegmento: async (id: number, segmento: string): Promise<void> => {
+    await api.put(`/clientes/${id}/segmento`, null, { params: { segmento } })
   },
 }

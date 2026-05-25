@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { useQuery } from '@tanstack/react-query'
-import { RefreshCw, ArrowUpDown, Eye } from 'lucide-react'
+import { RefreshCw, ArrowUpDown, Eye, UserPlus } from 'lucide-react'
 
 import { Cliente } from '@/types/cliente.types'
 import { clienteService } from '@/services/cliente.service'
@@ -23,12 +23,15 @@ import {
   ClienteFiltros,
   FiltroCliente,
 } from '@/components/admin/clientes/ClienteFiltros'
+import { NuevoClienteModal } from '@/components/admin/clientes/NuevoClienteModal'
 import {
   VipBadge,
   EstadoBadge,
   VerificadoBadge,
   VisitasBadge,
   TipoBadge,
+  OrigenBadge,
+  SegmentoBadge,
 } from '@/components/admin/clientes/ClienteBadges'
 
 import { Button } from '@/components/ui/Button'
@@ -51,6 +54,14 @@ function buildParams(
       filtro === 'activos' ? true : filtro === 'inactivos' ? false : undefined,
     verificado: filtro === 'verificados' ? true : undefined,
     frecuente: filtro === 'frecuentes' ? true : undefined,
+    origenRegistro:
+      filtro === 'web' ? 'WEB'
+      : filtro === 'presenciales' ? 'PRESENCIAL'
+      : filtro === 'admin' ? 'ADMIN'
+      : undefined,
+    segmentoCliente: filtro === 'nuevos' ? 'NUEVO'
+      : filtro === 'inactivos_seg' ? 'INACTIVO'
+      : undefined,
   }
 }
 
@@ -61,6 +72,7 @@ export default function ClientesPage() {
   const [search, setSearch] = useState('')
   const [filtro, setFiltro] = useState<FiltroCliente>('todos')
   const [drawer, setDrawer] = useState<Cliente | null>(null)
+  const [modalNuevo, setModalNuevo] = useState(false)
 
   const debouncedSearch = useDebounce(search, 350)
 
@@ -151,6 +163,24 @@ export default function ClientesPage() {
         ),
     },
     {
+      accessorKey: 'origenRegistro',
+      header: () => (
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          Origen
+        </span>
+      ),
+      cell: ({ row }) => <OrigenBadge origen={row.original.origenRegistro} />,
+    },
+    {
+      accessorKey: 'segmentoCliente',
+      header: () => (
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          Segmento
+        </span>
+      ),
+      cell: ({ row }) => <SegmentoBadge segmento={row.original.segmentoCliente} />,
+    },
+    {
       accessorKey: 'contadorVisitas',
       header: ({ column }) => (
         <button
@@ -222,17 +252,27 @@ export default function ClientesPage() {
 
       <PageHeader
         title="Clientes"
-        description="Gestion de clientes registrados en el sistema"
+        description="Gestión CRM de clientes web, presenciales y corporativos"
         actions={
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            className="rounded-xl gap-1.5"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Actualizar
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              className="rounded-xl gap-1.5"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Actualizar
+            </Button>
+            <Button
+              size="sm"
+              className="rounded-xl gap-1.5"
+              onClick={() => setModalNuevo(true)}
+            >
+              <UserPlus className="h-4 w-4" />
+              Nuevo cliente
+            </Button>
+          </div>
         }
       />
 
@@ -264,6 +304,8 @@ export default function ClientesPage() {
       )}
 
       <ClienteDrawer cliente={drawer} onClose={() => setDrawer(null)} />
+
+      <NuevoClienteModal open={modalNuevo} onOpenChange={setModalNuevo} />
     </div>
   )
 }
