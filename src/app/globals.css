@@ -99,6 +99,77 @@
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   DARK MODE — override de clases Tailwind hardcodeadas en componentes
+   Se activa cuando <html> tiene la clase .dark (ThemeProvider)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Fondos sólidos ── */
+.dark .bg-white          { background-color: hsl(222 20% 12%) !important; }
+.dark .bg-gray-50        { background-color: hsl(222 20% 10%) !important; }
+.dark .bg-gray-100       { background-color: hsl(217 20% 16%) !important; }
+.dark .bg-gray-200       { background-color: hsl(217 20% 20%) !important; }
+
+/* ── Fondos con opacidad (variantes /N) ── */
+.dark .bg-white\/80      { background-color: hsl(222 20% 12% / 0.8) !important; }
+.dark .bg-white\/60      { background-color: hsl(222 20% 12% / 0.6) !important; }
+.dark .bg-white\/40      { background-color: hsl(222 20% 12% / 0.4) !important; }
+.dark .bg-gray-50\/80    { background-color: hsl(222 20% 10% / 0.8) !important; }
+.dark .bg-gray-50\/60    { background-color: hsl(222 20% 10% / 0.6) !important; }
+.dark .bg-gray-50\/40    { background-color: hsl(222 20% 10% / 0.4) !important; }
+.dark .bg-gray-50\/20    { background-color: hsl(222 20% 10% / 0.2) !important; }
+.dark .bg-gray-100\/80   { background-color: hsl(217 20% 16% / 0.8) !important; }
+.dark .bg-gray-100\/60   { background-color: hsl(217 20% 16% / 0.6) !important; }
+.dark .bg-gray-100\/50   { background-color: hsl(217 20% 16% / 0.5) !important; }
+.dark .bg-gray-100\/40   { background-color: hsl(217 20% 16% / 0.4) !important; }
+
+/* ── Texto ── */
+.dark .text-gray-900     { color: hsl(210 20% 95%) !important; }
+.dark .text-gray-800     { color: hsl(210 20% 88%) !important; }
+.dark .text-gray-700     { color: hsl(210 20% 78%) !important; }
+.dark .text-gray-600     { color: hsl(215 16% 62%) !important; }
+.dark .text-gray-500     { color: hsl(215 16% 52%) !important; }
+.dark .text-gray-400     { color: hsl(215 16% 42%) !important; }
+.dark .text-gray-300     { color: hsl(215 16% 32%) !important; }
+
+/* ── Bordes ── */
+.dark .border-gray-100   { border-color: hsl(217 20% 18%) !important; }
+.dark .border-gray-200   { border-color: hsl(217 20% 22%) !important; }
+.dark .border-gray-300   { border-color: hsl(217 20% 28%) !important; }
+.dark .divide-gray-100 > * + * { border-color: hsl(217 20% 18%) !important; }
+.dark .divide-gray-50  > * + * { border-color: hsl(217 20% 15%) !important; }
+
+/* ── Hover states ── */
+.dark .hover\:bg-white:hover    { background-color: hsl(222 20% 16%) !important; }
+.dark .hover\:bg-gray-50:hover  { background-color: hsl(217 20% 16%) !important; }
+.dark .hover\:bg-gray-100:hover { background-color: hsl(217 20% 20%) !important; }
+
+/* ── Skeletons / placeholders ── */
+.dark .animate-pulse     { --tw-bg-opacity: 1; }
+.dark .bg-gray-100.animate-pulse { background-color: hsl(217 20% 20%) !important; }
+
+/* ── Selectores / inputs nativos ── */
+.dark select,
+.dark textarea,
+.dark input[type="date"],
+.dark input[type="number"],
+.dark input[type="text"],
+.dark input[type="email"] {
+  background-color: hsl(222 20% 14%) !important;
+  color: hsl(210 20% 90%) !important;
+  border-color: hsl(217 20% 22%) !important;
+}
+
+/* ── Glassmorphism navbar ── */
+.dark .glass {
+  background: rgba(18, 22, 36, 0.88) !important;
+}
+
+/* ── Scrollbar ── */
+.dark .scrollbar-thin {
+  scrollbar-color: hsl(197 100% 35%) transparent;
+}
+
 /* ── Utilidades de marca ── */
 @layer utilities {
   /* Gradientes */
