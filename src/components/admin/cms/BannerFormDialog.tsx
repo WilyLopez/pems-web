@@ -18,7 +18,7 @@ import {
   Banner,
   CrearBannerPayload,
   ActualizarBannerPayload,
-} from '@/services/cms.service'
+} from '@/types/banner.types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -46,7 +46,7 @@ const schema = z.object({
     .or(z.literal('')),
   fechaInicio: z.string().min(1, 'La fecha de inicio es obligatoria'),
   fechaFin: z.string().optional(),
-  orden: z.coerce.number().min(0).default(0),
+  orden: z.number().min(0).default(0),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -264,7 +264,7 @@ export function BannerFormDialog({
                   id="orden"
                   type="number"
                   min={0}
-                  {...register('orden')}
+                  {...register('orden', { valueAsNumber: true })}
                   className="mt-1"
                 />
               </div>
