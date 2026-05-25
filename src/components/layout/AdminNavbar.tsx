@@ -3,7 +3,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
 import {
   Bell,
   LogOut,
@@ -13,7 +12,6 @@ import {
   Shield,
   KeyRound,
   Search,
-  ChevronRight,
   LayoutDashboard,
   X,
   ExternalLink,
@@ -30,84 +28,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from '@/components/ui/DropdownMenu'
-import { Dialog, DialogContent } from '@/components/ui/Dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog'
 import { cn, getInitials } from '@/lib/utils'
 import Link from 'next/link'
-
-/* ─── Breadcrumb dinamico ────────────────────────────────────────────────────── */
-
-const routeLabels: Record<string, string> = {
-  dashboard: 'Dashboard',
-  calendario: 'Calendario',
-  reservas: 'Reservas',
-  eventos: 'Eventos Privados',
-  contratos: 'Contratos',
-  clientes: 'Clientes',
-  promociones: 'Promociones',
-  pagos: 'Pagos',
-  comprobantes: 'Comprobantes',
-  finanzas: 'Finanzas',
-  ingresos: 'Ingresos',
-  egresos: 'Egresos',
-  reportes: 'Reportes',
-  accesos: 'Accesos',
-  entradas: 'Control de Entradas',
-  cms: 'Contenido Web',
-  auditoria: 'Auditoria',
-  usuarios: 'Usuarios Admin',
-  configuracion: 'Configuracion',
-  preferencias: 'Mis preferencias',
-  soporte: 'Soporte',
-}
-
-function Breadcrumb() {
-  const pathname = usePathname()
-  const segments = pathname.split('/').filter(Boolean).slice(1) // quitar 'admin'
-
-  if (segments.length === 0)
-    return (
-      <div className="flex items-center gap-1.5 text-sm">
-        <LayoutDashboard className="h-4 w-4 text-brand-azul" />
-        <span className="font-semibold text-gray-900">Dashboard</span>
-      </div>
-    )
-
-  return (
-    <div className="flex items-center gap-1 text-sm">
-      <Link
-        href="/admin/dashboard"
-        className="text-gray-400 hover:text-brand-azul transition-colors"
-      >
-        <LayoutDashboard className="h-4 w-4" />
-      </Link>
-      {segments.map((seg, i) => {
-        const isLast = i === segments.length - 1
-        const label = routeLabels[seg] ?? seg
-        const href = '/admin/' + segments.slice(0, i + 1).join('/')
-        return (
-          <span key={seg} className="flex items-center gap-1">
-            <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
-            {isLast ? (
-              <span className="font-semibold text-gray-900">{label}</span>
-            ) : (
-              <Link
-                href={href}
-                className="text-gray-400 hover:text-brand-azul transition-colors"
-              >
-                {label}
-              </Link>
-            )}
-          </span>
-        )
-      })}
-    </div>
-  )
-}
 
 /* ─── Buscador global ────────────────────────────────────────────────────────── */
 
@@ -166,6 +92,7 @@ function GlobalSearch() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="p-0 border-none bg-transparent shadow-none max-w-lg top-[15%] translate-y-0">
+          <DialogTitle className="sr-only">Buscador Global</DialogTitle>
           <div className="w-full bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-fade-in">
             <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
               <Search className="h-4 w-4 text-gray-400 shrink-0" />
@@ -354,6 +281,18 @@ export function AdminNavbar() {
 
       {/* Acciones derecha */}
       <div className="flex items-center gap-1.5 ml-auto flex-1 justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="hidden sm:flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-gray-500 hover:text-brand-azul hover:bg-brand-azul/8 transition-colors"
+        >
+          <Link href="/" target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="h-3.5 w-3.5" />
+            Ver sitio
+          </Link>
+        </Button>
+
         <GlobalSearch />
         <NotificacionesMenu />
 
