@@ -47,3 +47,19 @@ export function getInitials(name: string) {
     .toUpperCase()
     .substring(0, 2)
 }
+
+/**
+ * Converts an absolute backend file URL to a root-relative path so it goes
+ * through the Next.js rewrite proxy (/files/** → backend/files/**).
+ * Already-relative URLs and null/undefined are returned as-is.
+ */
+export function fileUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  const backendOrigin = (
+    process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1'
+  ).replace(/\/api\/v1\/?$/, '')
+  if (url.startsWith(backendOrigin + '/files/')) {
+    return url.slice(backendOrigin.length)
+  }
+  return url
+}
