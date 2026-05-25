@@ -24,6 +24,8 @@ import {
   useCompletarTarea,
   useDescompletarTarea,
 } from '@/hooks/useEventos'
+import { useResumenEvento } from '@/hooks/useFinanzas'
+import { GastosEventoPanel } from '@/components/admin/finanzas/GastosEventoPanel'
 import { calcularIndicadores } from '@/types/evento.types'
 import { ErrorState } from '@/components/common/Errorstate'
 import { Button } from '@/components/ui/Button'
@@ -74,6 +76,7 @@ export default function EventoDetallePage() {
   const { data: evento, isLoading, isError, refetch } = useEvento(idNum)
   const { data: checklist = [], isLoading: loadingChecklist } =
     useChecklist(idNum)
+  const { data: resumenFinanciero } = useResumenEvento(idNum)
   const completar = useCompletarTarea()
   const descompletar = useDescompletarTarea()
 
@@ -341,6 +344,16 @@ export default function EventoDetallePage() {
                       <p className="text-sm text-gray-400 text-center py-6">
                         El precio del contrato aun no ha sido definido.
                       </p>
+                    )}
+
+                    {resumenFinanciero && (
+                      <>
+                        <Separator />
+                        <GastosEventoPanel
+                          idEvento={idNum}
+                          resumen={resumenFinanciero}
+                        />
+                      </>
                     )}
                   </div>
                 </TabsContent>
