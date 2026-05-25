@@ -1,10 +1,9 @@
-// app/auth/registro/page.tsx
-
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useSession } from 'next-auth/react'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -20,6 +19,10 @@ import {
   Phone,
   CreditCard,
   User,
+  FileText,
+  Hash,
+  Clock,
+  Pencil,
 } from 'lucide-react'
 
 import {
@@ -27,10 +30,20 @@ import {
   RegistroFormValues,
 } from '@/lib/validations/auth.schema'
 import { authService } from '@/services/auth.service'
+import { legalService } from '@/services/legal.service'
+import { ContenidoLegal } from '@/types/legal.types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Separator } from '@/components/ui/Separator'
+import { Checkbox } from '@/components/ui/Checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/Dialog'
 
 interface FieldProps {
   id: string
@@ -61,17 +74,43 @@ function Field({ id, label, error, hint, required, children }: FieldProps) {
 
 export default function RegistroPage() {
   const router = useRouter()
+  const { data: session } = useSession()
+  const esAdmin = session?.user?.rol === 'ADMIN'
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
+  const [docAbierto, setDocAbierto] = useState<'TERMINOS' | 'PRIVACIDAD' | null>(null)
+  const [docCargando, setDocCargando] = useState(false)
+  const [docCargado, setDocCargado] = useState<ContenidoLegal | null>(null)
+
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<RegistroFormValues>({
     resolver: zodResolver(registroSchema),
+    defaultValues: {
+      aceptaTerminos: false,
+      aceptaPrivacidad: false,
+    },
   })
+
+  async function abrirDocumento(tipo: 'TERMINOS' | 'PRIVACIDAD') {
+    setDocAbierto(tipo)
+    setDocCargado(null)
+    setDocCargando(true)
+    try {
+      const doc = await legalService.obtenerPublico(tipo)
+      setDocCargado(doc)
+    } catch {
+      toast.error('No se pudo cargar el documento.')
+      setDocAbierto(null)
+    } finally {
+      setDocCargando(false)
+    }
+  }
 
   const onSubmit = async (values: RegistroFormValues) => {
     setLoading(true)
@@ -94,256 +133,394 @@ export default function RegistroPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Panel izquierdo decorativo */}
-      <div className="hidden lg:flex flex-col w-2/5 bg-gradient-to-br from-[#001a2c] via-[#003a5c] to-[#001a2c] relative overflow-hidden items-center justify-center p-12">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-20 left-10 w-48 h-48 bg-brand-azul/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-56 h-56 bg-brand-rosa/20 rounded-full blur-3xl" />
-        </div>
-        <div className="relative space-y-6 text-center">
-          <Image
-            src="/logo-principal.png"
-            alt="Kiki y Lala"
-            width={220}
-            height={220}
-            className="mx-auto drop-shadow-2xl animate-float"
-          />
-          <div className="text-white space-y-2">
-            <h2 className="text-2xl font-black">Unete a nuestra familia</h2>
-            <p className="text-white/60 text-sm max-w-xs mx-auto">
-              Crea tu cuenta gratis y gestiona tus entradas, reservas y eventos
-              desde un solo lugar.
-            </p>
+    <>
+      <div className="min-h-screen flex">
+        {/* Panel izquierdo decorativo */}
+        <div className="hidden lg:flex flex-col w-2/5 bg-gradient-to-br from-[#001a2c] via-[#003a5c] to-[#001a2c] relative overflow-hidden items-center justify-center p-12">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-20 left-10 w-48 h-48 bg-brand-azul/20 rounded-full blur-3xl" />
+            <div className="absolute bottom-20 right-10 w-56 h-56 bg-brand-rosa/20 rounded-full blur-3xl" />
           </div>
-          <div className="grid grid-cols-3 gap-3 pt-2">
-            {[
-              { n: 'Gratis', label: 'Registro' },
-              { n: 'Rapido', label: 'En segundos' },
-              { n: 'Seguro', label: 'Datos protegidos' },
-            ].map(({ n, label }) => (
-              <div
-                key={n}
-                className="bg-white/8 rounded-xl p-3 text-center border border-white/10"
-              >
-                <div className="font-black text-brand-amarillo text-sm">
-                  {n}
-                </div>
-                <div className="text-white/50 text-xs mt-0.5">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Panel derecho — formulario */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-white overflow-y-auto">
-        <div className="w-full max-w-md py-8 space-y-6">
-          {/* Logo mobile */}
-          <div className="lg:hidden text-center">
+          <div className="relative space-y-6 text-center">
             <Image
-              src="/logo-secundario.png"
+              src="/logo-principal.png"
               alt="Kiki y Lala"
-              width={140}
-              height={60}
-              className="mx-auto"
+              width={220}
+              height={220}
+              className="mx-auto drop-shadow-2xl animate-float"
             />
-          </div>
-
-          <div>
-            <h1 className="text-3xl font-black text-gray-900">
-              Crea tu cuenta
-            </h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              Registrate para comprar entradas y gestionar tus eventos
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Nombre */}
-            <Field
-              id="nombre"
-              label="Nombre completo"
-              placeholder="Juan Perez"
-              icon={<User />}
-              error={errors.nombre?.message}
-              required
-            >
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  id="nombre"
-                  placeholder="Juan Perez"
-                  className="h-11 rounded-xl pl-9"
-                  {...register('nombre')}
-                />
-              </div>
-            </Field>
-
-            {/* Correo */}
-            <Field
-              id="correo"
-              label="Correo electronico"
-              placeholder="juan@ejemplo.com"
-              icon={<Mail />}
-              error={errors.correo?.message}
-              required
-            >
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  id="correo"
-                  type="email"
-                  placeholder="juan@ejemplo.com"
-                  className="h-11 rounded-xl pl-9"
-                  {...register('correo')}
-                />
-              </div>
-            </Field>
-
-            {/* Contrasenas en grid */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field
-                id="contrasena"
-                label="Contrasena"
-                placeholder="Minimo 8 caracteres"
-                icon={<Lock />}
-                error={errors.contrasena?.message}
-                required
-              >
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="contrasena"
-                    type={showPass ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    className="h-11 rounded-xl pl-9 pr-10"
-                    {...register('contrasena')}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPass ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
+            <div className="text-white space-y-2">
+              <h2 className="text-2xl font-black">Unete a nuestra familia</h2>
+              <p className="text-white/60 text-sm max-w-xs mx-auto">
+                Crea tu cuenta gratis y gestiona tus entradas, reservas y eventos
+                desde un solo lugar.
+              </p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 pt-2">
+              {[
+                { n: 'Gratis', label: 'Registro' },
+                { n: 'Rapido', label: 'En segundos' },
+                { n: 'Seguro', label: 'Datos protegidos' },
+              ].map(({ n, label }) => (
+                <div
+                  key={n}
+                  className="bg-white/8 rounded-xl p-3 text-center border border-white/10"
+                >
+                  <div className="font-black text-brand-amarillo text-sm">{n}</div>
+                  <div className="text-white/50 text-xs mt-0.5">{label}</div>
                 </div>
-              </Field>
+              ))}
+            </div>
+          </div>
+        </div>
 
-              <Field
-                id="confirmarContrasena"
-                label="Confirmar contrasena"
-                placeholder="Repite la contrasena"
-                icon={<Lock />}
-                error={errors.confirmarContrasena?.message}
-                required
-              >
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="confirmarContrasena"
-                    type={showConfirm ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    className="h-11 rounded-xl pl-9 pr-10"
-                    {...register('confirmarContrasena')}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showConfirm ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </Field>
+        {/* Panel derecho — formulario */}
+        <div className="flex-1 flex items-center justify-center p-6 bg-white overflow-y-auto">
+          <div className="w-full max-w-md py-8 space-y-6">
+            {/* Logo mobile */}
+            <div className="lg:hidden text-center">
+              <Image
+                src="/logo-secundario.png"
+                alt="Kiki y Lala"
+                width={140}
+                height={60}
+                className="mx-auto"
+              />
             </div>
 
-            {/* Telefono y DNI en grid */}
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <h1 className="text-3xl font-black text-gray-900">Crea tu cuenta</h1>
+              <p className="text-gray-500 mt-1 text-sm">
+                Registrate para comprar entradas y gestionar tus eventos
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Nombre */}
               <Field
-                id="telefono"
-                label="Telefono"
-                placeholder="987654321"
-                icon={<Phone />}
-                error={errors.telefono?.message}
+                id="nombre"
+                label="Nombre completo"
+                placeholder="Juan Perez"
+                icon={<User />}
+                error={errors.nombre?.message}
                 required
               >
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    id="telefono"
-                    placeholder="987654321"
+                    id="nombre"
+                    placeholder="Juan Perez"
                     className="h-11 rounded-xl pl-9"
-                    {...register('telefono')}
+                    {...register('nombre')}
                   />
                 </div>
               </Field>
 
+              {/* Correo */}
               <Field
-                id="dni"
-                label="DNI"
-                placeholder="12345678"
-                icon={<CreditCard />}
-                error={errors.dni?.message}
-                hint="Opcional"
+                id="correo"
+                label="Correo electronico"
+                placeholder="juan@ejemplo.com"
+                icon={<Mail />}
+                error={errors.correo?.message}
+                required
               >
                 <div className="relative">
-                  <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    id="dni"
-                    placeholder="12345678"
-                    maxLength={8}
+                    id="correo"
+                    type="email"
+                    placeholder="juan@ejemplo.com"
                     className="h-11 rounded-xl pl-9"
-                    {...register('dni')}
+                    {...register('correo')}
                   />
                 </div>
               </Field>
-            </div>
 
-            <Button
-              type="submit"
-              className="w-full h-12 rounded-xl bg-brand-rosa hover:bg-brand-rosa/90 text-white font-bold text-base gap-2 mt-2"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <UserPlus className="h-5 w-5" />
-              )}
-              Crear cuenta gratis
-            </Button>
-          </form>
+              {/* Contrasenas en grid */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  id="contrasena"
+                  label="Contrasena"
+                  placeholder="Minimo 8 caracteres"
+                  icon={<Lock />}
+                  error={errors.contrasena?.message}
+                  required
+                >
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="contrasena"
+                      type={showPass ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      className="h-11 rounded-xl pl-9 pr-10"
+                      {...register('contrasena')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPass(!showPass)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </Field>
 
-          <Separator />
+                <Field
+                  id="confirmarContrasena"
+                  label="Confirmar contrasena"
+                  placeholder="Repite la contrasena"
+                  icon={<Lock />}
+                  error={errors.confirmarContrasena?.message}
+                  required
+                >
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="confirmarContrasena"
+                      type={showConfirm ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      className="h-11 rounded-xl pl-9 pr-10"
+                      {...register('confirmarContrasena')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </Field>
+              </div>
 
-          <div className="flex flex-col items-center gap-3">
-            <p className="text-sm text-gray-500">
-              ¿Ya tienes cuenta?{' '}
+              {/* Telefono y DNI en grid */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  id="telefono"
+                  label="Telefono"
+                  placeholder="987654321"
+                  icon={<Phone />}
+                  error={errors.telefono?.message}
+                  required
+                >
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="telefono"
+                      placeholder="987654321"
+                      className="h-11 rounded-xl pl-9"
+                      {...register('telefono')}
+                    />
+                  </div>
+                </Field>
+
+                <Field
+                  id="dni"
+                  label="DNI"
+                  placeholder="12345678"
+                  icon={<CreditCard />}
+                  error={errors.dni?.message}
+                  hint="Opcional"
+                >
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="dni"
+                      placeholder="12345678"
+                      maxLength={8}
+                      className="h-11 rounded-xl pl-9"
+                      {...register('dni')}
+                    />
+                  </div>
+                </Field>
+              </div>
+
+              {/* Aceptación de documentos legales */}
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 space-y-3">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Aceptación de políticas
+                </p>
+
+                <div className="flex items-start gap-3">
+                  <Controller
+                    name="aceptaTerminos"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="aceptaTerminos"
+                        checked={field.value === true}
+                        onCheckedChange={field.onChange}
+                        className="mt-0.5 shrink-0"
+                      />
+                    )}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <label
+                      htmlFor="aceptaTerminos"
+                      className="text-sm text-gray-700 cursor-pointer leading-snug"
+                    >
+                      He leído y acepto los{' '}
+                      <button
+                        type="button"
+                        onClick={() => abrirDocumento('TERMINOS')}
+                        className="text-brand-azul font-semibold hover:underline"
+                      >
+                        Términos y Condiciones
+                      </button>
+                    </label>
+                    {errors.aceptaTerminos && (
+                      <p className="text-xs text-destructive mt-0.5">
+                        {errors.aceptaTerminos.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Controller
+                    name="aceptaPrivacidad"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="aceptaPrivacidad"
+                        checked={field.value === true}
+                        onCheckedChange={field.onChange}
+                        className="mt-0.5 shrink-0"
+                      />
+                    )}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <label
+                      htmlFor="aceptaPrivacidad"
+                      className="text-sm text-gray-700 cursor-pointer leading-snug"
+                    >
+                      He leído y acepto la{' '}
+                      <button
+                        type="button"
+                        onClick={() => abrirDocumento('PRIVACIDAD')}
+                        className="text-brand-azul font-semibold hover:underline"
+                      >
+                        Política de Privacidad
+                      </button>
+                    </label>
+                    {errors.aceptaPrivacidad && (
+                      <p className="text-xs text-destructive mt-0.5">
+                        {errors.aceptaPrivacidad.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-12 rounded-xl bg-brand-rosa hover:bg-brand-rosa/90 text-white font-bold text-base gap-2"
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <UserPlus className="h-5 w-5" />
+                )}
+                Crear cuenta gratis
+              </Button>
+            </form>
+
+            <Separator />
+
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-sm text-gray-500">
+                ¿Ya tienes cuenta?{' '}
+                <Link href="/auth/login" className="font-bold text-brand-azul hover:underline">
+                  Inicia sesión
+                </Link>
+              </p>
               <Link
-                href="/auth/login"
-                className="font-bold text-brand-azul hover:underline"
+                href="/"
+                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-azul transition-colors"
               >
-                Inicia sesión
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Volver al inicio
               </Link>
-            </p>
-            <Link
-              href="/"
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-brand-azul transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Volver al inicio
-            </Link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Modal de documentos legales */}
+      <Dialog open={!!docAbierto} onOpenChange={(open) => !open && setDocAbierto(null)}>
+        <DialogContent className="max-w-2xl h-[80vh] flex flex-col gap-0 p-0 overflow-hidden">
+          <DialogHeader className="px-6 py-4 border-b shrink-0">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <FileText className="h-4 w-4 text-brand-azul shrink-0" />
+              {docCargando
+                ? 'Cargando...'
+                : docCargado?.titulo ?? (docAbierto === 'TERMINOS' ? 'Términos y Condiciones' : 'Política de Privacidad')}
+            </DialogTitle>
+            {docCargado && (
+              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Hash className="h-3 w-3" />
+                  Versión {docCargado.version}
+                </span>
+                {docCargado.fechaActualizacion && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    Actualizado:{' '}
+                    {new Date(docCargado.fechaActualizacion).toLocaleDateString('es-PE', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </span>
+                )}
+              </div>
+            )}
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            {docCargando ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center space-y-3">
+                  <Loader2 className="h-8 w-8 animate-spin text-brand-azul mx-auto" />
+                  <p className="text-sm text-muted-foreground">Cargando documento...</p>
+                </div>
+              </div>
+            ) : docCargado ? (
+              <div
+                className="text-sm leading-relaxed text-gray-700"
+                style={{ lineHeight: 1.75 }}
+                dangerouslySetInnerHTML={{
+                  __html: docCargado.contenido.replace(/\n/g, '<br />'),
+                }}
+              />
+            ) : null}
+          </div>
+
+          <DialogFooter className="px-6 py-4 border-t shrink-0 flex-row items-center justify-between">
+            <div>
+              {esAdmin && docAbierto && (
+                <Link
+                  href="/admin/cms/legal"
+                  className="inline-flex items-center gap-1.5 text-xs text-brand-azul hover:underline font-medium"
+                  onClick={() => setDocAbierto(null)}
+                >
+                  <Pencil className="h-3 w-3" />
+                  Editar este documento
+                </Link>
+              )}
+            </div>
+            <Button
+              type="button"
+              className="bg-brand-azul hover:bg-brand-azul/90 text-white"
+              onClick={() => setDocAbierto(null)}
+            >
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

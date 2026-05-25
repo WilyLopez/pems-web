@@ -42,15 +42,24 @@ export default function LoginForm() {
     })
     setLoading(false)
 
-    if (result?.error) {
-      toast.error('Correo o contraseña incorrectos.')
+    if (!result?.ok) {
+      console.error('[Login] signIn failed:', result?.error, 'status:', result?.status)
+      const isCredentialsError =
+        !result?.error ||
+        result.error === 'CredentialsSignin' ||
+        result.error === 'undefined'
+      toast.error(
+        isCredentialsError
+          ? 'Correo o contraseña incorrectos.'
+          : result?.error ?? 'Error al iniciar sesión.'
+      )
       return
     }
 
     const callbackUrl = searchParams.get('callbackUrl')
     router.push(
       callbackUrl ??
-        (tab === 'admin' ? '/admin/dashboard' : '/cliente/mis-entradas')
+        (tab === 'admin' ? '/admin/dashboard' : '/cliente')
     )
     router.refresh()
   }
