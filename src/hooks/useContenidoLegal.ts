@@ -3,11 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { legalService } from '@/services/legal.service'
-import { TipoLegal, ActualizarLegalPayload } from '@/types/legal.types'
+import { ActualizarContenidoLegalPayload, CrearContenidoLegalPayload } from '@/types/legal.types'
 
 export const LEGAL_KEY = ['legal']
 
-export function useContenidoLegalPublico(tipo: TipoLegal) {
+export function useContenidoLegalPublico(tipo: string) {
   return useQuery({
     queryKey: [...LEGAL_KEY, 'publico', tipo],
     queryFn: () => legalService.obtenerPublico(tipo),
@@ -23,7 +23,7 @@ export function useContenidoLegalAdmin() {
   })
 }
 
-export function useContenidoLegalPorTipo(tipo: TipoLegal) {
+export function useContenidoLegalPorTipo(tipo: string) {
   return useQuery({
     queryKey: [...LEGAL_KEY, tipo],
     queryFn: () => legalService.obtenerPorTipo(tipo),
@@ -38,13 +38,51 @@ export function useActualizarLegal() {
       tipo,
       payload,
     }: {
-      tipo: TipoLegal
-      payload: ActualizarLegalPayload
+      tipo: string
+      payload: ActualizarContenidoLegalPayload
     }) => legalService.actualizar(tipo, payload),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: LEGAL_KEY })
       toast.success(`Versión ${data.version} guardada.`)
     },
     onError: () => toast.error('No se pudo guardar el contenido legal.'),
+  })
+}
+
+export function useCrearContenidoLegal() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CrearContenidoLegalPayload) =>
+      legalService.crear(payload),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: LEGAL_KEY })
+      toast.success(`Documento "${data.titulo}" creado.`)
+    },
+    onError: () => toast.error('No se pudo crear el documento legal.'),
+  })
+}
+
+export function useToggleLegal() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ tipo, activo }: { tipo: string; activo: boolean }) =>
+      activo ? legalService.activar(tipo) : legalService.desactivar(tipo),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: LEGAL_KEY })
+      toast.success(data.activo ? 'Documento activado.' : 'Documento desactivado.')
+    },
+    onError: () => toast.error('No se pudo cambiar el estado del documento.'),
+  })
+}
+
+export function useEliminarContenidoLegal() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (tipo: string) => legalService.eliminar(tipo),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: LEGAL_KEY })
+      toast.success('Documento eliminado.')
+    },
+    onError: () => toast.error('No se pudo eliminar el documento.'),
   })
 }

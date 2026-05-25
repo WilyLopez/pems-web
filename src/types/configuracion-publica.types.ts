@@ -3,33 +3,33 @@ export interface ConfiguracionPublica {
   nombreNegocio: string
   slogan?: string
   logoUrl?: string
-  logoBlancaUrl?: string
   faviconUrl?: string
-  telefonoPrincipal?: string
+  telefono?: string
   telefonoSecundario?: string
   whatsapp?: string
-  correoContacto?: string
-  correoSoporte?: string
+  correo?: string
+  correoSecundario?: string
   direccion?: string
-  ciudad?: string
-  pais?: string
-  latitud?: number
-  longitud?: number
-  horarioLunesViernes?: string
-  horarioSabado?: string
-  horarioDomingo?: string
+  googleMapsUrl?: string
+  horarioSemana?: string
+  horarioFinDeSemana?: string
   facebookUrl?: string
   instagramUrl?: string
   tiktokUrl?: string
   youtubeUrl?: string
-  metaTitulo?: string
-  metaDescripcion?: string
+  metaTitle?: string
+  metaDescription?: string
   metaKeywords?: string
-  modoMantenimiento: boolean
+  openGraphTitle?: string
+  openGraphDescription?: string
+  openGraphImageUrl?: string
+  googleAnalyticsId?: string
+  metaPixelId?: string
+  mantenimientoActivo: boolean
   mensajeMantenimiento?: string
-  colorPrimario?: string
+  colorTema?: string
   colorSecundario?: string
-  colorAcento?: string
+  copyrightTexto?: string
 }
 
 export type ActualizarConfiguracionPayload = Omit<ConfiguracionPublica, 'id'>

@@ -4,366 +4,278 @@ import { useState } from 'react'
 import {
   Plus,
   Image as ImageIcon,
-  ChevronUp,
-  ChevronDown,
   Pencil,
   Trash2,
   Copy,
-  ToggleLeft,
-  ToggleRight,
+  Loader2,
   CalendarDays,
+  Monitor,
+  Smartphone,
 } from 'lucide-react'
 import { PageHeader } from '@/components/common/PageHeader'
-import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { EmptyState } from '@/components/common/Emptystate'
+import { Switch } from '@/components/ui/Switch'
 import { ErrorState } from '@/components/common/Errorstate'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import { BannerFormDialog } from '@/components/admin/cms/BannerFormDialog'
+import { BannerEstadoBadge } from '@/components/admin/banners/BannerEstadoBadge'
+import { BannerFormDrawer } from '@/components/admin/banners/BannerFormDrawer'
 import {
   useBanners,
-  useCrearBanner,
-  useActualizarBanner,
   useToggleBanner,
   useDuplicarBanner,
   useEliminarBanner,
-  useReordenarBanners,
 } from '@/hooks/useBanners'
 import { Banner } from '@/types/banner.types'
-import {
-  CrearBannerPayload,
-  ActualizarBannerPayload,
-} from '@/types/banner.types'
+import { cn, formatDate } from '@/lib/utils'
+
+const TIPO_CONFIG: Record<string, { label: string; cls: string }> = {
+  HERO:        { label: 'Hero',        cls: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20'  },
+  PROMOCION:   { label: 'Promocion',   cls: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20'  },
+  EVENTO:      { label: 'Evento',      cls: 'bg-purple-100 text-purple-700 border-purple-200'        },
+  INFORMATIVO: { label: 'Informativo', cls: 'bg-gray-100 text-gray-600 border-gray-200'              },
+  TEMPORADA:   { label: 'Temporada',   cls: 'bg-green-100 text-green-700 border-green-200'           },
+}
+
+function TipoBadge({ tipo }: { tipo: string }) {
+  const cfg = TIPO_CONFIG[tipo] ?? { label: tipo, cls: 'bg-gray-100 text-gray-500 border-gray-200' }
+  return (
+    <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border', cfg.cls)}>
+      {cfg.label}
+    </span>
+  )
+}
 
 function BannerCard({
   banner,
-  index,
-  total,
-  loadingId,
-  onEdit,
-  onToggle,
-  onDuplicate,
-  onDelete,
-  onMoveUp,
-  onMoveDown,
+  onEditar,
+  onEliminar,
 }: {
-  banner: Banner
-  index: number
-  total: number
-  loadingId: number | null
-  onEdit: (b: Banner) => void
-  onToggle: (b: Banner) => void
-  onDuplicate: (id: number) => void
-  onDelete: (id: number) => void
-  onMoveUp: (i: number) => void
-  onMoveDown: (i: number) => void
+  banner:    Banner
+  onEditar:  () => void
+  onEliminar: () => void
 }) {
-  const isBusy = loadingId === banner.id
-  const today = new Date().toISOString().split('T')[0]
-  const isVigente =
-    banner.activo &&
-    banner.fechaInicio <= today &&
-    (!banner.fechaFin || banner.fechaFin >= today)
+  const toggle   = useToggleBanner()
+  const duplicar = useDuplicarBanner()
 
   return (
-    <Card
-      className={`overflow-hidden transition-opacity ${isBusy ? 'opacity-60' : ''}`}
-    >
-      <div className="relative h-36 bg-gradient-to-br from-brand-azul/20 to-brand-rosa/20 flex items-center justify-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={banner.imagenUrl}
-          alt={banner.titulo}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none'
-          }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <ImageIcon className="h-8 w-8 text-white/20" />
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+      <div className="relative aspect-video bg-gray-100">
+        {banner.imagenUrl ? (
+          <img
+            src={banner.imagenUrl}
+            className="w-full h-full object-cover"
+            alt={banner.titulo}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ImageIcon className="h-8 w-8 text-gray-300" />
+          </div>
+        )}
+
+        {banner.tipoBanner && (
+          <div className="absolute top-2 left-2">
+            <TipoBadge tipo={banner.tipoBanner} />
+          </div>
+        )}
+
+        <div className="absolute top-2 right-2">
+          <BannerEstadoBadge banner={banner} />
         </div>
 
-        <div className="absolute top-2 left-2 flex gap-1">
-          {isVigente ? (
-            <Badge className="bg-green-500 text-white text-xs">Activo</Badge>
-          ) : banner.activo ? (
-            <Badge variant="secondary" className="text-xs">
-              Programado
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="bg-white/80 text-xs">
-              Inactivo
-            </Badge>
-          )}
-          {banner.tipoBanner && (
-            <Badge variant="outline" className="bg-white/80 text-xs capitalize">
-              {banner.tipoBanner.toLowerCase()}
-            </Badge>
-          )}
-        </div>
+        {(banner.soloMovil || banner.soloDesktop) && (
+          <div className="absolute bottom-2 right-2 flex gap-1">
+            {banner.soloMovil && (
+              <div className="bg-black/50 rounded p-1">
+                <Smartphone className="h-3 w-3 text-white" />
+              </div>
+            )}
+            {banner.soloDesktop && (
+              <div className="bg-black/50 rounded p-1">
+                <Monitor className="h-3 w-3 text-white" />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
-        <div className="absolute top-2 right-2 flex flex-col gap-0.5">
-          <button
-            type="button"
-            disabled={index === 0 || isBusy}
-            onClick={() => onMoveUp(index)}
-            className="w-6 h-6 bg-white/80 hover:bg-white rounded flex items-center justify-center shadow disabled:opacity-30"
-          >
-            <ChevronUp className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            disabled={index === total - 1 || isBusy}
-            onClick={() => onMoveDown(index)}
-            className="w-6 h-6 bg-white/80 hover:bg-white rounded flex items-center justify-center shadow disabled:opacity-30"
-          >
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
+      <div className="p-4">
+        <h3 className="font-bold text-sm text-gray-900 truncate">{banner.titulo}</h3>
+        {banner.descripcion && (
+          <p className="text-xs text-gray-400 truncate mt-0.5">{banner.descripcion}</p>
+        )}
+        <div className="flex items-center gap-1.5 mt-2 text-[11px] text-gray-400">
+          <CalendarDays className="h-3 w-3 shrink-0" />
+          <span>{formatDate(banner.fechaInicio)}</span>
+          {banner.fechaFin && (
+            <>
+              <span className="text-gray-300">→</span>
+              <span>{formatDate(banner.fechaFin)}</span>
+            </>
+          )}
         </div>
       </div>
 
-      <CardContent className="p-3 space-y-2">
-        <p className="font-semibold text-sm text-gray-900 truncate">
-          {banner.titulo}
-        </p>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-          <span>
-            {banner.fechaInicio}
-            {banner.fechaFin ? ` → ${banner.fechaFin}` : ' (sin vencimiento)'}
-          </span>
+      <div className="border-t border-gray-100 px-4 py-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={banner.activo}
+            disabled={toggle.isPending}
+            onCheckedChange={() => toggle.mutate({ id: banner.id, activo: banner.activo })}
+            className="scale-[0.8]"
+          />
+          <span className="text-xs text-gray-500">{banner.activo ? 'Activo' : 'Inactivo'}</span>
         </div>
-        {banner.prioridad > 0 && (
-          <p className="text-xs text-muted-foreground">
-            Prioridad: {banner.prioridad}
-          </p>
-        )}
 
-        <div className="flex items-center gap-1 pt-1 border-t">
+        <div className="flex items-center gap-0.5">
           <Button
-            size="sm"
             variant="ghost"
-            className="flex-1 h-7 text-xs gap-1"
-            onClick={() => onEdit(banner)}
-            disabled={isBusy}
+            size="icon"
+            className="h-7 w-7 rounded-lg"
+            onClick={onEditar}
+            title="Editar"
           >
-            <Pencil className="h-3 w-3" /> Editar
+            <Pencil className="h-3.5 w-3.5" />
           </Button>
           <Button
-            size="sm"
             variant="ghost"
-            className={`flex-1 h-7 text-xs gap-1 ${banner.activo ? 'text-amber-600' : 'text-green-600'}`}
-            onClick={() => onToggle(banner)}
-            disabled={isBusy}
+            size="icon"
+            className="h-7 w-7 rounded-lg"
+            onClick={() => duplicar.mutate(banner.id)}
+            disabled={duplicar.isPending}
+            title="Duplicar"
           >
-            {banner.activo ? (
-              <>
-                <ToggleRight className="h-3 w-3" /> Desactivar
-              </>
+            {duplicar.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <>
-                <ToggleLeft className="h-3 w-3" /> Activar
-              </>
+              <Copy className="h-3.5 w-3.5" />
             )}
           </Button>
           <Button
-            size="sm"
             variant="ghost"
-            className="h-7 w-7 p-0 text-muted-foreground hover:text-brand-azul"
-            onClick={() => onDuplicate(banner.id)}
-            disabled={isBusy}
-            title="Duplicar"
-          >
-            <Copy className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-            onClick={() => onDelete(banner.id)}
-            disabled={isBusy}
+            size="icon"
+            className="h-7 w-7 rounded-lg text-destructive/60 hover:text-destructive"
+            onClick={onEliminar}
             title="Eliminar"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 
 export default function BannersPage() {
-  const [loadingId, setLoadingId] = useState<number | null>(null)
-  const [formOpen, setFormOpen] = useState(false)
-  const [editTarget, setEditTarget] = useState<Banner | null>(null)
-  const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [drawerOpen,     setDrawerOpen]     = useState(false)
+  const [bannerEditando, setBannerEditando] = useState<Banner | null>(null)
+  const [confirmOpen,    setConfirmOpen]    = useState(false)
+  const [eliminarTarget, setEliminarTarget] = useState<Banner | null>(null)
 
   const { data, isLoading, isError, refetch } = useBanners()
-  const banners: Banner[] = data?.content ?? []
-
-  const crear = useCrearBanner()
-  const actualizar = useActualizarBanner()
-  const toggle = useToggleBanner()
-  const duplicar = useDuplicarBanner()
   const eliminar = useEliminarBanner()
-  const reordenar = useReordenarBanners()
 
-  function handleMoveUp(index: number) {
-    if (index === 0) return
-    const newOrder = [...banners]
-    ;[newOrder[index - 1], newOrder[index]] = [
-      newOrder[index],
-      newOrder[index - 1],
-    ]
-    reordenar.mutate(newOrder.map((b) => b.id))
+  function abrirCrear() {
+    setBannerEditando(null)
+    setDrawerOpen(true)
   }
 
-  function handleMoveDown(index: number) {
-    if (index >= banners.length - 1) return
-    const newOrder = [...banners]
-    ;[newOrder[index], newOrder[index + 1]] = [
-      newOrder[index + 1],
-      newOrder[index],
-    ]
-    reordenar.mutate(newOrder.map((b) => b.id))
+  function abrirEditar(b: Banner) {
+    setBannerEditando(b)
+    setDrawerOpen(true)
   }
 
-  function handleSubmit(payload: CrearBannerPayload | ActualizarBannerPayload) {
-    if (editTarget) {
-      actualizar.mutate(
-        { id: editTarget.id, payload },
-        { onSuccess: () => setFormOpen(false) }
-      )
-    } else {
-      crear.mutate(payload as CrearBannerPayload, {
-        onSuccess: () => setFormOpen(false),
-      })
-    }
+  function cerrarDrawer() {
+    setDrawerOpen(false)
+    setBannerEditando(null)
   }
 
   if (isError) return <ErrorState onRetry={refetch} />
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs
-        items={[{ label: 'CMS', href: '/admin/cms' }, { label: 'Banners' }]}
-      />
-
       <PageHeader
         title="Banners"
-        description="Gestiona los banners del sitio web público"
+        description="Gestiona los banners del sitio publico"
         actions={
-          <Button
-            size="sm"
-            className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
-            onClick={() => {
-              setEditTarget(null)
-              setFormOpen(true)
-            }}
-          >
+          <Button onClick={abrirCrear} className="rounded-xl gap-1.5">
             <Plus className="h-4 w-4" />
             Nuevo banner
           </Button>
         }
       />
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {isLoading
-            ? '…'
-            : `${banners.length} banner${banners.length !== 1 ? 's' : ''} en total`}
-        </p>
-      </div>
-
       {isLoading && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-56 rounded-xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-2xl overflow-hidden border border-gray-100">
+              <Skeleton className="aspect-video w-full" />
+              <div className="p-4 space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            </div>
           ))}
         </div>
       )}
 
-      {!isLoading && banners.length === 0 && (
-        <EmptyState
-          title="Sin banners"
-          description="Crea el primer banner para mostrarlo en la página principal."
-          icon={<ImageIcon className="h-6 w-6" />}
-          action={
-            <Button
-              size="sm"
-              className="bg-brand-azul text-white gap-1.5"
-              onClick={() => {
-                setEditTarget(null)
-                setFormOpen(true)
-              }}
-            >
-              <Plus className="h-4 w-4" /> Nuevo banner
-            </Button>
-          }
-        />
+      {!isLoading && data?.content?.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
+            <ImageIcon className="h-8 w-8 text-gray-300" />
+          </div>
+          <p className="text-sm font-medium text-gray-500">Sin banners creados</p>
+          <Button variant="outline" onClick={abrirCrear} className="rounded-xl gap-1.5">
+            <Plus className="h-4 w-4" /> Crear primer banner
+          </Button>
+        </div>
       )}
 
-      {!isLoading && banners.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {banners.map((b, i) => (
+      {!isLoading && data?.content && data.content.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {data.content.map((banner) => (
             <BannerCard
-              key={b.id}
-              banner={b}
-              index={i}
-              total={banners.length}
-              loadingId={loadingId}
-              onEdit={(banner) => {
-                setEditTarget(banner)
-                setFormOpen(true)
+              key={banner.id}
+              banner={banner}
+              onEditar={() => abrirEditar(banner)}
+              onEliminar={() => {
+                setEliminarTarget(banner)
+                setConfirmOpen(true)
               }}
-              onToggle={(banner) => {
-                setLoadingId(banner.id)
-                toggle.mutate(
-                  { id: banner.id, activo: banner.activo },
-                  { onSettled: () => setLoadingId(null) }
-                )
-              }}
-              onDuplicate={(id) => {
-                setLoadingId(id)
-                duplicar.mutate(id, { onSettled: () => setLoadingId(null) })
-              }}
-              onDelete={(id) => setDeleteId(id)}
-              onMoveUp={handleMoveUp}
-              onMoveDown={handleMoveDown}
             />
           ))}
         </div>
       )}
 
-      <BannerFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        banner={editTarget}
-        onSubmit={handleSubmit}
-        isLoading={crear.isPending || actualizar.isPending}
+      <BannerFormDrawer
+        open={drawerOpen}
+        onClose={cerrarDrawer}
+        banner={bannerEditando}
       />
 
       <ConfirmDialog
-        open={deleteId !== null}
-        onOpenChange={(v) => !v && setDeleteId(null)}
-        title="¿Eliminar banner?"
-        description="Esta acción no se puede deshacer."
+        open={confirmOpen}
+        onOpenChange={(o) => {
+          if (!o) {
+            setConfirmOpen(false)
+            setEliminarTarget(null)
+          }
+        }}
+        title="Eliminar banner"
+        description={`Se eliminara el banner "${eliminarTarget?.titulo}". Esta accion no puede revertirse.`}
         confirmLabel="Eliminar"
+        destructive
+        loading={eliminar.isPending}
         onConfirm={() => {
-          if (deleteId !== null) {
-            setLoadingId(deleteId)
-            eliminar.mutate(deleteId, {
-              onSettled: () => {
-                setLoadingId(null)
-                setDeleteId(null)
+          if (eliminarTarget) {
+            eliminar.mutate(eliminarTarget.id, {
+              onSuccess: () => {
+                setConfirmOpen(false)
+                setEliminarTarget(null)
               },
             })
           }
         }}
-        loading={eliminar.isPending}
       />
     </div>
   )
