@@ -17,6 +17,12 @@ export const registroSchema = z
       .length(8, 'DNI debe tener 8 dígitos')
       .optional()
       .or(z.literal('')),
+    aceptaTerminos: z
+      .boolean()
+      .refine((v) => v === true, 'Debes aceptar los Términos y Condiciones'),
+    aceptaPrivacidad: z
+      .boolean()
+      .refine((v) => v === true, 'Debes aceptar la Política de Privacidad'),
   })
   .refine((d) => d.contrasena === d.confirmarContrasena, {
     message: 'Las contraseñas no coinciden',
