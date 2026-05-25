@@ -7,12 +7,7 @@ export type EstadoReserva =
   | 'COMPLETADA'
   | 'CANCELADA'
 
-export type MedioPago =
-  | 'YAPE'
-  | 'PLIN'
-  | 'TRANSFERENCIA'
-  | 'EFECTIVO'
-  | 'TARJETA'
+export type MedioPago = 'YAPE' | 'CAJA'
 
 export interface Reserva {
   id: number
@@ -20,6 +15,7 @@ export interface Reserva {
   nombreCliente?: string
   correoCliente?: string
   idSede: number
+  nombreSede?: string
   estado: EstadoReserva
   canalReserva: string
   tipoDia: string
@@ -67,6 +63,8 @@ export interface CrearReservaPayload {
   nombreAcompanante: string
   dniAcompanante: string
   firmoConsentimiento: boolean
+  medioPago: MedioPago
+  referenciaPago?: string
   idPromocionManual?: number
 }
 

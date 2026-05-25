@@ -91,4 +91,15 @@ export const reservaService = {
     )
     return data.data
   },
+
+  subirComprobante: async (idReserva: number, archivo: File): Promise<Reserva> => {
+    const form = new FormData()
+    form.append('archivo', archivo)
+    const { data } = await api.post<ApiResponse<Reserva>>(
+      `/reservas/${idReserva}/comprobante`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    )
+    return data.data
+  },
 }
