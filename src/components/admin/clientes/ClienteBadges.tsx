@@ -1,8 +1,12 @@
 // components/admin/clientes/ClienteBadges.tsx
 
-import { Crown, CheckCircle, XCircle, Building2, User } from 'lucide-react'
+import {
+  Crown, CheckCircle, XCircle, Building2, User,
+  Globe, MapPin, ShieldCheck, Star,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/utils'
+import { OrigenRegistro, SegmentoCliente } from '@/types/cliente.types'
 
 /* ── VIP ─────────────────────────────────────────────────────────────────────── */
 export function VipBadge({ descuento }: { descuento?: number | null }) {
@@ -65,6 +69,52 @@ export function TipoBadge({ tipo }: { tipo?: string | null }) {
     >
       <User className="h-3 w-3" />
       Persona
+    </Badge>
+  )
+}
+
+/* ── Origen de registro ──────────────────────────────────────────────────────── */
+export function OrigenBadge({ origen }: { origen?: OrigenRegistro | null }) {
+  if (origen === 'PRESENCIAL') {
+    return (
+      <Badge variant="outline" className="gap-1 text-xs text-orange-600 border-orange-200 bg-orange-50">
+        <MapPin className="h-3 w-3" />
+        Presencial
+      </Badge>
+    )
+  }
+  if (origen === 'ADMIN') {
+    return (
+      <Badge variant="outline" className="gap-1 text-xs text-purple-600 border-purple-200 bg-purple-50">
+        <ShieldCheck className="h-3 w-3" />
+        Admin
+      </Badge>
+    )
+  }
+  return (
+    <Badge variant="outline" className="gap-1 text-xs text-brand-azul border-brand-azul/20 bg-brand-azul/5">
+      <Globe className="h-3 w-3" />
+      Web
+    </Badge>
+  )
+}
+
+/* ── Segmento ────────────────────────────────────────────────────────────────── */
+const SEGMENTO_CONFIG: Record<SegmentoCliente, { label: string; cls: string }> = {
+  NUEVO:       { label: 'Nuevo',       cls: 'text-gray-600 border-gray-200 bg-gray-50' },
+  FRECUENTE:   { label: 'Frecuente',   cls: 'text-emerald-700 border-emerald-200 bg-emerald-50' },
+  VIP:         { label: 'VIP',         cls: 'text-yellow-700 border-yellow-200 bg-yellow-50' },
+  CORPORATIVO: { label: 'Corporativo', cls: 'text-blue-700 border-blue-200 bg-blue-50' },
+  INACTIVO:    { label: 'Inactivo',    cls: 'text-gray-400 border-gray-100 bg-gray-50' },
+}
+
+export function SegmentoBadge({ segmento }: { segmento?: SegmentoCliente | null }) {
+  if (!segmento) return null
+  const cfg = SEGMENTO_CONFIG[segmento] ?? SEGMENTO_CONFIG.NUEVO
+  return (
+    <Badge variant="outline" className={cn('gap-1 text-xs font-semibold', cfg.cls)}>
+      <Star className="h-3 w-3" />
+      {cfg.label}
     </Badge>
   )
 }
