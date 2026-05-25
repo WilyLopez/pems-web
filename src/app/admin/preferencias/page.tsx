@@ -57,7 +57,7 @@ type SectionId = (typeof SECTIONS)[number]['id']
 function PreferenciasSkeleton() {
   return (
     <div className="flex min-h-[560px]">
-      <div className="w-52 shrink-0 border-r border-gray-100 p-3 space-y-1.5">
+      <div className="w-52 shrink-0 border-r border-border p-3 space-y-1.5">
         {Array.from({ length: 8 }).map((_, i) => (
           <Skeleton key={i} className="h-9 w-full rounded-lg" />
         ))}
@@ -100,7 +100,7 @@ export default function PreferenciasPage() {
           title="Mis preferencias"
           description="Personaliza tu experiencia en el panel de administración"
         />
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="rounded-2xl border border-border bg-card shadow-sm">
           <PreferenciasSkeleton />
         </div>
       </div>
@@ -152,9 +152,9 @@ export default function PreferenciasPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="flex min-h-[600px]">
-          <nav className="w-52 shrink-0 border-r border-gray-100 bg-gray-50/60 p-3 space-y-0.5">
+          <nav className="w-52 shrink-0 border-r border-border bg-muted/30 p-3 space-y-0.5">
             {SECTIONS.map(({ id, label, icon: Icon }) => {
               const isActive = activeSection === id
               return (
@@ -165,7 +165,7 @@ export default function PreferenciasPage() {
                     'w-full flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-all duration-150',
                     isActive
                       ? 'bg-primary text-primary-foreground font-medium shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-white hover:shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background hover:shadow-sm'
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
@@ -208,7 +208,7 @@ export default function PreferenciasPage() {
             )}
           </div>
 
-          <div className="hidden xl:flex w-64 shrink-0 border-l border-gray-100 bg-gray-50/40 p-5 flex-col">
+          <div className="hidden xl:flex w-64 shrink-0 border-l border-border bg-muted/20 p-5 flex-col">
             <PreviewPanel prefs={preferences} />
           </div>
         </div>
