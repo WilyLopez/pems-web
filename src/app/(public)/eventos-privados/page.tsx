@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 
 import { eventoService } from '@/services/evento.service'
+import { useWhatsAppUrl } from '@/hooks/useConfigPublica'
 import { EventoPrivado } from '@/types/evento.types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -34,9 +35,27 @@ import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
+const ANTICIPACION_MIN_DIAS = 15
+
+function fechaMinEvento(): string {
+  const d = new Date()
+  d.setDate(d.getDate() + ANTICIPACION_MIN_DIAS)
+  return d.toISOString().split('T')[0]
+}
+
 const solicitudSchema = z.object({
   idTurno: z.string().min(1, 'Selecciona un turno'),
-  fechaEvento: z.string().min(1, 'Selecciona una fecha'),
+  fechaEvento: z.string().min(1, 'Selecciona una fecha').refine(
+    (val) => {
+      if (!val) return false
+      const hoy = new Date()
+      hoy.setHours(0, 0, 0, 0)
+      const limite = new Date(hoy)
+      limite.setDate(limite.getDate() + ANTICIPACION_MIN_DIAS)
+      return new Date(val + 'T00:00:00') >= limite
+    },
+    { message: `Debes reservar con al menos ${ANTICIPACION_MIN_DIAS} días de anticipación` }
+  ),
   tipoEvento: z.string().min(2, 'Describe el tipo de evento').max(200),
   contactoAdicional: z.string().optional(),
   aforoDeclarado: z.string().optional(),
@@ -123,6 +142,7 @@ export default function EventosPrivadosPage() {
   const { data: session } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const whatsappUrl = useWhatsAppUrl('Hola, quisiera coordinar un evento privado')
   const paqueteParam = searchParams.get('paquete') ?? ''
   const [eventoCreado, setEventoCreado] = useState<EventoPrivado | null>(null)
 
@@ -178,7 +198,7 @@ export default function EventosPrivadosPage() {
           className="mb-4 text-gray-500 hover:text-brand-rosa gap-1.5 -ml-2"
           asChild
         >
-          <Link href="/eventos">
+          <Link href="/celebraciones">
             <ChevronLeft className="h-4 w-4" />
             Ver todos los paquetes
           </Link>
@@ -251,15 +271,19 @@ export default function EventosPrivadosPage() {
             </CardContent>
           </Card>
 
-          <div className="text-center">
-            <a
-              href="https://wa.me/51999999999"
-              className="inline-flex items-center gap-2 text-sm text-green-600 font-semibold hover:underline"
-            >
-              <Phone className="h-4 w-4" />
-              Prefiero coordinar por WhatsApp
-            </a>
-          </div>
+          {whatsappUrl && (
+            <div className="text-center">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-green-600 font-semibold hover:underline"
+              >
+                <Phone className="h-4 w-4" />
+                Prefiero coordinar por WhatsApp
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Formulario */}
@@ -282,11 +306,15 @@ export default function EventosPrivadosPage() {
                 <Label htmlFor="fechaEvento" className="text-sm font-semibold">
                   Fecha del evento
                 </Label>
+                <p className="text-xs text-gray-400">
+                  La reserva debe realizarse con al menos {ANTICIPACION_MIN_DIAS} días de anticipación.
+                </p>
                 <div className="relative">
                   <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     type="date"
                     id="fechaEvento"
+                    min={fechaMinEvento()}
                     className="h-11 rounded-xl pl-9"
                     {...register('fechaEvento')}
                   />

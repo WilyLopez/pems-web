@@ -22,10 +22,10 @@ export function buildMetadata(
   const siteName = config?.nombreNegocio ?? DEFAULT_TITLE
   const baseTitle = options.title
     ? `${options.title} | ${siteName}`
-    : (config?.metaTitulo ?? siteName)
+    : (config?.metaTitle ?? siteName)
 
   const description =
-    options.description ?? config?.metaDescripcion ?? DEFAULT_DESCRIPTION
+    options.description ?? config?.metaDescription ?? DEFAULT_DESCRIPTION
 
   const keywords = options.keywords ?? config?.metaKeywords
 
