@@ -1,13 +1,13 @@
 import { cn } from '@/lib/utils'
 
 const items = [
-  { color: 'bg-white border border-gray-200', label: 'Disponible' },
-  { color: 'bg-green-100 border border-green-300', label: 'Baja ocupación' },
-  { color: 'bg-yellow-100 border border-yellow-300', label: 'Media ocupación' },
-  { color: 'bg-orange-100 border border-orange-300', label: 'Alta ocupación' },
-  { color: 'bg-red-50 border border-red-200', label: 'Lleno / Bloqueado' },
-  { color: 'bg-purple-50 border border-purple-200', label: 'Feriado' },
-  { color: 'bg-brand-azul/5 border border-brand-azul/40', label: 'Hoy' },
+  { color: 'bg-white border border-gray-200',             label: 'Sin actividad'    },
+  { color: 'bg-green-50/60 border border-green-200',      label: 'Baja ocupacion'   },
+  { color: 'bg-yellow-50/60 border border-yellow-200',    label: 'Media ocupacion'  },
+  { color: 'bg-orange-50/60 border border-orange-200',    label: 'Alta ocupacion'   },
+  { color: 'bg-red-50 border border-red-200',             label: 'Lleno o bloqueado'},
+  { color: 'bg-purple-50 border border-purple-200',       label: 'Feriado'          },
+  { color: 'bg-brand-azul/5 border border-brand-azul/40', label: 'Hoy'             },
 ]
 
 export function CalendarioLeyenda() {
