@@ -2,6 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { comercialService } from '@/services/comercial.service'
 import {
+  PaqueteEvento,
+  ZonaJuego,
+  ActividadLocal,
+  NovedadLocal,
   CrearPaquetePayload,
   ActualizarPaquetePayload,
   CrearZonaPayload,
@@ -63,7 +67,21 @@ export function usePaqueteMutations() {
     onError: () => toast.error('Error al reordenar'),
   })
 
-  return { crear, actualizar, eliminar, reordenar }
+  const toggleActivo = useMutation({
+    mutationFn: (p: PaqueteEvento) =>
+      comercialService.paquetes.actualizar(p.id, {
+        nombre: p.nombre, descripcionCorta: p.descripcionCorta,
+        descripcionLarga: p.descripcionLarga, precio: p.precio,
+        badge: p.badge, color: p.color, imagenUrl: p.imagenUrl,
+        duracionMinutos: p.duracionMinutos, limitepersonas: p.limitepersonas,
+        beneficios: p.beneficios, activo: !p.activo,
+        destacado: p.destacado, orden: p.orden,
+      }),
+    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onError: () => toast.error('No se pudo cambiar el estado'),
+  })
+
+  return { crear, actualizar, eliminar, reordenar, toggleActivo }
 }
 
 // ── Zonas ─────────────────────────────────────────────────────────────────────
@@ -108,20 +126,6 @@ export function useZonaMutations() {
     onError: () => toast.error('Error al eliminar la zona'),
   })
 
-  const agregarMedia = useMutation({
-    mutationFn: ({ id, url, tipo }: { id: number; url: string; tipo: string }) =>
-      comercialService.zonas.agregarMedia(id, url, tipo),
-    onSuccess: () => invalidar(),
-    onError: () => toast.error('Error al agregar media'),
-  })
-
-  const eliminarMedia = useMutation({
-    mutationFn: ({ id, url }: { id: number; url: string }) =>
-      comercialService.zonas.eliminarMedia(id, url),
-    onSuccess: () => invalidar(),
-    onError: () => toast.error('Error al eliminar media'),
-  })
-
   const reordenar = useMutation({
     mutationFn: ({ id, nuevoOrden }: { id: number; nuevoOrden: number }) =>
       comercialService.zonas.reordenar(id, nuevoOrden),
@@ -129,7 +133,19 @@ export function useZonaMutations() {
     onError: () => toast.error('Error al reordenar'),
   })
 
-  return { crear, actualizar, eliminar, agregarMedia, eliminarMedia, reordenar }
+  const toggleActivo = useMutation({
+    mutationFn: (z: ZonaJuego) =>
+      comercialService.zonas.actualizar(z.id, {
+        nombre: z.nombre, descripcion: z.descripcion,
+        edadMinima: z.edadMinima, edadMaxima: z.edadMaxima,
+        imagenes: z.imagenes, videos: z.videos,
+        activa: !z.activa, destacada: z.destacada, orden: z.orden,
+      }),
+    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onError: () => toast.error('No se pudo cambiar el estado'),
+  })
+
+  return { crear, actualizar, eliminar, reordenar, toggleActivo }
 }
 
 // ── Actividades ───────────────────────────────────────────────────────────────
@@ -174,7 +190,27 @@ export function useActividadMutations() {
     onError: () => toast.error('Error al eliminar la actividad'),
   })
 
-  return { crear, actualizar, eliminar }
+  const reordenar = useMutation({
+    mutationFn: ({ id, nuevoOrden }: { id: number; nuevoOrden: number }) =>
+      comercialService.actividades.reordenar(id, nuevoOrden),
+    onSuccess: () => invalidar(),
+    onError: () => toast.error('Error al reordenar'),
+  })
+
+  const toggleActivo = useMutation({
+    mutationFn: (a: ActividadLocal) =>
+      comercialService.actividades.actualizar(a.id, {
+        nombre: a.nombre, descripcion: a.descripcion,
+        imagenUrl: a.imagenUrl, idZona: a.idZona,
+        esEspecial: a.esEspecial, fechaInicio: a.fechaInicio,
+        fechaFin: a.fechaFin, activa: !a.activa,
+        destacada: a.destacada, orden: a.orden,
+      }),
+    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onError: () => toast.error('No se pudo cambiar el estado'),
+  })
+
+  return { crear, actualizar, eliminar, reordenar, toggleActivo }
 }
 
 // ── Novedades ─────────────────────────────────────────────────────────────────
@@ -219,5 +255,19 @@ export function useNovedadMutations() {
     onError: () => toast.error('Error al eliminar la novedad'),
   })
 
-  return { crear, actualizar, eliminar }
+  const toggleActivo = useMutation({
+    mutationFn: (n: NovedadLocal) =>
+      comercialService.novedades.actualizar(n.id, {
+        titulo: n.titulo, descripcion: n.descripcion,
+        imagenUrl: n.imagenUrl, textoCta: n.textoCta,
+        urlCta: n.urlCta, prioridad: n.prioridad,
+        fechaInicio: n.fechaInicio, fechaFin: n.fechaFin,
+        visibleHome: n.visibleHome, destacada: n.destacada,
+        activa: !n.activa,
+      }),
+    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onError: () => toast.error('No se pudo cambiar el estado'),
+  })
+
+  return { crear, actualizar, eliminar, toggleActivo }
 }

@@ -115,6 +115,14 @@ export const comercialService = {
     eliminar: async (id: number): Promise<void> => {
       await api.delete(`/actividades/${id}`)
     },
+    reordenar: async (id: number, nuevoOrden: number): Promise<ActividadLocal> => {
+      const { data } = await api.patch<ApiResponse<ActividadLocal>>(
+        `/actividades/${id}/orden`,
+        null,
+        { params: { nuevoOrden } }
+      )
+      return data.data
+    },
   },
 
   novedades: {
