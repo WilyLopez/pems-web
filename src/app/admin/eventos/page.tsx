@@ -12,27 +12,22 @@ import {
   AlertTriangle,
   CheckCircle2,
   CreditCard,
-  ClipboardList,
   FileText,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useDebounce } from '@/hooks/useDebounce'
-import {
-  useEventos,
-  useConfirmarEvento,
-  useCancelarEvento,
-} from '@/hooks/useEventos'
+import { useEventos, useCancelarEvento } from '@/hooks/useEventos'
 import {
   EventoPrivado,
   EstadoEvento,
   calcularIndicadores,
 } from '@/types/evento.types'
+import { ConfirmarEventoModal } from '@/components/admin/eventos/ConfirmarEventoModal'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { DataTable } from '@/components/common/DataTable/DataTable'
 import { DataTablePagination } from '@/components/common/DataTable/DataTablePagination'
 import { ErrorState } from '@/components/common/Errorstate'
-import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
@@ -46,68 +41,57 @@ import {
 import { formatDate, formatCurrency, cn } from '@/lib/utils'
 
 const ESTADOS: { value: EstadoEvento | ''; label: string }[] = [
-  { value: '', label: 'Todos' },
+  { value: '',          label: 'Todos' },
   { value: 'SOLICITADA', label: 'Solicitada' },
   { value: 'CONFIRMADA', label: 'Confirmada' },
   { value: 'COMPLETADA', label: 'Completada' },
-  { value: 'CANCELADA', label: 'Cancelada' },
+  { value: 'CANCELADA',  label: 'Cancelada' },
 ]
 
 const ESTADO_BADGE: Record<string, string> = {
   SOLICITADA: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   CONFIRMADA: 'bg-green-100 text-green-800 border-green-200',
   COMPLETADA: 'bg-blue-100 text-blue-700 border-blue-200',
-  CANCELADA: 'bg-red-100 text-red-700 border-red-200',
+  CANCELADA:  'bg-red-100 text-red-700 border-red-200',
 }
 
 const INDICADOR_ICON: Record<string, React.ElementType> = {
-  CONTRATO: FileText,
-  PAGO: CreditCard,
-  CHECKLIST: ClipboardList,
+  CONTRATO:  FileText,
+  PAGO:      CreditCard,
+  CHECKLIST: CheckCircle2,
   PROVEEDOR: AlertTriangle,
 }
 
 const INDICADOR_COLOR: Record<string, string> = {
-  DANGER: 'text-red-500',
+  DANGER:  'text-red-500',
   WARNING: 'text-amber-500',
-  OK: 'text-green-500',
+  OK:      'text-green-500',
 }
 
-type DialogType = 'confirmar' | 'cancelar'
-type Dialog = { type: DialogType; evento: EventoPrivado } | null
-
 export default function EventosPage() {
-  const router = useRouter()
+  const router     = useRouter()
   const { idSede } = useAuth()
-  const [page, setPage] = useState(0)
+  const [page,   setPage]   = useState(0)
   const [search, setSearch] = useState('')
   const [estado, setEstado] = useState<EstadoEvento | ''>('')
-  const [fecha, setFecha] = useState('')
-  const [dialog, setDialog] = useState<Dialog>(null)
+  const [fecha,  setFecha]  = useState('')
+  const [eventoConfirmar, setEventoConfirmar] = useState<EventoPrivado | null>(null)
 
   const dSearch = useDebounce(search, 350)
 
   const { data, isLoading, isError, refetch } = useEventos({
     page,
     size: 15,
-    idSede: idSede ?? undefined,
-    estado: estado || undefined,
-    fecha: fecha || undefined,
-    search: dSearch || undefined,
+    idSede:  idSede ?? undefined,
+    estado:  estado || undefined,
+    fecha:   fecha  || undefined,
+    search:  dSearch || undefined,
   })
 
-  const confirmar = useConfirmarEvento()
   const cancelar = useCancelarEvento()
-  const closeDialog = () => setDialog(null)
 
-  const handleSearch = (v: string) => {
-    setSearch(v)
-    setPage(0)
-  }
-  const handleEstado = (v: string) => {
-    setEstado(v as EstadoEvento)
-    setPage(0)
-  }
+  const handleSearch = (v: string) => { setSearch(v); setPage(0) }
+  const handleEstado = (v: string) => { setEstado(v as EstadoEvento); setPage(0) }
 
   const columns: ColumnDef<EventoPrivado>[] = [
     {
@@ -122,95 +106,55 @@ export default function EventosPage() {
       ),
       cell: ({ row }) => (
         <div>
-          <p className="text-sm font-semibold text-gray-900">
-            {formatDate(row.original.fechaEvento)}
-          </p>
-          <p className="text-xs text-gray-400">
-            {row.original.turno} · {row.original.horaInicio}
-          </p>
+          <p className="text-sm font-semibold text-gray-900">{formatDate(row.original.fechaEvento)}</p>
+          <p className="text-xs text-gray-400">{row.original.turno} · {row.original.horaInicio}</p>
         </div>
       ),
     },
     {
       accessorKey: 'nombreCliente',
-      header: () => (
-        <span className="text-xs font-bold text-gray-400 uppercase">
-          Cliente
-        </span>
-      ),
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Cliente</span>,
       cell: ({ row }) => (
         <div>
-          <p className="text-sm font-semibold text-gray-900">
-            {row.original.nombreCliente}
-          </p>
-          <p className="text-xs text-gray-400 truncate max-w-[140px]">
-            {row.original.correoCliente}
-          </p>
+          <p className="text-sm font-semibold text-gray-900">{row.original.nombreCliente}</p>
+          <p className="text-xs text-gray-400 truncate max-w-[140px]">{row.original.correoCliente}</p>
         </div>
       ),
     },
     {
       accessorKey: 'tipoEvento',
-      header: () => (
-        <span className="text-xs font-bold text-gray-400 uppercase">Tipo</span>
-      ),
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Tipo</span>,
       cell: ({ row }) => (
-        <span className="text-sm text-gray-700 truncate max-w-[120px] block">
-          {row.original.tipoEvento}
-        </span>
+        <span className="text-sm text-gray-700 truncate max-w-[120px] block">{row.original.tipoEvento}</span>
       ),
     },
     {
       accessorKey: 'aforoDeclarado',
-      header: () => (
-        <span className="text-xs font-bold text-gray-400 uppercase">Aforo</span>
-      ),
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-700">
-          {row.original.aforoDeclarado ?? '—'}
-        </span>
-      ),
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Aforo</span>,
+      cell: ({ row }) => <span className="text-sm text-gray-700">{row.original.aforoDeclarado ?? '—'}</span>,
     },
     {
       accessorKey: 'estado',
-      header: () => (
-        <span className="text-xs font-bold text-gray-400 uppercase">
-          Estado
-        </span>
-      ),
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Estado</span>,
       cell: ({ row }) => (
-        <Badge
-          variant="outline"
-          className={cn(
-            'text-[10px] font-bold',
-            ESTADO_BADGE[row.original.estado]
-          )}
-        >
+        <Badge variant="outline" className={cn('text-[10px] font-bold', ESTADO_BADGE[row.original.estado])}>
           {row.original.estado}
         </Badge>
       ),
     },
     {
       id: 'indicadores',
-      header: () => (
-        <span className="text-xs font-bold text-gray-400 uppercase">
-          Alertas
-        </span>
-      ),
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Alertas</span>,
       cell: ({ row }) => {
         const indicadores = calcularIndicadores(row.original)
-        if (!indicadores.length) {
-          return <CheckCircle2 className="h-4 w-4 text-green-400" />
-        }
+        if (!indicadores.length) return <CheckCircle2 className="h-4 w-4 text-green-400" />
         return (
           <div className="flex items-center gap-1">
             {indicadores.map((ind, i) => {
               const Icon = INDICADOR_ICON[ind.tipo] ?? AlertTriangle
               return (
                 <div key={i} title={ind.mensaje}>
-                  <Icon
-                    className={cn('h-3.5 w-3.5', INDICADOR_COLOR[ind.nivel])}
-                  />
+                  <Icon className={cn('h-3.5 w-3.5', INDICADOR_COLOR[ind.nivel])} />
                 </div>
               )
             })}
@@ -220,19 +164,13 @@ export default function EventosPage() {
     },
     {
       accessorKey: 'precioTotalContrato',
-      header: () => (
-        <span className="text-xs font-bold text-gray-400 uppercase">
-          Contrato
-        </span>
-      ),
+      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Contrato</span>,
       cell: ({ row }) => {
         const e = row.original
         return (
           <div>
             <p className="text-sm font-semibold text-gray-900">
-              {e.precioTotalContrato
-                ? formatCurrency(e.precioTotalContrato)
-                : '—'}
+              {e.precioTotalContrato ? formatCurrency(e.precioTotalContrato) : '—'}
             </p>
             {e.montoSaldo && e.montoSaldo > 0 && (
               <p className="text-xs text-amber-600 font-semibold">
@@ -246,15 +184,27 @@ export default function EventosPage() {
     {
       id: 'acciones',
       cell: ({ row }) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="rounded-lg gap-1.5 text-xs text-gray-500 hover:text-brand-azul hover:bg-brand-azul/8"
-          onClick={() => router.push(`/admin/eventos/${row.original.id}`)}
-        >
-          <Eye className="h-3.5 w-3.5" />
-          Ver
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-lg gap-1.5 text-xs text-gray-500 hover:text-brand-azul hover:bg-brand-azul/8"
+            onClick={() => router.push(`/admin/eventos/${row.original.id}`)}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Ver
+          </Button>
+          {row.original.estado === 'SOLICITADA' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-lg gap-1.5 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+              onClick={() => setEventoConfirmar(row.original)}
+            >
+              Confirmar
+            </Button>
+          )}
+        </div>
       ),
     },
   ]
@@ -269,12 +219,7 @@ export default function EventosPage() {
         title="Eventos Privados"
         description="Gestion comercial y operativa de eventos"
         actions={
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            className="rounded-xl gap-1.5"
-          >
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl gap-1.5">
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
@@ -303,10 +248,7 @@ export default function EventosPage() {
         <Input
           type="date"
           value={fecha}
-          onChange={(e) => {
-            setFecha(e.target.value)
-            setPage(0)
-          }}
+          onChange={(e) => { setFecha(e.target.value); setPage(0) }}
           className="h-10 rounded-xl border-gray-200 w-44"
         />
 
@@ -324,10 +266,7 @@ export default function EventosPage() {
         </Select>
 
         {data?.totalElements !== undefined && (
-          <Badge
-            variant="secondary"
-            className="bg-gray-100 text-gray-600 h-10 px-3 text-sm self-start sm:self-auto"
-          >
+          <Badge variant="secondary" className="bg-gray-100 text-gray-600 h-10 px-3 text-sm self-start sm:self-auto">
             {data.totalElements} eventos
           </Badge>
         )}
@@ -349,6 +288,14 @@ export default function EventosPage() {
           totalElements={data.totalElements}
           size={data.size}
           onPageChange={setPage}
+        />
+      )}
+
+      {eventoConfirmar && (
+        <ConfirmarEventoModal
+          evento={eventoConfirmar}
+          open={!!eventoConfirmar}
+          onClose={() => setEventoConfirmar(null)}
         />
       )}
     </div>

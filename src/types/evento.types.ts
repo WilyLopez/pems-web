@@ -16,6 +16,28 @@ export interface ChecklistItem {
   fechaCompletado?: string
 }
 
+export interface EventoExtra {
+  id: number
+  idExtra?: number
+  nombreExtra?: string
+  nombreLibre?: string
+}
+
+export interface Turno {
+  id: number
+  codigo: string
+  nombre: string
+  horaInicio: string
+  horaFin: string
+}
+
+export interface ExtraPaquete {
+  id: number
+  nombre: string
+  descripcion?: string
+  orden: number
+}
+
 export interface EventoPrivado {
   id: number
   idCliente: number
@@ -35,14 +57,19 @@ export interface EventoPrivado {
   precioTotalContrato?: number
   montoAdelanto?: number
   montoSaldo?: number
-  observaciones?: string
+  medioPagoAdelanto?: string
   notasInternas?: string
+  observaciones?: string
+  nombreNino?: string
+  edadCumple?: number
+  idPaquete?: number
   usuarioGestor?: string
   estadoOperativo?: string
   checklistCompleto: boolean
   horaInicioReal?: string
   horaFinReal?: string
   checklist?: ChecklistItem[]
+  extras?: EventoExtra[]
   fechaCreacion: string
 }
 
@@ -54,6 +81,18 @@ export interface SolicitarEventoPayload {
   tipoEvento: string
   contactoAdicional?: string
   aforoDeclarado?: number
+  nombreNino?: string
+  edadCumple?: number
+  idPaquete?: number
+  idsExtras?: number[]
+  extrasLibres?: string[]
+  observaciones?: string
+}
+
+export interface ConfirmarEventoPayload {
+  precioTotal: number
+  montoAdelanto: number
+  medioPagoAdelanto: string
 }
 
 export interface IndicadorEvento {
