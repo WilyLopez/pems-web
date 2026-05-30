@@ -1,5 +1,5 @@
 import api from './api'
-import { ApiResponse } from '@/types/api.types'
+import { ApiResponse, PagedResponse } from '@/types/api.types'
 import {
   SeccionWeb,
   ContenidoWeb,
@@ -21,12 +21,12 @@ export const seccionWebService = {
 
   listarContenido: async (
     page = 0,
-    size = 50,
+    size = 20,
     clave?: string,
     idSeccion?: number
-  ): Promise<ContenidoWeb[]> => {
-    const { data } = await api.get<ApiResponse<ContenidoWeb[]>>('/contenido', {
-      params: { page, size, clave, idSeccion },
+  ): Promise<PagedResponse<ContenidoWeb>> => {
+    const { data } = await api.get<ApiResponse<PagedResponse<ContenidoWeb>>>('/contenido', {
+      params: { page, size, clave: clave || undefined, idSeccion },
     })
     return data.data
   },

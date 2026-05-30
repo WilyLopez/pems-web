@@ -1,14 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Pencil, Globe, Eye, EyeOff } from 'lucide-react'
+import {
+  Pencil, Globe, Eye, EyeOff, Search, X,
+  ChevronLeft, ChevronRight, ImageIcon,
+} from 'lucide-react'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
+import { Input } from '@/components/ui/Input'
+import { Textarea } from '@/components/ui/Textarea'
+import { Label } from '@/components/ui/Label'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/common/Emptystate'
@@ -19,36 +24,32 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/Dialog'
-import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/Textarea'
-import { Label } from '@/components/ui/Label'
 import {
   useSeccionesWeb,
   useContenidoWeb,
   useActualizarContenidoWeb,
 } from '@/hooks/useContenidoWeb'
+import { useDebounce } from '@/hooks/useDebounce'
 import { ContenidoWeb, ActualizarContenidoWebPayload } from '@/types/cms.types'
+import { cn } from '@/lib/utils'
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 
 const schema = z.object({
-  valorEs: z.string().min(1, 'Requerido').max(5000),
-  valorEn: z.string().max(5000).optional(),
-  imagenUrl: z.string().url('URL inválida').optional().or(z.literal('')),
-  descripcion: z.string().max(500).optional(),
-  visible: z.boolean().default(true),
-  metadatos: z.string().optional(),
+  valorEs:            z.string().min(1, 'Requerido').max(5000),
+  valorEn:            z.string().max(5000).optional(),
+  imagenUrl:          z.string().max(500).optional().or(z.literal('')),
+  descripcion:        z.string().max(300).optional(),
+  visible:            z.boolean().default(true),
+  metadatos:          z.string().optional(),
+  ordenVisualizacion: z.coerce.number().int().min(0).default(0),
 })
 type FormValues = z.infer<typeof schema>
 
 // ── Edit dialog ───────────────────────────────────────────────────────────────
 
 function ContenidoEditDialog({
-  item,
-  open,
-  onOpenChange,
-  isLoading,
-  onSubmit,
+  item, open, onOpenChange, isLoading, onSubmit,
 }: {
   item: ContenidoWeb | null
   open: boolean
@@ -56,134 +57,121 @@ function ContenidoEditDialog({
   isLoading: boolean
   onSubmit: (payload: ActualizarContenidoWebPayload) => void
 }) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      valorEs: item?.valorEs ?? '',
-      valorEn: item?.valorEn ?? '',
-      imagenUrl: item?.imagenUrl ?? '',
-      descripcion: item?.descripcion ?? '',
-      visible: item?.visible ?? true,
-      metadatos: item?.metadatos ?? '',
-    },
   })
 
-  function handleOpen(v: boolean) {
-    if (!v) reset()
-    onOpenChange(v)
-  }
+  useEffect(() => {
+    if (item) {
+      reset({
+        valorEs:            item.valorEs ?? '',
+        valorEn:            item.valorEn ?? '',
+        imagenUrl:          item.imagenUrl ?? '',
+        descripcion:        item.descripcion ?? '',
+        visible:            item.visible,
+        metadatos:          item.metadatos ?? '',
+        ordenVisualizacion: item.ordenVisualizacion ?? 0,
+      })
+    }
+  }, [item, reset])
+
+  const imagenUrlValue = watch('imagenUrl')
 
   return (
-    <Dialog open={open} onOpenChange={handleOpen}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v) }}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
             Editar contenido
             {item && (
-              <span className="ml-2 font-mono text-xs text-muted-foreground">
+              <span className="font-mono text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                 {item.clave}
               </span>
             )}
           </DialogTitle>
         </DialogHeader>
+
         <form
           onSubmit={handleSubmit((data) =>
             onSubmit({
-              ...data,
-              imagenUrl: data.imagenUrl || undefined,
-              valorEn: data.valorEn || undefined,
-              descripcion: data.descripcion || undefined,
-              metadatos: data.metadatos || undefined,
+              valorEs:            data.valorEs,
+              valorEn:            data.valorEn || undefined,
+              imagenUrl:          data.imagenUrl || undefined,
+              descripcion:        data.descripcion || undefined,
+              metadatos:          data.metadatos || undefined,
+              visible:            data.visible,
+              ordenVisualizacion: data.ordenVisualizacion,
             })
           )}
-          className="space-y-4"
+          className="space-y-4 pt-1"
         >
-          <div>
-            <Label htmlFor="valorEs">Valor (ES) *</Label>
-            <Textarea
-              id="valorEs"
-              rows={4}
-              {...register('valorEs')}
-              className="mt-1 resize-none"
-            />
+          <div className="space-y-1">
+            <Label htmlFor="valorEs">Contenido (ES) *</Label>
+            <Textarea id="valorEs" rows={4} {...register('valorEs')} className="resize-y" />
             {errors.valorEs && (
-              <p className="text-xs text-destructive mt-1">
-                {errors.valorEs.message}
-              </p>
+              <p className="text-xs text-destructive">{errors.valorEs.message}</p>
             )}
           </div>
-          <div>
-            <Label htmlFor="valorEn">Valor (EN)</Label>
+
+          <div className="space-y-1">
+            <Label htmlFor="valorEn">Contenido (EN)</Label>
             <Textarea
-              id="valorEn"
-              rows={4}
-              {...register('valorEn')}
-              className="mt-1 resize-none"
-              placeholder="Traducción al inglés (opcional)"
+              id="valorEn" rows={3} {...register('valorEn')}
+              className="resize-y" placeholder="Traducción al inglés (opcional)"
             />
           </div>
-          <div>
+
+          <div className="space-y-1">
             <Label htmlFor="imagenUrl">URL de imagen</Label>
-            <Input
-              id="imagenUrl"
-              {...register('imagenUrl')}
-              className="mt-1"
-              placeholder="https://..."
-            />
+            <Input id="imagenUrl" {...register('imagenUrl')} placeholder="https://..." />
             {errors.imagenUrl && (
-              <p className="text-xs text-destructive mt-1">
-                {errors.imagenUrl.message}
-              </p>
+              <p className="text-xs text-destructive">{errors.imagenUrl.message}</p>
+            )}
+            {imagenUrlValue && imagenUrlValue.startsWith('http') && (
+              <div className="mt-2 rounded-lg border overflow-hidden h-24 bg-gray-50 flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={imagenUrlValue}
+                  alt="preview"
+                  className="h-full object-contain"
+                  onError={(e) => { e.currentTarget.style.opacity = '0.3' }}
+                />
+              </div>
             )}
           </div>
-          <div>
-            <Label htmlFor="descripcion">Descripción interna</Label>
-            <Input
-              id="descripcion"
-              {...register('descripcion')}
-              className="mt-1"
-            />
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="descripcion">Descripción interna</Label>
+              <Input id="descripcion" {...register('descripcion')} placeholder="Nota para el admin" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="ordenVisualizacion">Orden</Label>
+              <Input
+                id="ordenVisualizacion" type="number" min={0}
+                {...register('ordenVisualizacion')} className="w-full"
+              />
+            </div>
           </div>
-          <div>
+
+          <div className="space-y-1">
             <Label htmlFor="metadatos">Metadatos (JSON)</Label>
             <Textarea
-              id="metadatos"
-              rows={3}
-              {...register('metadatos')}
-              className="mt-1 resize-none font-mono text-xs"
-              placeholder='{"key": "value"}'
+              id="metadatos" rows={3} {...register('metadatos')}
+              className="resize-none font-mono text-xs" placeholder='{"key": "value"}'
             />
           </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="visible"
-              {...register('visible')}
-              className="w-4 h-4 rounded"
-            />
-            <Label htmlFor="visible" className="cursor-pointer">
-              Visible en el sitio
-            </Label>
+
+          <div className="flex items-center gap-2 py-1">
+            <input type="checkbox" id="visible" {...register('visible')} className="w-4 h-4 rounded" />
+            <Label htmlFor="visible" className="cursor-pointer">Visible en el sitio</Label>
           </div>
+
           <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpen(false)}
-              disabled={isLoading}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="bg-brand-azul text-white"
-            >
+            <Button type="submit" disabled={isLoading} className="bg-brand-azul text-white">
               {isLoading ? 'Guardando...' : 'Guardar cambios'}
             </Button>
           </div>
@@ -196,85 +184,114 @@ function ContenidoEditDialog({
 // ── Fila de contenido ─────────────────────────────────────────────────────────
 
 function ContenidoRow({
-  item,
-  onEdit,
+  item, onEdit, onToggleVisible, isTogglingId,
 }: {
   item: ContenidoWeb
   onEdit: (item: ContenidoWeb) => void
+  onToggleVisible: (item: ContenidoWeb) => void
+  isTogglingId: number | null
 }) {
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-4 flex items-start gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-              {item.clave}
-            </span>
-            {!item.visible && (
-              <Badge
-                variant="outline"
-                className="text-xs h-5 text-muted-foreground"
-              >
-                <EyeOff className="h-3 w-3 mr-1" />
-                Oculto
-              </Badge>
+    <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-start gap-3 hover:border-gray-200 transition-colors">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-mono text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+            {item.clave}
+          </span>
+          <Badge
+            variant="outline"
+            className={cn(
+              'text-xs h-5',
+              item.visible
+                ? 'text-emerald-600 border-emerald-200'
+                : 'text-muted-foreground'
             )}
-            {item.visible && (
-              <Badge
-                variant="outline"
-                className="text-xs h-5 text-green-600 border-green-200"
-              >
-                <Eye className="h-3 w-3 mr-1" />
-                Visible
-              </Badge>
-            )}
-          </div>
-          <p className="text-sm mt-1 text-gray-800 line-clamp-2">
-            {item.valorEs}
-          </p>
-          {item.descripcion && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {item.descripcion}
-            </p>
+          >
+            {item.visible
+              ? <><Eye className="h-3 w-3 mr-1" />Visible</>
+              : <><EyeOff className="h-3 w-3 mr-1" />Oculto</>
+            }
+          </Badge>
+          {item.imagenUrl && (
+            <Badge variant="outline" className="text-xs h-5 text-muted-foreground">
+              <ImageIcon className="h-3 w-3 mr-1" />Imagen
+            </Badge>
           )}
         </div>
+
+        <p className="text-sm mt-1.5 text-gray-800 line-clamp-2 leading-snug">
+          {item.valorEs}
+        </p>
+
+        {item.descripcion && (
+          <p className="text-xs text-muted-foreground mt-0.5">{item.descripcion}</p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-1 shrink-0">
         <Button
-          size="sm"
-          variant="ghost"
-          className="h-7 w-7 p-0 shrink-0"
-          onClick={() => onEdit(item)}
+          size="sm" variant="ghost"
+          className="h-7 w-7 p-0"
+          title={item.visible ? 'Ocultar' : 'Mostrar'}
+          disabled={isTogglingId === item.id}
+          onClick={() => onToggleVisible(item)}
+        >
+          {item.visible
+            ? <EyeOff className="h-3.5 w-3.5 text-gray-400" />
+            : <Eye className="h-3.5 w-3.5 text-gray-400" />
+          }
+        </Button>
+        <Button
+          size="sm" variant="ghost"
+          className="h-7 w-7 p-0"
           title="Editar"
+          onClick={() => onEdit(item)}
         >
           <Pencil className="h-3.5 w-3.5" />
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 
 // ── Página ────────────────────────────────────────────────────────────────────
 
 export default function ContenidoWebPage() {
-  const [seccionId, setSeccionId] = useState<number | undefined>(undefined)
-  const [editTarget, setEditTarget] = useState<ContenidoWeb | null>(null)
+  const [seccionId, setSeccionId]     = useState<number | undefined>(undefined)
+  const [search, setSearch]           = useState('')
+  const [page, setPage]               = useState(0)
+  const [editTarget, setEditTarget]   = useState<ContenidoWeb | null>(null)
+  const [togglingId, setTogglingId]   = useState<number | null>(null)
+
+  const claveBusqueda = useDebounce(search.trim() || undefined, 350)
 
   const {
-    data: secciones = [],
-    isLoading: loadingSecciones,
-    isError: errorSecciones,
-    refetch: refetchSecciones,
+    data: secciones = [], isLoading: loadingSecciones,
+    isError: errorSecciones, refetch: refetchSecciones,
   } = useSeccionesWeb()
 
   const {
-    data: items = [],
-    isLoading: loadingItems,
-    isError: errorItems,
-    refetch: refetchItems,
-  } = useContenidoWeb(undefined, seccionId)
+    data: paged, isLoading: loadingItems,
+    isError: errorItems, refetch: refetchItems,
+  } = useContenidoWeb(claveBusqueda, seccionId, page)
 
   const actualizar = useActualizarContenidoWeb()
 
-  function handleSubmit(payload: ActualizarContenidoWebPayload) {
+  const items      = paged?.content      ?? []
+  const totalPages = paged?.totalPages   ?? 0
+  const total      = paged?.totalElements ?? 0
+
+  function handleSeccionChange(id: number | undefined) {
+    setSeccionId(id)
+    setPage(0)
+  }
+
+  function handleSearch(value: string) {
+    setSearch(value)
+    setPage(0)
+  }
+
+  function handleEdit(payload: ActualizarContenidoWebPayload) {
     if (!editTarget) return
     actualizar.mutate(
       { id: editTarget.id, payload },
@@ -282,16 +299,19 @@ export default function ContenidoWebPage() {
     )
   }
 
+  function handleToggleVisible(item: ContenidoWeb) {
+    setTogglingId(item.id)
+    actualizar.mutate(
+      { id: item.id, payload: { valorEs: item.valorEs, visible: !item.visible } },
+      { onSettled: () => setTogglingId(null) }
+    )
+  }
+
   if (errorSecciones) return <ErrorState onRetry={refetchSecciones} />
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs
-        items={[
-          { label: 'CMS', href: '/admin/cms' },
-          { label: 'Contenido Web' },
-        ]}
-      />
+      <Breadcrumbs items={[{ label: 'CMS', href: '/admin/cms' }, { label: 'Contenido Web' }]} />
 
       <PageHeader
         title="Contenido Web"
@@ -306,15 +326,13 @@ export default function ContenidoWebPage() {
           </p>
           {loadingSecciones ? (
             <div className="space-y-1.5">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-9 rounded-lg" />
-              ))}
+              {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-9 rounded-lg" />)}
             </div>
           ) : (
             <div className="space-y-1">
               <button
                 type="button"
-                onClick={() => setSeccionId(undefined)}
+                onClick={() => handleSeccionChange(undefined)}
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                   seccionId === undefined
                     ? 'bg-brand-azul text-white font-medium'
@@ -325,9 +343,8 @@ export default function ContenidoWebPage() {
               </button>
               {secciones.map((s) => (
                 <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setSeccionId(s.id)}
+                  key={s.id} type="button"
+                  onClick={() => handleSeccionChange(s.id)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                     seccionId === s.id
                       ? 'bg-brand-azul text-white font-medium'
@@ -342,39 +359,85 @@ export default function ContenidoWebPage() {
         </aside>
 
         {/* Lista de contenido */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-3">
+          {/* Buscador */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="Buscar por clave…"
+              className="pl-9 pr-9"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => handleSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
           {errorItems && <ErrorState onRetry={refetchItems} />}
 
           {loadingItems && (
             <div className="space-y-2">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-16 rounded-lg" />
-              ))}
+              {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
             </div>
           )}
 
           {!loadingItems && !errorItems && items.length === 0 && (
             <EmptyState
-              title="Sin contenido"
-              description="No hay entradas de contenido para esta sección."
+              title="Sin resultados"
+              description={search ? `No hay contenido que coincida con "${search}".` : 'No hay entradas de contenido para esta sección.'}
               icon={<Globe className="h-6 w-6" />}
             />
           )}
 
           {!loadingItems && items.length > 0 && (
             <>
-              <p className="text-sm text-muted-foreground mb-3">
-                {items.length} entradas
+              <p className="text-xs text-muted-foreground">
+                {total} {total === 1 ? 'entrada' : 'entradas'}
+                {search && ` · búsqueda: "${search}"`}
               </p>
               <div className="space-y-2">
                 {items.map((item) => (
                   <ContenidoRow
-                    key={item.id}
-                    item={item}
+                    key={item.id} item={item}
                     onEdit={setEditTarget}
+                    onToggleVisible={handleToggleVisible}
+                    isTogglingId={togglingId}
                   />
                 ))}
               </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-2">
+                  <p className="text-xs text-muted-foreground">
+                    Página {page + 1} de {totalPages}
+                  </p>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm" variant="outline"
+                      disabled={page === 0}
+                      onClick={() => setPage((p) => p - 1)}
+                      className="h-7 w-7 p-0"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm" variant="outline"
+                      disabled={page >= totalPages - 1}
+                      onClick={() => setPage((p) => p + 1)}
+                      className="h-7 w-7 p-0"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -385,7 +448,7 @@ export default function ContenidoWebPage() {
         open={editTarget !== null}
         onOpenChange={(v) => !v && setEditTarget(null)}
         isLoading={actualizar.isPending}
-        onSubmit={handleSubmit}
+        onSubmit={handleEdit}
       />
     </div>
   )
