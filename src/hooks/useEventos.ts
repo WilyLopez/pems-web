@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { eventoService, BuscarEventosParams } from '@/services/evento.service'
+import { ConfirmarEventoPayload } from '@/types/evento.types'
 
 export const EVENTOS_KEY = 'eventos'
 export const EVENTO_KEY = 'evento'
@@ -29,11 +30,29 @@ export function useChecklist(idEvento: number) {
   })
 }
 
+export function useExtrasPaquete(idPaquete: number | null) {
+  return useQuery({
+    queryKey: ['extras-paquete', idPaquete],
+    queryFn: () => eventoService.listarExtrasPaquete(idPaquete!),
+    enabled: !!idPaquete,
+    staleTime: 1000 * 60 * 10,
+  })
+}
+
+export function useTurnos(idSede: number | null) {
+  return useQuery({
+    queryKey: ['turnos', idSede],
+    queryFn: () => eventoService.listarTurnos(idSede!),
+    enabled: !!idSede,
+    staleTime: 1000 * 60 * 60,
+  })
+}
+
 export function useConfirmarEvento() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, precioTotal }: { id: number; precioTotal: number }) =>
-      eventoService.confirmar(id, precioTotal),
+    mutationFn: ({ id, payload }: { id: number; payload: ConfirmarEventoPayload }) =>
+      eventoService.confirmar(id, payload),
     onSuccess: (evento) => {
       qc.invalidateQueries({ queryKey: [EVENTOS_KEY] })
       qc.setQueryData([EVENTO_KEY, evento.id], evento)
@@ -41,6 +60,42 @@ export function useConfirmarEvento() {
     },
     onError: (err: { message?: string }) =>
       toast.error(err?.message ?? 'No se pudo confirmar el evento.'),
+  })
+}
+
+export function useCompletarEvento() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => eventoService.completar(id),
+    onSuccess: (evento) => {
+      qc.invalidateQueries({ queryKey: [EVENTOS_KEY] })
+      qc.setQueryData([EVENTO_KEY, evento.id], evento)
+      toast.success('Evento marcado como completado.')
+    },
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo completar el evento.'),
+  })
+}
+
+export function useRegistrarSaldo() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      id,
+      monto,
+      medioPago,
+    }: {
+      id: number
+      monto: number
+      medioPago: string
+    }) => eventoService.registrarSaldo(id, monto, medioPago),
+    onSuccess: (evento) => {
+      qc.invalidateQueries({ queryKey: [EVENTOS_KEY] })
+      qc.setQueryData([EVENTO_KEY, evento.id], evento)
+      toast.success('Pago del saldo registrado.')
+    },
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo registrar el pago.'),
   })
 }
 

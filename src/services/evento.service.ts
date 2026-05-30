@@ -4,6 +4,9 @@ import {
   EventoPrivado,
   ChecklistItem,
   SolicitarEventoPayload,
+  ConfirmarEventoPayload,
+  ExtraPaquete,
+  Turno,
 } from '@/types/evento.types'
 
 export interface BuscarEventosParams {
@@ -47,23 +50,6 @@ export const eventoService = {
     return data.data
   },
 
-  confirmar: async (
-    id: number,
-    precioTotal: number
-  ): Promise<EventoPrivado> => {
-    const { data } = await api.post<ApiResponse<EventoPrivado>>(
-      `/eventos-privados/${id}/confirmar?precioTotal=${precioTotal}`
-    )
-    return data.data
-  },
-
-  cancelar: async (id: number, motivo: string): Promise<EventoPrivado> => {
-    const { data } = await api.post<ApiResponse<EventoPrivado>>(
-      `/eventos-privados/${id}/cancelar?motivoCancelacion=${encodeURIComponent(motivo)}`
-    )
-    return data.data
-  },
-
   solicitar: async (
     idCliente: number,
     idSede: number,
@@ -72,6 +58,44 @@ export const eventoService = {
     const { data } = await api.post<ApiResponse<EventoPrivado>>(
       `/eventos-privados/clientes/${idCliente}/sedes/${idSede}`,
       payload
+    )
+    return data.data
+  },
+
+  confirmar: async (
+    id: number,
+    payload: ConfirmarEventoPayload
+  ): Promise<EventoPrivado> => {
+    const { data } = await api.post<ApiResponse<EventoPrivado>>(
+      `/eventos-privados/${id}/confirmar`,
+      payload
+    )
+    return data.data
+  },
+
+  completar: async (id: number): Promise<EventoPrivado> => {
+    const { data } = await api.post<ApiResponse<EventoPrivado>>(
+      `/eventos-privados/${id}/completar`
+    )
+    return data.data
+  },
+
+  registrarSaldo: async (
+    id: number,
+    monto: number,
+    medioPago: string
+  ): Promise<EventoPrivado> => {
+    const { data } = await api.post<ApiResponse<EventoPrivado>>(
+      `/eventos-privados/${id}/registrar-saldo`,
+      null,
+      { params: { monto, medioPago } }
+    )
+    return data.data
+  },
+
+  cancelar: async (id: number, motivo: string): Promise<EventoPrivado> => {
+    const { data } = await api.post<ApiResponse<EventoPrivado>>(
+      `/eventos-privados/${id}/cancelar?motivoCancelacion=${encodeURIComponent(motivo)}`
     )
     return data.data
   },
@@ -99,6 +123,20 @@ export const eventoService = {
   ): Promise<ChecklistItem> => {
     const { data } = await api.post<ApiResponse<ChecklistItem>>(
       `/eventos-privados/${idEvento}/checklist/${idChecklist}/descompletar`
+    )
+    return data.data
+  },
+
+  listarExtrasPaquete: async (idPaquete: number): Promise<ExtraPaquete[]> => {
+    const { data } = await api.get<ApiResponse<ExtraPaquete[]>>(
+      `/eventos-privados/paquetes/${idPaquete}/extras`
+    )
+    return data.data
+  },
+
+  listarTurnos: async (idSede: number): Promise<Turno[]> => {
+    const { data } = await api.get<ApiResponse<Turno[]>>(
+      `/calendario/sedes/${idSede}/turnos`
     )
     return data.data
   },

@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { differenceInDays, parseISO, startOfDay } from 'date-fns'
 import {
   PartyPopper,
@@ -11,10 +12,14 @@ import {
   ChevronLeft,
   FileText,
   CheckCircle2,
+  Download,
+  MessageCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 
 import { useEvento } from '@/hooks/useEventos'
+import { useContratoPorEvento } from '@/hooks/useContratos'
+import { useWhatsAppUrl } from '@/hooks/useConfigPublica'
 import { ErrorState } from '@/components/common/Errorstate'
 import { StatusBadge } from '@/components/common/Statusbadge'
 import { Button } from '@/components/ui/Button'
@@ -34,30 +39,34 @@ function PageSkeleton() {
 }
 
 export default function DetalleEventoPage() {
-  const params = useParams()
-  const id = Number(params.id)
+  const params  = useParams()
+  const id      = Number(params.id)
+  const { data: session } = useSession()
+
   const { data: evento, isLoading, isError } = useEvento(id)
+  const { data: contrato } = useContratoPorEvento(
+    evento && ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado) ? id : null
+  )
+
+  const mensaje = evento
+    ? `Hola, soy ${session?.user?.name ?? 'cliente'}. Tengo una consulta sobre mi evento del ${formatDate(evento.fechaEvento)} (ID: EVT-${evento.id})`
+    : 'Hola, tengo una consulta sobre mi evento privado'
+  const whatsappUrl = useWhatsAppUrl(mensaje)
 
   if (isLoading) return <PageSkeleton />
   if (isError || !evento) return <ErrorState message="No se encontró el evento." />
 
-  const diasRestantes =
-    evento.estado === 'CONFIRMADA'
-      ? differenceInDays(startOfDay(parseISO(evento.fechaEvento)), startOfDay(new Date()))
-      : null
+  const diasRestantes = evento.estado === 'CONFIRMADA'
+    ? differenceInDays(startOfDay(parseISO(evento.fechaEvento)), startOfDay(new Date()))
+    : null
 
-  const mostrarRecordatorio =
-    diasRestantes !== null && diasRestantes >= 0 && diasRestantes <= 7
-
-  const tieneContrato = ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado)
-  const saldoPendiente = evento.montoSaldo && evento.montoSaldo > 0
+  const mostrarRecordatorio = diasRestantes !== null && diasRestantes >= 0 && diasRestantes <= 7
+  const tieneContrato       = ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado)
+  const saldoPendiente      = evento.montoSaldo && evento.montoSaldo > 0
 
   const porcentajePagado =
     evento.precioTotalContrato && evento.montoAdelanto
-      ? Math.min(
-          Math.round((evento.montoAdelanto / evento.precioTotalContrato) * 100),
-          100
-        )
+      ? Math.min(Math.round((evento.montoAdelanto / evento.precioTotalContrato) * 100), 100)
       : 0
 
   return (
@@ -95,7 +104,8 @@ export default function DetalleEventoPage() {
             </p>
             {saldoPendiente && (
               <p className="text-xs text-amber-700 mt-0.5">
-                Saldo pendiente: <span className="font-semibold">{formatCurrency(evento.montoSaldo!)}</span>.
+                Saldo pendiente:{' '}
+                <span className="font-semibold">{formatCurrency(evento.montoSaldo!)}</span>.
                 Coordina el pago con el equipo de Kiki y Lala.
               </p>
             )}
@@ -150,19 +160,23 @@ export default function DetalleEventoPage() {
                   </div>
                 </div>
               )}
+            </div>
 
-              {evento.contactoAdicional && (
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                    <FileText className="h-4 w-4 text-gray-500" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Contacto adicional</p>
-                    <p className="font-semibold text-gray-900">{evento.contactoAdicional}</p>
+            {evento.extras && evento.extras.length > 0 && (
+              <>
+                <Separator />
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 mb-2">Extras solicitados</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {evento.extras.map((ex) => (
+                      <span key={ex.id} className="text-xs bg-brand-rosa/10 text-brand-rosa px-2 py-0.5 rounded-full font-medium">
+                        {ex.nombreExtra ?? ex.nombreLibre}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              )}
-            </div>
+              </>
+            )}
 
             {evento.observaciones && (
               <>
@@ -177,10 +191,24 @@ export default function DetalleEventoPage() {
             {tieneContrato && (
               <>
                 <Separator />
-                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-xl px-3 py-2">
-                  <CheckCircle2 className="h-4 w-4 shrink-0" />
-                  <span className="font-semibold">Contrato generado.</span>
-                  <span className="text-green-600">El equipo te enviará el documento para firmar.</span>
+                <div className="flex items-center justify-between gap-2 text-sm bg-green-50 rounded-xl px-3 py-2">
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    <span className="font-semibold">Contrato generado.</span>
+                  </div>
+                  {contrato?.archivoPdfUrl ? (
+                    <a
+                      href={contrato.archivoPdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-azul hover:underline shrink-0"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Descargar PDF
+                    </a>
+                  ) : (
+                    <span className="text-xs text-green-600">El equipo te enviará el documento.</span>
+                  )}
                 </div>
               </>
             )}
@@ -226,11 +254,7 @@ export default function DetalleEventoPage() {
 
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-gray-900">Saldo pendiente</span>
-                  <span
-                    className={`text-lg font-black ${
-                      saldoPendiente ? 'text-amber-600' : 'text-green-600'
-                    }`}
-                  >
+                  <span className={`text-lg font-black ${saldoPendiente ? 'text-amber-600' : 'text-green-600'}`}>
                     {formatCurrency(evento.montoSaldo ?? 0)}
                   </span>
                 </div>
@@ -264,19 +288,34 @@ export default function DetalleEventoPage() {
           )}
 
           <Card className="border border-brand-rosa/20 rounded-2xl">
-            <CardContent className="p-4 space-y-2">
-              <p className="text-xs font-bold text-gray-700">¿Necesitas ayuda?</p>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-brand-rosa" />
+                <p className="text-xs font-bold text-gray-700">¿Necesitas ayuda?</p>
+              </div>
               <p className="text-xs text-gray-400">
-                Contáctanos si tienes alguna consulta sobre tu evento privado.
+                Contáctanos directamente por WhatsApp para consultas sobre tu evento.
               </p>
-              <Button
-                asChild
-                size="sm"
-                variant="outline"
-                className="w-full rounded-full border-brand-rosa/30 text-brand-rosa hover:bg-brand-rosa/5 text-xs"
-              >
-                <Link href="/nosotros">Ver información de contacto</Link>
-              </Button>
+              {whatsappUrl ? (
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full rounded-full border border-green-300 text-green-700 hover:bg-green-50 text-xs font-semibold py-2 transition-colors"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Contactar por WhatsApp
+                </a>
+              ) : (
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="w-full rounded-full border-brand-rosa/30 text-brand-rosa hover:bg-brand-rosa/5 text-xs"
+                >
+                  <Link href="/nosotros">Ver información de contacto</Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
