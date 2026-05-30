@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCaja, useMovimientosCaja } from '@/hooks/useFinanzas'
 import { PageHeader } from '@/components/common/PageHeader'
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/ui/Input'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 

@@ -8,15 +8,15 @@ import { z } from 'zod'
 import { useAuth } from '@/hooks/useAuth'
 import { useCaja, useCajaMutations, useMovimientosCaja } from '@/hooks/useFinanzas'
 import { PageHeader } from '@/components/common/PageHeader'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/Label'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/components/ui/Dialog'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { TipoMovimientoCaja } from '@/types/finanzas.types'
