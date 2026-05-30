@@ -21,7 +21,7 @@ export function ResumenMensualCards({ resumen }: Props) {
     {
       label: 'Total ingresos',
       value: formatCurrency(resumen.totalIngresoGeneral),
-      sub: `Reservas: ${formatCurrency(resumen.totalIngresoReservas)} · Eventos: ${formatCurrency(resumen.totalIngresoEventos)}`,
+      sub: `Reservas: ${formatCurrency(resumen.totalIngresoReservas)} · Adelantos: ${formatCurrency(resumen.totalAdelantoEventos)}`,
       icon: TrendingUp,
       color: 'bg-emerald-100 text-emerald-700',
     },

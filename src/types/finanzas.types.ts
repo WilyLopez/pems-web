@@ -53,7 +53,7 @@ export interface ResumenFinanciero {
   anio: number
   mes: number
   totalIngresoReservas: number
-  totalIngresoEventos: number
+  totalAdelantoEventos: number
   totalIngresoOtros: number
   totalIngresoGeneral: number
   totalEgresoGeneral: number
@@ -83,6 +83,30 @@ export interface ResumenDiario {
   gastoOperativo: number
   utilidadDia: number
   cantidadReservas: number
+  ticketPromedio: number
+}
+
+export interface ResumenRango {
+  inicio: string
+  fin: string
+  totalIngresoReservas: number
+  totalEgresoGeneral: number
+  totalEgresoOperativo: number
+  totalEgresoNeto: number
+  utilidadNeta: number
+  cantidadReservas: number
+}
+
+export interface MetricasReservas {
+  anio: number
+  mes: number
+  totalConfirmadas: number
+  totalCanceladas: number
+  totalCompletadas: number
+  ingresoTotal: number
+  ticketPromedio: number
+  ingresoEfectivo: number
+  ingresoYape: number
 }
 
 export interface CrearTipoEgresoPayload {
@@ -113,4 +137,158 @@ export interface RegistrarGastoOperativoPayload {
   descripcion: string
   monto: number
   comprobanteUrl?: string
+}
+
+export interface ActualizarEgresoPayload {
+  idTipoEgreso: number
+  monto: number
+  fecha: string
+  periodoAnio?: number
+  periodoMes?: number
+  descripcion?: string
+  comprobanteUrl?: string
+  esRecurrente?: boolean
+}
+
+export interface ActualizarGastoOperativoPayload {
+  fecha: string
+  descripcion: string
+  monto: number
+  comprobanteUrl?: string
+}
+
+export type CategoriaIngreso = 'RESERVA_PUBLICA' | 'ADELANTO_EVENTO' | 'INGRESO_MANUAL' | 'OTRO'
+export type EstadoCaja = 'ABIERTA' | 'CERRADA'
+export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO'
+export type EstadoPresupuesto = 'PENDIENTE' | 'APROBADO' | 'EJECUTADO'
+
+export interface TipoIngreso {
+  id: number
+  nombre: string
+  descripcion?: string
+  categoria: CategoriaIngreso
+  activo: boolean
+  fechaCreacion: string
+}
+
+export interface RegistroIngreso {
+  id: number
+  idTipoIngreso: number
+  nombreTipoIngreso: string
+  categoriaIngreso: CategoriaIngreso
+  idSede: number
+  idReservaPublica?: number
+  idEventoPrivado?: number
+  monto: number
+  fecha: string
+  medioPago?: string
+  descripcion?: string
+  esAutomatico: boolean
+  idUsuarioRegistra?: number
+  fechaCreacion: string
+}
+
+export interface AperturaCaja {
+  id: number
+  idSede: number
+  fecha: string
+  saldoInicial: number
+  saldoFinal?: number
+  totalIngresos: number
+  totalEgresos: number
+  estado: EstadoCaja
+  idUsuarioApertura: number
+  idUsuarioCierre?: number
+  fechaApertura: string
+  fechaCierre?: string
+  observaciones?: string
+  fechaCreacion: string
+}
+
+export interface MovimientoCaja {
+  id: number
+  idAperturaCaja: number
+  tipo: TipoMovimientoCaja
+  concepto: string
+  monto: number
+  medioPago?: string
+  idRegistroIngreso?: number
+  idRegistroEgreso?: number
+  idReservaPublica?: number
+  esManual: boolean
+  idUsuarioRegistra: number
+  fechaCreacion: string
+}
+
+export interface PresupuestoEvento {
+  id: number
+  idEventoPrivado: number
+  concepto: string
+  categoria: string
+  montoEstimado: number
+  montoReal?: number
+  estado: EstadoPresupuesto
+  idUsuarioRegistra: number
+  fechaCreacion: string
+  fechaActualizacion?: string
+}
+
+export interface DashboardFinanciero {
+  anio: number
+  mes: number
+  totalIngresos: number
+  totalEgresos: number
+  utilidadNeta: number
+  ingresoReservas: number
+  ingresoAdelantos: number
+  ingresoManual: number
+  egresoFijo: number
+  egresoVariable: number
+  egresoEventual: number
+  reservasConfirmadas: number
+  reservasCanceladas: number
+  ticketPromedio: number
+  saldoPendienteEventos: number
+}
+
+export interface CrearTipoIngresoPayload {
+  nombre: string
+  descripcion?: string
+  categoria: CategoriaIngreso
+}
+
+export interface RegistrarIngresoManualPayload {
+  idTipoIngreso: number
+  monto: number
+  fecha: string
+  medioPago?: string
+  descripcion?: string
+}
+
+export interface AbrirCajaPayload {
+  fecha: string
+  saldoInicial: number
+  observaciones?: string
+}
+
+export interface CerrarCajaPayload {
+  saldoFinal: number
+  observaciones?: string
+}
+
+export interface RegistrarMovimientoManualPayload {
+  tipo: TipoMovimientoCaja
+  concepto: string
+  monto: number
+  medioPago?: string
+}
+
+export interface GuardarPresupuestoPayload {
+  concepto: string
+  categoria: string
+  montoEstimado: number
+}
+
+export interface EjecutarPresupuestoPayload {
+  montoReal: number
 }

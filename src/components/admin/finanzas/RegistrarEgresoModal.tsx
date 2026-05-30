@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { useTiposEgreso, useEgresoMutations } from '@/hooks/useFinanzas'
+import { RegistroEgreso } from '@/types/finanzas.types'
 
 const schema = z.object({
   idTipoEgreso: z.coerce.number().min(1, 'Selecciona un tipo'),
@@ -40,11 +41,13 @@ interface Props {
   open: boolean
   onOpenChange: (v: boolean) => void
   idSede: number
+  egreso?: RegistroEgreso
 }
 
-export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
+export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Props) {
   const { data: tipos = [] } = useTiposEgreso()
-  const { registrar } = useEgresoMutations()
+  const { registrar, actualizar } = useEgresoMutations()
+  const editando = !!egreso
 
   const {
     register,
@@ -54,7 +57,7 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
     reset,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       idTipoEgreso: 0,
       monto: 0,
@@ -68,40 +71,62 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
   const esRecurrente = watch('esRecurrente')
 
   useEffect(() => {
-    if (open) reset({
-      idTipoEgreso: 0,
-      monto: 0,
-      fecha: new Date().toISOString().split('T')[0],
-      esRecurrente: false,
-      descripcion: '',
-      comprobanteUrl: '',
-    })
-  }, [open, reset])
+    if (open) {
+      if (egreso) {
+        reset({
+          idTipoEgreso: egreso.idTipoEgreso,
+          monto: egreso.monto,
+          fecha: egreso.fecha,
+          esRecurrente: egreso.esRecurrente,
+          periodoAnio: egreso.periodoAnio,
+          periodoMes: egreso.periodoMes,
+          descripcion: egreso.descripcion ?? '',
+          comprobanteUrl: egreso.comprobanteUrl ?? '',
+        })
+      } else {
+        reset({
+          idTipoEgreso: 0,
+          monto: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          esRecurrente: false,
+          descripcion: '',
+          comprobanteUrl: '',
+        })
+      }
+    }
+  }, [open, egreso, reset])
 
   function onSubmit(data: FormValues) {
-    registrar.mutate(
-      {
-        idSede,
-        payload: {
-          idTipoEgreso: data.idTipoEgreso,
-          monto: data.monto,
-          fecha: data.fecha,
-          esRecurrente: data.esRecurrente,
-          periodoAnio: data.esRecurrente ? data.periodoAnio : undefined,
-          periodoMes: data.esRecurrente ? data.periodoMes : undefined,
-          descripcion: data.descripcion || undefined,
-          comprobanteUrl: data.comprobanteUrl || undefined,
-        },
-      },
-      { onSuccess: () => onOpenChange(false) }
-    )
+    const payload = {
+      idTipoEgreso: data.idTipoEgreso,
+      monto: data.monto,
+      fecha: data.fecha,
+      esRecurrente: data.esRecurrente,
+      periodoAnio: data.esRecurrente ? data.periodoAnio : undefined,
+      periodoMes: data.esRecurrente ? data.periodoMes : undefined,
+      descripcion: data.descripcion || undefined,
+      comprobanteUrl: data.comprobanteUrl || undefined,
+    }
+    if (editando) {
+      actualizar.mutate(
+        { id: egreso!.id, payload },
+        { onSuccess: () => onOpenChange(false) }
+      )
+    } else {
+      registrar.mutate(
+        { idSede, payload },
+        { onSuccess: () => onOpenChange(false) }
+      )
+    }
   }
+
+  const isPending = editando ? actualizar.isPending : registrar.isPending
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Registrar egreso</DialogTitle>
+          <DialogTitle>{editando ? 'Editar egreso' : 'Registrar egreso'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
@@ -215,10 +240,10 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
             </Button>
             <Button
               type="submit"
-              disabled={registrar.isPending}
+              disabled={isPending}
               className="bg-brand-azul hover:bg-brand-azul/90 text-white"
             >
-              {registrar.isPending ? 'Guardando...' : 'Registrar'}
+              {isPending ? 'Guardando...' : editando ? 'Guardar cambios' : 'Registrar'}
             </Button>
           </div>
         </form>
