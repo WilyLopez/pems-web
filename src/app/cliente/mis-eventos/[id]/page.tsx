@@ -12,13 +12,11 @@ import {
   ChevronLeft,
   FileText,
   CheckCircle2,
-  Download,
   MessageCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 
 import { useEvento } from '@/hooks/useEventos'
-import { useContratoPorEvento } from '@/hooks/useContratos'
 import { useWhatsAppUrl } from '@/hooks/useConfigPublica'
 import { ErrorState } from '@/components/common/Errorstate'
 import { StatusBadge } from '@/components/common/Statusbadge'
@@ -44,9 +42,6 @@ export default function DetalleEventoPage() {
   const { data: session } = useSession()
 
   const { data: evento, isLoading, isError } = useEvento(id)
-  const { data: contrato } = useContratoPorEvento(
-    evento && ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado) ? id : null
-  )
 
   const mensaje = evento
     ? `Hola, soy ${session?.user?.name ?? 'cliente'}. Tengo una consulta sobre mi evento del ${formatDate(evento.fechaEvento)} (ID: EVT-${evento.id})`
@@ -191,24 +186,10 @@ export default function DetalleEventoPage() {
             {tieneContrato && (
               <>
                 <Separator />
-                <div className="flex items-center justify-between gap-2 text-sm bg-green-50 rounded-xl px-3 py-2">
-                  <div className="flex items-center gap-2 text-green-700">
-                    <CheckCircle2 className="h-4 w-4 shrink-0" />
-                    <span className="font-semibold">Contrato generado.</span>
-                  </div>
-                  {contrato?.archivoPdfUrl ? (
-                    <a
-                      href={contrato.archivoPdfUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-azul hover:underline shrink-0"
-                    >
-                      <Download className="h-3.5 w-3.5" />
-                      Descargar PDF
-                    </a>
-                  ) : (
-                    <span className="text-xs text-green-600">El equipo te enviará el documento.</span>
-                  )}
+                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-xl px-3 py-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  <span className="font-semibold">Contrato generado.</span>
+                  <span className="text-xs text-green-600">El equipo te enviará el documento para firmar.</span>
                 </div>
               </>
             )}
