@@ -26,7 +26,9 @@ import {
   DoorOpen,
   TrendingUp,
   ArrowDownCircle,
+  ArrowUpCircle,
   BarChart3,
+  Landmark,
   HeadphonesIcon,
   Settings,
   Package2,
@@ -153,6 +155,16 @@ const navGroups = [
         icon: TrendingUp,
       },
       {
+        label: 'Ingresos',
+        href: '/admin/finanzas/ingresos',
+        icon: ArrowUpCircle,
+      },
+      {
+        label: 'Tipos de ingreso',
+        href: '/admin/finanzas/ingresos/tipos',
+        icon: Tag,
+      },
+      {
         label: 'Egresos',
         href: '/admin/finanzas/egresos',
         icon: ArrowDownCircle,
@@ -161,6 +173,11 @@ const navGroups = [
         label: 'Tipos de egreso',
         href: '/admin/finanzas/tipos-egreso',
         icon: Tags,
+      },
+      {
+        label: 'Caja',
+        href: '/admin/finanzas/caja',
+        icon: Landmark,
       },
       {
         label: 'Reportes',
