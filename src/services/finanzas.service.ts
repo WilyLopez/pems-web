@@ -318,7 +318,7 @@ export const finanzasService = {
 
   listarPresupuestosEvento: async (idEvento: number): Promise<PresupuestoEvento[]> => {
     const { data } = await api.get<ApiResponse<PresupuestoEvento[]>>(
-      `/presupuesto-eventos/evento/${idEvento}`
+      `/presupuesto-eventos/eventos/${idEvento}`
     )
     return data.data
   },
@@ -328,7 +328,7 @@ export const finanzasService = {
     payload: GuardarPresupuestoPayload
   ): Promise<PresupuestoEvento> => {
     const { data } = await api.post<ApiResponse<PresupuestoEvento>>(
-      `/presupuesto-eventos/evento/${idEvento}`,
+      `/presupuesto-eventos/eventos/${idEvento}`,
       payload
     )
     return data.data
