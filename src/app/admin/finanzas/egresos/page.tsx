@@ -1,15 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, ChevronLeft, ChevronRight, Pencil, X } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { useEgresos, useEgresoMutations } from '@/hooks/useFinanzas'
+import { useEgresos, useEgresosPorRango, useEgresoMutations } from '@/hooks/useFinanzas'
 import { RegistrarEgresoModal } from '@/components/admin/finanzas/RegistrarEgresoModal'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/Label'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { CategoriaEgreso } from '@/types/finanzas.types'
+import { CategoriaEgreso, RegistroEgreso } from '@/types/finanzas.types'
 
 const categoriaBadge: Record<CategoriaEgreso, string> = {
   RECURRENTE_FIJO: 'bg-blue-100 text-blue-700',
@@ -23,32 +25,103 @@ const categoriaLabel: Record<CategoriaEgreso, string> = {
   EVENTUAL: 'Eventual',
 }
 
+function useEgresosPorRangoHook(
+  idSede: number | undefined,
+  inicio: string,
+  fin: string
+) {
+  return useEgresosPorRango(
+    idSede,
+    inicio || undefined,
+    fin || undefined
+  )
+}
+
 export default function EgresosPage() {
   const { idSede } = useAuth()
   const [page, setPage] = useState(0)
   const [openModal, setOpenModal] = useState(false)
+  const [editandoEgreso, setEditandoEgreso] = useState<RegistroEgreso | undefined>()
+  const [inicio, setInicio] = useState('')
+  const [fin, setFin] = useState('')
 
-  const { data, isLoading } = useEgresos(idSede ?? undefined, page, 20)
+  const filtroActivo = !!inicio && !!fin
+
+  const { data: paginado, isLoading: loadingPag } = useEgresos(
+    filtroActivo ? undefined : idSede ?? undefined,
+    page,
+    20
+  )
+  const { data: rangeLista = [], isLoading: loadingRango } = useEgresosPorRangoHook(
+    filtroActivo ? idSede ?? undefined : undefined,
+    inicio,
+    fin
+  )
+
   const { eliminar } = useEgresoMutations()
 
-  const egresos = data?.content ?? []
-  const totalPages = data?.totalPages ?? 0
+  const egresos = filtroActivo ? rangeLista : (paginado?.content ?? [])
+  const totalPages = filtroActivo ? 0 : (paginado?.totalPages ?? 0)
+  const isLoading = filtroActivo ? loadingRango : loadingPag
+
+  function abrirNuevo() {
+    setEditandoEgreso(undefined)
+    setOpenModal(true)
+  }
+
+  function abrirEditar(e: RegistroEgreso) {
+    setEditandoEgreso(e)
+    setOpenModal(true)
+  }
+
+  function limpiarFiltro() {
+    setInicio('')
+    setFin('')
+    setPage(0)
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <PageHeader
           title="Egresos"
           description="Historial de egresos registrados en la sede"
         />
         <Button
           size="sm"
-          onClick={() => setOpenModal(true)}
+          onClick={abrirNuevo}
           className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
         >
           <Plus className="h-4 w-4" />
           Registrar egreso
         </Button>
+      </div>
+
+      <div className="flex items-end gap-3 flex-wrap">
+        <div className="space-y-1">
+          <Label className="text-xs">Desde</Label>
+          <Input
+            type="date"
+            value={inicio}
+            onChange={(e) => { setInicio(e.target.value); setPage(0) }}
+            className="h-9 w-40"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">Hasta</Label>
+          <Input
+            type="date"
+            value={fin}
+            onChange={(e) => { setFin(e.target.value); setPage(0) }}
+            className="h-9 w-40"
+          />
+        </div>
+        {filtroActivo && (
+          <Button size="sm" variant="outline" onClick={limpiarFiltro} className="gap-1.5 h-9">
+            <X className="h-4 w-4" />
+            Limpiar filtro
+          </Button>
+        )}
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -110,14 +183,23 @@ export default function EgresosPage() {
                       {formatCurrency(e.monto)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => eliminar.mutate(e.id)}
-                        disabled={eliminar.isPending}
-                        className="text-xs text-gray-400 hover:text-red-500 transition-colors"
-                      >
-                        Eliminar
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => abrirEditar(e)}
+                          className="text-gray-400 hover:text-brand-azul transition-colors"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => eliminar.mutate(e.id)}
+                          disabled={eliminar.isPending}
+                          className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -126,7 +208,7 @@ export default function EgresosPage() {
           </table>
         </div>
 
-        {totalPages > 1 && (
+        {!filtroActivo && totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t">
             <p className="text-xs text-gray-500">
               Pagina {page + 1} de {totalPages}
@@ -158,8 +240,12 @@ export default function EgresosPage() {
       {idSede && (
         <RegistrarEgresoModal
           open={openModal}
-          onOpenChange={setOpenModal}
+          onOpenChange={(v) => {
+            setOpenModal(v)
+            if (!v) setEditandoEgreso(undefined)
+          }}
           idSede={idSede}
+          egreso={editandoEgreso}
         />
       )}
     </div>
