@@ -37,6 +37,7 @@ export interface ActualizarContenidoWebPayload {
   descripcion?: string
   visible?: boolean
   metadatos?: string
+  ordenVisualizacion?: number
 }
 
 export interface CrearSeccionWebPayload {
