@@ -84,4 +84,15 @@ export const contratoService = {
     )
     return data.data
   },
+
+  subirExterno: async (idEvento: number, file: File): Promise<Contrato> => {
+    const formData = new FormData()
+    formData.append('archivo', file)
+    const { data } = await api.post<ApiResponse<Contrato>>(
+      `/contratos/eventos/${idEvento}/subir`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    )
+    return data.data
+  },
 }
