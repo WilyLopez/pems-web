@@ -1,12 +1,14 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Globe, LogOut } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { useQuery } from '@tanstack/react-query'
+import { ChevronRight, User, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { Logo } from '@/components/brand/Logo'
-import { Avatar, AvatarFallback } from '@/components/ui/Avatar'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
-import { cn, getInitials } from '@/lib/utils'
+import { cn, getInitials, fileUrl } from '@/lib/utils'
 import Link from 'next/link'
 import {
   DropdownMenu,
@@ -15,75 +17,174 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
+import { clienteService } from '@/services/cliente.service'
+import { NotificacionesPanel } from '@/components/cliente/NotificacionesPanel'
 
-const SECTION_LABELS: Record<string, string> = {
-  '/cliente': 'Inicio',
-  '/cliente/mis-reservas': 'Mis reservas',
-  '/cliente/mis-eventos': 'Mis eventos',
-  '/cliente/mi-cuenta': 'Mi cuenta',
+const BREADCRUMB_MAP: Record<string, string> = {
+  cliente:          'Inicio',
+  'mis-reservas':   'Mis reservas',
+  'mis-eventos':    'Mis eventos',
+  'mi-cuenta':      'Mi cuenta',
+  beneficios:       'Beneficios',
+  ayuda:            'Ayuda',
 }
 
-function getSectionLabel(pathname: string): string {
-  if (SECTION_LABELS[pathname]) return SECTION_LABELS[pathname]
-  for (const [prefix, label] of Object.entries(SECTION_LABELS)) {
-    if (pathname.startsWith(prefix + '/')) return label
+function getBreadcrumb(pathname: string): { label: string; href: string }[] {
+  const segments = pathname.split('/').filter(Boolean)
+  const crumbs: { label: string; href: string }[] = []
+  let path = ''
+  for (const seg of segments) {
+    path += `/${seg}`
+    const label = BREADCRUMB_MAP[seg]
+    if (label) crumbs.push({ label, href: path })
+    else if (/^\d+$/.test(seg) && crumbs.length > 0) {
+      crumbs.push({ label: 'Detalle', href: path })
+    }
   }
-  return 'Mi área'
+  return crumbs
 }
 
 export function ClienteTopBar() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
+  const { data: session } = useSession()
+  const userId = parseInt(session?.user?.id ?? '0')
+  const breadcrumb = getBreadcrumb(pathname)
+
+  const { data: perfil } = useQuery({
+    queryKey: ['cliente-perfil', userId],
+    queryFn: () => clienteService.obtener(userId),
+    enabled: !!userId && userId > 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+
+  const fotoUrl = fileUrl(perfil?.fotoPerfil)
+  const nombreCorto = user?.name?.split(' ')[0] ?? ''
 
   return (
-    <header className="sticky top-0 z-40 h-14 bg-white border-b border-gray-100 flex items-center px-4 gap-4">
+    <header className="sticky top-0 z-40 h-14 bg-white/95 backdrop-blur-sm border-b border-gray-100 flex items-center px-4 lg:px-6 gap-3">
       <div className="lg:hidden shrink-0">
-        <Logo variant="secundario" size="sm" href="/" />
+        <Logo variant="secundario" size="sm" href="/cliente" />
       </div>
 
-      <span className="hidden lg:block text-sm font-bold text-gray-700">
-        {getSectionLabel(pathname)}
+      <nav className="hidden lg:flex items-center gap-1 flex-1 min-w-0">
+        {breadcrumb.map((crumb, i) => (
+          <div key={crumb.href} className="flex items-center gap-1">
+            {i > 0 && (
+              <ChevronRight className="h-3.5 w-3.5 text-gray-300 shrink-0 mx-0.5" />
+            )}
+            {i === breadcrumb.length - 1 ? (
+              <span className="text-sm font-bold text-gray-900">{crumb.label}</span>
+            ) : (
+              <Link
+                href={crumb.href}
+                className="text-sm text-gray-400 hover:text-gray-700 transition-colors"
+              >
+                {crumb.label}
+              </Link>
+            )}
+          </div>
+        ))}
+      </nav>
+
+      <span className="lg:hidden text-sm font-bold text-gray-900 flex-1 truncate">
+        {breadcrumb.at(-1)?.label ?? 'Mi área'}
       </span>
 
-      <div className="flex-1" />
+      <div className="flex items-center gap-1.5 shrink-0">
+        <NotificacionesPanel />
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-9 w-9 rounded-full p-0">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback
-                className={cn(
-                  'text-xs font-bold text-white',
-                  'bg-brand-rosa'
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className={cn(
+                'h-9 flex items-center gap-2 px-2 rounded-xl hover:bg-gray-100 transition-colors',
+                'focus-visible:ring-0 focus-visible:ring-offset-0'
+              )}
+            >
+              <Avatar className="h-7 w-7">
+                {fotoUrl && (
+                  <AvatarImage
+                    src={fotoUrl}
+                    alt={user?.name ?? ''}
+                    className="object-cover"
+                  />
                 )}
-              >
-                {user?.name ? getInitials(user.name) : 'C'}
-              </AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <div className="px-3 py-2">
-            <p className="text-sm font-bold text-gray-900 truncate">{user?.name}</p>
-            <p className="text-xs text-gray-400 truncate">{user?.email}</p>
-          </div>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/" className="gap-2">
-              <Globe className="h-4 w-4" />
-              Ir al sitio
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={logout}
-            className="text-destructive focus:text-destructive gap-2"
+                <AvatarFallback className="text-[11px] font-bold text-white bg-brand-rosa">
+                  {user?.name ? getInitials(user.name) : 'C'}
+                </AvatarFallback>
+              </Avatar>
+              <span className="hidden sm:block text-sm font-semibold text-gray-700 max-w-[110px] truncate">
+                {nombreCorto}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            align="end"
+            className="w-56 rounded-2xl p-1.5 shadow-xl border border-gray-100"
           >
-            <LogOut className="h-4 w-4" />
-            Cerrar sesión
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <div className="px-3 py-2.5 flex items-center gap-2.5 mb-0.5">
+              <Avatar className="h-9 w-9 shrink-0">
+                {fotoUrl && (
+                  <AvatarImage
+                    src={fotoUrl}
+                    alt={user?.name ?? ''}
+                    className="object-cover"
+                  />
+                )}
+                <AvatarFallback className="text-xs font-bold text-white bg-brand-rosa">
+                  {user?.name ? getInitials(user.name) : 'C'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="overflow-hidden">
+                <p className="text-sm font-bold text-gray-900 truncate">{user?.name}</p>
+                <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+              </div>
+            </div>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem asChild>
+              <Link
+                href="/cliente/mi-cuenta"
+                className="gap-2.5 rounded-xl cursor-pointer"
+              >
+                <div className="w-6 h-6 rounded-lg bg-brand-azul/10 flex items-center justify-center">
+                  <User className="h-3.5 w-3.5 text-brand-azul" />
+                </div>
+                Mi perfil
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link
+                href="/cliente/mi-cuenta"
+                className="gap-2.5 rounded-xl cursor-pointer"
+              >
+                <div className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center">
+                  <Settings className="h-3.5 w-3.5 text-gray-500" />
+                </div>
+                Configuración
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={logout}
+              className="gap-2.5 rounded-xl cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+            >
+              <div className="w-6 h-6 rounded-lg bg-red-50 flex items-center justify-center">
+                <LogOut className="h-3.5 w-3.5 text-red-500" />
+              </div>
+              Cerrar sesión
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </header>
   )
 }

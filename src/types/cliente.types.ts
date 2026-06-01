@@ -67,6 +67,7 @@ export interface ActualizarClientePayload {
   ruc?: string
   razonSocial?: string
   direccion?: string
+  aceptaComunicaciones?: boolean
 }
 
 export interface ListarClientesParams {
