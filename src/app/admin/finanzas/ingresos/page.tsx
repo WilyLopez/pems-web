@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, ChevronLeft, ChevronRight, X, ArrowUpCircle } from 'lucide-react'
+import Link from 'next/link'
+import { Plus, ChevronLeft, ChevronRight, X, ArrowUpCircle, Tag } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -74,14 +75,22 @@ export default function IngresosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <PageHeader title="Ingresos" description="Historial de ingresos registrados en la sede" />
-        <Button
-          size="sm"
-          onClick={() => setModal(true)}
-          className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
-        >
-          <Plus className="h-4 w-4" />
-          Registrar ingreso
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/finanzas/ingresos/tipos">
+            <Button size="sm" variant="outline" className="gap-1.5">
+              <Tag className="h-4 w-4" />
+              Ver tipos
+            </Button>
+          </Link>
+          <Button
+            size="sm"
+            onClick={() => setModal(true)}
+            className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
+          >
+            <Plus className="h-4 w-4" />
+            Registrar ingreso
+          </Button>
+        </div>
       </div>
 
       <div className="flex items-end gap-3 flex-wrap">

@@ -355,8 +355,8 @@ export const finanzasService = {
     mes: number
   ): Promise<DashboardFinanciero> => {
     const { data } = await api.get<ApiResponse<DashboardFinanciero>>(
-      '/dashboard-financiero',
-      { params: { idSede, anio, mes } }
+      `/dashboard-financiero/sedes/${idSede}`,
+      { params: { anio, mes } }
     )
     return data.data
   },

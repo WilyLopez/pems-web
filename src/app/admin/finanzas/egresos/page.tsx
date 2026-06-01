@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, ChevronLeft, ChevronRight, Pencil, X } from 'lucide-react'
+import Link from 'next/link'
+import { Plus, ChevronLeft, ChevronRight, Pencil, X, Tag } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useEgresos, useEgresosPorRango, useEgresoMutations } from '@/hooks/useFinanzas'
 import { RegistrarEgresoModal } from '@/components/admin/finanzas/RegistrarEgresoModal'
@@ -87,14 +88,22 @@ export default function EgresosPage() {
           title="Egresos"
           description="Historial de egresos registrados en la sede"
         />
-        <Button
-          size="sm"
-          onClick={abrirNuevo}
-          className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
-        >
-          <Plus className="h-4 w-4" />
-          Registrar egreso
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/finanzas/tipos-egreso">
+            <Button size="sm" variant="outline" className="gap-1.5">
+              <Tag className="h-4 w-4" />
+              Ver tipos
+            </Button>
+          </Link>
+          <Button
+            size="sm"
+            onClick={abrirNuevo}
+            className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
+          >
+            <Plus className="h-4 w-4" />
+            Registrar egreso
+          </Button>
+        </div>
       </div>
 
       <div className="flex items-end gap-3 flex-wrap">

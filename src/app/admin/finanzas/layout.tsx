@@ -5,22 +5,18 @@ import { usePathname } from 'next/navigation'
 import {
   TrendingUp,
   ArrowUpCircle,
-  Tag,
   ArrowDownCircle,
-  Tags,
   Landmark,
   BarChart3,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [
-  { label: 'Dashboard',       href: '/admin/finanzas',               icon: TrendingUp,    exact: true },
-  { label: 'Ingresos',        href: '/admin/finanzas/ingresos',      icon: ArrowUpCircle, exact: true  },
-  { label: 'Tipos ingreso',   href: '/admin/finanzas/ingresos/tipos', icon: Tag,           exact: false },
-  { label: 'Egresos',         href: '/admin/finanzas/egresos',       icon: ArrowDownCircle, exact: false },
-  { label: 'Tipos egreso',    href: '/admin/finanzas/tipos-egreso',  icon: Tags,          exact: false },
-  { label: 'Caja',            href: '/admin/finanzas/caja',          icon: Landmark,      exact: false },
-  { label: 'Reportes',        href: '/admin/finanzas/reportes',      icon: BarChart3,     exact: false },
+  { label: 'Dashboard', href: '/admin/finanzas',          icon: TrendingUp,     exact: true  },
+  { label: 'Ingresos',  href: '/admin/finanzas/ingresos', icon: ArrowUpCircle,  exact: false },
+  { label: 'Egresos',   href: '/admin/finanzas/egresos',  icon: ArrowDownCircle, exact: false },
+  { label: 'Caja',      href: '/admin/finanzas/caja',     icon: Landmark,       exact: false },
+  { label: 'Reportes',  href: '/admin/finanzas/reportes', icon: BarChart3,      exact: false },
 ]
 
 export default function FinanzasLayout({ children }: { children: React.ReactNode }) {
