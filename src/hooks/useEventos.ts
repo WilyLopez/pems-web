@@ -48,6 +48,14 @@ export function useTurnos(idSede: number | null) {
   })
 }
 
+export function useServiciosCotizacion() {
+  return useQuery({
+    queryKey: ['servicios-cotizacion'],
+    queryFn: () => eventoService.listarServiciosCotizacion(),
+    staleTime: 1000 * 60 * 30,
+  })
+}
+
 export function useConfirmarEvento() {
   const qc = useQueryClient()
   return useMutation({

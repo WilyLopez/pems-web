@@ -6,6 +6,7 @@ import {
   SolicitarEventoPayload,
   ConfirmarEventoPayload,
   ExtraPaquete,
+  ServicioCotizacion,
   Turno,
 } from '@/types/evento.types'
 
@@ -137,6 +138,13 @@ export const eventoService = {
   listarTurnos: async (idSede: number): Promise<Turno[]> => {
     const { data } = await api.get<ApiResponse<Turno[]>>(
       `/calendario/sedes/${idSede}/turnos`
+    )
+    return data.data
+  },
+
+  listarServiciosCotizacion: async (): Promise<ServicioCotizacion[]> => {
+    const { data } = await api.get<ApiResponse<ServicioCotizacion[]>>(
+      '/servicios-cotizacion'
     )
     return data.data
   },
