@@ -45,6 +45,8 @@ import { Checkbox } from '@/components/ui/Checkbox'
 import { cn } from '@/lib/utils'
 
 const SEDE_ID = 1
+const DIAS_MAX_RESERVA = 14
+const SEMANAS_MAX = Math.ceil(DIAS_MAX_RESERVA / 7)
 
 type PasoReserva = 1 | 2 | 3 | 4
 
@@ -328,6 +330,9 @@ export default function ReservarPage() {
             <p className="text-gray-500 text-sm mt-0.5">
               Elige el dia en que deseas visitar Kiki y Lala
             </p>
+            <p className="text-xs text-gray-400 mt-1">
+              Puedes reservar hasta con {DIAS_MAX_RESERVA} dias de anticipacion.
+            </p>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
@@ -345,7 +350,8 @@ export default function ReservarPage() {
                 </button>
                 <button
                   onClick={() => setSemanaOffset((o) => o + 1)}
-                  className="h-8 w-8 rounded-lg border border-gray-200 flex items-center justify-center hover:border-gray-300 transition-colors"
+                  disabled={semanaOffset >= SEMANAS_MAX - 1}
+                  className="h-8 w-8 rounded-lg border border-gray-200 flex items-center justify-center hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -364,9 +370,7 @@ export default function ReservarPage() {
                   const disp = getDisp(dia)
                   const hoy = startOfDay(new Date())
                   const pasado = isBefore(dia, hoy)
-                  const bloqueado = !disp?.accesoPublicoActivo || disp?.bloqueadoManualmente
-                  const lleno = disp?.aforoCompleto
-                  const disabled = pasado || bloqueado || lleno || !disp
+                  const disabled = pasado || !disp || !disp.disponiblePublico
                   const seleccionado = fechaSeleccionada === format(dia, 'yyyy-MM-dd')
 
                   return (
@@ -409,10 +413,10 @@ export default function ReservarPage() {
                           {disp.tipoDia === 'SEMANA' ? 'S/25' : 'S/35'}
                         </span>
                       )}
-                      {bloqueado && !pasado && (
-                        <Lock className="h-3 w-3 text-gray-400 mt-auto" />
+                      {disabled && !pasado && disp?.tipoOcupacion === 'PRIVADO' && (
+                        <Lock className="h-3 w-3 text-pink-400 mt-auto" />
                       )}
-                      {lleno && !pasado && !bloqueado && (
+                      {disabled && !pasado && disp?.aforoCompleto && disp?.tipoOcupacion !== 'PRIVADO' && (
                         <span className="text-[9px] text-red-500 font-bold">Lleno</span>
                       )}
                     </button>

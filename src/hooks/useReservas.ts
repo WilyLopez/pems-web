@@ -80,3 +80,31 @@ export function useReprogramarReserva() {
       toast.error(err?.message ?? 'No se pudo reprogramar la reserva.'),
   })
 }
+
+export function useReprogramarReservaCliente() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, nuevaFecha }: { id: number; nuevaFecha: string }) =>
+      reservaService.reprogramar(id, { nuevaFechaEvento: nuevaFecha }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['mis-reservas'] })
+      qc.invalidateQueries({ queryKey: ['mis-reservas-dashboard'] })
+    },
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo reprogramar.'),
+  })
+}
+
+export function useCancelarReservaCliente() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, motivo }: { id: number; motivo?: string }) =>
+      reservaService.cancelar(id, motivo ?? ''),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['mis-reservas'] })
+      qc.invalidateQueries({ queryKey: ['mis-reservas-dashboard'] })
+    },
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo cancelar.'),
+  })
+}
