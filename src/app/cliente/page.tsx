@@ -1,30 +1,30 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
-import { differenceInDays, parseISO, startOfDay } from 'date-fns'
+import { parseISO, startOfDay, differenceInDays } from 'date-fns'
 import {
+  Ticket,
   CalendarDays,
   PartyPopper,
+  Wallet,
+  MessageCircle,
+  AlertTriangle,
   User,
-  Ticket,
-  ChevronRight,
-  Clock,
-  AlertCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 
 import { reservaService } from '@/services/reserva.service'
 import { eventoService } from '@/services/evento.service'
 import { Reserva } from '@/types/reserva.types'
-import { EventoPrivado } from '@/types/evento.types'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { StatusBadge } from '@/components/common/Statusbadge'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { cn, formatDate, formatCurrency } from '@/lib/utils'
+import { EstadoBadge } from '@/components/cliente/EstadoBadge'
+import { EmptyReservas } from '@/components/cliente/EmptyReservas'
+import { ReservaDetalleModal } from '@/components/cliente/ReservaDetalleModal'
+
+const WHATSAPP_URL = 'https://wa.me/51987654321'
 
 function saludo(): string {
   const h = new Date().getHours()
@@ -33,216 +33,285 @@ function saludo(): string {
   return 'Buenas noches'
 }
 
-function EventoCountdownBanner({ evento }: { evento: EventoPrivado }) {
-  const dias = differenceInDays(
-    startOfDay(parseISO(evento.fechaEvento)),
-    startOfDay(new Date())
-  )
+interface StatCardProps {
+  valor: string | number
+  label: string
+  icon: React.ElementType
+  color: string
+}
 
+function StatCard({ valor, label, icon: Icon, color }: StatCardProps) {
   return (
-    <div className="rounded-2xl bg-gradient-to-r from-brand-rosa/10 to-brand-azul/10 border border-brand-rosa/20 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-      <div className="w-10 h-10 rounded-xl bg-brand-rosa/15 flex items-center justify-center shrink-0">
-        <PartyPopper className="h-5 w-5 text-brand-rosa" />
-      </div>
-      <div className="flex-1">
-        <p className="text-sm font-bold text-gray-900">
-          Tu evento privado es en {dias === 0 ? '¡hoy!' : `${dias} día${dias !== 1 ? 's' : ''}!`}
-        </p>
-        <p className="text-xs text-gray-500 mt-0.5">
-          {evento.tipoEvento} · {formatDate(evento.fechaEvento)}
-          {evento.montoSaldo && evento.montoSaldo > 0 ? (
-            <span className="ml-2 text-amber-700 font-semibold">
-              · Saldo pendiente: {formatCurrency(evento.montoSaldo)}
-            </span>
-          ) : null}
-        </p>
-      </div>
-      <Button
-        asChild
-        size="sm"
-        className="bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full shrink-0"
+    <div className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4">
+      <div
+        className={cn(
+          'w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center mb-2',
+          color
+        )}
       >
-        <Link href={`/cliente/mis-eventos/${evento.id}`}>Ver detalles</Link>
-      </Button>
+        <Icon className="h-4 w-4" />
+      </div>
+      <p className="text-lg sm:text-2xl font-black text-gray-900 leading-none">{valor}</p>
+      <p className="text-[11px] sm:text-xs text-gray-400 mt-1 leading-tight">{label}</p>
     </div>
   )
 }
 
-const QUICK_LINKS = [
-  {
-    href: '/reservar',
-    icon: Ticket,
-    label: 'Reservar visita',
-    desc: 'Elige fecha y horario',
-    color: 'bg-brand-azul/10',
-    iconColor: 'text-brand-azul',
-  },
-  {
-    href: '/cliente/mis-reservas',
-    icon: CalendarDays,
-    label: 'Mis reservas',
-    desc: 'Ver historial y tickets',
-    color: 'bg-brand-rosa/10',
-    iconColor: 'text-brand-rosa',
-  },
-  {
-    href: '/cliente/mis-eventos',
-    icon: PartyPopper,
-    label: 'Mis eventos',
-    desc: 'Eventos privados',
-    color: 'bg-amber-50',
-    iconColor: 'text-amber-600',
-  },
-  {
-    href: '/cliente/mi-cuenta',
-    icon: User,
-    label: 'Mi cuenta',
-    desc: 'Perfil y datos',
-    color: 'bg-gray-100',
-    iconColor: 'text-gray-600',
-  },
-]
+interface AccesoRapidoProps {
+  href: string
+  icon: React.ElementType
+  label: string
+  color: string
+}
 
-function ReservaRow({ reserva }: { reserva: Reserva }) {
+function AccesoRapido({ href, icon: Icon, label, color }: AccesoRapidoProps) {
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-gray-50 last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-brand-azul/10 flex items-center justify-center shrink-0">
-        <CalendarDays className="h-4 w-4 text-brand-azul" />
+    <Link
+      href={href}
+      className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+    >
+      <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', color)}>
+        <Icon className="h-4 w-4" />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900 truncate">
-          {reserva.nombreNino}
-        </p>
-        <p className="text-xs text-gray-400 flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          {formatDate(reserva.fechaEvento)}
-        </p>
-      </div>
-      <StatusBadge status={reserva.estado} />
-    </div>
+      <span className="text-sm font-semibold text-gray-700">{label}</span>
+    </Link>
   )
 }
 
 export default function ClienteDashboard() {
   const { data: session } = useSession()
   const userName = session?.user?.name?.split(' ')[0] ?? 'Cliente'
+  const [reservaDetalle, setReservaDetalle] = useState<Reserva | null>(null)
 
   const { data: reservasData, isLoading: loadingReservas } = useQuery({
-    queryKey: ['cliente-reservas-dashboard'],
-    queryFn: () => reservaService.listar({ page: 0, size: 10 }),
+    queryKey: ['mis-reservas-dashboard'],
+    queryFn: () => reservaService.listar({ page: 0, size: 20 }),
     enabled: !!session,
   })
 
-  const { data: eventosData, isLoading: loadingEventos } = useQuery({
-    queryKey: ['cliente-eventos-dashboard'],
-    queryFn: () => eventoService.listar({ page: 0, size: 10 }),
+  const { data: eventosData } = useQuery({
+    queryKey: ['mis-eventos-dashboard'],
+    queryFn: () => eventoService.listar({ page: 0, size: 20 }),
     enabled: !!session,
   })
 
-  const eventoProximo = useMemo<EventoPrivado | null>(() => {
+  const proximasReservas = useMemo<Reserva[]>(() => {
     const hoy = startOfDay(new Date())
     return (
-      eventosData?.content
-        ?.filter((e: EventoPrivado) => {
-          if (e.estado !== 'CONFIRMADA') return false
-          const diff = differenceInDays(startOfDay(parseISO(e.fechaEvento)), hoy)
-          return diff >= 0 && diff <= 7
+      reservasData?.content
+        ?.filter((r: Reserva) => {
+          if (!['PENDIENTE', 'CONFIRMADA'].includes(r.estado)) return false
+          return differenceInDays(startOfDay(parseISO(r.fechaEvento)), hoy) >= 0
         })
         ?.sort(
-          (a: EventoPrivado, b: EventoPrivado) =>
+          (a: Reserva, b: Reserva) =>
             parseISO(a.fechaEvento).getTime() - parseISO(b.fechaEvento).getTime()
-        )[0] ?? null
-    )
-  }, [eventosData])
-
-  const proximas = useMemo<Reserva[]>(() => {
-    return (
-      reservasData?.content
-        ?.filter((r: Reserva) =>
-          ['PENDIENTE', 'CONFIRMADA'].includes(r.estado)
-        )
-        ?.slice(0, 3) ?? []
+        ) ?? []
     )
   }, [reservasData])
 
+  const proximaVisita = proximasReservas[0] ?? null
+  const otrasReservas = proximasReservas.slice(1, 4)
+
+  const totalPendiente = useMemo(() => {
+    return (
+      reservasData?.content
+        ?.filter((r: Reserva) => r.estado === 'PENDIENTE')
+        ?.reduce((sum: number, r: Reserva) => sum + r.totalPagado, 0) ?? 0
+    )
+  }, [reservasData])
+
+  const eventosSolicitados = useMemo(() => {
+    return (
+      eventosData?.content?.filter(
+        (e: { estado: string }) => e.estado === 'SOLICITADA'
+      ).length ?? 0
+    )
+  }, [eventosData])
+
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto w-full space-y-4 sm:space-y-5">
       <div>
-        <h1 className="text-2xl font-black text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
           {saludo()}, {userName}
         </h1>
-        <p className="text-sm text-gray-400 mt-0.5">
-          Bienvenido a tu área personal de Kiki y Lala
-        </p>
+        <p className="text-sm text-gray-400 mt-0.5">Bienvenido a tu área personal</p>
       </div>
 
-      {eventoProximo && <EventoCountdownBanner evento={eventoProximo} />}
+      {loadingReservas ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-2xl" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <StatCard
+            valor={proximasReservas.length}
+            label="Próximas visitas"
+            icon={Ticket}
+            color="bg-brand-azul/10 text-brand-azul"
+          />
+          <StatCard
+            valor={eventosSolicitados}
+            label="Eventos solicitados"
+            icon={PartyPopper}
+            color="bg-brand-rosa/10 text-brand-rosa"
+          />
+          <StatCard
+            valor={totalPendiente > 0 ? formatCurrency(totalPendiente) : 'S/ 0'}
+            label="Por pagar"
+            icon={Wallet}
+            color="bg-amber-100 text-amber-600"
+          />
+          <StatCard
+            valor={
+              proximaVisita
+                ? formatDate(proximaVisita.fechaEvento, 'd MMM')
+                : '—'
+            }
+            label="Próxima visita"
+            icon={CalendarDays}
+            color="bg-green-100 text-green-600"
+          />
+        </div>
+      )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {QUICK_LINKS.map(({ href, icon: Icon, label, desc, color, iconColor }) => (
-          <Link
-            key={href}
-            href={href}
-            className="group rounded-2xl border border-gray-100 bg-white p-4 flex flex-col gap-3 hover:shadow-md hover:border-brand-azul/20 transition-all"
-          >
-            <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center`}>
-              <Icon className={`h-5 w-5 ${iconColor}`} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-gray-900 group-hover:text-brand-azul transition-colors">
-                {label}
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      <Card className="border border-gray-100 shadow-card rounded-2xl">
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-brand-azul" />
-              Próximas reservas
-            </h2>
-            <Link
-              href="/cliente/mis-reservas"
-              className="text-xs text-brand-azul font-semibold hover:underline flex items-center gap-0.5"
-            >
-              Ver todas <ChevronRight className="h-3 w-3" />
-            </Link>
-          </div>
-
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="lg:col-span-2 space-y-4">
           {loadingReservas && (
             <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 rounded-xl" />
-              ))}
+              <Skeleton className="h-40 rounded-2xl" />
+              <Skeleton className="h-28 rounded-2xl" />
             </div>
           )}
 
-          {!loadingReservas && proximas.length === 0 && (
-            <div className="text-center py-6 text-gray-400">
-              <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">No tienes reservas próximas</p>
-              <Button
-                asChild
-                size="sm"
-                className="mt-3 bg-brand-azul hover:bg-brand-azul/90 text-white rounded-full gap-1.5"
-              >
-                <Link href="/reservar">
-                  <Ticket className="h-3.5 w-3.5" />
-                  Reservar ahora
+          {!loadingReservas && proximaVisita && (
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="bg-brand-azul/5 px-4 sm:px-5 py-3 border-b border-gray-100">
+                <p className="text-xs font-bold uppercase tracking-wide text-brand-azul">
+                  Tu próxima visita
+                </p>
+              </div>
+              <div className="p-4 sm:p-5 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg sm:text-xl font-black text-gray-900">
+                      {formatDate(proximaVisita.fechaEvento, "EEEE d 'de' MMMM")}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Visita de {proximaVisita.nombreNino} · {proximaVisita.edadNino} años
+                    </p>
+                  </div>
+                  <EstadoBadge estado={proximaVisita.estado} />
+                </div>
+                {proximaVisita.estado === 'PENDIENTE' && (
+                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+                    <p className="text-xs text-amber-800">Pago pendiente en caja</p>
+                  </div>
+                )}
+                <button
+                  onClick={() => setReservaDetalle(proximaVisita)}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-brand-azul text-white rounded-xl text-sm font-bold hover:bg-brand-azul/90 transition-colors"
+                >
+                  Ver ticket
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!loadingReservas && otrasReservas.length > 0 && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-gray-900">Otras reservas</h3>
+                <Link
+                  href="/cliente/mis-reservas"
+                  className="text-xs font-semibold text-brand-azul hover:underline"
+                >
+                  Ver todas
                 </Link>
-              </Button>
+              </div>
+              <div className="space-y-1">
+                {otrasReservas.map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => setReservaDetalle(r)}
+                    className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-brand-azul/10 flex items-center justify-center shrink-0">
+                      <CalendarDays className="h-4 w-4 text-brand-azul" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {formatDate(r.fechaEvento, 'd MMM')} · Visita de {r.nombreNino}
+                      </p>
+                      <p className="text-xs text-gray-400">{r.numeroTicket}</p>
+                    </div>
+                    <EstadoBadge estado={r.estado} compact />
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
-          {proximas.map((r) => (
-            <ReservaRow key={r.id} reserva={r} />
-          ))}
-        </CardContent>
-      </Card>
+          {!loadingReservas && proximasReservas.length === 0 && <EmptyReservas />}
+        </div>
+
+        <div className="space-y-4">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
+            <h3 className="font-bold text-gray-900 mb-3">Accesos rápidos</h3>
+            <div className="space-y-1">
+              <AccesoRapido
+                href="/reservar"
+                icon={Ticket}
+                label="Reservar visita"
+                color="bg-brand-azul/10 text-brand-azul"
+              />
+              <AccesoRapido
+                href="/eventos-privados"
+                icon={PartyPopper}
+                label="Solicitar evento"
+                color="bg-brand-rosa/10 text-brand-rosa"
+              />
+              <AccesoRapido
+                href="/cliente/mis-reservas"
+                icon={CalendarDays}
+                label="Mis reservas"
+                color="bg-gray-100 text-gray-600"
+              />
+              <AccesoRapido
+                href="/cliente/mi-cuenta"
+                icon={User}
+                label="Mi cuenta"
+                color="bg-gray-100 text-gray-600"
+              />
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl border border-green-200 p-4 sm:p-5">
+            <h3 className="font-bold text-gray-900 mb-1">¿Necesitas ayuda?</h3>
+            <p className="text-xs text-gray-600 mb-3">
+              Escríbenos y te respondemos rápido.
+            </p>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition-colors"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <ReservaDetalleModal
+        reserva={reservaDetalle}
+        open={!!reservaDetalle}
+        onClose={() => setReservaDetalle(null)}
+      />
     </div>
   )
 }

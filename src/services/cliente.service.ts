@@ -87,6 +87,33 @@ export const clienteService = {
     await api.put(`/clientes/${id}/segmento`, null, { params: { segmento } })
   },
 
+  cambiarContrasena: async (
+    id: number,
+    contrasenaActual: string,
+    nuevaContrasena: string
+  ): Promise<void> => {
+    await api.post(`/clientes/${id}/cambiar-contrasena`, {
+      contrasenaActual,
+      nuevaContrasena,
+    })
+  },
+
+  subirFoto: async (id: number, foto: File): Promise<Cliente> => {
+    const form = new FormData()
+    form.append('foto', foto)
+    const { data } = await api.put<ApiResponse<Cliente>>(
+      `/clientes/${id}/foto`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    )
+    return data.data
+  },
+
+  eliminarFoto: async (id: number): Promise<Cliente> => {
+    const { data } = await api.delete<ApiResponse<Cliente>>(`/clientes/${id}/foto`)
+    return data.data
+  },
+
   buscarPorCorreo: async (correo: string): Promise<Cliente | null> => {
     const { data } = await api.get<ApiResponse<PagedResponse<Cliente>>>(
       '/clientes',
