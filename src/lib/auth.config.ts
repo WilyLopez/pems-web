@@ -40,6 +40,22 @@ async function loginRequest(
   return json.data as TokenResponse
 }
 
+async function renovarToken(refreshToken: string): Promise<{
+  accessToken: string
+  refreshToken: string
+  accessExpiresIn: number
+}> {
+  const res = await fetch(`${API_BASE}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+    cache: 'no-store',
+  })
+  if (!res.ok) throw new Error('refresh_failed')
+  const json = await res.json()
+  return json.data
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -61,6 +77,8 @@ export const authOptions: NextAuthOptions = {
             name: data.nombre,
             email: credentials.correo,
             token: data.token,
+            refreshToken: data.refreshToken,
+            accessExpiresIn: data.accessExpiresIn,
             rol: data.rol,
             idSede: data.idSede,
           }
@@ -89,6 +107,8 @@ export const authOptions: NextAuthOptions = {
             name: data.nombre,
             email: credentials.correo,
             token: data.token,
+            refreshToken: data.refreshToken,
+            accessExpiresIn: data.accessExpiresIn,
             rol: data.rol,
             idSede: data.idSede,
           }
@@ -102,18 +122,42 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.token = (user as { token: string }).token
-        token.rol = (user as { rol: string }).rol
-        token.idSede = (user as { idSede?: number }).idSede
+        return {
+          ...token,
+          id: user.id,
+          token: user.token,
+          refreshToken: user.refreshToken,
+          accessExpires: Date.now() + user.accessExpiresIn,
+          rol: user.rol,
+          idSede: user.idSede,
+        }
       }
-      return token
+
+      if (Date.now() < (token.accessExpires as number) - 60000) {
+        return token
+      }
+
+      try {
+        const renovado = await renovarToken(token.refreshToken as string)
+        return {
+          ...token,
+          token: renovado.accessToken,
+          refreshToken: renovado.refreshToken,
+          accessExpires: Date.now() + renovado.accessExpiresIn,
+          error: undefined,
+        }
+      } catch {
+        return { ...token, error: 'RefreshTokenExpired' as const }
+      }
     },
+
     async session({ session, token }) {
       session.user.id = token.id as string
       session.user.token = token.token as string
+      session.user.refreshToken = token.refreshToken as string
       session.user.rol = token.rol as string
       session.user.idSede = token.idSede as number | undefined
+      session.error = token.error as 'RefreshTokenExpired' | undefined
       return session
     },
   },

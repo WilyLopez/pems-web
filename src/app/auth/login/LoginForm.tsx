@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
@@ -32,6 +32,12 @@ export default function LoginForm() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   })
+
+  useEffect(() => {
+    if (searchParams.get('expirada') === '1') {
+      toast.warning('Tu sesión expiró por inactividad. Vuelve a iniciar sesión.')
+    }
+  }, [])
 
   const onSubmit = async (values: LoginFormValues) => {
     setLoading(true)
