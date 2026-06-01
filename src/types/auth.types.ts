@@ -16,6 +16,8 @@ export interface LoginCredentials {
 
 export interface TokenResponse {
   token: string
+  refreshToken: string
+  accessExpiresIn: number
   idUsuario: number
   nombre: string
   rol: Role

@@ -8,13 +8,17 @@ declare module 'next-auth' {
       name?: string | null
       email?: string | null
       token: string
+      refreshToken: string
       rol: string
       idSede?: number
     }
+    error?: 'RefreshTokenExpired'
   }
 
   interface User {
     token: string
+    refreshToken: string
+    accessExpiresIn: number
     rol: string
     idSede?: number
   }
@@ -24,7 +28,10 @@ declare module 'next-auth/jwt' {
   interface JWT {
     id: string
     token: string
+    refreshToken: string
+    accessExpires: number
     rol: string
     idSede?: number
+    error?: 'RefreshTokenExpired'
   }
 }
