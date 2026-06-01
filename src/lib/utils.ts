@@ -1,12 +1,18 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { format as fnsFormat, parseISO } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDate(date: string | Date) {
+export function formatDate(date: string | Date, pattern?: string) {
   if (!date) return ''
+  if (pattern) {
+    const d = typeof date === 'string' ? parseISO(date) : date
+    return fnsFormat(d, pattern, { locale: es })
+  }
   const d = new Date(date)
   return d.toLocaleDateString('es-ES', {
     day: '2-digit',
@@ -73,11 +79,13 @@ export function exportarCSV(filename: string, rows: Record<string, unknown>[]) {
 
 export function fileUrl(url: string | null | undefined): string | null {
   if (!url) return null
+  if (url.startsWith('/files/')) return url
   const backendOrigin = (
     process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1'
   ).replace(/\/api\/v1\/?$/, '')
-  if (url.startsWith(backendOrigin + '/files/')) {
+  if (url.startsWith(backendOrigin)) {
     return url.slice(backendOrigin.length)
   }
+  if (url.startsWith('/')) return '/files' + url
   return url
 }

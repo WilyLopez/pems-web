@@ -5,8 +5,9 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 2,
       retry: (failureCount, error: unknown) => {
-        const apiError = error as { status?: number }
-        if (apiError?.status === 404 || apiError?.status === 403) return false
+        const apiError = error as { status?: number; codigoError?: string }
+        if (apiError?.status === 401 || apiError?.status === 403 || apiError?.status === 404) return false
+        if (apiError?.codigoError === 'SESSION_EXPIRED') return false
         return failureCount < 2
       },
       refetchOnWindowFocus: false,
