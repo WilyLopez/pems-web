@@ -1,74 +1,64 @@
-import { Metadata } from 'next'
-import { Ticket, PartyPopper, Package, Users } from 'lucide-react'
-import { PageHeader } from '@/components/common/PageHeader'
-import { KpiCard } from '@/components/dashboard/KpiCard'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Skeleton } from '@/components/ui/Skeleton'
+'use client'
 
-export const metadata: Metadata = { title: 'Dashboard' }
+import { RefreshCw } from 'lucide-react'
+import { cn, formatDate } from '@/lib/utils'
+import { useAuth } from '@/hooks/useAuth'
+import { useDashboardAdmin } from '@/hooks/useDashboard'
+import { KpisDelDia } from '@/components/admin/dashboard/KpisDelDia'
+import { AccionesPendientes } from '@/components/admin/dashboard/AccionesPendientes'
+import { AgendaDelDia } from '@/components/admin/dashboard/AgendaDelDia'
+import { TendenciaReservas } from '@/components/admin/dashboard/TendenciaReservas'
+import { DisponibilidadSemana } from '@/components/admin/dashboard/DisponibilidadSemana'
+import { DashboardSkeleton } from '@/components/admin/dashboard/DashboardSkeleton'
 
-export default function DashboardPage() {
+function saludo() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Buenos días'
+  if (h < 19) return 'Buenas tardes'
+  return 'Buenas noches'
+}
+
+export default function AdminDashboardPage() {
+  const { idSede } = useAuth()
+  const { data, isLoading, isFetching, refetch } = useDashboardAdmin(idSede ?? undefined)
+
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Dashboard"
-        description="Resumen operativo de Kiki y Lala"
-      />
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          title="Reservas hoy"
-          value="—"
-          description="Entradas confirmadas"
-          icon={<Ticket className="h-5 w-5" />}
-        />
-        <KpiCard
-          title="Eventos privados"
-          value="—"
-          description="Este mes"
-          icon={<PartyPopper className="h-5 w-5" />}
-        />
-        <KpiCard
-          title="Alertas de stock"
-          value="—"
-          description="Productos bajo mínimo"
-          icon={<Package className="h-5 w-5" />}
-        />
-        <KpiCard
-          title="Clientes activos"
-          value="—"
-          description="Registrados en el sistema"
-          icon={<Users className="h-5 w-5" />}
-        />
+    <div className="max-w-7xl mx-auto w-full space-y-5 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-gray-900">{saludo()}</h1>
+          <p className="text-sm text-gray-500 capitalize">
+            {data ? formatDate(data.fecha, "EEEE d 'de' MMMM yyyy") : 'Cargando...'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className="shrink-0 flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:border-brand-azul/40 hover:text-brand-azul transition-all disabled:opacity-50"
+        >
+          <RefreshCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+          <span className="hidden sm:inline">Actualizar</span>
+        </button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              Reservas — últimos 30 días
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48 flex items-center justify-center text-sm text-muted-foreground">
-              Gráfico próximamente
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              Disponibilidad de la semana
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48 flex items-center justify-center text-sm text-muted-foreground">
-              Calendario próximamente
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {isLoading ? (
+        <DashboardSkeleton />
+      ) : data ? (
+        <>
+          <KpisDelDia data={data} />
+          <AccionesPendientes data={data} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+            <AgendaDelDia data={data} />
+            <DisponibilidadSemana data={data.disponibilidadSemana} />
+          </div>
+          <TendenciaReservas data={data.reservasUltimos30Dias} />
+        </>
+      ) : (
+        <p className="text-sm text-gray-500 text-center py-12">
+          No se pudo cargar el dashboard.
+        </p>
+      )}
     </div>
   )
 }
