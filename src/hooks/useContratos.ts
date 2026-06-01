@@ -95,6 +95,21 @@ export function useFirmarContrato() {
   })
 }
 
+export function useSubirContratoExterno() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ idEvento, file }: { idEvento: number; file: File }) =>
+      contratoService.subirExterno(idEvento, file),
+    onSuccess: (contrato) => {
+      qc.invalidateQueries({ queryKey: [CONTRATOS_KEY] })
+      qc.invalidateQueries({ queryKey: [CONTRATO_KEY, 'evento', contrato.idEventoPrivado] })
+      toast.success('Contrato subido correctamente.')
+    },
+    onError: (err: { message?: string }) =>
+      toast.error(err?.message ?? 'No se pudo subir el contrato.'),
+  })
+}
+
 export function useCambiarEstadoContrato() {
   const qc = useQueryClient()
   return useMutation({
