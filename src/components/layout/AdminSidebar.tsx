@@ -10,11 +10,7 @@ import {
   Calendar,
   Ticket,
   PartyPopper,
-  FileText,
-  CreditCard,
-  Receipt,
   Tag,
-  Tags,
   Mail,
   Users,
   Globe,
@@ -50,7 +46,10 @@ import {
 
 /* ─── Estructura de navegacion agrupada ─────────────────────────────────────── */
 
-const navGroups = [
+const navGroups: {
+  label: string
+  items: { label: string; href: string; icon: React.ElementType; exact?: boolean }[]
+}[] = [
   {
     label: 'Principal',
     items: [
@@ -78,11 +77,6 @@ const navGroups = [
         label: 'Eventos Privados',
         href: '/admin/eventos',
         icon: PartyPopper,
-      },
-      {
-        label: 'Contratos',
-        href: '/admin/contratos',
-        icon: FileText,
       },
     ],
   },
@@ -153,6 +147,7 @@ const navGroups = [
         label: 'Dashboard',
         href: '/admin/finanzas',
         icon: TrendingUp,
+        exact: true,
       },
       {
         label: 'Ingresos',
@@ -160,19 +155,9 @@ const navGroups = [
         icon: ArrowUpCircle,
       },
       {
-        label: 'Tipos de ingreso',
-        href: '/admin/finanzas/ingresos/tipos',
-        icon: Tag,
-      },
-      {
         label: 'Egresos',
         href: '/admin/finanzas/egresos',
         icon: ArrowDownCircle,
-      },
-      {
-        label: 'Tipos de egreso',
-        href: '/admin/finanzas/tipos-egreso',
-        icon: Tags,
       },
       {
         label: 'Caja',
@@ -280,9 +265,9 @@ function NavItem({ href, label, icon: Icon, active, collapsed }: NavItemProps) {
 
 interface NavGroupProps {
   label: string
-  items: { label: string; href: string; icon: React.ElementType }[]
+  items: { label: string; href: string; icon: React.ElementType; exact?: boolean }[]
   sidebarCollapsed: boolean
-  isActive: (href: string) => boolean
+  isActive: (href: string, exact?: boolean) => boolean
 }
 
 function NavGroup({ label, items, sidebarCollapsed, isActive }: NavGroupProps) {
@@ -293,13 +278,13 @@ function NavGroup({ label, items, sidebarCollapsed, isActive }: NavGroupProps) {
       <div>
         <div className="mx-2 mb-1 h-px bg-gray-100" />
         <div className="space-y-0.5">
-          {items.map(({ label: itemLabel, href, icon }) => (
+          {items.map(({ label: itemLabel, href, icon, exact }) => (
             <NavItem
               key={href}
               href={href}
               label={itemLabel}
               icon={icon}
-              active={isActive(href)}
+              active={isActive(href, exact)}
               collapsed
             />
           ))}
@@ -331,13 +316,13 @@ function NavGroup({ label, items, sidebarCollapsed, isActive }: NavGroupProps) {
           open ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
         )}
       >
-        {items.map(({ label: itemLabel, href, icon }) => (
+        {items.map(({ label: itemLabel, href, icon, exact }) => (
           <NavItem
             key={href}
             href={href}
             label={itemLabel}
             icon={icon}
-            active={isActive(href)}
+            active={isActive(href, exact)}
             collapsed={false}
           />
         ))}
@@ -352,8 +337,8 @@ export function AdminSidebar() {
   const pathname = usePathname()
   const { isOpen, toggle } = useSidebarStore()
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + '/')
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
 
   return (
     <TooltipProvider delayDuration={0}>
