@@ -35,6 +35,7 @@ export interface Reserva {
   ingresado: boolean
   fechaIngreso?: string
   codigoQr?: string
+  turno?: 'T1' | 'T2'
   medioPago?: MedioPago | string
   referenciaPago?: string
   fechaCreacion: string
