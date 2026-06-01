@@ -322,6 +322,7 @@ export default function CalendarioPage() {
         <CalendarioDayDrawer
           idSede={sede}
           fecha={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null}
+          disp={selectedDate ? getDisp(selectedDate) : undefined}
           onClose={() => setSelectedDate(null)}
         />
       )}

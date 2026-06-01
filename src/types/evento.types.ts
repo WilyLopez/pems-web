@@ -75,6 +75,14 @@ export interface EventoPrivado {
 
 export interface EventoPage extends PagedResponse<EventoPrivado> {}
 
+export interface ServicioCotizacion {
+  id: number
+  nombre: string
+  descripcion?: string
+  precioReferencial: number
+  icono?: string
+}
+
 export interface SolicitarEventoPayload {
   idTurno: number
   fechaEvento: string
@@ -87,6 +95,10 @@ export interface SolicitarEventoPayload {
   idsExtras?: number[]
   extrasLibres?: string[]
   observaciones?: string
+  descripcionPersonalizada?: string
+  presupuestoEstimado?: number
+  idsServiciosCotizacion?: number[]
+  esCotizacionPersonalizada?: boolean
 }
 
 export interface ConfirmarEventoPayload {

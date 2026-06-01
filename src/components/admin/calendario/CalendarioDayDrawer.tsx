@@ -20,7 +20,7 @@ import {
 import Link from 'next/link'
 
 import { useResumenDia, useBloquearFechas } from '@/hooks/useCalendario'
-import { AlertaDia, ResumenTurno } from '@/types/calendario.types'
+import { AlertaDia, ResumenTurno, Disponibilidad } from '@/types/calendario.types'
 import { GastosOperativosDia } from '@/components/admin/finanzas/GastosOperativosDia'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
@@ -32,6 +32,7 @@ import { formatCurrency, cn } from '@/lib/utils'
 interface CalendarioDayDrawerProps {
   idSede: number
   fecha: string | null
+  disp?: Disponibilidad
   onClose: () => void
 }
 
@@ -158,12 +159,128 @@ function DrawerSkeleton() {
   )
 }
 
-export function CalendarioDayDrawer({ idSede, fecha, onClose }: CalendarioDayDrawerProps) {
+function AccionesDrawer({
+  fecha,
+  tipo,
+  idEvento,
+  tituloEvento,
+  onBloquear,
+  bloqueandoPending,
+}: {
+  fecha: string
+  tipo: string
+  idEvento?: number | null
+  tituloEvento?: string | null
+  onBloquear: () => void
+  bloqueandoPending: boolean
+}) {
+  if (tipo === 'PRIVADO') {
+    return (
+      <div className="space-y-2">
+        <div className="bg-brand-rosa/5 border border-brand-rosa/20 rounded-xl p-3">
+          <div className="flex items-center gap-2">
+            <PartyPopper className="h-4 w-4 text-brand-rosa shrink-0" />
+            <p className="text-sm font-bold text-gray-900">Dia reservado para evento privado</p>
+          </div>
+          {tituloEvento && (
+            <p className="text-xs text-gray-500 mt-1 ml-6">{tituloEvento}</p>
+          )}
+        </div>
+        {idEvento && (
+          <Button
+            size="sm"
+            className="w-full rounded-xl gap-1.5 text-xs bg-brand-rosa hover:bg-brand-rosa/90 text-white"
+            asChild
+          >
+            <Link href={`/admin/eventos/${idEvento}`}>
+              <ChevronRight className="h-3.5 w-3.5" />
+              Ver detalle del evento
+            </Link>
+          </Button>
+        )}
+      </div>
+    )
+  }
+
+  if (tipo === 'BLOQUEADO' || tipo === 'FERIADO') {
+    return (
+      <div className="space-y-2">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center gap-2">
+          <Lock className="h-4 w-4 text-gray-400 shrink-0" />
+          <p className="text-sm font-semibold text-gray-600">
+            {tipo === 'FERIADO' ? 'Feriado / dia cerrado' : 'Fecha bloqueada'}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (tipo === 'PUBLICO') {
+    return (
+      <div className="space-y-2">
+        <p className="text-xs text-gray-400">
+          Dia con reservas publicas. No disponible para eventos privados.
+        </p>
+        <Button
+          size="sm"
+          className="w-full bg-brand-azul hover:bg-brand-azul/90 text-white rounded-xl gap-1.5 text-xs"
+          asChild
+        >
+          <Link href={`/admin/reservas?fecha=${fecha}`}>
+            <Ticket className="h-3.5 w-3.5" />
+            Nueva reserva
+          </Link>
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <Button
+        size="sm"
+        className="bg-brand-azul hover:bg-brand-azul/90 text-white rounded-xl gap-1.5 text-xs"
+        asChild
+      >
+        <Link href={`/admin/reservas?fecha=${fecha}`}>
+          <Ticket className="h-3.5 w-3.5" />
+          Nueva reserva
+        </Link>
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="border-brand-rosa text-brand-rosa hover:bg-brand-rosa/5 rounded-xl gap-1.5 text-xs"
+        asChild
+      >
+        <Link href={`/admin/eventos/nuevo?fecha=${fecha}`}>
+          <PartyPopper className="h-3.5 w-3.5" />
+          Nuevo evento
+        </Link>
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="col-span-2 border-red-200 text-red-600 hover:bg-red-50 rounded-xl gap-1.5 text-xs"
+        onClick={onBloquear}
+        disabled={bloqueandoPending}
+      >
+        <Lock className="h-3.5 w-3.5" />
+        Bloquear este dia
+      </Button>
+    </div>
+  )
+}
+
+export function CalendarioDayDrawer({ idSede, fecha, disp, onClose }: CalendarioDayDrawerProps) {
   const { data, isLoading } = useResumenDia(idSede, fecha)
   const bloquear = useBloquearFechas()
   const [confirmarBloqueo, setConfirmarBloqueo] = useState(false)
 
   if (!fecha) return null
+
+  const tipoOcupacion = disp?.tipoOcupacion ?? 'LIBRE'
+  const esPrivado     = tipoOcupacion === 'PRIVADO'
 
   function handleConfirmarBloqueo() {
     if (!fecha) return
@@ -250,60 +367,37 @@ export function CalendarioDayDrawer({ idSede, fecha, onClose }: CalendarioDayDra
                 <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
                   Acciones rapidas
                 </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    size="sm"
-                    className="bg-brand-azul hover:bg-brand-azul/90 text-white rounded-xl gap-1.5 text-xs"
-                    asChild
-                  >
-                    <Link href={`/admin/reservas?fecha=${fecha}`}>
-                      <Ticket className="h-3.5 w-3.5" />
-                      Nueva reserva
-                    </Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-brand-rosa text-brand-rosa hover:bg-brand-rosa/5 rounded-xl gap-1.5 text-xs"
-                    asChild
-                  >
-                    <Link href={`/admin/eventos/nuevo?fecha=${fecha}`}>
-                      <PartyPopper className="h-3.5 w-3.5" />
-                      Nuevo evento
-                    </Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="col-span-2 border-red-200 text-red-600 hover:bg-red-50 rounded-xl gap-1.5 text-xs"
-                    onClick={() => setConfirmarBloqueo(true)}
-                    disabled={bloquear.isPending}
-                  >
-                    <Lock className="h-3.5 w-3.5" />
-                    Bloquear este dia
-                  </Button>
-                </div>
+                <AccionesDrawer
+                  fecha={fecha}
+                  tipo={tipoOcupacion}
+                  idEvento={disp?.idEvento}
+                  tituloEvento={disp?.tituloEvento}
+                  onBloquear={() => setConfirmarBloqueo(true)}
+                  bloqueandoPending={bloquear.isPending}
+                />
               </div>
 
-              <div className="space-y-2">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                  Turnos
-                </p>
-                <TurnoCard
-                  turno={data.turnoT1}
-                  label="Manana"
-                  horario="10:00 - 14:00"
-                  turnoKey="T1"
-                  fecha={fecha}
-                />
-                <TurnoCard
-                  turno={data.turnoT2}
-                  label="Tarde"
-                  horario="16:00 - 20:00"
-                  turnoKey="T2"
-                  fecha={fecha}
-                />
-              </div>
+              {!esPrivado && (
+                <div className="space-y-2">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                    Turnos
+                  </p>
+                  <TurnoCard
+                    turno={data.turnoT1}
+                    label="Manana"
+                    horario="10:00 - 14:00"
+                    turnoKey="T1"
+                    fecha={fecha}
+                  />
+                  <TurnoCard
+                    turno={data.turnoT2}
+                    label="Tarde"
+                    horario="16:00 - 20:00"
+                    turnoKey="T2"
+                    fecha={fecha}
+                  />
+                </div>
+              )}
 
               {data.reservas.length > 0 && (
                 <div className="space-y-2">

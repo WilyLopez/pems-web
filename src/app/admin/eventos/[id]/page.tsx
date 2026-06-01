@@ -10,7 +10,6 @@ import {
   Users,
   Clock,
   CreditCard,
-  FileText,
   CheckCircle2,
   Circle,
   AlertTriangle,
@@ -29,6 +28,7 @@ import { useResumenEvento } from '@/hooks/useFinanzas'
 import { GastosEventoPanel } from '@/components/admin/finanzas/GastosEventoPanel'
 import { PresupuestoEventoSection } from '@/components/admin/finanzas/PresupuestoEventoSection'
 import { ConfirmarEventoModal } from '@/components/admin/eventos/ConfirmarEventoModal'
+import { ContratoEventoTab } from '@/components/admin/contratos/ContratoEventoTab'
 import { calcularIndicadores } from '@/types/evento.types'
 import { ErrorState } from '@/components/common/Errorstate'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
@@ -172,18 +172,6 @@ export default function EventoDetallePage() {
             </div>
 
             <div className="flex gap-2 flex-wrap">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl gap-1.5 border-brand-azul/30 text-brand-azul hover:bg-brand-azul/8"
-                asChild
-              >
-                <Link href={`/admin/contratos?evento=${evento.id}`}>
-                  <FileText className="h-4 w-4" />
-                  Ver contrato
-                </Link>
-              </Button>
-
               {evento.estado === 'SOLICITADA' && (
                 <Button
                   size="sm"
@@ -255,6 +243,9 @@ export default function EventoDetallePage() {
                         {completadas}/{checklist.length}
                       </span>
                     )}
+                  </TabsTrigger>
+                  <TabsTrigger value="contrato" className="rounded-lg text-xs">
+                    Contrato
                   </TabsTrigger>
                 </TabsList>
 
@@ -407,6 +398,10 @@ export default function EventoDetallePage() {
                   </div>
                 </TabsContent>
 
+                <TabsContent value="contrato" className="mt-4">
+                  <ContratoEventoTab idEvento={idNum} evento={evento} />
+                </TabsContent>
+
                 <TabsContent value="checklist" className="mt-4">
                   <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
                     <div className="flex items-center justify-between">
@@ -473,11 +468,6 @@ export default function EventoDetallePage() {
 
               <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-2">
                 <h3 className="text-sm font-bold text-gray-900 mb-2">Acciones rapidas</h3>
-                <Button size="sm" variant="outline" className="w-full rounded-xl gap-1.5 justify-start text-xs border-brand-azul/30 text-brand-azul hover:bg-brand-azul/8" asChild>
-                  <Link href={`/admin/contratos?evento=${evento.id}`}>
-                    <FileText className="h-4 w-4" /> Ir al contrato
-                  </Link>
-                </Button>
                 <Button size="sm" variant="outline" className="w-full rounded-xl gap-1.5 justify-start text-xs" asChild>
                   <Link href={`/admin/reservas?fecha=${evento.fechaEvento}`}>
                     <CalendarDays className="h-4 w-4" /> Ver reservas del dia

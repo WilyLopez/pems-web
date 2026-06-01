@@ -72,9 +72,10 @@ export function CalendarioCelda({
       ? 'bg-yellow-400'
       : 'bg-green-500'
 
+  const esPrivado  = disp?.tipoOcupacion === 'PRIVADO'
   const hasActivity = (disp?.totalReservas ?? 0) > 0 || (disp?.totalEventos ?? 0) > 0
-  const showT1 = !!disp && !bloqueado && (!disp.turnoT1Disponible || hasActivity)
-  const showT2 = !!disp && !bloqueado && (!disp.turnoT2Disponible || hasActivity)
+  const showT1 = !!disp && !bloqueado && !esPrivado && (!disp.turnoT1Disponible || hasActivity)
+  const showT2 = !!disp && !bloqueado && !esPrivado && (!disp.turnoT2Disponible || hasActivity)
 
   return (
     <button
@@ -112,19 +113,25 @@ export function CalendarioCelda({
           </div>
 
           <div className="flex flex-wrap gap-0.5 mt-1">
-            {disp.totalReservas > 0 && (
+            {esPrivado && disp.tituloEvento && (
+              <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-pink-700 bg-pink-50 px-1 rounded truncate max-w-full">
+                <PartyPopper className="h-2 w-2 shrink-0" />
+                <span className="truncate">{disp.tituloEvento}</span>
+              </span>
+            )}
+            {!esPrivado && disp.totalReservas > 0 && (
               <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-blue-700 bg-blue-50 px-1 rounded">
                 <Ticket className="h-2 w-2" />
                 {disp.totalReservas}
               </span>
             )}
-            {disp.totalEventos > 0 && (
+            {!esPrivado && disp.totalEventos > 0 && (
               <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-pink-700 bg-pink-50 px-1 rounded">
                 <PartyPopper className="h-2 w-2" />
                 {disp.totalEventos}
               </span>
             )}
-            {lleno && (
+            {!esPrivado && lleno && (
               <span className="text-[9px] font-bold text-orange-700 bg-orange-100 px-1 rounded">
                 Lleno
               </span>
