@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -74,8 +74,7 @@ function Field({ id, label, error, hint, required, children }: FieldProps) {
 
 export default function RegistroPage() {
   const router = useRouter()
-  const { data: session } = useSession()
-  const esAdmin = session?.user?.rol === 'ADMIN'
+  const { isAdmin: esAdmin } = useAuth()
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -118,9 +117,10 @@ export default function RegistroPage() {
       await authService.registrarCliente({
         nombre: values.nombre,
         correo: values.correo,
-        contrasena: values.contrasena,
+        password: values.contrasena,
         telefono: values.telefono,
-        dni: values.dni || undefined,
+        tipoDocumento: 'DNI',
+        numeroDocumento: values.dni || '',
       })
       toast.success('Cuenta creada. Revisa tu correo para verificarla.')
       router.push('/auth/login')
@@ -185,6 +185,7 @@ export default function RegistroPage() {
                 width={140}
                 height={60}
                 className="mx-auto"
+                style={{ height: 'auto' }}
               />
             </div>
 

@@ -1,16 +1,18 @@
 'use client'
 
-import { signOut } from 'next-auth/react'
+import { createClient } from '@/lib/supabase/client'
 import { Lock } from 'lucide-react'
 import { useSesionStore } from '@/lib/store/sesion.store'
+import { usePathname } from 'next/navigation'
 
 export function ModalSesionExpirada() {
   const { modalExpirada } = useSesionStore()
+  const pathname = usePathname()
 
-  if (!modalExpirada) return null
+  if (!modalExpirada || pathname.startsWith('/auth')) return null
 
   async function volverALogin() {
-    await signOut({ redirect: false })
+    await createClient().auth.signOut()
     window.location.href = '/auth/login?expirada=1'
   }
 

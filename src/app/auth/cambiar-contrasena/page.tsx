@@ -2,18 +2,19 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { useMutation } from '@tanstack/react-query'
-import { useSession } from 'next-auth/react'
+import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Lock, Eye, EyeOff, ArrowLeft, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 
-import { clienteService } from '@/services/cliente.service'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+
+import { authService } from '@/services/auth.service'
 
 const schema = z
   .object({
@@ -61,35 +62,54 @@ function PasswordStrength({ password }: { password: string }) {
 }
 
 export default function CambiarContrasenaPage() {
-  const { data: session } = useSession()
+  const supabase = createClient()
+  const { user, token, roles, tipoPerfil } = useAuth()
   const router = useRouter()
   const [verActual, setVerActual] = useState(false)
   const [verNueva, setVerNueva] = useState(false)
   const [exito, setExito] = useState(false)
-
-  const userId = parseInt(session?.user?.id ?? '0')
+  const [loading, setLoading] = useState(false)
 
   const {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const nuevaContrasena = watch('nuevaContrasena') ?? ''
 
-  const cambiar = useMutation({
-    mutationFn: (v: FormValues) =>
-      clienteService.cambiarContrasena(userId, v.contrasenaActual, v.nuevaContrasena),
-    onSuccess: () => {
+  const onSubmit = async (values: FormValues) => {
+    setLoading(true)
+
+    try {
+      if (!token) throw new Error('No se encontró el token de acceso.')
+
+      await authService.cambiarPasswordMe({
+        passwordActual: values.contrasenaActual,
+        nuevoPassword: values.nuevaContrasena,
+      })
+
+      // Sincronizar el SDK de Supabase con la nueva contraseña
+      await supabase.auth.updateUser({ password: values.nuevaContrasena })
+
+      setLoading(false)
       setExito(true)
       toast.success('Contraseña actualizada correctamente.')
-    },
-    onError: (err: { message?: string }) =>
-      toast.error(err?.message ?? 'No se pudo cambiar la contraseña. Verifica tu contraseña actual.'),
-  })
+    } catch (err: any) {
+      setLoading(false)
+      const msg = err.message || 'Error al cambiar la contraseña'
+      if (msg.includes('contraseña actual no es correcta')) {
+        setError('contrasenaActual', { message: 'La contraseña actual es incorrecta.' })
+      } else {
+        toast.error(msg)
+      }
+    }
+  }
 
   if (exito) {
+    const dashboardUrl = tipoPerfil === 'STAFF' ? '/admin/dashboard' : '/cliente/mi-cuenta'
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl border border-gray-100 p-8 max-w-md w-full text-center space-y-4">
@@ -103,10 +123,10 @@ export default function CambiarContrasenaPage() {
             </p>
           </div>
           <button
-            onClick={() => router.push('/cliente/mi-cuenta')}
+            onClick={() => { window.location.href = dashboardUrl }}
             className="w-full py-3 bg-brand-azul text-white rounded-xl font-bold text-sm hover:bg-brand-azul/90 transition-colors"
           >
-            Volver a mi cuenta
+            Ir al inicio
           </button>
         </div>
       </div>
@@ -136,7 +156,7 @@ export default function CambiarContrasenaPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit((v) => cambiar.mutate(v))} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="contrasenaActual" className="text-sm font-semibold">
               Contraseña actual
@@ -211,10 +231,10 @@ export default function CambiarContrasenaPage() {
 
           <button
             type="submit"
-            disabled={cambiar.isPending}
+            disabled={loading}
             className="w-full h-12 flex items-center justify-center gap-2 bg-brand-azul hover:bg-brand-azul/90 text-white font-bold rounded-xl text-sm disabled:opacity-60 transition-colors mt-2"
           >
-            {cambiar.isPending ? (
+            {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Guardando...

@@ -1,25 +1,21 @@
-export type Role = 'ADMIN' | 'CLIENTE'
-
-export interface AuthUser {
-  id: number
-  nombre: string
-  correo: string
-  rol: Role
-  idSede?: number
-  token: string
+export interface LoginPayload {
+  email: string
+  password: string
 }
 
-export interface LoginCredentials {
-  correo: string
-  contrasena: string
+export interface LoginResponse {
+  access_token: string
+  refresh_token: string
+  expires_in: number
+  token_type: string
+  user: {
+    id: string
+    email: string
+  }
+  debeCambiarPassword?: boolean
 }
 
-export interface TokenResponse {
-  token: string
-  refreshToken: string
-  accessExpiresIn: number
-  idUsuario: number
-  nombre: string
-  rol: Role
-  idSede?: number
+export interface CambiarPasswordPayload {
+  passwordActual: string
+  nuevoPassword: string
 }

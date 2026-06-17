@@ -1,20 +1,20 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { useSesionStore } from '@/lib/store/sesion.store'
 
 const AVISO_MS = 90_000
 
 export function useIdleWarning() {
-  const { data: session } = useSession()
+  const { isAuthenticated, isAdmin } = useAuth()
   const { setAvisoExpiracion } = useSesionStore()
-  const timerAviso = useRef<ReturnType<typeof setTimeout>>()
+  const timerAviso = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  const idleMs = session?.user?.rol === 'ADMIN' ? 7_200_000 : 2_700_000
+  const idleMs = isAdmin ? 7_200_000 : 2_700_000
 
   useEffect(() => {
-    if (!session) return
+    if (!isAuthenticated) return
 
     function reiniciar() {
       clearTimeout(timerAviso.current)
@@ -33,5 +33,5 @@ export function useIdleWarning() {
       eventos.forEach((e) => window.removeEventListener(e, reiniciar))
       clearTimeout(timerAviso.current)
     }
-  }, [session, idleMs])
+  }, [isAuthenticated, idleMs])
 }
