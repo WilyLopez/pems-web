@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Loader2, X, Monitor, Smartphone, Info, FlaskConical } from 'lucide-react'
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 
 const schema = z.object({
-  idTipoEmail: z.coerce.number().min(1, { message: 'Selecciona un tipo de email' }),
+  tipoEmailCodigo: z.string().min(1, { message: 'Selecciona un tipo de email' }),
   nombre: z
     .string()
     .min(1, { message: 'El nombre es obligatorio' })
@@ -101,7 +101,7 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
   const crear = useMutation({
     mutationFn: (values: FormValues) =>
       marketingService.crearPlantilla({
-        idTipoEmail: values.idTipoEmail,
+        tipoEmailCodigo: values.tipoEmailCodigo,
         nombre: values.nombre,
         asunto: values.asunto,
         contenidoHtml: values.contenidoHtml,
@@ -146,16 +146,16 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
               <div className="space-y-1.5">
                 <Label className="text-xs">Tipo de email *</Label>
                 <select
-                  {...register('idTipoEmail')}
+                  {...register('tipoEmailCodigo')}
                   className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-azul/30"
                 >
                   <option value="">Seleccionar...</option>
                   {tipos?.map((t) => (
-                    <option key={t.id} value={t.id}>{t.nombre}</option>
+                    <option key={t.codigo} value={t.codigo}>{t.nombre}</option>
                   ))}
                 </select>
-                {errors.idTipoEmail && (
-                  <p className="text-xs text-red-500">{errors.idTipoEmail.message}</p>
+                {errors.tipoEmailCodigo && (
+                  <p className="text-xs text-red-500">{errors.tipoEmailCodigo.message}</p>
                 )}
               </div>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
 import { PlantillaEmail } from '@/types/marketing.types'
 import { cn } from '@/lib/utils'
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/Button'
 
 interface Props {
   plantilla: PlantillaEmail
-  actions?: React.ReactNode
+  actions?: ReactNode
 }
 
 export function PlantillaPreviewCard({ plantilla, actions }: Props) {

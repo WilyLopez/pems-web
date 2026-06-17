@@ -9,6 +9,7 @@ import {
   XCircle,
   Settings2,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { marketingService } from '@/services/marketing.service'
@@ -28,7 +29,7 @@ function MetricCard({
   color,
   href,
 }: {
-  icon: React.ElementType
+  icon: LucideIcon
   label: string
   value: string | number
   sub?: string
@@ -56,6 +57,11 @@ export default function MarketingPage() {
   const { data: campanas } = useQuery({
     queryKey: ['campanas', 0],
     queryFn: () => marketingService.listarCampanas(0, 5),
+  })
+
+  const { data: plantillas } = useQuery({
+    queryKey: ['plantillas'],
+    queryFn: () => marketingService.listarPlantillas(0, 100),
   })
 
   const totalEnviados = campanas?.content.reduce((s, c) => s + c.totalEnviados, 0) ?? 0
@@ -94,7 +100,7 @@ export default function MarketingPage() {
         <MetricCard
           icon={FileText}
           label="Plantillas"
-          value="—"
+          value={plantillas?.length ?? '—'}
           color="bg-brand-rosa/10 text-brand-rosa"
           href="/admin/marketing/plantillas"
         />

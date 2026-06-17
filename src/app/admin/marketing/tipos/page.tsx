@@ -28,7 +28,7 @@ export default function TiposEmailPage() {
 
       <PageHeader
         title="Tipos de correo"
-        description="Catalogo de tipos de email utilizados en plantillas y campanas"
+        description="Catálogo de tipos de email utilizados en plantillas y campañas"
       />
 
       <div className="bg-white rounded-2xl border border-gray-100 p-6">

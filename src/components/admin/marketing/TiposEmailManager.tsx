@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Plus, Trash2, CheckCircle, XCircle, Lock } from 'lucide-react'
@@ -39,7 +39,7 @@ interface Props {
 export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) {
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(defaultShowForm)
-  const [confirmId, setConfirmId] = useState<number | null>(null)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
 
   const { data: tipos = [], isLoading } = useQuery({
     queryKey: ['tipos-email'],
@@ -176,7 +176,7 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
       ) : (
         <div className="divide-y divide-gray-100 rounded-xl border overflow-hidden bg-white">
           {tipos.map((t) => (
-            <div key={t.id} className="flex items-center gap-3 px-4 py-3">
+            <div key={t.codigo} className="flex items-center gap-3 px-4 py-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-gray-900">{t.nombre}</span>
@@ -201,14 +201,14 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
                   >
                     <Lock className="h-4 w-4" />
                   </span>
-                ) : confirmId === t.id ? (
+                ) : confirmId === t.codigo ? (
                   <div className="flex items-center gap-1">
                     <Button
                       size="sm"
                       variant="destructive"
                       className="h-6 text-[11px] px-2"
                       disabled={eliminar.isPending}
-                      onClick={() => eliminar.mutate(t.id)}
+                      onClick={() => eliminar.mutate(t.codigo)}
                     >
                       Confirmar
                     </Button>
@@ -224,7 +224,7 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setConfirmId(t.id)}
+                    onClick={() => setConfirmId(t.codigo)}
                     className="text-gray-300 hover:text-red-500 transition-colors"
                     title="Eliminar"
                   >
