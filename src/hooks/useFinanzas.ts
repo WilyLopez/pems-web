@@ -206,7 +206,7 @@ export function useResumenMensual(
 ) {
   return useQuery({
     queryKey: ['resumen-financiero', idSede, anio, mes],
-    queryFn: () => finanzasService.resumenMensual(idSede!, anio!, mes!),
+    queryFn: ({ signal }) => finanzasService.resumenMensual(idSede!, anio!, mes!, signal),
     enabled: !!idSede && !!anio && !!mes,
     staleTime: 1000 * 60 * 5,
   })
@@ -221,14 +221,17 @@ export function useResumenEvento(idEvento: number | undefined) {
 }
 
 export function useResumenDiario(
-  idSede: number | undefined,
-  inicio: string | undefined,
-  fin: string | undefined
+  idSede: number | null,
+  inicio: string | null,
+  fin: string | null
 ) {
   return useQuery({
     queryKey: ['resumen-diario', idSede, inicio, fin],
-    queryFn: () => finanzasService.resumenDiario(idSede!, inicio!, fin!),
+    queryFn: ({ signal }) => finanzasService.resumenDiario(idSede!, inicio!, fin!, signal),
     enabled: !!idSede && !!inicio && !!fin,
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -276,7 +279,7 @@ export function useTipoIngresoMutations() {
   })
 
   const desactivar = useMutation({
-    mutationFn: (id: number) => finanzasService.desactivarTipoIngreso(id),
+    mutationFn: (codigo: string) => finanzasService.desactivarTipoIngreso(codigo),
     onSuccess: () => {
       toast.success('Tipo de ingreso desactivado.')
       qc.invalidateQueries({ queryKey: ['tipos-ingreso'] })
@@ -407,7 +410,7 @@ export function useDashboardFinanciero(
 ) {
   return useQuery({
     queryKey: ['dashboard-financiero', idSede, anio, mes],
-    queryFn: () => finanzasService.dashboardFinanciero(idSede!, anio!, mes!),
+    queryFn: ({ signal }) => finanzasService.dashboardFinanciero(idSede!, anio!, mes!, signal),
     enabled: !!idSede && !!anio && !!mes,
     staleTime: 1000 * 60 * 5,
   })

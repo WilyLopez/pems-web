@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus, CheckCircle2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { usePresupuestosEvento, usePresupuestoMutations } from '@/hooks/useFinanzas'
 import { Button } from '@/components/ui/Button'

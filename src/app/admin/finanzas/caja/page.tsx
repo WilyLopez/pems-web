@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus, Lock, Unlock, TrendingUp, TrendingDown } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { useAuth } from '@/hooks/useAuth'
 import { useCaja, useCajaMutations, useMovimientosCaja } from '@/hooks/useFinanzas'
@@ -30,7 +30,7 @@ const schemaCerrar = z.object({
   observaciones: z.string().optional(),
 })
 const schemaMovimiento = z.object({
-  tipo:      z.enum(['INGRESO', 'EGRESO'], { required_error: 'Selecciona tipo' }),
+  tipo:      z.enum(['INGRESO', 'EGRESO'], 'Selecciona tipo'),
   concepto:  z.string().min(2, 'El concepto es obligatorio'),
   monto:     z.coerce.number().positive('El monto debe ser mayor a 0'),
   medioPago: z.string().optional(),

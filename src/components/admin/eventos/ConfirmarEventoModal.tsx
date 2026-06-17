@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import {
@@ -53,10 +53,10 @@ interface Props {
 const preciSchema = z
   .object({
     precioTotal: z.coerce
-      .number({ invalid_type_error: 'Ingresa un precio válido' })
+      .number('Ingresa un precio válido')
       .positive('El precio debe ser mayor a 0'),
     montoAdelanto: z.coerce
-      .number({ invalid_type_error: 'Ingresa un monto válido' })
+      .number('Ingresa un monto válido')
       .min(0, 'El adelanto no puede ser negativo'),
     medioPagoAdelanto: z.string().min(1, 'Selecciona el medio de pago'),
   })

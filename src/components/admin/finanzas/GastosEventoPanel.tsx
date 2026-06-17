@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Trash2, Plus } from 'lucide-react'
 import { ResumenEventoFinanciero } from '@/types/finanzas.types'
@@ -59,7 +59,6 @@ export function GastosEventoPanel({ idEvento, resumen }: Props) {
   const metricas = [
     { label: 'Ingreso contrato', value: resumen.ingresoContrato, color: 'text-emerald-700' },
     { label: 'Adelanto recibido', value: resumen.montoAdelanto, color: 'text-blue-700' },
-    { label: 'Gastos proveedores', value: resumen.totalGastosProveedores, color: 'text-red-600' },
     { label: 'Gastos adicionales', value: resumen.totalGastosAdicionales, color: 'text-orange-600' },
     { label: 'Utilidad bruta', value: resumen.utilidadBruta, color: resumen.utilidadBruta >= 0 ? 'text-emerald-700' : 'text-red-600' },
   ]

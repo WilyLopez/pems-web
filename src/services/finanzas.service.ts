@@ -47,8 +47,8 @@ export const finanzasService = {
     return data.data
   },
 
-  desactivarTipoEgreso: async (id: number): Promise<void> => {
-    await api.delete(`/tipos-egreso/${id}`)
+  desactivarTipoEgreso: async (codigo: string): Promise<void> => {
+    await api.delete(`/tipos-egreso/${codigo}`)
   },
 
   listarEgresos: async (
@@ -178,11 +178,12 @@ export const finanzasService = {
   resumenMensual: async (
     idSede: number,
     anio: number,
-    mes: number
+    mes: number,
+    signal?: AbortSignal
   ): Promise<ResumenFinanciero> => {
     const { data } = await api.get<ApiResponse<ResumenFinanciero>>(
       `/finanzas/sedes/${idSede}/resumen-mensual`,
-      { params: { anio, mes } }
+      { params: { anio, mes }, signal }
     )
     return data.data
   },
@@ -197,11 +198,12 @@ export const finanzasService = {
   resumenDiario: async (
     idSede: number,
     inicio: string,
-    fin: string
+    fin: string,
+    signal?: AbortSignal
   ): Promise<ResumenDiario[]> => {
     const { data } = await api.get<ApiResponse<ResumenDiario[]>>(
       `/finanzas/sedes/${idSede}/resumen-diario`,
-      { params: { inicio, fin } }
+      { params: { inicio, fin }, signal }
     )
     return data.data
   },
@@ -240,8 +242,8 @@ export const finanzasService = {
     return data.data
   },
 
-  desactivarTipoIngreso: async (id: number): Promise<void> => {
-    await api.delete(`/tipos-ingreso/${id}`)
+  desactivarTipoIngreso: async (codigo: string): Promise<void> => {
+    await api.delete(`/tipos-ingreso/${codigo}`)
   },
 
   listarIngresos: async (
@@ -352,11 +354,12 @@ export const finanzasService = {
   dashboardFinanciero: async (
     idSede: number,
     anio: number,
-    mes: number
+    mes: number,
+    signal?: AbortSignal
   ): Promise<DashboardFinanciero> => {
     const { data } = await api.get<ApiResponse<DashboardFinanciero>>(
       `/dashboard-financiero/sedes/${idSede}`,
-      { params: { anio, mes } }
+      { params: { anio, mes }, signal }
     )
     return data.data
   },
