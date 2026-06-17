@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Loader2 } from 'lucide-react'
 import {
@@ -204,8 +204,8 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                             carpeta="banners"
                             aspectRatio="16:9"
                             placeholder="Imagen principal del banner"
-                            value={field.value || null}
-                            onChange={(url) => field.onChange(url ?? '')}
+                            value={field.value ? { url: field.value, esLocal: false } : null}
+                            onChange={(mv) => field.onChange(mv?.url ?? '')}
                           />
                         )}
                       />
@@ -236,8 +236,8 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                               carpeta="banners"
                               aspectRatio="libre"
                               placeholder="Imagen para movil (vertical recomendado)"
-                              value={field.value ?? null}
-                              onChange={(url) => field.onChange(url ?? undefined)}
+                              value={field.value ? { url: field.value, esLocal: false } : null}
+                              onChange={(mv) => field.onChange(mv?.url)}
                             />
                           )}
                         />

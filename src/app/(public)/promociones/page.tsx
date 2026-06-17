@@ -1,6 +1,6 @@
 // app/(public)/promociones/page.tsx
 import Link from 'next/link'
-import { Tag, Calendar, ArrowRight, Ticket, Clock, Zap } from 'lucide-react'
+import { Tag, Calendar, ArrowRight, Ticket, Clock } from 'lucide-react'
 import { promocionService, Promocion } from '@/services/promocion.service'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -62,12 +62,6 @@ function PromoCardPublica({
             alt={promo.nombre}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
-          {/* Badge destacada */}
-          {promo.mostrarDestacado && (
-            <div className="absolute top-3 left-3 bg-amber-400 text-gray-900 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1 shadow">
-              <Zap className="h-3.5 w-3.5" /> Destacada
-            </div>
-          )}
           {/* Descuento overlay */}
           <div
             className="absolute top-3 right-3 text-white font-black text-lg leading-none px-3 py-2 rounded-2xl shadow-lg"
@@ -188,9 +182,6 @@ async function getPromociones(): Promise<Promocion[]> {
 export default async function PromocionesPublicaPage() {
   const promociones = await getPromociones()
 
-  const destacadas = promociones.filter((p) => p.mostrarDestacado)
-  const normales = promociones.filter((p) => !p.mostrarDestacado)
-
   return (
     <>
       {/* Hero */}
@@ -238,46 +229,12 @@ export default async function PromocionesPublicaPage() {
               </Button>
             </div>
           ) : (
-            <div className="space-y-10">
-              {/* Destacadas */}
-              {destacadas.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-5">
-                    <Zap className="h-5 w-5 text-amber-500" />
-                    <h2 className="text-xl font-black text-gray-900">
-                      Ofertas destacadas
-                    </h2>
-                  </div>
-                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {destacadas.map((p, i) => (
-                      <PromoCardPublica
-                        key={p.id}
-                        promo={p}
-                        destacada={i === 0 && destacadas.length > 1}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Todas las promociones */}
-              {normales.length > 0 && (
-                <div>
-                  {destacadas.length > 0 && (
-                    <div className="flex items-center gap-2 mb-5">
-                      <Tag className="h-5 w-5 text-[#00AEEF]" />
-                      <h2 className="text-xl font-black text-gray-900">
-                        Más ofertas disponibles
-                      </h2>
-                    </div>
-                  )}
-                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {normales.map((p) => (
-                      <PromoCardPublica key={p.id} promo={p} />
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {promociones.map((p) => (
+                  <PromoCardPublica key={p.id} promo={p} />
+                ))}
+              </div>
             </div>
           )}
         </div>

@@ -9,7 +9,7 @@ import {
   useForm,
   useWatch,
 } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import {
   Save,
@@ -27,6 +27,7 @@ import {
   Globe,
   AlertCircle,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
@@ -75,7 +76,7 @@ type FormValues = z.infer<typeof schema>
 
 type SectionId = 'negocio' | 'logos' | 'redes' | 'seo' | 'visual'
 
-const NAV: { id: SectionId; label: string; icon: React.ElementType }[] = [
+const NAV: { id: SectionId; label: string; icon: LucideIcon }[] = [
   { id: 'negocio', label: 'Negocio',        icon: Building2 },
   { id: 'logos',   label: 'Logos & Favicon', icon: ImageIcon },
   { id: 'redes',   label: 'Redes sociales',  icon: Share2    },
@@ -143,7 +144,7 @@ function isValidHex(v?: string): v is string {
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
 
-function SectionTitle({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
+function SectionTitle({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
   return (
     <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
       <div className="w-5 h-5 rounded bg-brand-azul/10 flex items-center justify-center">

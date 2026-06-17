@@ -22,7 +22,6 @@ interface Promocion {
   textoBoton?: string
   urlBoton?: string
   mostrarEnInicio: boolean
-  mostrarDestacado: boolean
   limiteUsos?: number
   vecesUsado: number
 }

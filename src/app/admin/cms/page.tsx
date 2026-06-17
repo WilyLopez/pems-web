@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import {
   Image as ImageIcon,
-  MessageSquare,
   HelpCircle,
   FileText,
   Settings,
@@ -193,14 +192,6 @@ export default function CmsDashboardPage() {
       href: '/admin/cms/contenido',
       icon: <Globe className="h-5 w-5 text-indigo-600" />,
       color: 'bg-indigo-50',
-    },
-    {
-      title: 'Moderación Mensajes',
-      description:
-        'Gestiona mensajes y consultas enviadas desde el sitio público.',
-      href: '/admin/cms/resenas',
-      icon: <MessageSquare className="h-5 w-5 text-green-600" />,
-      color: 'bg-green-50',
     },
   ]
 

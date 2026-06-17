@@ -9,8 +9,6 @@ export interface ContenidoLegal {
   contenido: string
   version: number
   activo: boolean
-  idUsuarioEditor?: number
-  nombreEditor?: string
   fechaActualizacion?: string
 }
 

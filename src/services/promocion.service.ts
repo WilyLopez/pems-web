@@ -9,7 +9,6 @@ export interface Promocion {
   nombre: string
   descripcion?: string
   valorDescuento: number
-  condicion?: string
   minimoPersonas?: number
   soloTipoDia?: string
   fechaInicio: string
@@ -30,12 +29,10 @@ export interface Promocion {
   mostrarEnCarrusel: boolean
   mostrarEnPaginaPromociones: boolean
   mostrarEnCheckout: boolean
-  mostrarDestacado: boolean
   soloMovil: boolean
 
   limiteUsos?: number
   limitePorCliente?: number
-  minimoAsistentes?: number
   montoMinimo?: number
 
   vecesUsado: number
@@ -63,7 +60,6 @@ export interface CrearPromocionPayload {
   nombre: string
   descripcion?: string
   valorDescuento: number
-  condicion?: string
   minimoPersonas?: number
   soloTipoDia?: TipoDia
   fechaInicio: string
@@ -82,12 +78,10 @@ export interface CrearPromocionPayload {
   mostrarEnCarrusel?: boolean
   mostrarEnPaginaPromociones?: boolean
   mostrarEnCheckout?: boolean
-  mostrarDestacado?: boolean
   soloMovil?: boolean
 
   limiteUsos?: number
   limitePorCliente?: number
-  minimoAsistentes?: number
   montoMinimo?: number
 }
 

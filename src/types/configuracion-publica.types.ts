@@ -1,5 +1,4 @@
 export interface ConfiguracionPublica {
-  id: number
   nombreNegocio: string
   slogan?: string
   logoUrl?: string
@@ -30,6 +29,7 @@ export interface ConfiguracionPublica {
   colorTema?: string
   colorSecundario?: string
   copyrightTexto?: string
+  updatedAt?: string
 }
 
-export type ActualizarConfiguracionPayload = Omit<ConfiguracionPublica, 'id'>
+export type ActualizarConfiguracionPayload = Omit<ConfiguracionPublica, 'updatedAt'>

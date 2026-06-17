@@ -1,10 +1,10 @@
 export interface SeccionWeb {
-  id: number
   codigo: string
   nombre: string
   descripcion?: string
-  ordenVisualizacion: number
-  visible: boolean
+  orden: number
+  activo: boolean
+  esSistema: boolean
 }
 
 export interface TipoContenido {
@@ -15,8 +15,8 @@ export interface TipoContenido {
 
 export interface ContenidoWeb {
   id: number
-  idSeccion: number
-  idTipoContenido?: number
+  seccionCodigo: string
+  tipoContenidoCodigo?: string
   clave: string
   valorEs: string
   valorEn?: string

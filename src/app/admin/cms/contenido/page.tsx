@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import {
   Pencil, Globe, Eye, EyeOff, Search, X,
@@ -257,7 +257,7 @@ function ContenidoRow({
 // ── Página ────────────────────────────────────────────────────────────────────
 
 export default function ContenidoWebPage() {
-  const [seccionId, setSeccionId]     = useState<number | undefined>(undefined)
+  const [seccionId, setSeccionId]     = useState<string | undefined>(undefined)
   const [search, setSearch]           = useState('')
   const [page, setPage]               = useState(0)
   const [editTarget, setEditTarget]   = useState<ContenidoWeb | null>(null)
@@ -281,8 +281,8 @@ export default function ContenidoWebPage() {
   const totalPages = paged?.totalPages   ?? 0
   const total      = paged?.totalElements ?? 0
 
-  function handleSeccionChange(id: number | undefined) {
-    setSeccionId(id)
+  function handleSeccionChange(codigo: string | undefined) {
+    setSeccionId(codigo)
     setPage(0)
   }
 
@@ -343,10 +343,10 @@ export default function ContenidoWebPage() {
               </button>
               {secciones.map((s) => (
                 <button
-                  key={s.id} type="button"
-                  onClick={() => handleSeccionChange(s.id)}
+                  key={s.codigo} type="button"
+                  onClick={() => handleSeccionChange(s.codigo)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                    seccionId === s.id
+                    seccionId === s.codigo
                       ? 'bg-brand-azul text-white font-medium'
                       : 'hover:bg-muted text-muted-foreground'
                   }`}
