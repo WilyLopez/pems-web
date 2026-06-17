@@ -84,7 +84,7 @@ export function PaqueteDetalleModal({ paquete, open, onClose, onElegir }: Props)
             </span>
           </div>
 
-          {paquete.beneficios.length > 0 && (
+          {paquete.beneficios && paquete.beneficios.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Incluye</p>
               <ul className="space-y-2">

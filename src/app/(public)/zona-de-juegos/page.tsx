@@ -45,35 +45,19 @@ async function getConfig(): Promise<ConfiguracionPublica | null> {
   }
 }
 
-const precios = [
-  {
-    tipo: 'Lunes a Viernes',
-    icon: Clock,
-    precio: 'S/ 25',
-    badge: 'Tarifa regular',
-    badgeClass: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20',
-    borderClass: 'border-brand-azul/30 bg-brand-azul/5',
-    desc: 'Acceso a todas las zonas de juego por sesión de 90 minutos',
-  },
-  {
-    tipo: 'Fin de Semana',
-    icon: Zap,
-    precio: 'S/ 35',
-    badge: 'Shows incluidos',
-    badgeClass: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20',
-    borderClass: 'border-brand-rosa/40 bg-brand-rosa/5',
-    desc: 'Acceso completo + shows de personajes a las 3pm y 6pm',
-  },
-  {
-    tipo: 'Pack Familiar',
-    icon: Users,
-    precio: 'S/ 90',
-    badge: '3 niños + 1 gratis',
-    badgeClass: 'bg-brand-amarillo/20 text-yellow-700 border-brand-amarillo/30',
-    borderClass: 'border-brand-amarillo/40 bg-brand-amarillo/5',
-    desc: '4 entradas (3 niños + 1 adicional gratis). Válido todos los días',
-  },
-]
+async function getPrecios(): Promise<Array<{ tipoDia: string; precio: number }> | null> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/tarifas/sedes/1/precios`,
+      { next: { revalidate: 300 } }
+    )
+    if (!res.ok) return null
+    const json = await res.json()
+    return json.data ?? null
+  } catch {
+    return null
+  }
+}
 
 const reglas = [
   'Niños de 1 a 12 años',
@@ -121,7 +105,40 @@ function ZonaCard({ zona }: { zona: ZonaJuego }) {
 }
 
 export default async function ZonaDeJuegosPage() {
-  const [zonas, config] = await Promise.all([getZonas(), getConfig()])
+  const [zonas, config, backendPrecios] = await Promise.all([getZonas(), getConfig(), getPrecios()])
+
+  const precioSemana = backendPrecios?.find((p) => p.tipoDia === 'SEMANA')?.precio
+  const precioFds = backendPrecios?.find((p) => p.tipoDia === 'FIN_SEMANA_FERIADO')?.precio
+
+  const precios = [
+    {
+      tipo: 'Lunes a Viernes',
+      icon: Clock,
+      precio: precioSemana != null ? `S/ ${Number(precioSemana).toFixed(2)}` : 'S/ 25',
+      badge: 'Tarifa regular',
+      badgeClass: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20',
+      borderClass: 'border-brand-azul/30 bg-brand-azul/5',
+      desc: 'Acceso a todas las zonas de juego por sesión de 90 minutos',
+    },
+    {
+      tipo: 'Fin de Semana',
+      icon: Zap,
+      precio: precioFds != null ? `S/ ${Number(precioFds).toFixed(2)}` : 'S/ 35',
+      badge: 'Shows incluidos',
+      badgeClass: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20',
+      borderClass: 'border-brand-rosa/40 bg-brand-rosa/5',
+      desc: 'Acceso completo + shows de personajes a las 3pm y 6pm',
+    },
+    {
+      tipo: 'Pack Familiar',
+      icon: Users,
+      precio: 'S/ 90',
+      badge: '3 niños + 1 gratis',
+      badgeClass: 'bg-brand-amarillo/20 text-yellow-700 border-brand-amarillo/30',
+      borderClass: 'border-brand-amarillo/40 bg-brand-amarillo/5',
+      desc: '4 entradas (3 niños + 1 adicional gratis). Válido todos los días',
+    },
+  ]
 
   const horarioSemana = config?.horarioSemana ?? 'Lun–Vie: 10:00 am – 8:00 pm'
   const horarioFinDeSemana = config?.horarioFinDeSemana ?? 'Sáb–Dom: 9:00 am – 9:00 pm'

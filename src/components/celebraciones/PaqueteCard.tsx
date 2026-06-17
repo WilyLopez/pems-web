@@ -40,7 +40,7 @@ export function PaqueteCard({ paquete, seleccionado, onSeleccionar, onVerDetalle
         <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{paquete.descripcionCorta}</p>
       </div>
 
-      {paquete.beneficios.length > 0 && (
+      {paquete.beneficios && paquete.beneficios.length > 0 && (
         <ul className="space-y-1">
           {paquete.beneficios.slice(0, 3).map((b, i) => (
             <li key={i} className="flex items-center gap-1.5 text-xs text-gray-600">
@@ -50,9 +50,9 @@ export function PaqueteCard({ paquete, seleccionado, onSeleccionar, onVerDetalle
               {b}
             </li>
           ))}
-          {paquete.beneficios.length > 3 && (
+          {(paquete.beneficios?.length ?? 0) > 3 && (
             <li className="text-xs text-gray-400 pl-5.5">
-              +{paquete.beneficios.length - 3} más incluidos
+              +{(paquete.beneficios?.length ?? 0) - 3} más incluidos
             </li>
           )}
         </ul>

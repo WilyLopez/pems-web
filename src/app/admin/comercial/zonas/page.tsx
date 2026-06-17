@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Plus, Pencil, Trash2, MapPin, X, Image as ImageIcon, Video } from 'lucide-react'
 import { toast } from 'sonner'
@@ -39,13 +39,13 @@ const schema = z.object({
   descripcion: z.string()
     .min(1, 'La descripción es obligatoria')
     .max(100, 'Máximo 100 caracteres'),
-  edadMinima:  z.coerce.number({ invalid_type_error: 'Ingresa un número' })
+  edadMinima:  z.coerce.number('Ingresa un número')
     .min(0, 'Mínimo 0 años').optional().nullable(),
-  edadMaxima:  z.coerce.number({ invalid_type_error: 'Ingresa un número' })
+  edadMaxima:  z.coerce.number('Ingresa un número')
     .max(17, 'Máximo 17 años').optional().nullable(),
   activa:      z.boolean().default(true),
   destacada:   z.boolean().default(false),
-  orden:       z.coerce.number({ invalid_type_error: 'Ingresa un número' }).default(0),
+  orden:       z.coerce.number('Ingresa un número').default(0),
 })
 type FormValues = z.infer<typeof schema>
 
