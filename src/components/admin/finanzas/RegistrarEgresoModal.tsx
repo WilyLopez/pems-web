@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import {
   Dialog,
@@ -25,7 +25,7 @@ import { useTiposEgreso, useEgresoMutations } from '@/hooks/useFinanzas'
 import { RegistroEgreso } from '@/types/finanzas.types'
 
 const schema = z.object({
-  idTipoEgreso: z.coerce.number().min(1, 'Selecciona un tipo'),
+  tipoEgresoCodigo: z.string().min(1, 'Selecciona un tipo'),
   monto: z.coerce.number().positive('El monto debe ser mayor a 0'),
   fecha: z.string().min(1, 'La fecha es obligatoria'),
   esRecurrente: z.boolean().default(false),
@@ -59,7 +59,7 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
   } = useForm<FormValues>({
     resolver: zodResolver(schema) as any,
     defaultValues: {
-      idTipoEgreso: 0,
+      tipoEgresoCodigo: '',
       monto: 0,
       fecha: new Date().toISOString().split('T')[0],
       esRecurrente: false,
@@ -74,7 +74,7 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
     if (open) {
       if (egreso) {
         reset({
-          idTipoEgreso: egreso.idTipoEgreso,
+          tipoEgresoCodigo: egreso.tipoEgresoCodigo,
           monto: egreso.monto,
           fecha: egreso.fecha,
           esRecurrente: egreso.esRecurrente,
@@ -85,7 +85,7 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
         })
       } else {
         reset({
-          idTipoEgreso: 0,
+          tipoEgresoCodigo: '',
           monto: 0,
           fecha: new Date().toISOString().split('T')[0],
           esRecurrente: false,
@@ -98,7 +98,7 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
 
   function onSubmit(data: FormValues) {
     const payload = {
-      idTipoEgreso: data.idTipoEgreso,
+      tipoEgresoCodigo: data.tipoEgresoCodigo,
       monto: data.monto,
       fecha: data.fecha,
       esRecurrente: data.esRecurrente,
@@ -133,7 +133,7 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
           <div className="space-y-1.5">
             <Label>Tipo de egreso *</Label>
             <Select
-              onValueChange={(v) => setValue('idTipoEgreso', Number(v))}
+              onValueChange={(v) => setValue('tipoEgresoCodigo', v)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar tipo..." />
@@ -142,14 +142,14 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
                 {tipos
                   .filter((t) => t.activo)
                   .map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>
+                    <SelectItem key={t.codigo} value={t.codigo}>
                       {t.nombre}
                     </SelectItem>
                   ))}
               </SelectContent>
             </Select>
-            {errors.idTipoEgreso && (
-              <p className="text-xs text-destructive">{errors.idTipoEgreso.message}</p>
+            {errors.tipoEgresoCodigo && (
+              <p className="text-xs text-destructive">{errors.tipoEgresoCodigo.message}</p>
             )}
           </div>
 

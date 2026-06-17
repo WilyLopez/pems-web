@@ -12,19 +12,7 @@ import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { CategoriaEgreso, RegistroEgreso } from '@/types/finanzas.types'
-
-const categoriaBadge: Record<CategoriaEgreso, string> = {
-  RECURRENTE_FIJO: 'bg-blue-100 text-blue-700',
-  RECURRENTE_VARIABLE: 'bg-yellow-100 text-yellow-700',
-  EVENTUAL: 'bg-gray-100 text-gray-600',
-}
-
-const categoriaLabel: Record<CategoriaEgreso, string> = {
-  RECURRENTE_FIJO: 'Fijo',
-  RECURRENTE_VARIABLE: 'Variable',
-  EVENTUAL: 'Eventual',
-}
+import { RegistroEgreso } from '@/types/finanzas.types'
 
 function useEgresosPorRangoHook(
   idSede: number | undefined,
@@ -139,7 +127,6 @@ export default function EgresosPage() {
             <thead className="border-b bg-gray-50">
               <tr className="text-left text-xs text-gray-500 uppercase tracking-wide">
                 <th className="px-4 py-3 font-semibold">Tipo</th>
-                <th className="px-4 py-3 font-semibold">Categoria</th>
                 <th className="px-4 py-3 font-semibold">Fecha</th>
                 <th className="px-4 py-3 font-semibold">Periodo</th>
                 <th className="px-4 py-3 font-semibold text-right">Monto</th>
@@ -150,7 +137,7 @@ export default function EgresosPage() {
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i}>
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 5 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
                         <div className="h-4 bg-gray-100 rounded animate-pulse" />
                       </td>
@@ -159,7 +146,7 @@ export default function EgresosPage() {
                 ))
               ) : egresos.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-sm text-gray-400">
+                  <td colSpan={5} className="py-10 text-center text-sm text-gray-400">
                     Sin egresos registrados.
                   </td>
                 </tr>
@@ -167,20 +154,10 @@ export default function EgresosPage() {
                 egresos.map((e) => (
                   <tr key={e.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">{e.nombreTipoEgreso}</p>
+                      <p className="font-medium text-gray-900">{e.tipoEgresoCodigo}</p>
                       {e.descripcion && (
                         <p className="text-xs text-gray-400 truncate max-w-[200px]">{e.descripcion}</p>
                       )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                          categoriaBadge[e.categoriaEgreso]
-                        )}
-                      >
-                        {categoriaLabel[e.categoriaEgreso]}
-                      </span>
                     </td>
                     <td className="px-4 py-3 text-gray-600">{e.fecha}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs">

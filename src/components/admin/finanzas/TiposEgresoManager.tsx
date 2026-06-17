@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Plus, X } from 'lucide-react'
 import { CategoriaEgreso } from '@/types/finanzas.types'
@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/Select'
 
 const schema = z.object({
+  codigo: z.string().min(2, 'El código es obligatorio').max(50),
   nombre: z.string().min(1, 'El nombre es obligatorio'),
   descripcion: z.string().optional(),
   categoria: z.enum(['RECURRENTE_FIJO', 'RECURRENTE_VARIABLE', 'EVENTUAL']),
@@ -47,7 +48,7 @@ const categoriaLabel: Record<CategoriaEgreso, string> = {
 
 export function TiposEgresoManager() {
   const [open, setOpen] = useState(false)
-  const [confirmId, setConfirmId] = useState<number | null>(null)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
   const { data: tipos = [], isLoading } = useTiposEgreso()
   const { crear, desactivar } = useTipoEgresoMutations()
 
@@ -59,7 +60,7 @@ export function TiposEgresoManager() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { nombre: '', descripcion: '', categoria: 'EVENTUAL' },
+    defaultValues: { codigo: '', nombre: '', descripcion: '', categoria: 'EVENTUAL' },
   })
 
   function onSubmit(data: FormValues) {
@@ -95,7 +96,7 @@ export function TiposEgresoManager() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {tipos.map((t) => (
-                <tr key={t.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={t.codigo} className="hover:bg-gray-50 transition-colors">
                   <td className="py-3 pr-4 font-medium text-gray-900">{t.nombre}</td>
                   <td className="py-3 pr-4">
                     <span
@@ -121,7 +122,7 @@ export function TiposEgresoManager() {
                     {t.activo && (
                       <button
                         type="button"
-                        onClick={() => setConfirmId(t.id)}
+                        onClick={() => setConfirmId(t.codigo)}
                         className="text-gray-400 hover:text-red-500 transition-colors"
                         title="Desactivar"
                       >
@@ -142,6 +143,13 @@ export function TiposEgresoManager() {
             <DialogTitle>Nuevo tipo de egreso</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="codigoEgreso">Código *</Label>
+              <Input id="codigoEgreso" placeholder="Ej: AGUA_LUZ" className="font-mono" {...register('codigo')} />
+              {errors.codigo && (
+                <p className="text-xs text-destructive">{errors.codigo.message}</p>
+              )}
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="nombre">Nombre *</Label>
               <Input id="nombre" placeholder="Ej: Agua y luz" {...register('nombre')} />

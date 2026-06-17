@@ -1,18 +1,18 @@
 export type CategoriaEgreso = 'RECURRENTE_FIJO' | 'RECURRENTE_VARIABLE' | 'EVENTUAL'
 
 export interface TipoEgreso {
-  id: number
+  codigo: string
   nombre: string
   descripcion?: string
   categoria: CategoriaEgreso
+  esSistema: boolean
+  orden: number
   activo: boolean
 }
 
 export interface RegistroEgreso {
   id: number
-  idTipoEgreso: number
-  nombreTipoEgreso: string
-  categoriaEgreso: CategoriaEgreso
+  tipoEgresoCodigo: string
   idSede: number
   monto: number
   fecha: string
@@ -71,7 +71,6 @@ export interface ResumenEventoFinanciero {
   fechaEvento: string
   ingresoContrato: number
   montoAdelanto: number
-  totalGastosProveedores: number
   totalGastosAdicionales: number
   totalGastos: number
   utilidadBruta: number
@@ -110,13 +109,14 @@ export interface MetricasReservas {
 }
 
 export interface CrearTipoEgresoPayload {
+  codigo: string
   nombre: string
   descripcion?: string
   categoria: CategoriaEgreso
 }
 
 export interface RegistrarEgresoPayload {
-  idTipoEgreso: number
+  tipoEgresoCodigo: string
   monto: number
   fecha: string
   periodoAnio?: number
@@ -140,7 +140,7 @@ export interface RegistrarGastoOperativoPayload {
 }
 
 export interface ActualizarEgresoPayload {
-  idTipoEgreso: number
+  tipoEgresoCodigo: string
   monto: number
   fecha: string
   periodoAnio?: number
@@ -163,19 +163,17 @@ export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO'
 export type EstadoPresupuesto = 'PENDIENTE' | 'APROBADO' | 'EJECUTADO'
 
 export interface TipoIngreso {
-  id: number
+  codigo: string
   nombre: string
   descripcion?: string
-  categoria: CategoriaIngreso
+  esSistema: boolean
+  orden: number
   activo: boolean
-  fechaCreacion: string
 }
 
 export interface RegistroIngreso {
   id: number
-  idTipoIngreso: number
-  nombreTipoIngreso: string
-  categoriaIngreso: CategoriaIngreso
+  tipoIngresoCodigo: string
   idSede: number
   idReservaPublica?: number
   idEventoPrivado?: number
@@ -184,7 +182,6 @@ export interface RegistroIngreso {
   medioPago?: string
   descripcion?: string
   esAutomatico: boolean
-  idUsuarioRegistra?: number
   fechaCreacion: string
 }
 
@@ -197,12 +194,11 @@ export interface AperturaCaja {
   totalIngresos: number
   totalEgresos: number
   estado: EstadoCaja
-  idUsuarioApertura: number
-  idUsuarioCierre?: number
+  idUsuarioApertura: string
+  idUsuarioCierre?: string
   fechaApertura: string
   fechaCierre?: string
   observaciones?: string
-  fechaCreacion: string
 }
 
 export interface MovimientoCaja {
@@ -214,9 +210,8 @@ export interface MovimientoCaja {
   medioPago?: string
   idRegistroIngreso?: number
   idRegistroEgreso?: number
-  idReservaPublica?: number
+  idVenta?: number
   esManual: boolean
-  idUsuarioRegistra: number
   fechaCreacion: string
 }
 
@@ -228,7 +223,6 @@ export interface PresupuestoEvento {
   montoEstimado: number
   montoReal?: number
   estado: EstadoPresupuesto
-  idUsuarioRegistra: number
   fechaCreacion: string
   fechaActualizacion?: string
 }
@@ -252,13 +246,13 @@ export interface DashboardFinanciero {
 }
 
 export interface CrearTipoIngresoPayload {
+  codigo: string
   nombre: string
   descripcion?: string
-  categoria: CategoriaIngreso
 }
 
 export interface RegistrarIngresoManualPayload {
-  idTipoIngreso: number
+  tipoIngresoCodigo: string
   monto: number
   fecha: string
   medioPago?: string

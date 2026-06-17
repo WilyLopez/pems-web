@@ -38,7 +38,7 @@ export function GraficaLineaDiaria({ dias }: Props) {
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="fecha" tick={{ fontSize: 11 }} />
         <YAxis tickFormatter={(v) => fmt(v)} tick={{ fontSize: 11 }} width={72} />
-        <Tooltip formatter={(v: number) => fmt(v)} />
+        <Tooltip formatter={(v) => fmt(Number(v))} />
         <Legend />
         <Line
           type="monotone"

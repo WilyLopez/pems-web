@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { useTiposIngreso, useTipoIngresoMutations } from '@/hooks/useFinanzas'
 import { PageHeader } from '@/components/common/PageHeader'
@@ -17,28 +17,10 @@ import {
   DialogTitle,
 } from '@/components/ui/Dialog'
 import { cn } from '@/lib/utils'
-import { CategoriaIngreso } from '@/types/finanzas.types'
-
-const categoriaOpciones: { value: CategoriaIngreso; label: string }[] = [
-  { value: 'RESERVA_PUBLICA', label: 'Reserva pública' },
-  { value: 'ADELANTO_EVENTO', label: 'Adelanto de evento' },
-  { value: 'INGRESO_MANUAL',  label: 'Ingreso manual'   },
-  { value: 'OTRO',            label: 'Otro'              },
-]
-
-const categoriaBadge: Record<CategoriaIngreso, string> = {
-  RESERVA_PUBLICA: 'bg-emerald-100 text-emerald-700',
-  ADELANTO_EVENTO: 'bg-brand-azul/10 text-brand-azul',
-  INGRESO_MANUAL:  'bg-gray-100 text-gray-600',
-  OTRO:            'bg-yellow-100 text-yellow-700',
-}
-
 const schema = z.object({
+  codigo:      z.string().min(2, 'Mínimo 2 caracteres').max(50).toUpperCase(),
   nombre:      z.string().min(2, 'Mínimo 2 caracteres'),
   descripcion: z.string().optional(),
-  categoria:   z.enum(['RESERVA_PUBLICA', 'ADELANTO_EVENTO', 'INGRESO_MANUAL', 'OTRO'], {
-    required_error: 'Selecciona una categoría',
-  }),
 })
 type FormValues = z.infer<typeof schema>
 
@@ -71,9 +53,9 @@ export default function TiposIngresoPage() {
           <table className="w-full text-sm">
             <thead className="border-b bg-gray-50">
               <tr className="text-left text-xs text-gray-500 uppercase tracking-wide">
+                <th className="px-4 py-3 font-semibold">Código</th>
                 <th className="px-4 py-3 font-semibold">Nombre</th>
                 <th className="px-4 py-3 font-semibold">Descripción</th>
-                <th className="px-4 py-3 font-semibold">Categoría</th>
                 <th className="px-4 py-3 font-semibold">Estado</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -92,14 +74,10 @@ export default function TiposIngresoPage() {
                   </td>
                 </tr>
               ) : tipos.map((t) => (
-                <tr key={t.id} className={cn('hover:bg-gray-50 transition-colors', !t.activo && 'opacity-50')}>
+                <tr key={t.codigo} className={cn('hover:bg-gray-50 transition-colors', !t.activo && 'opacity-50')}>
+                  <td className="px-4 py-3 font-mono text-xs text-gray-600">{t.codigo}</td>
                   <td className="px-4 py-3 font-medium text-gray-900">{t.nombre}</td>
                   <td className="px-4 py-3 text-gray-500 max-w-[260px] truncate">{t.descripcion ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={cn('text-[11px] font-semibold px-1.5 py-0.5 rounded-full', categoriaBadge[t.categoria])}>
-                      {categoriaOpciones.find((o) => o.value === t.categoria)?.label ?? t.categoria}
-                    </span>
-                  </td>
                   <td className="px-4 py-3">
                     <span className={cn(
                       'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
@@ -112,7 +90,7 @@ export default function TiposIngresoPage() {
                     {t.activo && (
                       <button
                         type="button"
-                        onClick={() => desactivar.mutate(t.id)}
+                        onClick={() => desactivar.mutate(t.codigo)}
                         disabled={desactivar.isPending}
                         className="text-xs text-gray-400 hover:text-red-500 transition-colors"
                       >
@@ -134,19 +112,14 @@ export default function TiposIngresoPage() {
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
             <div className="space-y-1">
+              <Label>Código</Label>
+              <Input {...register('codigo')} placeholder="Ej. VENTA_MERCHANDISING" className="font-mono" />
+              {errors.codigo && <p className="text-xs text-red-500">{errors.codigo.message}</p>}
+            </div>
+            <div className="space-y-1">
               <Label>Nombre</Label>
               <Input {...register('nombre')} placeholder="Ej. Venta de merchandising" />
               {errors.nombre && <p className="text-xs text-red-500">{errors.nombre.message}</p>}
-            </div>
-            <div className="space-y-1">
-              <Label>Categoría</Label>
-              <select {...register('categoria')} className="w-full h-9 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-azul">
-                <option value="">Seleccionar…</option>
-                {categoriaOpciones.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-              {errors.categoria && <p className="text-xs text-red-500">{errors.categoria.message}</p>}
             </div>
             <div className="space-y-1">
               <Label>Descripción (opcional)</Label>

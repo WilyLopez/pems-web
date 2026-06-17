@@ -277,15 +277,6 @@ export default function EventoDetallePage() {
                         </div>
                       </>
                     )}
-                    {evento.notasInternas && (
-                      <>
-                        <Separator />
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400 mb-1">Notas internas</p>
-                          <p className="text-sm text-gray-700 leading-relaxed">{evento.notasInternas}</p>
-                        </div>
-                      </>
-                    )}
                     {evento.extras && evento.extras.length > 0 && (
                       <>
                         <Separator />
@@ -328,9 +319,9 @@ export default function EventoDetallePage() {
                           </div>
                         </div>
 
-                        {evento.medioPagoAdelanto && (
+                        {evento.medioPago && (
                           <p className="text-xs text-gray-400">
-                            Medio de pago adelanto: <span className="font-semibold">{evento.medioPagoAdelanto}</span>
+                            Medio de pago adelanto: <span className="font-semibold">{evento.medioPago}</span>
                           </p>
                         )}
 

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Download } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { useDebounce } from '@/hooks/useDebounce'
 import {
   useResumenMensual,
   useResumenDiario,
@@ -100,14 +101,17 @@ function ResumenDiarioTab() {
   const [inicio, setInicio] = useState(fmt(new Date(hoy.getFullYear(), hoy.getMonth(), 1)))
   const [fin, setFin] = useState(fmt(hoy))
 
+  const debouncedInicio = useDebounce(inicio, 500)
+  const debouncedFin = useDebounce(fin, 500)
+
   const { data: dias = [], isLoading } = useResumenDiario(
-    idSede ?? undefined,
-    inicio || undefined,
-    fin || undefined,
+    idSede ?? null,
+    debouncedInicio || null,
+    debouncedFin || null,
   )
 
   const handleExportar = () => {
-    exportarCSV(`reporte-diario-${inicio}-${fin}.csv`, dias.map((d) => ({
+    exportarCSV(`reporte-diario-${debouncedInicio}-${debouncedFin}.csv`, dias.map((d) => ({
       Fecha: d.fecha,
       'Ingresos reservas': d.ingresoReservas,
       'Gastos operativos': d.gastoOperativo,

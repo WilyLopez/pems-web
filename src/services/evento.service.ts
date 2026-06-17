@@ -130,7 +130,7 @@ export const eventoService = {
 
   listarExtrasPaquete: async (idPaquete: number): Promise<ExtraPaquete[]> => {
     const { data } = await api.get<ApiResponse<ExtraPaquete[]>>(
-      `/eventos-privados/paquetes/${idPaquete}/extras`
+      `/paquetes/${idPaquete}/extras`
     )
     return data.data
   },

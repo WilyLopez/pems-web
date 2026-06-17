@@ -57,9 +57,11 @@ export interface EventoPrivado {
   precioTotalContrato?: number
   montoAdelanto?: number
   montoSaldo?: number
-  medioPagoAdelanto?: string
-  notasInternas?: string
+  medioPago?: string
   observaciones?: string
+  descripcionPersonalizada?: string
+  presupuestoEstimado?: number
+  esCotizacionPersonalizada?: boolean
   nombreNino?: string
   edadCumple?: number
   idPaquete?: number
