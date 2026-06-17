@@ -18,13 +18,13 @@ export function useSeccionesWeb() {
 
 export function useContenidoWeb(
   clave?: string,
-  idSeccion?: number,
+  seccionCodigo?: string,
   page = 0,
   size = 20
 ) {
   return useQuery({
-    queryKey: [...CONTENIDO_KEY, clave, idSeccion, page, size],
-    queryFn: () => seccionWebService.listarContenido(page, size, clave, idSeccion),
+    queryKey: [...CONTENIDO_KEY, clave, seccionCodigo, page, size],
+    queryFn: () => seccionWebService.listarContenido(page, size, clave, seccionCodigo),
     staleTime: 30_000,
     placeholderData: keepPreviousData,
   })

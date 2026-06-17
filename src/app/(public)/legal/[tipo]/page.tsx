@@ -2,8 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { FileText, Clock, Hash, Pencil } from 'lucide-react'
 import Link from 'next/link'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth.config'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { legalService } from '@/services/legal.service'
 import { buildMetadata } from '@/lib/seo'
 import { TipoLegal, TIPO_LEGAL_LABELS, SLUG_TO_TIPO } from '@/types/legal.types'
@@ -40,14 +39,26 @@ export default async function LegalPublicPage({ params }: Props) {
 
   if (!tipo) notFound()
 
-  const [doc, session] = await Promise.all([
-    legalService.obtenerPublico(tipo).catch(() => null),
-    getServerSession(authOptions),
-  ])
+  const supabase = await createServerSupabaseClient()
+  const { data: { session } } = await supabase.auth.getSession()
+
+  let esAdmin = false
+  if (session?.access_token) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health/me`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        cache: 'no-store',
+      })
+      if (res.ok) {
+        const json = await res.json()
+        esAdmin = json.data?.tipoPerfil === 'STAFF'
+      }
+    } catch { }
+  }
+
+  const doc = await legalService.obtenerPublico(tipo).catch(() => null)
 
   if (!doc) notFound()
-
-  const esAdmin = session?.user?.rol === 'ADMIN'
 
   return (
     <section className="py-12 px-4">

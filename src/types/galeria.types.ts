@@ -4,22 +4,19 @@ export interface ImagenGaleria {
   url: string
   titulo?: string
   descripcion?: string
+  altTexto?: string
+  categoria?: string
   tipoMime?: string
   tamanioBytes?: number
   destacada: boolean
-  eliminada: boolean
-  orden?: number
+  orden: number
   fechaCreacion?: string
-}
-
-export interface SubirImagenGaleriaPayload {
-  titulo?: string
-  descripcion?: string
 }
 
 export interface ActualizarImagenGaleriaPayload {
   titulo?: string
   descripcion?: string
-  destacada?: boolean
+  altTexto?: string
+  categoria?: string
   orden?: number
 }

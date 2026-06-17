@@ -336,7 +336,7 @@ export default function GaleriaPage() {
           if (deleteId !== null)
             eliminar.mutate(deleteId, { onSettled: () => setDeleteId(null) })
         }}
-        isLoading={eliminar.isPending}
+        loading={eliminar.isPending}
       />
     </div>
   )

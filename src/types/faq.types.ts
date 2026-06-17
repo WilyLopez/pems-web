@@ -4,7 +4,6 @@ export interface Faq {
   respuesta: string
   ordenVisualizacion: number
   visible: boolean
-  idUsuarioEditor?: number
   fechaActualizacion?: string
 }
 
