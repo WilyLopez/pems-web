@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getSession } from 'next-auth/react'
+import { createClient } from '@/lib/supabase/client'
 import { Clock } from 'lucide-react'
 import { useSesionStore } from '@/lib/store/sesion.store'
 
@@ -30,7 +30,7 @@ export function AvisoExpiracion() {
   const seg = cuenta % 60
 
   async function seguir() {
-    await getSession()
+    await createClient().auth.refreshSession()
     setAvisoExpiracion(false)
   }
 
