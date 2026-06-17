@@ -106,7 +106,7 @@ function PaqueteCard({ paquete, whatsappUrl }: { paquete: PaqueteEvento; whatsap
       </div>
 
       <div className="p-6 flex-1 flex flex-col">
-        {paquete.beneficios?.length > 0 && (
+        {paquete.beneficios && paquete.beneficios.length > 0 && (
           <ul className="space-y-2.5 flex-1">
             {paquete.beneficios.map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm">

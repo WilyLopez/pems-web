@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { useMutation } from '@tanstack/react-query'
 import { addDays, format } from 'date-fns'
 import { toast } from 'sonner'
@@ -154,9 +154,9 @@ function SuccessView({ evento }: { evento: EventoPrivado }) {
 
 export default function SolicitarEventoPage() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { idSede: idSedeAuth, idUsuario, isAuthenticated } = useAuth()
 
-  const idSede = session?.user?.idSede ?? 1
+  const idSede = idSedeAuth ?? 1
 
   const [paso,                setPaso]                = useState<1 | 2 | 3 | 4>(1)
   const [modalAnticipacion,   setModalAnticipacion]   = useState(false)
@@ -240,8 +240,8 @@ export default function SolicitarEventoPage() {
 
   const solicitar = useMutation({
     mutationFn: () => {
-      if (!session || !idTurno || !fechaSel || !tipoEvento) throw new Error('Datos incompletos')
-      return eventoService.solicitar(Number(session.user.id), idSede, {
+      if (!isAuthenticated || !idTurno || !fechaSel || !tipoEvento) throw new Error('Datos incompletos')
+      return eventoService.solicitar(idUsuario!, idSede, {
         idTurno,
         fechaEvento:              fechaSel,
         tipoEvento:               LABEL_TIPO[tipoEvento],
@@ -263,15 +263,7 @@ export default function SolicitarEventoPage() {
       toast.error(err?.message ?? 'No se pudo enviar la solicitud.'),
   })
 
-  if (status === 'loading') {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-rosa" />
-      </div>
-    )
-  }
-
-  if (!session) {
+  if (!isAuthenticated) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16">
         <LoginGuard />

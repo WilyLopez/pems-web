@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Plus, Pencil, Trash2, Newspaper, Home, Image as ImageIcon } from 'lucide-react'
 import { toast } from 'sonner'

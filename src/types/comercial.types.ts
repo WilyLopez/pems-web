@@ -1,3 +1,27 @@
+export interface TipoEvento {
+  codigo: string
+  nombre: string
+  descripcion?: string
+  icono?: string
+  esSistema: boolean
+  activo: boolean
+  orden: number
+  fechaCreacion?: string
+  fechaActualizacion?: string
+}
+
+export interface CrearTipoEventoPayload {
+  nombre: string
+  descripcion?: string
+  icono?: string
+  activo?: boolean
+  orden?: number
+}
+
+export interface ActualizarTipoEventoPayload extends CrearTipoEventoPayload {
+  activo: boolean
+}
+
 export interface PaqueteEvento {
   id: number
   nombre: string
@@ -13,9 +37,28 @@ export interface PaqueteEvento {
   activo: boolean
   destacado: boolean
   orden: number
-  beneficios: string[]
-  fechaCreacion: string
+  tipoEventoCodigo?: string
+  beneficios?: string[]
+  fechaCreacion?: string
   fechaActualizacion?: string
+}
+
+export interface BeneficioPaquete {
+  id: number
+  idPaquete: number
+  descripcion: string
+  orden: number
+  fechaCreacion?: string
+}
+
+export interface ServicioCotizacion {
+  id: number
+  nombre: string
+  descripcion?: string
+  precioReferencial?: number
+  icono?: string
+  activo: boolean
+  orden: number
 }
 
 export interface ZonaJuego {
@@ -79,6 +122,7 @@ export interface CrearPaquetePayload {
   duracionMinutos?: number
   limitepersonas?: number
   beneficios?: string[]
+  tipoEventoCodigo: string
 }
 
 export interface ActualizarPaquetePayload extends CrearPaquetePayload {
@@ -89,11 +133,12 @@ export interface ActualizarPaquetePayload extends CrearPaquetePayload {
 
 export interface CrearZonaPayload {
   nombre: string
+  slug?: string
   descripcion: string
   edadMinima?: number
   edadMaxima?: number
-  imagenes?: string[]
-  videos?: string[]
+  imagenes: string[]
+  videos: string[]
 }
 
 export interface ActualizarZonaPayload extends CrearZonaPayload {

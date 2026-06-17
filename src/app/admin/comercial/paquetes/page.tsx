@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, Package2, X, Check } from 'lucide-react'
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, Package2, X, Check, ListChecks, Tag } from 'lucide-react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
@@ -28,7 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 import { MediaUploader } from '@/components/common/MediaUploader'
 import { PaquetePreview } from '@/components/admin/comercial/paquetes/PaquetePreview'
 import { QuickToggle } from '@/components/admin/comercial/shared/QuickToggle'
-import { usePaquetesAdmin, usePaqueteMutations } from '@/hooks/useComercial'
+import { usePaquetesAdmin, usePaqueteMutations, useTiposEventoPublico } from '@/hooks/useComercial'
 import { PaqueteEvento } from '@/types/comercial.types'
 import { MediaValue } from '@/types/media.types'
 import { formatCurrency } from '@/lib/utils'
@@ -46,6 +47,7 @@ const schema = z.object({
   activo:           z.boolean().default(true),
   destacado:        z.boolean().default(false),
   orden:            z.coerce.number().default(0),
+  tipoEventoCodigo: z.string().min(1, 'Debe seleccionar un tipo de evento'),
   beneficios:       z.array(z.object({ valor: z.string().max(60) })).max(8).default([]),
 })
 type FormValues = z.infer<typeof schema>
@@ -58,6 +60,7 @@ function PaqueteFormDialog({
   paquete: PaqueteEvento | null
 }) {
   const { crear, actualizar } = usePaqueteMutations()
+  const { data: tiposEvento = [] } = useTiposEventoPublico()
   const isEditing = !!paquete
   const [imagenMedia, setImagenMedia] = useState<MediaValue | null>(null)
   const [uploading, setUploading]     = useState(false)
@@ -69,7 +72,8 @@ function PaqueteFormDialog({
       nombre: '', descripcionCorta: '', descripcionLarga: '',
       precio: 0, badge: '', color: '#00AEEF',
       duracionMinutos: null, limitepersonas: null,
-      activo: true, destacado: false, orden: 0, beneficios: [],
+      activo: true, destacado: false, orden: 0,
+      tipoEventoCodigo: '', beneficios: [],
     },
   })
 
@@ -84,6 +88,7 @@ function PaqueteFormDialog({
           duracionMinutos: paquete.duracionMinutos ?? null,
           limitepersonas: paquete.limitepersonas ?? null,
           activo: paquete.activo, destacado: paquete.destacado, orden: paquete.orden,
+          tipoEventoCodigo: paquete.tipoEventoCodigo ?? '',
           beneficios: (paquete.beneficios ?? []).map((b) => ({ valor: b })),
         })
         setImagenMedia(paquete.imagenUrl
@@ -94,7 +99,8 @@ function PaqueteFormDialog({
           nombre: '', descripcionCorta: '', descripcionLarga: '',
           precio: 0, badge: '', color: '#00AEEF',
           duracionMinutos: null, limitepersonas: null,
-          activo: true, destacado: false, orden: 0, beneficios: [],
+          activo: true, destacado: false, orden: 0,
+          tipoEventoCodigo: '', beneficios: [],
         })
         setImagenMedia(null)
       }
@@ -121,6 +127,7 @@ function PaqueteFormDialog({
         imagenUrl: imagenUrl ?? undefined,
         duracionMinutos: data.duracionMinutos || undefined,
         limitepersonas: data.limitepersonas || undefined,
+        tipoEventoCodigo: data.tipoEventoCodigo,
         beneficios: beneficiosArr,
       }
       if (isEditing && paquete) {
@@ -156,10 +163,34 @@ function PaqueteFormDialog({
           ))}
         </div>
 
+        {tiposEvento.length === 0 && (
+          <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800 mb-4">
+            Debe crear al menos un tipo de evento antes de crear paquetes.{' '}
+            <Link href="/admin/comercial/tipos-evento" className="font-medium underline">
+              Ir a Tipos de Evento
+            </Link>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] gap-6">
             <div className={mobileTab === 'preview' ? 'hidden lg:block' : undefined}>
               <div className="space-y-4">
+                <div className="space-y-1">
+                  <Label>Tipo de Evento *</Label>
+                  <select {...register('tipoEventoCodigo')}
+                    disabled={tiposEvento.length === 0}
+                    className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50">
+                    <option value="">Seleccione un tipo de evento</option>
+                    {tiposEvento.map((t) => (
+                      <option key={t.codigo} value={t.codigo}>{t.nombre}</option>
+                    ))}
+                  </select>
+                  {errors.tipoEventoCodigo && (
+                    <p className="text-xs text-destructive">{errors.tipoEventoCodigo.message}</p>
+                  )}
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1">
                     <Label>Nombre *</Label>
@@ -262,7 +293,7 @@ function PaqueteFormDialog({
                   <Button type="button" variant="outline" onClick={() => { reset(); setImagenMedia(null); onOpenChange(false) }}>
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={uploading} className="bg-brand-azul text-white">
+                  <Button type="submit" disabled={uploading || tiposEvento.length === 0} className="bg-brand-azul text-white">
                     {uploading ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear paquete'}
                   </Button>
                 </div>
@@ -301,11 +332,9 @@ export default function PaquetesPage() {
     if (dir === 'arriba' && idx === 0) return
     if (dir === 'abajo' && idx === sorted.length - 1) return
     const otrIdx  = dir === 'arriba' ? idx - 1 : idx + 1
-    const actual  = sorted[idx]
     const otro    = sorted[otrIdx]
     try {
-      await reordenar.mutateAsync({ id: actual.id, nuevoOrden: otro.orden })
-      await reordenar.mutateAsync({ id: otro.id,   nuevoOrden: actual.orden })
+      await reordenar.mutateAsync({ id, nuevoOrden: otro.orden })
     } catch {
       toast.error('Error al reordenar')
     }
@@ -321,10 +350,17 @@ export default function PaquetesPage() {
         title="Paquetes de eventos"
         description="Crea y administra los paquetes disponibles para contratar"
         actions={
-          <Button size="sm" className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
-            onClick={() => { setEditTarget(null); setFormOpen(true) }}>
-            <Plus className="h-4 w-4" /> Nuevo paquete
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="gap-1.5" asChild>
+              <Link href="/admin/comercial/tipos-evento">
+                <Tag className="h-4 w-4" /> Tipos de Evento
+              </Link>
+            </Button>
+            <Button size="sm" className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
+              onClick={() => { setEditTarget(null); setFormOpen(true) }}>
+              <Plus className="h-4 w-4" /> Nuevo paquete
+            </Button>
+          </div>
         }
       />
 
@@ -387,9 +423,13 @@ export default function PaquetesPage() {
                   </div>
                 </div>
 
+                {p.tipoEventoCodigo && (
+                  <Badge className="bg-brand-azul/10 text-brand-azul text-xs h-5">{p.tipoEventoCodigo}</Badge>
+                )}
+
                 <p className="text-xs text-muted-foreground line-clamp-2">{p.descripcionCorta}</p>
 
-                {p.beneficios.slice(0, 3).map((b, j) => (
+                {(p.beneficios ?? []).slice(0, 3).map((b, j) => (
                   <div key={j} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Check className="h-3 w-3 text-green-500 shrink-0" />{b}
                   </div>
@@ -399,6 +439,11 @@ export default function PaquetesPage() {
                   <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1"
                     onClick={() => { setEditTarget(p); setFormOpen(true) }}>
                     <Pencil className="h-3 w-3" /> Editar
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1" asChild>
+                    <Link href={`/admin/comercial/paquetes/${p.id}/beneficios`}>
+                      <ListChecks className="h-3 w-3" /> Beneficios
+                    </Link>
                   </Button>
                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
                     disabled={i === 0} onClick={() => handleReordenar(p.id, 'arriba')}>

@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { comercialService } from '@/services/comercial.service'
 import {
+  TipoEvento,
+  CrearTipoEventoPayload,
+  ActualizarTipoEventoPayload,
   PaqueteEvento,
   ZonaJuego,
   ActividadLocal,
@@ -14,9 +17,67 @@ import {
   ActualizarActividadPayload,
   CrearNovedadPayload,
   ActualizarNovedadPayload,
+  BeneficioPaquete,
+  ServicioCotizacion,
 } from '@/types/comercial.types'
 
 const STALE_5M = 1000 * 60 * 5
+
+// ── Tipos de Evento ───────────────────────────────────────────────────────────
+
+export function useTiposEventoAdmin() {
+  return useQuery({
+    queryKey: ['tipos-evento', 'admin'],
+    queryFn: comercialService.tiposEvento.listarAdmin,
+  })
+}
+
+export function useTiposEventoPublico() {
+  return useQuery({
+    queryKey: ['tipos-evento', 'publico'],
+    queryFn: comercialService.tiposEvento.listarActivos,
+    staleTime: STALE_5M,
+  })
+}
+
+export function useTipoEventoMutations() {
+  const qc = useQueryClient()
+  const invalidar = () => qc.invalidateQueries({ queryKey: ['tipos-evento'] })
+
+  const crear = useMutation({
+    mutationFn: (payload: CrearTipoEventoPayload) => comercialService.tiposEvento.crear(payload),
+    onSuccess: () => { invalidar(); toast.success('Tipo de evento creado') },
+    onError: () => toast.error('Error al crear el tipo de evento'),
+  })
+
+  const actualizar = useMutation({
+    mutationFn: ({ codigo, payload }: { codigo: string; payload: ActualizarTipoEventoPayload }) =>
+      comercialService.tiposEvento.actualizar(codigo, payload),
+    onSuccess: () => { invalidar(); toast.success('Tipo de evento actualizado') },
+    onError: () => toast.error('Error al actualizar el tipo de evento'),
+  })
+
+  const eliminar = useMutation({
+    mutationFn: (codigo: string) => comercialService.tiposEvento.eliminar(codigo),
+    onSuccess: () => { invalidar(); toast.success('Tipo de evento eliminado') },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      toast.error(msg ?? 'Error al eliminar el tipo de evento')
+    },
+  })
+
+  const toggleActivo = useMutation({
+    mutationFn: (t: TipoEvento) =>
+      comercialService.tiposEvento.actualizar(t.codigo, {
+        nombre: t.nombre, descripcion: t.descripcion,
+        icono: t.icono, activo: !t.activo, orden: t.orden,
+      }),
+    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onError: () => toast.error('No se pudo cambiar el estado'),
+  })
+
+  return { crear, actualizar, eliminar, toggleActivo }
+}
 
 // ── Paquetes ─────────────────────────────────────────────────────────────────
 
@@ -76,12 +137,91 @@ export function usePaqueteMutations() {
         duracionMinutos: p.duracionMinutos, limitepersonas: p.limitepersonas,
         beneficios: p.beneficios, activo: !p.activo,
         destacado: p.destacado, orden: p.orden,
+        tipoEventoCodigo: p.tipoEventoCodigo ?? '',
       }),
     onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
     onError: () => toast.error('No se pudo cambiar el estado'),
   })
 
   return { crear, actualizar, eliminar, reordenar, toggleActivo }
+}
+
+// ── Beneficios ───────────────────────────────────────────────────────────────
+
+export function useBeneficiosPaquete(idPaquete: number | undefined) {
+  return useQuery({
+    queryKey: ['paquetes', idPaquete, 'beneficios'],
+    queryFn: () => comercialService.paquetes.beneficios.listar(idPaquete!),
+    enabled: !!idPaquete,
+  })
+}
+
+export function useBeneficioMutations(idPaquete: number | undefined) {
+  const qc = useQueryClient()
+  const invalidar = () => {
+    qc.invalidateQueries({ queryKey: ['paquetes', idPaquete, 'beneficios'] })
+    qc.invalidateQueries({ queryKey: ['paquetes'] })
+  }
+
+  const crear = useMutation({
+    mutationFn: (payload: Partial<BeneficioPaquete>) =>
+      comercialService.paquetes.beneficios.crear(idPaquete!, payload),
+    onSuccess: () => { invalidar(); toast.success('Beneficio añadido') },
+    onError: () => toast.error('Error al añadir beneficio'),
+  })
+
+  const actualizar = useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: Partial<BeneficioPaquete> }) =>
+      comercialService.paquetes.beneficios.actualizar(idPaquete!, id, payload),
+    onSuccess: () => { invalidar(); toast.success('Beneficio actualizado') },
+    onError: () => toast.error('Error al actualizar beneficio'),
+  })
+
+  const eliminar = useMutation({
+    mutationFn: (id: number) => comercialService.paquetes.beneficios.eliminar(idPaquete!, id),
+    onSuccess: () => { invalidar(); toast.success('Beneficio eliminado') },
+    onError: () => toast.error('Error al eliminar beneficio'),
+  })
+
+  return { crear, actualizar, eliminar }
+}
+
+// ── Servicios de Cotización ───────────────────────────────────────────────────
+
+export function useServiciosCotizacionAdmin() {
+  return useQuery({
+    queryKey: ['servicios-cotizacion', 'admin'],
+    queryFn: comercialService.serviciosCotizacion.listarAdmin,
+  })
+}
+
+export function useServicioCotizacionMutations() {
+  const qc = useQueryClient()
+  const invalidar = () => {
+    qc.invalidateQueries({ queryKey: ['servicios-cotizacion'] })
+  }
+
+  const crear = useMutation({
+    mutationFn: (payload: Partial<ServicioCotizacion>) =>
+      comercialService.serviciosCotizacion.crear(payload),
+    onSuccess: () => { invalidar(); toast.success('Servicio creado') },
+    onError: () => toast.error('Error al crear el servicio'),
+  })
+
+  const actualizar = useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: Partial<ServicioCotizacion> }) =>
+      comercialService.serviciosCotizacion.actualizar(id, payload),
+    onSuccess: () => { invalidar(); toast.success('Servicio actualizado') },
+    onError: () => toast.error('Error al actualizar el servicio'),
+  })
+
+  const eliminar = useMutation({
+    mutationFn: (id: number) => comercialService.serviciosCotizacion.eliminar(id),
+    onSuccess: () => { invalidar(); toast.success('Servicio eliminado') },
+    onError: () => toast.error('Error al eliminar el servicio'),
+  })
+
+  return { crear, actualizar, eliminar }
 }
 
 // ── Zonas ─────────────────────────────────────────────────────────────────────
