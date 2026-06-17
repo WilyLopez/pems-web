@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { differenceInDays, parseISO, startOfDay } from 'date-fns'
 import {
   PartyPopper,
@@ -39,12 +39,12 @@ function PageSkeleton() {
 export default function DetalleEventoPage() {
   const params  = useParams()
   const id      = Number(params.id)
-  const { data: session } = useSession()
+  const { nombre } = useAuth()
 
   const { data: evento, isLoading, isError } = useEvento(id)
 
   const mensaje = evento
-    ? `Hola, soy ${session?.user?.name ?? 'cliente'}. Tengo una consulta sobre mi evento del ${formatDate(evento.fechaEvento)} (ID: EVT-${evento.id})`
+    ? `Hola, soy ${nombre ?? 'cliente'}. Tengo una consulta sobre mi evento del ${formatDate(evento.fechaEvento)} (ID: EVT-${evento.id})`
     : 'Hola, tengo una consulta sobre mi evento privado'
   const whatsappUrl = useWhatsAppUrl(mensaje)
 

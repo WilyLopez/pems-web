@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '@/hooks/useAuth'
 import { differenceInDays, parseISO, startOfDay } from 'date-fns'
 import {
   PartyPopper,
@@ -125,12 +125,12 @@ function EventoCard({ evento }: { evento: EventoPrivado }) {
 }
 
 export default function MisEventosPage() {
-  const { data: session } = useSession()
+  const { isAuthenticated } = useAuth()
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['mis-eventos-cliente', session?.user?.id],
+    queryKey: ['mis-eventos-cliente'],
     queryFn: () => eventoService.listar({ page: 0, size: 30 }),
-    enabled: !!session?.user?.id,
+    enabled: isAuthenticated,
   })
 
   const todos: EventoPrivado[] = data?.content ?? []

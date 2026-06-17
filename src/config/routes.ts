@@ -48,6 +48,7 @@ export const ADMIN_ROUTES = {
   perfil: '/admin/perfil',
   configuracion: '/admin/configuracion',
   auditoria: '/admin/auditoria',
+  tarifas: '/admin/comercial/tarifas',
   cms: '/admin/cms',
   cmsBanners: '/admin/cms/banners',
   cmsGaleria: '/admin/cms/galeria',

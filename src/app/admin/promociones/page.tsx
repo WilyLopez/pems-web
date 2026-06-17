@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import {
   Plus,
@@ -16,7 +16,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   BarChart3,
-  Sparkles,
   EyeOff,
   Filter,
   Image as ImageIcon,
@@ -130,7 +129,6 @@ const ZONAS = [
   { key: 'mostrarEnCarrusel', label: 'Carrusel principal' },
   { key: 'mostrarEnPaginaPromociones', label: 'Página de promociones' },
   { key: 'mostrarEnCheckout', label: 'Proceso de compra' },
-  { key: 'mostrarDestacado', label: 'Sección destacada' },
   { key: 'soloMovil', label: 'Solo móvil' },
 ] as const
 
@@ -156,11 +154,9 @@ const promoSchema = z.object({
   mostrarEnCarrusel: z.boolean(),
   mostrarEnPaginaPromociones: z.boolean(),
   mostrarEnCheckout: z.boolean(),
-  mostrarDestacado: z.boolean(),
   soloMovil: z.boolean(),
   limiteUsos: z.string().optional(),
   limitePorCliente: z.string().optional(),
-  minimoAsistentes: z.string().optional(),
   montoMinimo: z.string().optional(),
 })
 
@@ -186,11 +182,9 @@ const DEFAULT_VALUES: PromoFormValues = {
   mostrarEnCarrusel: false,
   mostrarEnPaginaPromociones: true,
   mostrarEnCheckout: false,
-  mostrarDestacado: false,
   soloMovil: false,
   limiteUsos: '',
   limitePorCliente: '',
-  minimoAsistentes: '',
   montoMinimo: '',
 }
 
@@ -227,11 +221,6 @@ function PromocionCard({
             alt={promo.nombre}
             className="w-full h-full object-cover"
           />
-          {promo.mostrarDestacado && (
-            <div className="absolute top-2 right-2 bg-amber-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
-              <Sparkles className="h-3 w-3" /> Destacada
-            </div>
-          )}
         </div>
       )}
 
@@ -554,14 +543,10 @@ function CrearPromocionDialog({
       mostrarEnCarrusel: values.mostrarEnCarrusel,
       mostrarEnPaginaPromociones: values.mostrarEnPaginaPromociones,
       mostrarEnCheckout: values.mostrarEnCheckout,
-      mostrarDestacado: values.mostrarDestacado,
       soloMovil: values.soloMovil,
       limiteUsos: values.limiteUsos ? parseInt(values.limiteUsos) : undefined,
       limitePorCliente: values.limitePorCliente
         ? parseInt(values.limitePorCliente)
-        : undefined,
-      minimoAsistentes: values.minimoAsistentes
-        ? parseInt(values.minimoAsistentes)
         : undefined,
       montoMinimo: values.montoMinimo
         ? parseFloat(values.montoMinimo)
@@ -831,15 +816,6 @@ function CrearPromocionDialog({
                   min={1}
                   placeholder="Sin límite"
                   {...register('limitePorCliente')}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Mínimo de asistentes</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  placeholder="Sin mínimo"
-                  {...register('minimoAsistentes')}
                 />
               </div>
               <div className="space-y-2">

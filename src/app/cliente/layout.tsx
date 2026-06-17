@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth.config'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { ClienteSidebar } from '@/components/cliente/ClienteSidebar'
 import { ClienteBottomNav } from '@/components/cliente/ClienteBottomNav'
 import { ClienteTopBar } from '@/components/cliente/ClienteTopBar'
@@ -10,10 +9,25 @@ export default async function ClienteLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession(authOptions)
+  const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session || session.user.rol !== 'CLIENTE') {
-    redirect('/auth/login?callbackUrl=/cliente')
+  if (!user) {
+    redirect('/auth/login?redirect=/cliente')
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/health/me`,
+    { headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }, cache: 'no-store' }
+  )
+
+  if (!res.ok) {
+    redirect('/auth/login?redirect=/cliente')
+  }
+
+  const { data } = await res.json()
+  if (data.tipoPerfil !== 'CLIENTE') {
+    redirect('/auth/login?redirect=/cliente')
   }
 
   return (

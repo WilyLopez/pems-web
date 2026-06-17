@@ -19,8 +19,17 @@ function saludo() {
 }
 
 export default function AdminDashboardPage() {
-  const { idSede } = useAuth()
-  const { data, isLoading, isFetching, refetch } = useDashboardAdmin(idSede ?? undefined)
+  const { idSede, isLoading: authLoading } = useAuth()
+  const { 
+    data, 
+    isLoading: queryLoading, 
+    isError, 
+    error,
+    isFetching, 
+    refetch 
+  } = useDashboardAdmin(idSede ?? undefined)
+
+  const isLoading = authLoading || (!!idSede && queryLoading)
 
   return (
     <div className="max-w-7xl mx-auto w-full space-y-5 sm:space-y-6">
@@ -28,13 +37,13 @@ export default function AdminDashboardPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-gray-900">{saludo()}</h1>
           <p className="text-sm text-gray-500 capitalize">
-            {data ? formatDate(data.fecha, "EEEE d 'de' MMMM yyyy") : 'Cargando...'}
+            {data ? formatDate(data.fecha, "EEEE d 'de' MMMM yyyy") : 'Resumen diario'}
           </p>
         </div>
         <button
           type="button"
           onClick={() => refetch()}
-          disabled={isFetching}
+          disabled={isFetching || !idSede}
           className="shrink-0 flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:border-brand-azul/40 hover:text-brand-azul transition-all disabled:opacity-50"
         >
           <RefreshCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
@@ -44,6 +53,26 @@ export default function AdminDashboardPage() {
 
       {isLoading ? (
         <DashboardSkeleton />
+      ) : isError ? (
+        <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-12 flex flex-col items-center justify-center">
+          <p className="text-sm text-gray-500 mb-2">No se pudo cargar el dashboard</p>
+          {error && (
+            <p className="text-xs text-red-400 max-w-md text-center px-4">
+              {(error as any).message || 'Error desconocido'}
+            </p>
+          )}
+          <button 
+            onClick={() => refetch()}
+            className="mt-4 text-xs font-bold text-brand-azul hover:underline"
+          >
+            Reintentar
+          </button>
+        </div>
+      ) : !idSede ? (
+        <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-12 text-center">
+          <p className="text-sm text-gray-500">No tienes una sede asignada para ver este dashboard.</p>
+          <p className="text-xs text-gray-400 mt-1">Contacta al administrador si crees que esto es un error.</p>
+        </div>
       ) : data ? (
         <>
           <KpisDelDia data={data} />
@@ -56,7 +85,7 @@ export default function AdminDashboardPage() {
         </>
       ) : (
         <p className="text-sm text-gray-500 text-center py-12">
-          No se pudo cargar el dashboard.
+          No hay datos disponibles.
         </p>
       )}
     </div>

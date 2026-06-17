@@ -6,7 +6,7 @@ import {
   PatchPreferenciaPayload,
 } from '@/types/preferencias.types'
 
-const BASE = '/admin/preferencias'
+const BASE = '/preferencias/admin'
 
 export const preferenciasService = {
   getMias: async (): Promise<PreferenciaAdmin> => {

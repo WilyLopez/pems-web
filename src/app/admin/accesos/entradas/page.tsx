@@ -1,212 +1,231 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm, Controller, useWatch } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { format, isWeekend } from 'date-fns'
+import { format, addDays } from 'date-fns'
 import jsQR from 'jsqr'
 import {
-  QrCode,
-  Camera,
-  CameraOff,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  RotateCcw,
-  Search,
-  User,
-  CalendarDays,
-  Ticket,
-  CreditCard,
-  LogIn,
-  Ban,
-  UserCheck,
-  ChevronLeft,
-  Banknote,
-  Smartphone,
-  Receipt,
+  type LucideIcon,
+  QrCode, Camera, CameraOff, CheckCircle2, XCircle, Loader2, RotateCcw,
+  Search, User, Plus, X, AlertTriangle, LogIn, UserCheck, ChevronLeft,
+  Calendar, CreditCard, Baby, FileText, Tag,
 } from 'lucide-react'
 
-import { reservaService } from '@/services/reserva.service'
+import { ventaPresencialService } from '@/services/ventaPresencial.service'
 import { clienteService } from '@/services/cliente.service'
-import { Reserva } from '@/types/reserva.types'
 import { Cliente } from '@/types/cliente.types'
+import { MetodoPago, NinoVenta, PagoLinea, TicketDetalle, VentaMostradorResponse } from '@/types/ventaPresencial.types'
 import { useAuth } from '@/hooks/useAuth'
-import { RESERVAS_ADM_KEY, METRICAS_KEY } from '@/hooks/useReservas'
-import { Button } from '@/components/ui/Button'
+import { usePromociones } from '@/hooks/usePromocion'
+import { usePrecioDia, useRegistrarVenta, useMarcarEntrada, useEditarFechaTicket } from '@/hooks/useVentaPresencial'
+import { RESERVAS_KEYS } from '@/features/admin/reservas/hooks/useReservasData'
+import { useConfiguracionCalendario, useEdadMaxNino } from '@/hooks/useConfiguracion'
+import { nombreField, fieldError, TipoDocumento, TIPOS_DOCUMENTO, documentoFieldPorTipo } from '@/lib/validations/campos'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { Separator } from '@/components/ui/Separator'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
 import { formatDate, formatCurrency, cn } from '@/lib/utils'
-
-const ID_CLIENTE_MOSTRADOR = 1
 
 type ScanState = 'idle' | 'scanning' | 'loading' | 'done'
 
-function DatosTicket({ reserva }: { reserva: Reserva }) {
+const METODOS_PAGO: { value: MetodoPago; label: string }[] = [
+  { value: 'EFECTIVO',      label: 'Efectivo' },
+  { value: 'YAPE',          label: 'Yape' },
+  { value: 'PLIN',          label: 'Plin' },
+  { value: 'TARJETA',       label: 'Tarjeta' },
+  { value: 'TRANSFERENCIA', label: 'Transferencia' },
+]
+
+function FieldError({ message }: { message: string }) {
+  return <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertTriangle className="h-3 w-3" />{message}</p>
+}
+
+function SectionCard({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: ReactNode }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-3 space-y-2 text-sm">
-      <div className="flex justify-between">
-        <span className="text-gray-500">Ticket</span>
-        <span className="font-mono font-bold text-brand-azul">{reserva.numeroTicket}</span>
-      </div>
-      <div className="flex justify-between">
-        <span className="text-gray-500">Nino</span>
-        <span className="font-semibold">{reserva.nombreNino} · {reserva.edadNino} anos</span>
-      </div>
-      <div className="flex justify-between">
-        <span className="text-gray-500">Acompanante</span>
-        <span className="font-semibold">{reserva.nombreAcompanante}</span>
-      </div>
-      <div className="flex justify-between">
-        <span className="text-gray-500">Fecha</span>
-        <span className="font-semibold">{formatDate(reserva.fechaEvento)}</span>
-      </div>
-      <div className="flex justify-between">
-        <span className="text-gray-500">Total</span>
-        <span className="font-bold text-green-700">{formatCurrency(reserva.totalPagado)}</span>
-      </div>
-    </div>
+    <Card>
+      <CardContent className="p-5">
+        <div className="flex items-center gap-2.5 mb-4">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Icon className="h-4 w-4 text-primary" />
+          </div>
+          <h3 className="font-semibold text-sm">{title}</h3>
+        </div>
+        {children}
+      </CardContent>
+    </Card>
   )
 }
 
-interface ResultadoProps {
-  reserva: Reserva | null
-  error: string | null
-  onReset: () => void
-  onConfirmarIngreso: (id: number) => void
-  onConfirmarPago: (id: number) => void
-  loadingIngreso: boolean
-  loadingPago: boolean
+function EstadoBadge({ estado, yaIngreso }: { estado: string; yaIngreso: boolean }) {
+  if (yaIngreso)
+    return <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">Ya ingresó</span>
+  if (estado === 'CONFIRMADA')
+    return <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">Confirmada</span>
+  if (estado === 'PENDIENTE')
+    return <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">Pago pendiente</span>
+  return <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700">{estado}</span>
 }
 
-function ResultadoEscaneo({
-  reserva, error, onReset, onConfirmarIngreso, onConfirmarPago,
-  loadingIngreso, loadingPago,
-}: ResultadoProps) {
-  if (error) {
-    return (
-      <div className="space-y-3">
-        <div className="bg-red-50 border-2 border-red-400 rounded-2xl p-5 text-center space-y-2">
-          <XCircle className="h-8 w-8 text-red-500 mx-auto" />
-          <p className="font-bold text-red-700">Ticket no encontrado</p>
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
-        <Button variant="outline" onClick={onReset} className="w-full rounded-full gap-2">
-          <RotateCcw className="h-4 w-4" />
-          Intentar de nuevo
-        </Button>
-      </div>
-    )
+function TicketDetalleCard({
+  ticket, onReset, onMarcarEntrada, loadingEntrada,
+}: {
+  ticket: TicketDetalle
+  onReset: () => void
+  onMarcarEntrada: (id: number) => void
+  loadingEntrada: boolean
+}) {
+  const [editandoFecha, setEditandoFecha] = useState(false)
+  const [nuevaFecha, setNuevaFecha]       = useState(format(new Date(), 'yyyy-MM-dd'))
+  const editarFecha = useEditarFechaTicket()
+  const qc = useQueryClient()
+
+  const { idSede }     = useAuth()
+  const { data: confCal } = useConfiguracionCalendario(idSede ?? null)
+  const diasMaxFecha   = confCal?.diasMaxReservaPublica ?? 14
+
+  const invalido = ['CANCELADA', 'REPROGRAMADA'].includes(ticket.estado)
+
+  async function guardarFecha() {
+    try {
+      await editarFecha.mutateAsync({ idReserva: ticket.idReserva, nuevaFecha })
+      toast.success('Fecha actualizada correctamente.')
+      qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.ADMIN_LIST] })
+      setEditandoFecha(false)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'No se pudo actualizar la fecha.')
+    }
   }
-
-  if (!reserva) return null
-
-  const yaIngreso     = reserva.ingresado
-  const pendientePago = reserva.estado === 'PENDIENTE'
-  const invalido      = ['CANCELADA', 'REPROGRAMADA'].includes(reserva.estado)
 
   if (invalido) {
     return (
       <div className="space-y-3">
-        <div className="bg-red-50 border-2 border-red-600 rounded-2xl p-5 space-y-2">
-          <Ban className="h-6 w-6 text-red-700" />
-          <p className="font-black text-red-900 text-lg">Ticket invalido</p>
-          <DatosTicket reserva={reserva} />
-          <p className="text-sm text-red-700">Estado: <strong>{reserva.estado}</strong></p>
-        </div>
-        <Button variant="outline" onClick={onReset} className="w-full rounded-full gap-2">
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="p-5 space-y-2">
+            <div className="flex items-center gap-2 text-destructive">
+              <XCircle className="h-5 w-5 shrink-0" />
+              <span className="font-semibold text-sm">Ticket inválido</span>
+            </div>
+            <p className="text-sm text-muted-foreground">Estado: <strong>{ticket.estado}</strong></p>
+            <p className="font-mono text-xs text-muted-foreground">{ticket.numeroTicket}</p>
+          </CardContent>
+        </Card>
+        <button
+          onClick={onReset}
+          className="w-full flex items-center justify-center gap-2 h-10 border border-input rounded-xl text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+        >
           <RotateCcw className="h-4 w-4" />
-          Escanear otro
-        </Button>
-      </div>
-    )
-  }
-
-  if (yaIngreso) {
-    return (
-      <div className="space-y-3">
-        <div className="bg-red-50 border-2 border-red-400 rounded-2xl p-5 space-y-3">
-          <div className="flex items-center gap-2">
-            <XCircle className="h-6 w-6 text-red-600" />
-            <p className="font-black text-red-800 text-lg">Ya fue escaneado</p>
-          </div>
-          <DatosTicket reserva={reserva} />
-          {reserva.fechaIngreso && (
-            <p className="text-sm text-red-700">
-              Ingreso registrado: <strong>{new Date(reserva.fechaIngreso).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}</strong>
-            </p>
-          )}
-        </div>
-        <Button variant="outline" onClick={onReset} className="w-full rounded-full gap-2">
-          <RotateCcw className="h-4 w-4" />
-          Escanear otro
-        </Button>
+          Escanear otro ticket
+        </button>
       </div>
     )
   }
 
   return (
-    <div className="space-y-3">
-      <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-6 w-6 text-green-600" />
-          <p className="font-black text-green-800 text-lg">
-            {pendientePago ? 'Ticket valido — pago pendiente' : 'Ticket valido'}
-          </p>
+    <Card>
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-start justify-between gap-2">
+          <p className="font-mono text-xs text-muted-foreground">{ticket.numeroTicket}</p>
+          <EstadoBadge estado={ticket.estado} yaIngreso={ticket.yaIngreso} />
         </div>
-        <DatosTicket reserva={reserva} />
-        {pendientePago && reserva.medioPago === 'YAPE' && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-            <strong>Pago Yape pendiente de validacion.</strong>
-            {reserva.referenciaPago
-              ? ` Referencia: ${reserva.referenciaPago}`
-              : ' Sin comprobante adjunto.'}
+
+        <Separator />
+
+        <div className="space-y-2">
+          {[
+            { label: 'Niño',           valor: `${ticket.nombreNino} · ${ticket.edadNino} años` },
+            { label: 'Fecha de visita', valor: formatDate(ticket.fechaVisita, "d 'de' MMMM yyyy") },
+            { label: 'Acompañante',    valor: ticket.nombreAcompanante },
+            { label: 'DNI',            valor: ticket.dniAcompanante },
+            { label: 'Pago',           valor: `${formatCurrency(ticket.montoPagado)} · ${ticket.estadoPago}` },
+          ].map(({ label, valor }) => (
+            <div key={label} className="flex items-center justify-between gap-4 text-sm">
+              <span className="text-muted-foreground shrink-0">{label}</span>
+              <span className="font-medium text-right">{valor}</span>
+            </div>
+          ))}
+        </div>
+
+        {!ticket.esHoy && !ticket.yaIngreso && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 space-y-2">
+            <p className="text-sm text-amber-800">
+              Este ticket es para el <strong>{formatDate(ticket.fechaVisita, "d 'de' MMMM")}</strong>, no para hoy.
+            </p>
+            {!editandoFecha && (
+              <button
+                onClick={() => setEditandoFecha(true)}
+                className="text-xs font-semibold text-amber-700 underline underline-offset-2"
+              >
+                Cambiar fecha
+              </button>
+            )}
           </div>
         )}
-        {pendientePago && reserva.medioPago === 'CAJA' && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-            <strong>Pago en caja pendiente.</strong> Cobrar{' '}
-            {formatCurrency(reserva.totalPagado)} antes de confirmar ingreso.
+
+        {editandoFecha && (
+          <div className="rounded-xl border border-input bg-muted/40 p-4 space-y-3">
+            <Label className="text-sm font-medium">Nueva fecha de visita</Label>
+            <Input
+              type="date"
+              value={nuevaFecha}
+              min={format(new Date(), 'yyyy-MM-dd')}
+              max={format(addDays(new Date(), diasMaxFecha), 'yyyy-MM-dd')}
+              onChange={e => setNuevaFecha(e.target.value)}
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setEditandoFecha(false)}
+                className="h-9 border border-input rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={guardarFecha}
+                disabled={editarFecha.isPending}
+                className="h-9 bg-primary text-primary-foreground rounded-lg text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-1.5 hover:bg-primary/90 transition-colors"
+              >
+                {editarFecha.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                Guardar
+              </button>
+            </div>
           </div>
         )}
-        <div className="flex gap-3">
-          {pendientePago && (
-            <Button
-              onClick={() => onConfirmarPago(reserva.id)}
-              disabled={loadingPago}
-              variant="outline"
-              className="flex-1 rounded-xl border-amber-400 text-amber-700 hover:bg-amber-50 gap-1.5"
-            >
-              {loadingPago
-                ? <Loader2 className="h-4 w-4 animate-spin" />
-                : <CreditCard className="h-4 w-4" />}
-              Confirmar pago
-            </Button>
-          )}
-          <Button
-            onClick={() => onConfirmarIngreso(reserva.id)}
-            disabled={loadingIngreso}
-            className="flex-1 rounded-xl bg-green-600 hover:bg-green-700 gap-1.5 h-12"
+
+        {ticket.yaIngreso ? (
+          <div className="flex items-center gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+            <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" />
+            <p className="text-sm font-medium text-blue-800">Ingreso ya registrado.</p>
+          </div>
+        ) : ticket.estado === 'PENDIENTE' ? (
+          <div className="flex items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+            <p className="text-sm text-amber-800">Cobrar en caja antes de permitir el ingreso.</p>
+          </div>
+        ) : (
+          <button
+            onClick={() => onMarcarEntrada(ticket.idReserva)}
+            disabled={loadingEntrada}
+            className="w-full flex items-center justify-center gap-2 h-11 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-sm disabled:opacity-50 transition-colors"
           >
-            {loadingIngreso
-              ? <Loader2 className="h-5 w-5 animate-spin" />
-              : <LogIn className="h-5 w-5" />}
-            Confirmar ingreso
-          </Button>
-        </div>
-      </div>
-      <Button variant="outline" onClick={onReset} className="w-full rounded-full gap-2">
-        <RotateCcw className="h-4 w-4" />
-        Escanear otro
-      </Button>
-    </div>
+            {loadingEntrada ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
+            Registrar ingreso
+          </button>
+        )}
+
+        <button
+          onClick={onReset}
+          className="w-full flex items-center justify-center gap-2 h-10 border border-input rounded-xl text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Escanear otro ticket
+        </button>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -218,39 +237,24 @@ function TabEscaner() {
 
   const [codigo,       setCodigo]       = useState('')
   const [scanState,    setScanState]    = useState<ScanState>('idle')
-  const [reserva,      setReserva]      = useState<Reserva | null>(null)
+  const [ticket,       setTicket]       = useState<TicketDetalle | null>(null)
   const [scanError,    setScanError]    = useState<string | null>(null)
   const [camaraActiva, setCamaraActiva] = useState(false)
   const [camaraError,  setCamaraError]  = useState<string | null>(null)
 
-  const confirmarIngreso = useMutation({
-    mutationFn: (id: number) => reservaService.confirmarIngreso(id),
-    onSuccess: (r) => setReserva(r),
-    onError: (err: { message?: string }) =>
-      toast.error(err?.message ?? 'No se pudo confirmar el ingreso.'),
-  })
-
-  const confirmarPago = useMutation({
-    mutationFn: (id: number) => reservaService.confirmarPago(id),
-    onSuccess: (r) => setReserva(r),
-    onError: (err: { message?: string }) =>
-      toast.error(err?.message ?? 'No se pudo confirmar el pago.'),
-  })
+  const marcarEntrada = useMarcarEntrada()
 
   const handleTicket = useCallback(async (raw: string) => {
     const txt = raw.trim()
     if (!txt) return
     setScanState('loading')
     setScanError(null)
-    setReserva(null)
+    setTicket(null)
     try {
-      const esId = /^\d+$/.test(txt)
-      const r = esId
-        ? await reservaService.obtenerPorId(Number(txt))
-        : await reservaService.obtenerPorTicket(txt)
-      setReserva(r)
+      const detalle = await ventaPresencialService.buscarTicketDetalle(txt)
+      setTicket(detalle)
     } catch {
-      setScanError('Ticket no encontrado o invalido.')
+      setScanError('Ticket no encontrado. Verifica el código e inténtalo de nuevo.')
     } finally {
       setScanState('done')
     }
@@ -286,11 +290,11 @@ function TabEscaner() {
       if (videoRef.current) videoRef.current.srcObject = stream
       setCamaraActiva(true)
       setScanState('scanning')
-      setReserva(null)
+      setTicket(null)
       setScanError(null)
       rafRef.current = requestAnimationFrame(scanFrame)
     } catch {
-      setCamaraError('No se pudo acceder a la camara. Verifica los permisos.')
+      setCamaraError('No se pudo acceder a la cámara. Verifica los permisos del navegador.')
     }
   }, [scanFrame])
 
@@ -304,7 +308,7 @@ function TabEscaner() {
 
   const reset = useCallback(() => {
     setScanState('idle')
-    setReserva(null)
+    setTicket(null)
     setScanError(null)
     setCodigo('')
   }, [])
@@ -314,340 +318,250 @@ function TabEscaner() {
     streamRef.current?.getTracks().forEach(t => t.stop())
   }, [])
 
-  const isDone = scanState === 'done'
+  if (scanState === 'loading') {
+    return (
+      <Card>
+        <CardContent className="p-10 flex flex-col items-center gap-3">
+          <Loader2 className="h-10 w-10 text-primary animate-spin" />
+          <p className="text-sm font-medium text-muted-foreground">Verificando ticket...</p>
+        </CardContent>
+      </Card>
+    )
+  }
 
-  return (
-    <div className="space-y-5">
-      {isDone ? (
-        <ResultadoEscaneo
-          reserva={reserva}
-          error={scanError}
-          onReset={reset}
-          onConfirmarIngreso={(id) => confirmarIngreso.mutate(id)}
-          onConfirmarPago={(id) => confirmarPago.mutate(id)}
-          loadingIngreso={confirmarIngreso.isPending}
-          loadingPago={confirmarPago.isPending}
-        />
-      ) : scanState === 'loading' ? (
-        <Card className="border border-brand-azul/20 rounded-2xl">
-          <CardContent className="p-8 flex flex-col items-center gap-3">
-            <Loader2 className="h-10 w-10 text-brand-azul animate-spin" />
-            <p className="text-sm font-semibold text-gray-700">Verificando ticket...</p>
+  if (scanState === 'done' && scanError) {
+    return (
+      <div className="space-y-3">
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="p-6 flex flex-col items-center gap-2 text-center">
+            <XCircle className="h-8 w-8 text-destructive" />
+            <p className="font-semibold text-destructive">Ticket no encontrado</p>
+            <p className="text-sm text-muted-foreground">{scanError}</p>
           </CardContent>
         </Card>
-      ) : (
-        <>
-          <Card className="border border-gray-100 rounded-2xl overflow-hidden">
-            <div className="relative bg-gray-900 aspect-square max-w-xs mx-auto flex items-center justify-center">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className={`w-full h-full object-cover ${camaraActiva ? 'block' : 'hidden'}`}
-              />
-              <canvas ref={canvasRef} className="hidden" />
-              {!camaraActiva && (
-                <div className="flex flex-col items-center gap-3 text-white/60">
-                  {camaraError ? (
-                    <>
-                      <CameraOff className="h-12 w-12" />
-                      <p className="text-sm text-center px-4">{camaraError}</p>
-                    </>
-                  ) : (
-                    <>
-                      <QrCode className="h-12 w-12" />
-                      <p className="text-sm">Camara desactivada</p>
-                    </>
-                  )}
-                </div>
-              )}
-              {camaraActiva && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-48 h-48 relative">
-                    <span className="absolute top-0 left-0 w-5 h-5 border-t-4 border-l-4 border-brand-azul rounded-tl-lg" />
-                    <span className="absolute top-0 right-0 w-5 h-5 border-t-4 border-r-4 border-brand-azul rounded-tr-lg" />
-                    <span className="absolute bottom-0 left-0 w-5 h-5 border-b-4 border-l-4 border-brand-azul rounded-bl-lg" />
-                    <span className="absolute bottom-0 right-0 w-5 h-5 border-b-4 border-r-4 border-brand-azul rounded-br-lg" />
-                  </div>
-                </div>
-              )}
-            </div>
-            <CardContent className="p-4 flex gap-2">
-              {!camaraActiva ? (
-                <Button
-                  onClick={startCamera}
-                  className="flex-1 bg-brand-azul hover:bg-brand-azul/90 text-white rounded-full gap-2"
-                >
-                  <Camera className="h-4 w-4" />
-                  Activar camara
-                </Button>
-              ) : (
-                <Button
-                  onClick={stopCamera}
-                  variant="outline"
-                  className="flex-1 rounded-full gap-2 border-red-200 text-red-600 hover:bg-red-50"
-                >
-                  <CameraOff className="h-4 w-4" />
-                  Detener camara
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+        <button
+          onClick={reset}
+          className="w-full flex items-center justify-center gap-2 h-10 border border-input rounded-xl text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Intentar de nuevo
+        </button>
+      </div>
+    )
+  }
 
-          <div className="relative flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-xs text-gray-400 font-semibold shrink-0">o ingreso manual</span>
-            <Separator className="flex-1" />
-          </div>
-
-          <Card className="border border-gray-100 rounded-2xl">
-            <CardContent className="p-5 space-y-3">
-              <Label className="text-sm font-semibold">Codigo de ticket o ID</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={codigo}
-                  onChange={e => setCodigo(e.target.value)}
-                  placeholder="TKT-1-20260601-0001 o ID numerico"
-                  className="font-mono rounded-xl h-11 flex-1"
-                  onKeyDown={e => e.key === 'Enter' && codigo.trim() && handleTicket(codigo)}
-                />
-                <Button
-                  onClick={() => handleTicket(codigo)}
-                  disabled={!codigo.trim()}
-                  className="rounded-xl h-11 px-4 shrink-0 bg-brand-azul hover:bg-brand-azul/90 text-white"
-                >
-                  <Search className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-gray-400">
-                Ingresa el numero de ticket (TKT-...) o el ID numerico de la reserva.
-              </p>
-            </CardContent>
-          </Card>
-        </>
-      )}
-    </div>
-  )
-}
-
-const ventaSchema = z.object({
-  nombreNino:        z.string().min(2, 'Minimo 2 caracteres').max(120),
-  edadNino:          z.coerce.number({ invalid_type_error: 'Ingresa la edad' }).min(0).max(17),
-  nombreAcompanante: z.string().min(2, 'Minimo 2 caracteres').max(120),
-  dniAcompanante:    z.string().length(8, 'Exactamente 8 digitos').regex(/^\d{8}$/, 'Solo numeros'),
-  medioPago:         z.enum(['CAJA', 'YAPE'], {
-    errorMap: () => ({ message: 'Selecciona el metodo de pago' }),
-  }),
-  firmaron:          z.literal(true, {
-    errorMap: () => ({ message: 'Confirma que firmaron el acta de responsabilidad' }),
-  }),
-})
-
-type VentaFormValues = z.infer<typeof ventaSchema>
-
-const METODOS_PAGO: {
-  value: 'CAJA' | 'YAPE'
-  label: string
-  sub: string
-  Icon: React.ElementType
-  activeClass: string
-  iconClass: string
-  textClass: string
-  subClass: string
-}[] = [
-  {
-    value:       'CAJA',
-    label:       'Efectivo',
-    sub:         'Pago en caja',
-    Icon:        Banknote,
-    activeClass: 'border-green-500 bg-green-50',
-    iconClass:   'text-green-600',
-    textClass:   'text-green-800',
-    subClass:    'text-green-600',
-  },
-  {
-    value:       'YAPE',
-    label:       'Yape',
-    sub:         'Pago con QR',
-    Icon:        Smartphone,
-    activeClass: 'border-purple-500 bg-purple-50',
-    iconClass:   'text-purple-600',
-    textClass:   'text-purple-800',
-    subClass:    'text-purple-600',
-  },
-]
-
-interface ResumenVentaProps {
-  valores: Partial<VentaFormValues & { edadNino: unknown }>
-  cliente: Cliente | null
-  precioHoy: number
-}
-
-function ResumenVenta({ valores, cliente, precioHoy }: ResumenVentaProps) {
-  const edadNum   = Number(valores.edadNino)
-  const edadTexto = !isNaN(edadNum) && valores.edadNino !== '' && valores.edadNino !== undefined
-    ? `${edadNum} a` : null
-
-  const medioPagoTexto =
-    valores.medioPago === 'YAPE' ? 'Yape' :
-    valores.medioPago === 'CAJA' ? 'Efectivo' : null
-
-  const filas = [
-    {
-      key:   'fecha',
-      label: 'Fecha de entrada',
-      icon:  <CalendarDays className="h-3 w-3" />,
-      value: format(new Date(), 'dd/MM/yyyy'),
-      ready: true,
-    },
-    {
-      key:   'cliente',
-      label: 'Cliente',
-      icon:  <User className="h-3 w-3" />,
-      value: cliente ? cliente.nombre : 'Visitante sin cuenta',
-      ready: true,
-      muted: !cliente,
-    },
-    {
-      key:   'nino',
-      label: 'Nino',
-      icon:  null,
-      value: valores.nombreNino
-        ? `${valores.nombreNino}${edadTexto ? ` · ${edadTexto}` : ''}`
-        : '—',
-      ready: !!valores.nombreNino,
-    },
-    {
-      key:   'acompanante',
-      label: 'Acompanante',
-      icon:  null,
-      value: valores.nombreAcompanante || '—',
-      ready: !!valores.nombreAcompanante,
-    },
-    {
-      key:   'dni',
-      label: 'DNI',
-      icon:  null,
-      value: (valores.dniAcompanante ?? '').length === 8 ? valores.dniAcompanante! : '—',
-      ready: (valores.dniAcompanante ?? '').length === 8,
-      mono:  true,
-    },
-    {
-      key:     'pago',
-      label:   'Metodo de pago',
-      icon:    null,
-      value:   medioPagoTexto ?? '—',
-      ready:   !!medioPagoTexto,
-      accent:  valores.medioPago === 'YAPE' ? 'purple' : valores.medioPago === 'CAJA' ? 'green' : null,
-    },
-  ]
+  if (scanState === 'done' && ticket) {
+    return (
+      <TicketDetalleCard
+        ticket={ticket}
+        onReset={reset}
+        onMarcarEntrada={id => {
+          marcarEntrada.mutate(id, {
+            onSuccess: updated => setTicket(updated),
+            onError: (err: unknown) =>
+              toast.error(err instanceof Error ? err.message : 'No se pudo registrar el ingreso.'),
+          })
+        }}
+        loadingEntrada={marcarEntrada.isPending}
+      />
+    )
+  }
 
   return (
-    <div className="bg-gradient-to-br from-brand-azul/5 to-blue-50 border border-brand-azul/20 rounded-2xl p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Receipt className="h-4 w-4 text-brand-azul" />
-          <span className="text-sm font-bold text-brand-azul">Resumen en tiempo real</span>
+    <div className="space-y-4">
+      <Card>
+        <div className="relative bg-zinc-900 rounded-t-xl overflow-hidden aspect-square max-w-xs mx-auto flex items-center justify-center">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={cn('w-full h-full object-cover', !camaraActiva && 'hidden')}
+          />
+          <canvas ref={canvasRef} className="hidden" />
+          {!camaraActiva && (
+            <div className="flex flex-col items-center gap-3 text-zinc-400">
+              {camaraError
+                ? (
+                  <>
+                    <CameraOff className="h-12 w-12" />
+                    <p className="text-sm text-center px-6 text-zinc-300">{camaraError}</p>
+                  </>
+                ) : (
+                  <>
+                    <QrCode className="h-12 w-12" />
+                    <p className="text-sm">Cámara desactivada</p>
+                  </>
+                )}
+            </div>
+          )}
+          {camaraActiva && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-48 h-48 relative">
+                <span className="absolute top-0 left-0 w-6 h-6 border-t-[3px] border-l-[3px] border-white rounded-tl" />
+                <span className="absolute top-0 right-0 w-6 h-6 border-t-[3px] border-r-[3px] border-white rounded-tr" />
+                <span className="absolute bottom-0 left-0 w-6 h-6 border-b-[3px] border-l-[3px] border-white rounded-bl" />
+                <span className="absolute bottom-0 right-0 w-6 h-6 border-b-[3px] border-r-[3px] border-white rounded-br" />
+              </div>
+            </div>
+          )}
         </div>
-        <span className="text-xl font-black text-green-700">{formatCurrency(precioHoy)}</span>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        {filas.map(({ key, label, icon, value, ready, muted, mono, accent }) => (
-          <div key={key} className="bg-white/70 rounded-xl p-2.5 space-y-0.5">
-            <p className="text-gray-400 flex items-center gap-1">
-              {icon}
-              {label}
-            </p>
-            <p
-              className={cn(
-                'font-bold truncate',
-                mono && 'font-mono',
-                !ready || muted
-                  ? 'text-gray-300'
-                  : accent === 'purple'
-                    ? 'text-purple-700'
-                    : accent === 'green'
-                      ? 'text-green-700'
-                      : 'text-gray-900'
-              )}
+        <CardContent className="p-4">
+          {camaraActiva ? (
+            <button
+              onClick={stopCamera}
+              className="w-full flex items-center justify-center gap-2 h-10 border border-destructive/30 text-destructive hover:bg-destructive/5 rounded-lg text-sm font-medium transition-colors"
             >
-              {value}
-            </p>
+              <CameraOff className="h-4 w-4" />
+              Detener cámara
+            </button>
+          ) : (
+            <button
+              onClick={startCamera}
+              className="w-full flex items-center justify-center gap-2 h-10 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
+            >
+              <Camera className="h-4 w-4" />
+              Activar cámara
+            </button>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex items-center gap-3">
+        <Separator className="flex-1" />
+        <span className="text-xs text-muted-foreground font-medium shrink-0">o ingresar manualmente</span>
+        <Separator className="flex-1" />
+      </div>
+
+      <Card>
+        <CardContent className="p-4 space-y-2">
+          <Label className="text-sm font-medium">Código de ticket</Label>
+          <div className="flex gap-2">
+            <Input
+              value={codigo}
+              onChange={e => setCodigo(e.target.value)}
+              placeholder="TKT-1-20260615-000001"
+              className="font-mono flex-1"
+              onKeyDown={e => e.key === 'Enter' && codigo.trim() && handleTicket(codigo)}
+            />
+            <button
+              onClick={() => handleTicket(codigo)}
+              disabled={!codigo.trim()}
+              className="h-9 w-9 flex items-center justify-center rounded-lg bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors shrink-0"
+            >
+              <Search className="h-4 w-4" />
+            </button>
           </div>
-        ))}
-      </div>
-
-      <Separator className="opacity-30" />
-
-      <div className="flex justify-between items-center">
-        <span className="text-xs text-gray-500">
-          {isWeekend(new Date()) ? 'Precio fin de semana' : 'Precio entre semana'}
-        </span>
-        <span className="text-2xl font-black text-green-700">{formatCurrency(precioHoy)}</span>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
 
 function TabVentaPresencial() {
-  const { idSede } = useAuth()
-  const qc = useQueryClient()
+  const { idSede }            = useAuth()
+  const edadMax               = useEdadMaxNino()
+  const { data: confCalVP }   = useConfiguracionCalendario(idSede ?? null)
+  const diasMaxFecha          = confCalVP?.diasMaxReservaPublica ?? 14
 
   const [paso,              setPaso]              = useState<1 | 2 | 3>(1)
   const [clienteRegistrado, setClienteRegistrado] = useState<boolean | null>(null)
-  const [clienteEncontrado, setClienteEncontrado] = useState<Cliente | null>(null)
+  const [cliente,           setCliente]           = useState<Cliente | null>(null)
   const [emailBusqueda,     setEmailBusqueda]     = useState('')
   const [buscandoCliente,   setBuscandoCliente]   = useState(false)
-  const [ticketGenerado,    setTicketGenerado]    = useState<Reserva | null>(null)
 
-  const {
-    register, handleSubmit, control, reset,
-    formState: { errors },
-  } = useForm<VentaFormValues>({ resolver: zodResolver(ventaSchema) })
+  const [fechaVisita,      setFechaVisita]      = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [ninos,            setNinos]            = useState<NinoVenta[]>([{ nombreNino: '', edadNino: 0 }])
+  const [acompanante,      setAcompanante]      = useState({ nombre: '', dni: '', tipoDocumento: 'DNI' as TipoDocumento })
+  const [idPromocion,      setIdPromocion]      = useState<number | null>(null)
+  const [pagos,            setPagos]            = useState<PagoLinea[]>([{ medioPago: 'EFECTIVO', monto: 0 }])
+  const [efectivoRecibido, setEfectivoRecibido] = useState(0)
+  const [actaFirmada,      setActaFirmada]      = useState(false)
+  const [ventaExitosa,     setVentaExitosa]     = useState<VentaMostradorResponse | null>(null)
+  const [submitted,        setSubmitted]        = useState(false)
+  const [tocados,          setTocados]          = useState<Set<string>>(new Set())
 
-  const watchedValues = useWatch({ control })
+  const marcarTocado = (campo: string) => setTocados(prev => new Set([...prev, campo]))
+  const verError     = (campo: string) => submitted || tocados.has(campo)
 
-  const precioHoy = isWeekend(new Date()) ? 35 : 25
+  const { data: precioDia }   = usePrecioDia(idSede ?? null, fechaVisita)
+  const { data: promociones } = usePromociones()
+  const registrar              = useRegistrarVenta()
 
-  const crearVenta = useMutation({
-    mutationFn: async (valores: VentaFormValues) => {
-      const idCliente = clienteEncontrado?.id ?? ID_CLIENTE_MOSTRADOR
-      const reserva = await reservaService.crear(idCliente, idSede!, {
-        canalReserva:        'PRESENCIAL',
-        fechaEvento:         format(new Date(), 'yyyy-MM-dd'),
-        nombreNino:          valores.nombreNino,
-        edadNino:            valores.edadNino,
-        nombreAcompanante:   valores.nombreAcompanante,
-        dniAcompanante:      valores.dniAcompanante,
-        firmoConsentimiento: true,
-        medioPago:           valores.medioPago,
-      })
-      await reservaService.confirmarPago(reserva.id)
-      await reservaService.confirmarIngreso(reserva.id)
-      return reserva
-    },
-    onSuccess: (reserva) => {
-      setTicketGenerado(reserva)
-      qc.invalidateQueries({ queryKey: [RESERVAS_ADM_KEY] })
-      qc.invalidateQueries({ queryKey: [METRICAS_KEY] })
-    },
-    onError: (err: { message?: string }) =>
-      toast.error(err?.message ?? 'No se pudo registrar la venta.'),
-  })
+  const promosActivas = (promociones ?? []).filter(p => p.activo)
+  const precioUnit    = precioDia?.precio ?? 0
+  const subtotal      = precioUnit * ninos.length
+
+  const descuento = (() => {
+    if (!idPromocion) return 0
+    const promo = promosActivas.find(p => p.id === idPromocion)
+    if (!promo) return 0
+    if (promo.tipoPromocion === 'DESCUENTO_PORCENTAJE')
+      return Math.min(subtotal, (subtotal * (promo.valorDescuento ?? 0)) / 100)
+    if (promo.tipoPromocion === 'DESCUENTO_MONTO_FIJO' || promo.tipoPromocion === 'PAQUETE_GRUPAL')
+      return Math.min(subtotal, promo.valorDescuento ?? 0)
+    if (promo.tipoPromocion === 'ENTRADA_GRATUITA' || promo.tipoPromocion === 'CLIENTE_FRECUENTE')
+      return subtotal
+    return 0
+  })()
+
+  const total             = Math.max(0, subtotal - descuento)
+  const esGratuito        = total === 0
+  const sumaPagos         = pagos.reduce((s, p) => s + (p.monto || 0), 0)
+  const efectivoAplicado  = pagos.filter(p => p.medioPago === 'EFECTIVO').reduce((s, p) => s + p.monto, 0)
+  const tieneEfectivo     = pagos.some(p => p.medioPago === 'EFECTIVO' && p.monto > 0)
+  const vuelto            = Math.max(0, efectivoRecibido - efectivoAplicado)
+  const esAnticipada      = fechaVisita > format(new Date(), 'yyyy-MM-dd')
+
+  const erroresNinos = ninos.map(n => ({
+    nombre: fieldError(nombreField, n.nombreNino.trim()),
+    edad: n.edadNino < 0 || n.edadNino > edadMax
+      ? `La edad debe ser entre 0 y ${edadMax} años`
+      : '',
+  }))
+
+  const erroresAcomp = {
+    nombre: fieldError(nombreField, acompanante.nombre.trim()),
+    dni:    fieldError(documentoFieldPorTipo(acompanante.tipoDocumento), acompanante.dni.trim()),
+  }
+
+  const todosNinosValidos  = erroresNinos.every(e => !e.nombre && !e.edad)
+  const acompananteValido  = !erroresAcomp.nombre && !erroresAcomp.dni
+  const pagosValidos       = esGratuito || (Math.abs(sumaPagos - total) < 0.01 && sumaPagos > 0)
+  const efectivoOk         = !tieneEfectivo || efectivoRecibido >= efectivoAplicado
+  const puedeRegistrar     = todosNinosValidos && acompananteValido && pagosValidos && efectivoOk && actaFirmada
+
+  function actualizarNino(i: number, campo: keyof NinoVenta, valor: string | number) {
+    setNinos(prev => prev.map((n, idx) => idx === i ? { ...n, [campo]: valor } : n))
+  }
+  function agregarNino() {
+    setNinos(prev => [...prev, { nombreNino: '', edadNino: 0 }])
+  }
+  function quitarNino(i: number) {
+    if (ninos.length === 1) return
+    setNinos(prev => prev.filter((_, idx) => idx !== i))
+  }
+  function actualizarPago(i: number, campo: keyof PagoLinea, valor: string | number) {
+    setPagos(prev => prev.map((p, idx) => idx === i ? { ...p, [campo]: valor } : p))
+  }
+  function agregarPago() {
+    const usados   = new Set(pagos.map(p => p.medioPago))
+    const siguiente = METODOS_PAGO.find(m => !usados.has(m.value))
+    if (!siguiente) return
+    setPagos(prev => [...prev, { medioPago: siguiente.value, monto: 0 }])
+  }
+  function quitarPago(i: number) {
+    if (pagos.length === 1) return
+    setPagos(prev => prev.filter((_, idx) => idx !== i))
+  }
 
   async function buscarCliente() {
     if (!emailBusqueda.trim()) return
     setBuscandoCliente(true)
     try {
-      const cliente = await clienteService.buscarPorCorreo(emailBusqueda.trim())
-      if (cliente) {
-        setClienteEncontrado(cliente)
-      } else {
-        toast.error('No se encontro ningun cliente con ese correo.')
-        setClienteEncontrado(null)
-      }
+      const found = await clienteService.buscarPorCorreo(emailBusqueda.trim())
+      if (found) setCliente(found)
+      else { toast.error('No se encontró ningún cliente con ese correo.'); setCliente(null) }
     } catch {
       toast.error('Error al buscar el cliente.')
     } finally {
@@ -656,73 +570,140 @@ function TabVentaPresencial() {
   }
 
   function nuevaVenta() {
-    setTicketGenerado(null)
-    setClienteEncontrado(null)
-    setClienteRegistrado(null)
-    setEmailBusqueda('')
-    setPaso(1)
-    reset()
+    setVentaExitosa(null); setCliente(null); setClienteRegistrado(null)
+    setEmailBusqueda(''); setPaso(1)
+    setFechaVisita(format(new Date(), 'yyyy-MM-dd'))
+    setNinos([{ nombreNino: '', edadNino: 0 }])
+    setAcompanante({ nombre: '', dni: '', tipoDocumento: 'DNI' })
+    setIdPromocion(null); setPagos([{ medioPago: 'EFECTIVO', monto: 0 }])
+    setEfectivoRecibido(0); setActaFirmada(false); setSubmitted(false); setTocados(new Set()); setTocados(new Set())
   }
 
-  if (ticketGenerado) {
+  async function registrarVenta() {
+    setSubmitted(true)
+    if (!idSede || !puedeRegistrar) return
+    try {
+      const pagosPayload = esGratuito ? [] : pagos.filter(p => p.monto > 0)
+      const result = await registrar.mutateAsync({
+        tipoVenta: 'RESERVA',
+        sedeId: idSede,
+        clienteId: cliente?.id,
+        fechaVisita,
+        nombreAcompanante: acompanante.nombre,
+        dniAcompanante: acompanante.dni,
+        ninos,
+        idPromocion: idPromocion ?? undefined,
+        pagos: pagosPayload,
+        efectivoRecibido: tieneEfectivo ? efectivoRecibido : undefined,
+        actaFirmada: true,
+      })
+      if (!result) {
+        toast.error('No se recibió respuesta del servidor. Intenta de nuevo.')
+        return
+      }
+      setVentaExitosa(result)
+      setSubmitted(false)
+      const n = result.tickets?.length ?? 0
+      toast.success(n > 1 ? `${n} tickets generados correctamente` : 'Ticket generado correctamente')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'No se pudo registrar la venta.')
+    }
+  }
+
+  if (ventaExitosa) {
     return (
-      <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-5 space-y-4 text-center">
-        <CheckCircle2 className="h-10 w-10 text-green-600 mx-auto" />
-        <div>
-          <p className="font-black text-green-800 text-xl">Entrada registrada</p>
-          <p className="font-mono font-bold text-brand-azul text-lg mt-1">
-            {ticketGenerado.numeroTicket}
-          </p>
+      <div className="max-w-lg space-y-5">
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="p-6 text-center space-y-3">
+            <div className="flex justify-center">
+              <div className="h-14 w-14 rounded-full bg-green-100 flex items-center justify-center">
+                <CheckCircle2 className="h-7 w-7 text-green-600" />
+              </div>
+            </div>
+            <div>
+              <p className="font-bold text-green-800 text-lg">
+                {ventaExitosa.tickets.length > 1
+                  ? `${ventaExitosa.tickets.length} tickets generados`
+                  : 'Ticket generado exitosamente'}
+              </p>
+              <p className="text-sm text-green-700 mt-0.5">
+                Total cobrado: <strong>{formatCurrency(ventaExitosa.total)}</strong>
+              </p>
+            </div>
+            {ventaExitosa.vuelto > 0 && (
+              <div className="inline-block rounded-xl bg-white border border-green-200 px-6 py-3">
+                <p className="text-xs text-muted-foreground">Vuelto a entregar</p>
+                <p className="text-2xl font-black text-primary">{formatCurrency(ventaExitosa.vuelto)}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="space-y-3">
+          {ventaExitosa.tickets.map(t => (
+            <Card key={t.reservaId}>
+              <CardContent className="p-4 flex items-center gap-4">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(t.numeroTicket)}`}
+                  alt={`QR ${t.numeroTicket}`}
+                  className="rounded-lg border border-input shrink-0"
+                  width={80}
+                  height={80}
+                />
+                <div className="min-w-0">
+                  <p className="font-semibold truncate">{t.nombreNino} · {t.edadNino} años</p>
+                  <p className="font-mono text-xs text-primary mt-0.5">{t.numeroTicket}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formatDate(ventaExitosa.fechaVisita, "d 'de' MMMM yyyy")}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-        <div className="flex justify-center">
-          <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(ticketGenerado.numeroTicket)}`}
-            alt="QR ticket"
-            className="rounded-xl border border-gray-200"
-            width={120}
-            height={120}
-          />
-        </div>
-        <p className="text-sm text-green-700">
-          {clienteEncontrado
-            ? `Entrada asociada a la cuenta de ${clienteEncontrado.nombre}.`
-            : 'Entrada registrada como visitante sin cuenta.'}
-        </p>
-        <Button onClick={nuevaVenta} className="w-full rounded-xl">
+
+        <button
+          onClick={nuevaVenta}
+          className="w-full h-11 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-colors"
+        >
           Nueva venta
-        </Button>
+        </button>
       </div>
     )
   }
 
   if (paso === 1) {
     return (
-      <div className="space-y-5">
-        <div className="text-center space-y-2">
-          <div className="w-14 h-14 bg-brand-azul/10 rounded-2xl flex items-center justify-center mx-auto">
-            <UserCheck className="h-7 w-7 text-brand-azul" />
-          </div>
-          <h3 className="font-black text-gray-900 text-lg">Nueva venta presencial</h3>
-          <p className="text-sm text-gray-500">
-            El cliente tiene cuenta registrada en Kiki y Lala?
-          </p>
+      <div className="max-w-sm space-y-6">
+        <div>
+          <h3 className="text-base font-semibold">Nueva venta presencial</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">¿El cliente tiene cuenta registrada en el sistema?</p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => { setClienteRegistrado(true); setPaso(2) }}
-            className="p-4 rounded-2xl border-2 border-green-200 bg-green-50 hover:border-green-400 transition-all text-center space-y-2"
+            className="p-5 rounded-xl border-2 border-input hover:border-primary hover:bg-primary/5 transition-all text-left space-y-2.5"
           >
-            <CheckCircle2 className="h-8 w-8 text-green-600 mx-auto" />
-            <p className="font-bold text-green-800">Si, tiene cuenta</p>
-            <p className="text-xs text-green-700">Buscar por correo</p>
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <UserCheck className="h-4.5 w-4.5 text-primary" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Sí, tiene cuenta</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Buscar por correo</p>
+            </div>
           </button>
           <button
             onClick={() => { setClienteRegistrado(false); setPaso(3) }}
-            className="p-4 rounded-2xl border-2 border-gray-200 bg-gray-50 hover:border-gray-400 transition-all text-center space-y-2"
+            className="p-5 rounded-xl border-2 border-input hover:border-primary hover:bg-primary/5 transition-all text-left space-y-2.5"
           >
-            <User className="h-8 w-8 text-gray-500 mx-auto" />
-            <p className="font-bold text-gray-700">No, es visitante</p>
-            <p className="text-xs text-gray-500">Ingresar datos</p>
+            <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center">
+              <User className="h-4.5 w-4.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">No, es visitante</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Continuar sin cuenta</p>
+            </div>
           </button>
         </div>
       </div>
@@ -731,224 +712,518 @@ function TabVentaPresencial() {
 
   if (paso === 2 && clienteRegistrado) {
     return (
-      <div className="space-y-4">
+      <div className="max-w-sm space-y-5">
         <button
           onClick={() => setPaso(1)}
-          className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ChevronLeft className="h-3.5 w-3.5" /> Volver
+          <ChevronLeft className="h-4 w-4" />
+          Volver
         </button>
+        <div>
+          <h3 className="text-base font-semibold">Buscar cliente</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">Ingresa el correo electrónico registrado</p>
+        </div>
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-            Correo del cliente
-          </Label>
+          <Label>Correo electrónico</Label>
           <div className="flex gap-2">
             <Input
               type="email"
               placeholder="correo@ejemplo.com"
               value={emailBusqueda}
               onChange={e => setEmailBusqueda(e.target.value)}
-              className="h-11 rounded-xl flex-1"
+              className="flex-1"
               onKeyDown={e => e.key === 'Enter' && buscarCliente()}
             />
-            <Button
+            <button
               onClick={buscarCliente}
               disabled={!emailBusqueda.trim() || buscandoCliente}
-              className="rounded-xl h-11 px-4 shrink-0"
+              className="h-9 px-3 flex items-center justify-center rounded-lg bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors"
             >
-              {buscandoCliente
-                ? <Loader2 className="h-4 w-4 animate-spin" />
-                : <Search className="h-4 w-4" />}
-            </Button>
+              {buscandoCliente ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            </button>
           </div>
-          <p className="text-xs text-gray-400">
-            Si no lo encuentra, puede continuar sin asociar a una cuenta.
-          </p>
         </div>
-        {clienteEncontrado && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center justify-between">
-            <div>
-              <p className="font-bold text-green-800">{clienteEncontrado.nombre}</p>
-              <p className="text-xs text-green-700">{clienteEncontrado.correo}</p>
-            </div>
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
-          </div>
+        {cliente && (
+          <Card className="border-green-200 bg-green-50">
+            <CardContent className="p-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="font-semibold text-green-800 text-sm">{cliente.nombreCompleto}</p>
+                <p className="text-xs text-green-700 mt-0.5">{cliente.correo}</p>
+              </div>
+              <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+            </CardContent>
+          </Card>
         )}
-        <Button
-          onClick={() => setPaso(3)}
-          disabled={!clienteEncontrado}
-          className="w-full rounded-xl h-11"
-        >
-          Continuar con este cliente
-        </Button>
-        <button
-          onClick={() => { setClienteRegistrado(false); setPaso(3) }}
-          className="w-full text-xs text-gray-400 hover:text-gray-600 py-2"
-        >
-          No encontre la cuenta, continuar sin asociar
-        </button>
+        <div className="space-y-2">
+          <button
+            onClick={() => setPaso(3)}
+            disabled={!cliente}
+            className="w-full h-10 bg-primary text-primary-foreground rounded-xl font-semibold text-sm disabled:opacity-40 hover:bg-primary/90 transition-colors"
+          >
+            Continuar con este cliente
+          </button>
+          <button
+            onClick={() => { setClienteRegistrado(false); setPaso(3) }}
+            className="w-full h-9 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Continuar sin asociar cliente
+          </button>
+        </div>
       </div>
     )
   }
 
-  return (
-    <form onSubmit={handleSubmit(v => crearVenta.mutate(v))} className="space-y-4">
-      <button
-        type="button"
-        onClick={() => setPaso(clienteRegistrado ? 2 : 1)}
-        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
-      >
-        <ChevronLeft className="h-3.5 w-3.5" /> Volver
-      </button>
+  const ResumenPanel = () => (
+    <Card className="border-primary/20">
+      <CardContent className="p-5 space-y-4">
+        <p className="text-xs font-bold text-primary uppercase tracking-wider">Resumen de venta</p>
 
-      <ResumenVenta
-        valores={watchedValues}
-        cliente={clienteEncontrado}
-        precioHoy={precioHoy}
-      />
-
-      {clienteEncontrado && (
-        <div className="bg-brand-azul/5 border border-brand-azul/20 rounded-xl p-3 flex items-center gap-2">
-          <User className="h-4 w-4 text-brand-azul shrink-0" />
-          <div>
-            <p className="text-xs font-bold text-brand-azul">Cliente: {clienteEncontrado.nombre}</p>
-            <p className="text-xs text-gray-500">{clienteEncontrado.correo}</p>
+        {cliente && (
+          <div className="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2">
+            <User className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="text-xs font-medium truncate">{cliente.nombreCompleto}</span>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label>Nombre del niño *</Label>
-          <Input {...register('nombreNino')} placeholder="Maria Garcia" className="rounded-xl" />
-          {errors.nombreNino && <p className="text-xs text-red-500">{errors.nombreNino.message}</p>}
+        <div className="rounded-lg bg-muted/50 px-3 py-2.5 space-y-0.5">
+          <p className="text-xs text-muted-foreground">Fecha de visita</p>
+          <p className="text-sm font-semibold capitalize">
+            {formatDate(fechaVisita, "EEEE d 'de' MMMM")}
+          </p>
+          {precioDia && (
+            <p className="text-xs text-muted-foreground">
+              {formatCurrency(precioDia.precio)} · {precioDia.esFindeSemanaOFeriado ? 'fin de semana / feriado' : 'entre semana'}
+            </p>
+          )}
         </div>
-        <div className="space-y-1.5">
-          <Label>Edad (años) *</Label>
-          <Input type="number" min={0} max={17} {...register('edadNino')} placeholder="5" className="rounded-xl" />
-          {errors.edadNino && <p className="text-xs text-red-500">{errors.edadNino.message}</p>}
-        </div>
-        <div className="space-y-1.5">
-          <Label>Nombre del acompanante *</Label>
-          <Input {...register('nombreAcompanante')} placeholder="Juan Garcia" className="rounded-xl" />
-          {errors.nombreAcompanante && <p className="text-xs text-red-500">{errors.nombreAcompanante.message}</p>}
-        </div>
-        <div className="space-y-1.5">
-          <Label>DNI del acompanante *</Label>
-          <Input {...register('dniAcompanante')} placeholder="12345678" maxLength={8} className="rounded-xl" />
-          {errors.dniAcompanante && <p className="text-xs text-red-500">{errors.dniAcompanante.message}</p>}
-        </div>
-      </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-          Metodo de pago *
-        </Label>
-        <Controller
-          name="medioPago"
-          control={control}
-          render={({ field }) => (
-            <div className="grid grid-cols-2 gap-3">
-              {METODOS_PAGO.map(({ value, label, sub, Icon, activeClass, iconClass, textClass, subClass }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => field.onChange(value)}
-                  className={cn(
-                    'p-3 rounded-xl border-2 text-left transition-all space-y-1',
-                    field.value === value
-                      ? activeClass
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  )}
-                >
-                  <Icon
-                    className={cn(
-                      'h-5 w-5',
-                      field.value === value ? iconClass : 'text-gray-400'
-                    )}
-                  />
-                  <p
-                    className={cn(
-                      'font-bold text-sm',
-                      field.value === value ? textClass : 'text-gray-700'
-                    )}
-                  >
-                    {label}
-                  </p>
-                  <p
-                    className={cn(
-                      'text-xs',
-                      field.value === value ? subClass : 'text-gray-400'
-                    )}
-                  >
-                    {sub}
-                  </p>
-                </button>
-              ))}
+        {ninos.some(n => n.nombreNino.trim()) && (
+          <div className="space-y-1.5">
+            <p className="text-xs text-muted-foreground">Niños</p>
+            {ninos.filter(n => n.nombreNino.trim()).map((n, i) => (
+              <div key={i} className="flex items-center justify-between text-sm">
+                <span className="font-medium truncate">{n.nombreNino}</span>
+                <span className="text-muted-foreground shrink-0 ml-2">{n.edadNino} años</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Separator />
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Subtotal ({ninos.length} × {formatCurrency(precioUnit)})</span>
+            <span className="font-medium">{formatCurrency(subtotal)}</span>
+          </div>
+          {descuento > 0 && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Descuento</span>
+              <span className="font-medium text-green-600">− {formatCurrency(descuento)}</span>
             </div>
           )}
-        />
-        {errors.medioPago && <p className="text-xs text-red-500">{errors.medioPago.message}</p>}
-      </div>
+          <div className="flex justify-between items-center pt-2 border-t border-primary/20">
+            <span className="font-bold text-primary">Total</span>
+            <span className="text-xl font-black text-primary">{formatCurrency(total)}</span>
+          </div>
+        </div>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-        <strong>Antes de confirmar:</strong> El cliente debe firmar el Acta de Responsabilidad en este mostrador.
-      </div>
+        {esGratuito && (
+          <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-center">
+            <p className="text-xs font-semibold text-green-700">Entrada gratuita</p>
+          </div>
+        )}
 
-      <label className="flex items-start gap-3 cursor-pointer">
-        <Controller
-          name="firmaron"
-          control={control}
-          render={({ field }) => (
-            <Checkbox
-              checked={field.value ?? false}
-              onCheckedChange={v => field.onChange(v === true ? true : undefined)}
-            />
+        {!esGratuito && pagos.some(p => p.monto > 0) && (
+          <>
+            <Separator />
+            <div className="space-y-1.5">
+              {pagos.filter(p => p.monto > 0).map((p, i) => (
+                <div key={i} className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    {METODOS_PAGO.find(m => m.value === p.medioPago)?.label}
+                  </span>
+                  <span className="font-medium">{formatCurrency(p.monto)}</span>
+                </div>
+              ))}
+              <div className={cn(
+                'flex justify-between text-xs font-semibold pt-1 border-t border-input',
+                pagosValidos ? 'text-green-600' : 'text-amber-600',
+              )}>
+                <span>Cubierto</span>
+                <span>
+                  {formatCurrency(sumaPagos)}
+                  {!pagosValidos && ` — faltan ${formatCurrency(Math.max(0, total - sumaPagos))}`}
+                </span>
+              </div>
+            </div>
+          </>
+        )}
+
+        {vuelto > 0 && (
+          <div className="flex justify-between items-center rounded-lg bg-green-50 border border-green-200 px-3 py-2.5">
+            <span className="text-sm font-semibold text-green-800">Vuelto</span>
+            <span className="text-base font-black text-green-700">{formatCurrency(vuelto)}</span>
+          </div>
+        )}
+
+        {esAnticipada && (
+          <p className="text-xs text-primary bg-primary/5 rounded-lg px-3 py-2">
+            Compra anticipada — ticket confirmado para esa fecha.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  )
+
+  const tipoDocActivo = TIPOS_DOCUMENTO.find(t => t.value === acompanante.tipoDocumento)!
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 items-start">
+
+      {/* ── Columna formulario ── */}
+      <div className="space-y-3">
+
+        {/* Barra superior: volver + cliente */}
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => setPaso(clienteRegistrado ? 2 : 1)}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Volver
+          </button>
+          {cliente && (
+            <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 min-w-0 flex-1">
+              <User className="h-3 w-3 text-primary shrink-0" />
+              <span className="text-xs font-semibold text-primary truncate">{cliente.nombreCompleto}</span>
+              <span className="text-xs text-muted-foreground truncate hidden sm:block">{cliente.correo}</span>
+            </div>
           )}
-        />
-        <span className="text-sm text-gray-800">
-          Confirmo que el acompanante firmo el Acta de Responsabilidad
-          <span className="text-destructive font-bold"> *</span>
-        </span>
-      </label>
-      {errors.firmaron && <p className="text-xs text-red-500">{errors.firmaron.message}</p>}
+        </div>
 
-      <Button
-        type="submit"
-        disabled={crearVenta.isPending || !idSede}
-        className="w-full rounded-xl h-12 gap-2 bg-brand-azul hover:bg-brand-azul/90 text-white"
-      >
-        {crearVenta.isPending
-          ? <Loader2 className="h-5 w-5 animate-spin" />
-          : <Ticket className="h-5 w-5" />}
-        Generar ticket y registrar ingreso
-      </Button>
-    </form>
+        {/* Card único con todas las secciones divididas */}
+        <Card className="overflow-hidden divide-y divide-border">
+
+          {/* ── Fecha ── */}
+          <div className="px-4 py-3 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Fecha de visita</p>
+            <div className="flex items-center gap-3 flex-wrap">
+              <Input
+                type="date"
+                value={fechaVisita}
+                min={format(new Date(), 'yyyy-MM-dd')}
+                max={format(addDays(new Date(), diasMaxFecha), 'yyyy-MM-dd')}
+                onChange={e => setFechaVisita(e.target.value)}
+                className="h-8 w-44 text-sm"
+              />
+              {precioDia && (
+                <span className="text-xs text-muted-foreground">
+                  <strong className="text-foreground">{formatCurrency(precioDia.precio)}</strong> / niño ·{' '}
+                  {precioDia.esFindeSemanaOFeriado ? 'fin de semana' : 'entre semana'}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* ── Niños ── */}
+          <div className="px-4 py-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Niños {ninos.length > 1 && <span className="text-primary">({ninos.length})</span>}
+              </p>
+              <button
+                onClick={agregarNino}
+                className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                <Plus className="h-3 w-3" /> Agregar niño
+              </button>
+            </div>
+            {ninos.map((nino, i) => (
+              <div key={i} className="space-y-0.5">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder={`Nombre del niño${ninos.length > 1 ? ` ${i + 1}` : ''}`}
+                    value={nino.nombreNino}
+                    onChange={e => actualizarNino(i, 'nombreNino', e.target.value.toUpperCase())}
+                    onBlur={() => marcarTocado(`nino-${i}-nombre`)}
+                    className={cn('flex-1 h-8 text-sm', verError(`nino-${i}-nombre`) && erroresNinos[i]?.nombre && 'border-destructive')}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Edad"
+                    value={nino.edadNino || ''}
+                    onChange={e => actualizarNino(i, 'edadNino', Number(e.target.value))}
+                    onBlur={() => marcarTocado(`nino-${i}-edad`)}
+                    min={0}
+                    max={edadMax}
+                    className={cn('w-16 h-8 text-sm', verError(`nino-${i}-edad`) && erroresNinos[i]?.edad && 'border-destructive')}
+                  />
+                  {ninos.length > 1 && (
+                    <button
+                      onClick={() => quitarNino(i)}
+                      className="h-8 w-8 shrink-0 rounded-lg border border-input flex items-center justify-center text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-colors"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                {verError(`nino-${i}-nombre`) && erroresNinos[i]?.nombre && <FieldError message={erroresNinos[i].nombre} />}
+                {verError(`nino-${i}-edad`)   && erroresNinos[i]?.edad   && <FieldError message={erroresNinos[i].edad} />}
+              </div>
+            ))}
+          </div>
+
+          {/* ── Acompañante ── */}
+          <div className="px-4 py-3 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Acompañante</p>
+            {/* Nombre */}
+            <div>
+              <Input
+                placeholder="Nombre completo *"
+                value={acompanante.nombre}
+                onChange={e => setAcompanante(a => ({ ...a, nombre: e.target.value.toUpperCase() }))}
+                onBlur={() => marcarTocado('acomp-nombre')}
+                className={cn('h-8 text-sm', verError('acomp-nombre') && erroresAcomp.nombre && 'border-destructive')}
+              />
+              {verError('acomp-nombre') && erroresAcomp.nombre && <FieldError message={erroresAcomp.nombre} />}
+            </div>
+            {/* Tipo doc + número en una sola fila */}
+            <div className="flex gap-2 items-start">
+              <div className="flex gap-1 shrink-0">
+                {TIPOS_DOCUMENTO.map(tipo => (
+                  <button
+                    key={tipo.value}
+                    type="button"
+                    onClick={() => setAcompanante(a => ({ ...a, tipoDocumento: tipo.value, dni: '' }))}
+                    className={cn(
+                      'h-8 px-2.5 rounded-lg border text-xs font-semibold transition-colors',
+                      acompanante.tipoDocumento === tipo.value
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'border-input text-muted-foreground hover:bg-accent',
+                    )}
+                  >
+                    {tipo.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex-1 space-y-0.5">
+                <Input
+                  placeholder={tipoDocActivo.placeholder}
+                  value={acompanante.dni}
+                  onChange={e => {
+                    const raw = e.target.value
+                    const val = acompanante.tipoDocumento === 'EXTRANJERO'
+                      ? raw.toUpperCase().replace(/[^A-Z0-9]/g, '')
+                      : raw.replace(/\D/g, '')
+                    setAcompanante(a => ({ ...a, dni: val }))
+                  }}
+                  onBlur={() => marcarTocado('acomp-dni')}
+                  maxLength={tipoDocActivo.maxLength}
+                  className={cn('h-8 text-sm', verError('acomp-dni') && erroresAcomp.dni && 'border-destructive')}
+                />
+                <p className="text-xs text-muted-foreground">{tipoDocActivo.hint}</p>
+                {verError('acomp-dni') && erroresAcomp.dni && <FieldError message={erroresAcomp.dni} />}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Promoción ── */}
+          {promosActivas.length > 0 && (
+            <div className="px-4 py-3 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Promoción</p>
+              <Select
+                value={idPromocion ? String(idPromocion) : 'ninguna'}
+                onValueChange={v => setIdPromocion(v === 'ninguna' ? null : Number(v))}
+              >
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ninguna">Sin promoción</SelectItem>
+                  {promosActivas.map(p => (
+                    <SelectItem key={p.id} value={String(p.id)}>{p.nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* ── Forma de pago ── */}
+          {!esGratuito && (
+            <div className="px-4 py-3 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Forma de pago</p>
+
+              {pagos.map((p, i) => (
+                <div key={i} className="flex gap-2">
+                  <Select
+                    value={p.medioPago}
+                    onValueChange={v => actualizarPago(i, 'medioPago', v as MetodoPago)}
+                  >
+                    <SelectTrigger className="w-32 h-8 text-sm shrink-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {METODOS_PAGO.filter(m =>
+                        m.value === p.medioPago ||
+                        !pagos.some((otro, j) => j !== i && otro.medioPago === m.value)
+                      ).map(m => (
+                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={p.monto || ''}
+                    onChange={e => actualizarPago(i, 'monto', Number(e.target.value))}
+                    className="flex-1 h-8 text-sm"
+                  />
+                  {pagos.length > 1 && (
+                    <button
+                      onClick={() => quitarPago(i)}
+                      className="h-8 w-8 shrink-0 rounded-lg border border-input flex items-center justify-center text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-colors"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              <div className="flex items-center justify-between">
+                {pagos.length < METODOS_PAGO.length ? (
+                  <button
+                    onClick={agregarPago}
+                    className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <Plus className="h-3 w-3" /> Agregar método
+                  </button>
+                ) : <span />}
+                {submitted && !pagosValidos && (
+                  <p className="text-xs font-medium text-amber-700 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Faltan {formatCurrency(Math.max(0, total - sumaPagos))}
+                  </p>
+                )}
+              </div>
+
+              {/* Efectivo: ¿con cuánto paga? — compacto e inline */}
+              {tieneEfectivo && (
+                <div className="rounded-lg bg-muted/50 border border-input px-3 py-2 space-y-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-xs font-medium text-muted-foreground shrink-0">¿Con cuánto?</span>
+                    {[10, 20, 50, 100, 200].map(bill => (
+                      <button
+                        key={bill}
+                        type="button"
+                        onClick={() => setEfectivoRecibido(bill)}
+                        className={cn(
+                          'h-6 px-2 rounded-md border text-xs font-semibold transition-colors',
+                          efectivoRecibido === bill
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'border-input hover:bg-accent',
+                        )}
+                      >
+                        S/{bill}
+                      </button>
+                    ))}
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={efectivoRecibido || ''}
+                      onChange={e => setEfectivoRecibido(Number(e.target.value))}
+                      className="h-6 w-20 text-right text-xs ml-auto"
+                    />
+                  </div>
+                  {vuelto > 0 && (
+                    <div className="flex justify-between text-xs font-semibold text-green-700">
+                      <span>Vuelto</span>
+                      <span>{formatCurrency(vuelto)}</span>
+                    </div>
+                  )}
+                  {submitted && !efectivoOk && (
+                    <FieldError message="El monto entregado es insuficiente." />
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Acta de responsabilidad ── */}
+          <div className={cn('px-4 py-3', submitted && !actaFirmada && 'bg-destructive/5')}>
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <Checkbox
+                checked={actaFirmada}
+                onCheckedChange={v => setActaFirmada(v === true)}
+                className="mt-0.5 shrink-0"
+              />
+              <div>
+                <p className="text-sm font-medium leading-snug">
+                  El acompañante firmó el Acta de Responsabilidad
+                  <span className="text-destructive ml-0.5">*</span>
+                </p>
+                <p className="text-xs text-muted-foreground">Requerido antes de confirmar el ingreso.</p>
+              </div>
+            </label>
+            {submitted && !actaFirmada && (
+              <p className="text-xs text-destructive mt-1.5 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" /> Confirma que el acta fue firmada.
+              </p>
+            )}
+          </div>
+        </Card>
+
+        {/* Resumen en móvil */}
+        <div className="lg:hidden">
+          <ResumenPanel />
+        </div>
+
+        {/* Botón generar */}
+        <button
+          onClick={registrarVenta}
+          disabled={registrar.isPending || !idSede}
+          className="w-full h-11 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
+        >
+          {registrar.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          {ninos.length > 1 ? `Generar ${ninos.length} tickets` : 'Generar ticket'}
+        </button>
+      </div>
+
+      {/* ── Resumen lateral (desktop) ── */}
+      <div className="hidden lg:block sticky top-20">
+        <ResumenPanel />
+      </div>
+    </div>
   )
 }
 
 export default function AccesosPage() {
   return (
-    <div className="max-w-lg mx-auto space-y-5">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-black text-gray-900">Control de acceso</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Escaneo de tickets y venta presencial</p>
+        <h1 className="text-2xl font-bold">Control de acceso</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Escaneo de tickets y venta presencial en mostrador</p>
       </div>
 
       <Tabs defaultValue="escaner">
-        <TabsList className="bg-gray-100 rounded-xl h-10 w-full">
-          <TabsTrigger value="escaner" className="flex-1 rounded-lg text-sm font-semibold gap-1.5">
+        <TabsList className="h-10">
+          <TabsTrigger value="escaner" className="gap-1.5 text-sm">
             <QrCode className="h-4 w-4" />
             Escanear ticket
           </TabsTrigger>
-          <TabsTrigger value="venta" className="flex-1 rounded-lg text-sm font-semibold gap-1.5">
-            <Ticket className="h-4 w-4" />
+          <TabsTrigger value="venta" className="gap-1.5 text-sm">
+            <LogIn className="h-4 w-4" />
             Venta presencial
           </TabsTrigger>
         </TabsList>
+
         <TabsContent value="escaner" className="mt-5">
-          <TabEscaner />
+          <div className="max-w-sm">
+            <TabEscaner />
+          </div>
         </TabsContent>
+
         <TabsContent value="venta" className="mt-5">
           <TabVentaPresencial />
         </TabsContent>

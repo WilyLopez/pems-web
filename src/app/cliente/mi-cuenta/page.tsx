@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useRef, useMemo, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -44,7 +44,9 @@ const FOTO_MAX_BYTES = 5 * 1024 * 1024
 const FOTO_TIPOS = ['image/jpeg', 'image/png', 'image/webp']
 
 const infoPersonalSchema = z.object({
-  nombre: z.string().min(2, 'Mínimo 2 caracteres').max(120),
+  nombres: z.string().min(2, 'Mínimo 2 caracteres').max(120),
+  apellidoPaterno: z.string().min(1, 'Obligatorio').max(100),
+  apellidoMaterno: z.string().max(100).optional().or(z.literal('')),
   telefono: z
     .string()
     .min(7, 'Ingresa un teléfono válido')
@@ -52,24 +54,7 @@ const infoPersonalSchema = z.object({
     .regex(/^[0-9+\s()-]+$/, 'Solo números y caracteres válidos'),
 })
 
-const infoFiscalSchema = z
-  .object({
-    ruc: z.string().regex(/^$|^[0-9]{11}$/, 'RUC debe tener 11 dígitos').optional(),
-    razonSocial: z.string().max(200).optional(),
-    direccionFiscal: z.string().max(300).optional(),
-  })
-  .refine(
-    (d) => {
-      if (d.ruc && d.ruc.length === 11) {
-        return !!d.razonSocial && d.razonSocial.trim().length > 0
-      }
-      return true
-    },
-    { message: 'Ingresa la razón social si tienes RUC', path: ['razonSocial'] }
-  )
-
 type InfoPersonalValues = z.infer<typeof infoPersonalSchema>
-type InfoFiscalValues = z.infer<typeof infoFiscalSchema>
 
 function formatRelativo(fecha: string): string {
   try {
@@ -81,11 +66,10 @@ function formatRelativo(fecha: string): string {
 
 function calcularCompletitud(cliente: Cliente): { porcentaje: number; pendientes: string[] } {
   const items = [
-    { completo: !!cliente.fotoPerfil, label: 'Foto de perfil' },
     { completo: !!cliente.telefono, label: 'Teléfono' },
-    { completo: !!cliente.dni, label: 'DNI' },
-    { completo: !!cliente.fechaNacimiento, label: 'Fecha de nacimiento' },
-    { completo: cliente.correoVerificado, label: 'Correo verificado' },
+    { completo: !!cliente.correo, label: 'Correo electrónico' },
+    { completo: !!cliente.apellidoMaterno, label: 'Apellido materno' },
+    { completo: !!cliente.descuentoVip, label: 'Estado VIP' },
   ]
   const completados = items.filter((i) => i.completo).length
   return {
@@ -250,8 +234,6 @@ function PhotoUploadModal({
     e.target.value = ''
   }
 
-  const fotoActual = fileUrl(cliente.fotoPerfil)
-
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
       <DialogContent className="max-w-sm w-[calc(100vw-2rem)] sm:w-full rounded-2xl p-0 overflow-hidden">
@@ -265,10 +247,8 @@ function PhotoUploadModal({
             <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-brand-rosa flex items-center justify-center">
               {preview ? (
                 <img src={preview} alt="Vista previa" className="w-full h-full object-cover" />
-              ) : fotoActual ? (
-                <img src={fotoActual} alt={cliente.nombre} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-white text-3xl font-black">{getInitials(cliente.nombre)}</span>
+                <span className="text-white text-3xl font-black">{getInitials(cliente.nombreCompleto)}</span>
               )}
             </div>
 
@@ -288,7 +268,7 @@ function PhotoUploadModal({
                 <Upload className="h-3.5 w-3.5" />
                 {preview ? 'Cambiar' : 'Seleccionar'}
               </button>
-              {(fotoActual || preview) && (
+              {preview && (
                 <button
                   onClick={() => {
                     if (preview) {
@@ -306,7 +286,7 @@ function PhotoUploadModal({
             </div>
           </div>
 
-          {fotoActual && !preview && (
+          {!preview && (
             <button
               onClick={() => eliminar.mutate()}
               disabled={eliminar.isPending}
@@ -338,96 +318,47 @@ function PhotoUploadModal({
 }
 
 function ProfileHeader({ cliente }: { cliente: Cliente }) {
-  const [fotoModal, setFotoModal] = useState(false)
-  const foto = fileUrl(cliente.fotoPerfil)
-
   return (
-    <>
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="h-24 sm:h-28 bg-gradient-to-r from-gray-900 via-gray-800 to-slate-700" />
-        <div className="px-5 sm:px-6 pb-5 sm:pb-6 -mt-12 sm:-mt-14">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-            <div className="flex items-end gap-4">
-              <div className="relative shrink-0">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg bg-brand-rosa overflow-hidden flex items-center justify-center">
-                  {foto ? (
-                    <img src={foto} alt={cliente.nombre} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-white text-2xl sm:text-3xl font-black">
-                      {getInitials(cliente.nombre)}
-                    </span>
-                  )}
-                </div>
-                <button
-                  onClick={() => setFotoModal(true)}
-                  title="Cambiar foto"
-                  className="absolute bottom-0 right-0 w-7 h-7 bg-white border-2 border-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors"
-                >
-                  <Camera className="h-3.5 w-3.5 text-gray-700" />
-                </button>
-              </div>
-
-              <div className="pb-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black text-gray-900">{cliente.nombre}</h1>
-                  {cliente.esVip && (
-                    <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
-                      <Star className="h-2.5 w-2.5 fill-white" />
-                      VIP
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-gray-500 mt-0.5">{cliente.correo}</p>
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="h-24 sm:h-28 bg-gradient-to-r from-gray-900 via-gray-800 to-slate-700" />
+      <div className="px-5 sm:px-6 pb-5 sm:pb-6 -mt-12 sm:-mt-14">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div className="flex items-end gap-4">
+            <div className="relative shrink-0">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg bg-brand-rosa overflow-hidden flex items-center justify-center">
+                <span className="text-white text-2xl sm:text-3xl font-black">
+                  {getInitials(cliente.nombreCompleto)}
+                </span>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 sm:pb-1">
-              <span className={cn(
-                'inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full',
-                cliente.correoVerificado
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-amber-100 text-amber-700'
-              )}>
-                {cliente.correoVerificado ? (
-                  <><CheckCircle2 className="h-3 w-3" /> Correo verificado</>
-                ) : (
-                  <><AlertTriangle className="h-3 w-3" /> Sin verificar</>
+            <div className="pb-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-black text-gray-900">{cliente.nombreCompleto}</h1>
+                {cliente.esVip && (
+                  <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
+                    <Star className="h-2.5 w-2.5 fill-white" />
+                    VIP
+                  </span>
                 )}
-              </span>
-              <span className={cn(
-                'inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full',
-                cliente.activo ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
-              )}>
-                <div className={cn('w-1.5 h-1.5 rounded-full', cliente.activo ? 'bg-blue-500' : 'bg-red-500')} />
-                {cliente.activo ? 'Cuenta activa' : 'Cuenta inactiva'}
-              </span>
+              </div>
+              <p className="text-sm text-gray-500 mt-0.5">{cliente.correo}</p>
             </div>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1">
-            <span className="text-xs text-gray-400">
-              <span className="font-semibold text-gray-600">Miembro desde</span> {formatDate(cliente.fechaCreacion, 'MMMM yyyy')}
-            </span>
-            {cliente.ultimoLogin && (
-              <span className="text-xs text-gray-400">
-                <span className="font-semibold text-gray-600">Último acceso</span> {formatRelativo(cliente.ultimoLogin)}
-              </span>
-            )}
-            {cliente.segmentoCliente && (
-              <span className="text-xs text-gray-400">
-                <span className="font-semibold text-gray-600">Segmento</span> {cliente.segmentoCliente}
-              </span>
-            )}
           </div>
         </div>
-      </div>
 
-      <PhotoUploadModal
-        open={fotoModal}
-        onClose={() => setFotoModal(false)}
-        cliente={cliente}
-      />
-    </>
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1">
+          <span className="text-xs text-gray-400">
+            <span className="font-semibold text-gray-600">Miembro desde</span> {formatDate(cliente.creadoEn, 'MMMM yyyy')}
+          </span>
+          {cliente.segmentoCodigo && (
+            <span className="text-xs text-gray-400">
+              <span className="font-semibold text-gray-600">Segmento</span> {cliente.segmentoCodigo}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -596,7 +527,7 @@ function BeneficiosVip({
         <div>
           <p className="text-sm font-bold text-gray-900">Programa de fidelidad</p>
           <p className="text-xs text-gray-500">
-            {cliente.segmentoCliente === 'FRECUENTE' ? 'Cliente frecuente' : 'Cliente nuevo'}
+            {cliente.segmentoCodigo === 'FRECUENTE' ? 'Cliente frecuente' : 'Cliente nuevo'}
           </p>
         </div>
       </div>
@@ -785,16 +716,31 @@ function InfoPersonalSection({ cliente }: { cliente: Cliente }) {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<InfoPersonalValues>({
     resolver: zodResolver(infoPersonalSchema),
-    defaultValues: { nombre: cliente.nombre ?? '', telefono: cliente.telefono ?? '' },
+    defaultValues: {
+      nombres: cliente.nombres ?? '',
+      apellidoPaterno: cliente.apellidoPaterno ?? '',
+      apellidoMaterno: cliente.apellidoMaterno ?? '',
+      telefono: cliente.telefono ?? '',
+    },
   })
 
   function cancelar() {
-    reset({ nombre: cliente.nombre ?? '', telefono: cliente.telefono ?? '' })
+    reset({
+      nombres: cliente.nombres ?? '',
+      apellidoPaterno: cliente.apellidoPaterno ?? '',
+      apellidoMaterno: cliente.apellidoMaterno ?? '',
+      telefono: cliente.telefono ?? '',
+    })
     setEditando(false)
   }
 
   const guardar = useMutation({
-    mutationFn: (v: InfoPersonalValues) => clienteService.actualizar(cliente.id, v),
+    mutationFn: (v: InfoPersonalValues) => clienteService.actualizar(cliente.id, {
+      nombres: v.nombres,
+      apellidoPaterno: v.apellidoPaterno,
+      apellidoMaterno: v.apellidoMaterno || undefined,
+      telefono: v.telefono,
+    }),
     onSuccess: () => {
       toast.success('Datos personales actualizados.')
       qc.invalidateQueries({ queryKey: ['cliente-perfil'] })
@@ -822,25 +768,30 @@ function InfoPersonalSection({ cliente }: { cliente: Cliente }) {
     >
       {!editando ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <CampoLectura label="Nombre completo" valor={cliente.nombre} />
+          <CampoLectura label="Nombre completo" valor={cliente.nombreCompleto} />
           <CampoLectura label="Correo electrónico" valor={cliente.correo} />
           <CampoLectura label="Teléfono" valor={cliente.telefono} />
-          <CampoLectura
-            label="Fecha de nacimiento"
-            valor={cliente.fechaNacimiento ? formatDate(cliente.fechaNacimiento) : null}
-          />
-          <CampoLectura label="DNI" valor={cliente.dni} />
+          <CampoLectura label="Documento" valor={`${cliente.tipoDocumentoCodigo}: ${cliente.numeroDocumento}`} />
         </div>
       ) : (
         <form onSubmit={handleSubmit((v) => guardar.mutate(v))} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="nombre" className="text-sm font-semibold">Nombre completo</Label>
+              <Label htmlFor="nombres" className="text-sm font-semibold">Nombres</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input id="nombre" className="h-11 rounded-xl pl-9" {...register('nombre')} />
+                <Input id="nombres" className="h-11 rounded-xl pl-9" {...register('nombres')} />
               </div>
-              {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
+              {errors.nombres && <p className="text-xs text-destructive">{errors.nombres.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="apellidoPaterno" className="text-sm font-semibold">Apellido paterno</Label>
+              <Input id="apellidoPaterno" className="h-11 rounded-xl" {...register('apellidoPaterno')} />
+              {errors.apellidoPaterno && <p className="text-xs text-destructive">{errors.apellidoPaterno.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="apellidoMaterno" className="text-sm font-semibold">Apellido materno</Label>
+              <Input id="apellidoMaterno" className="h-11 rounded-xl" {...register('apellidoMaterno')} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="telefono" className="text-sm font-semibold">Teléfono</Label>
@@ -861,11 +812,10 @@ function InfoPersonalSection({ cliente }: { cliente: Cliente }) {
               <p className="text-[11px] text-gray-400">El correo no puede modificarse.</p>
             </div>
             <div className="space-y-1.5">
-              <p className="text-sm font-semibold text-gray-700">DNI</p>
+              <p className="text-sm font-semibold text-gray-700">{cliente.tipoDocumentoCodigo}</p>
               <div className="h-11 rounded-xl bg-gray-50 border border-gray-200 px-3 flex items-center">
-                <span className="text-sm text-gray-500">{cliente.dni ?? 'No registrado'}</span>
+                <span className="text-sm text-gray-500">{cliente.numeroDocumento}</span>
               </div>
-              <p className="text-[11px] text-gray-400">Contacta al soporte para modificarlo.</p>
             </div>
           </div>
 
@@ -882,99 +832,6 @@ function InfoPersonalSection({ cliente }: { cliente: Cliente }) {
               disabled={guardar.isPending}
               className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl bg-brand-azul text-white text-sm font-bold hover:bg-brand-azul/90 disabled:opacity-60 transition-colors"
             >
-              {guardar.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Guardando...</> : <><Save className="h-3.5 w-3.5" /> Guardar</>}
-            </button>
-          </div>
-        </form>
-      )}
-    </SectionCard>
-  )
-}
-
-function InfoFiscalSection({ cliente }: { cliente: Cliente }) {
-  const [editando, setEditando] = useState(false)
-  const qc = useQueryClient()
-
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<InfoFiscalValues>({
-    resolver: zodResolver(infoFiscalSchema),
-    defaultValues: {
-      ruc: cliente.ruc ?? '',
-      razonSocial: cliente.razonSocial ?? '',
-      direccionFiscal: cliente.direccion ?? '',
-    },
-  })
-
-  const rucVal = watch('ruc')
-  const tieneRuc = !!rucVal && rucVal.length === 11
-
-  function cancelar() {
-    reset({ ruc: cliente.ruc ?? '', razonSocial: cliente.razonSocial ?? '', direccionFiscal: cliente.direccion ?? '' })
-    setEditando(false)
-  }
-
-  const guardar = useMutation({
-    mutationFn: (v: InfoFiscalValues) =>
-      clienteService.actualizar(cliente.id, {
-        ruc: v.ruc,
-        razonSocial: v.razonSocial,
-        direccion: v.direccionFiscal,
-      }),
-    onSuccess: () => {
-      toast.success('Datos fiscales actualizados.')
-      qc.invalidateQueries({ queryKey: ['cliente-perfil'] })
-      setEditando(false)
-    },
-    onError: (err: { message?: string }) =>
-      toast.error(err?.message ?? 'No se pudo actualizar.'),
-  })
-
-  return (
-    <SectionCard
-      titulo="Información fiscal"
-      icon={Building2}
-      accion={
-        !editando ? (
-          <button
-            onClick={() => setEditando(true)}
-            className="flex items-center gap-1.5 text-xs font-semibold text-brand-azul hover:bg-brand-azul/5 px-3 py-1.5 rounded-xl transition-colors"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-            Editar
-          </button>
-        ) : null
-      }
-    >
-      {!editando ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <CampoLectura label="RUC" valor={cliente.ruc} />
-          <CampoLectura label="Razón social" valor={cliente.razonSocial} />
-          <div className="sm:col-span-2">
-            <CampoLectura label="Dirección fiscal" valor={cliente.direccion} />
-          </div>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit((v) => guardar.mutate(v))} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="ruc" className="text-sm font-semibold">RUC</Label>
-            <Input id="ruc" placeholder="20000000001" maxLength={11} className="h-11 rounded-xl" {...register('ruc')} />
-            {errors.ruc && <p className="text-xs text-destructive">{errors.ruc.message}</p>}
-          </div>
-          {tieneRuc && (
-            <div className="space-y-1.5">
-              <Label htmlFor="razonSocial" className="text-sm font-semibold">Razón social</Label>
-              <Input id="razonSocial" placeholder="Empresa S.A.C." className="h-11 rounded-xl" {...register('razonSocial')} />
-              {errors.razonSocial && <p className="text-xs text-destructive">{errors.razonSocial.message}</p>}
-            </div>
-          )}
-          <div className="space-y-1.5">
-            <Label htmlFor="direccionFiscal" className="text-sm font-semibold">Dirección fiscal</Label>
-            <Input id="direccionFiscal" placeholder="Av. Ejemplo 123, Lima" className="h-11 rounded-xl" {...register('direccionFiscal')} />
-          </div>
-          <div className="flex gap-2 pt-1">
-            <button type="button" onClick={cancelar} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
-              Cancelar
-            </button>
-            <button type="submit" disabled={guardar.isPending} className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl bg-brand-azul text-white text-sm font-bold hover:bg-brand-azul/90 disabled:opacity-60 transition-colors">
               {guardar.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Guardando...</> : <><Save className="h-3.5 w-3.5" /> Guardar</>}
             </button>
           </div>
@@ -1114,33 +971,30 @@ function MiCuentaSkeleton() {
 }
 
 export default function MiCuentaPage() {
-  const { data: session } = useSession()
-  const userId = parseInt(session?.user?.id ?? '0')
+  const { idUsuario } = useAuth()
 
   const { data: cliente, isLoading } = useQuery({
-    queryKey: ['cliente-perfil', userId],
-    queryFn: () => clienteService.obtener(userId),
-    enabled: !!userId,
+    queryKey: ['cliente-perfil', idUsuario],
+    queryFn: () => clienteService.obtener(idUsuario!),
+    enabled: !!idUsuario,
   })
 
   const { data: eventosData } = useQuery({
-    queryKey: ['mis-eventos-cuenta', userId],
+    queryKey: ['mis-eventos-cuenta', idUsuario],
     queryFn: () => eventoService.listar({ page: 0, size: 50 }),
-    enabled: !!userId,
+    enabled: !!idUsuario,
   })
 
   const { data: reservasData } = useQuery({
-    queryKey: ['mis-reservas-cuenta', userId],
+    queryKey: ['mis-reservas-cuenta', idUsuario],
     queryFn: () => reservaService.listar({ page: 0, size: 50 }),
-    enabled: !!userId,
+    enabled: !!idUsuario,
   })
 
   const eventos: EventoPrivado[] = eventosData?.content ?? []
   const reservas: Reserva[] = reservasData?.content ?? []
 
   if (isLoading || !cliente) return <MiCuentaSkeleton />
-
-  const mostrarFiscal = cliente.tipoCliente === 'EMPRESA' || !!cliente.ruc
 
   return (
     <div className="max-w-6xl mx-auto w-full space-y-4 sm:space-y-5">
@@ -1159,7 +1013,6 @@ export default function MiCuentaPage() {
           <ProximoEvento reservas={reservas} eventos={eventos} />
           <ActividadReciente reservas={reservas} eventos={eventos} />
           <InfoPersonalSection cliente={cliente} />
-          {mostrarFiscal && <InfoFiscalSection cliente={cliente} />}
           <SeguridadSection />
           <EstadoCuentaSection reservas={reservas} />
           <PreferenciasSection cliente={cliente} />

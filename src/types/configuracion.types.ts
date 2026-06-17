@@ -20,4 +20,23 @@ export interface Sede {
   fechaCreacion: string
 }
 
+export interface ConfiguracionCalendario {
+  idSede: number
+  diasMinReservaPublica: number
+  diasMaxReservaPublica: number
+  diasMinEventoPrivado: number
+  diasMaxEventoPrivado: number
+  aforoMaximo: number
+  horaApertura: string
+  horaCierre: string
+  turnoT1Inicio: string
+  turnoT1Fin: string
+  turnoT2Inicio: string
+  turnoT2Fin: string
+  diasOperacion: string
+  rangoMaxBloqueo: number
+}
+
+export type ActualizarConfiguracionCalendarioRequest = Omit<ConfiguracionCalendario, 'idSede'>
+
 export type ConfiguracionMap = Record<string, string>

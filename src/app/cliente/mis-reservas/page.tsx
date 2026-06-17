@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '@/hooks/useAuth'
 import { Plus, Ticket, Clock } from 'lucide-react'
 import Link from 'next/link'
 
@@ -38,14 +38,14 @@ function SkeletonCard() {
 }
 
 export default function MisReservasPage() {
-  const { data: session } = useSession()
+  const { isAuthenticated } = useAuth()
   const [tab, setTab] = useState<Tab>('proximas')
   const [reservaDetalle, setReservaDetalle] = useState<Reserva | null>(null)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['mis-reservas', session?.user?.id],
+    queryKey: ['mis-reservas'],
     queryFn: () => reservaService.listar({ page: 0, size: 50 }),
-    enabled: !!session?.user?.id,
+    enabled: isAuthenticated,
   })
 
   const proximas: Reserva[] =

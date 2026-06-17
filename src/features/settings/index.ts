@@ -1,5 +1,0 @@
-export * from '@/hooks/useCalendario'
-export * from '@/hooks/useConfiguracion'
-export * from '@/services/calendario.service'
-export * from '@/types/calendario.types'
-export * from '@/types/configuracion.types'

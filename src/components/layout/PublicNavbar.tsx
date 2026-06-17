@@ -42,7 +42,7 @@ const navLinks = [
 const SCROLL_THRESHOLD = 60
 
 export function PublicNavbar() {
-  const { user, logout, isAdmin, isCliente } = useAuth()
+  const { nombre, logout, isAdmin, isCliente } = useAuth()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -129,7 +129,7 @@ export function PublicNavbar() {
                   )}
                 >
                   <User className="h-4 w-4" />
-                  {user?.name?.split(' ')[0]}
+                  {nombre?.split(' ')[0]}
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>

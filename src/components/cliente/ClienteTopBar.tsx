@@ -1,7 +1,6 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronRight, User, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
@@ -46,21 +45,19 @@ function getBreadcrumb(pathname: string): { label: string; href: string }[] {
 
 export function ClienteTopBar() {
   const pathname = usePathname()
-  const { user, logout } = useAuth()
-  const { data: session } = useSession()
-  const userId = parseInt(session?.user?.id ?? '0')
+  const { nombre, correo, idUsuario, logout } = useAuth()
   const breadcrumb = getBreadcrumb(pathname)
 
   const { data: perfil } = useQuery({
-    queryKey: ['cliente-perfil', userId],
-    queryFn: () => clienteService.obtener(userId),
-    enabled: !!userId && userId > 0,
+    queryKey: ['cliente-perfil', idUsuario],
+    queryFn: () => clienteService.obtener(idUsuario!),
+    enabled: !!idUsuario,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
 
-  const fotoUrl = fileUrl(perfil?.fotoPerfil)
-  const nombreCorto = user?.name?.split(' ')[0] ?? ''
+  const fotoUrl = fileUrl(undefined)
+  const nombreCorto = nombre?.split(' ')[0] ?? ''
 
   return (
     <header className="sticky top-0 z-40 h-14 bg-white/95 backdrop-blur-sm border-b border-gray-100 flex items-center px-4 lg:px-6 gap-3">
@@ -108,12 +105,12 @@ export function ClienteTopBar() {
                 {fotoUrl && (
                   <AvatarImage
                     src={fotoUrl}
-                    alt={user?.name ?? ''}
+                    alt={nombre ?? ''}
                     className="object-cover"
                   />
                 )}
                 <AvatarFallback className="text-[11px] font-bold text-white bg-brand-rosa">
-                  {user?.name ? getInitials(user.name) : 'C'}
+                  {nombre ? getInitials(nombre) : 'C'}
                 </AvatarFallback>
               </Avatar>
               <span className="hidden sm:block text-sm font-semibold text-gray-700 max-w-[110px] truncate">
@@ -131,17 +128,17 @@ export function ClienteTopBar() {
                 {fotoUrl && (
                   <AvatarImage
                     src={fotoUrl}
-                    alt={user?.name ?? ''}
+                    alt={nombre ?? ''}
                     className="object-cover"
                   />
                 )}
                 <AvatarFallback className="text-xs font-bold text-white bg-brand-rosa">
-                  {user?.name ? getInitials(user.name) : 'C'}
+                  {nombre ? getInitials(nombre) : 'C'}
                 </AvatarFallback>
               </Avatar>
               <div className="overflow-hidden">
-                <p className="text-sm font-bold text-gray-900 truncate">{user?.name}</p>
-                <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                <p className="text-sm font-bold text-gray-900 truncate">{nombre}</p>
+                <p className="text-xs text-gray-400 truncate">{correo}</p>
               </div>
             </div>
 

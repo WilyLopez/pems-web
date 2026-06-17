@@ -264,7 +264,7 @@ function NotificacionesMenu() {
 /* ─── Navbar ─────────────────────────────────────────────────────────────────── */
 
 export function AdminNavbar() {
-  const { user, logout } = useAuth()
+  const { nombre, correo, logout } = useAuth()
   const { toggle } = useSidebarStore()
 
   return (
@@ -307,12 +307,12 @@ export function AdminNavbar() {
             >
               <Avatar className="h-7 w-7">
                 <AvatarFallback className="text-xs bg-brand-azul text-white font-black">
-                  {user?.name ? getInitials(user.name) : 'A'}
+                  {nombre ? getInitials(nombre) : 'A'}
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:block text-left">
                 <p className="text-xs font-bold text-gray-900 leading-none">
-                  {user?.name?.split(' ')[0]}
+                  {nombre?.split(' ')[0]}
                 </p>
                 <p className="text-[10px] text-gray-400 leading-none mt-0.5">
                   Administrador
@@ -327,8 +327,8 @@ export function AdminNavbar() {
           >
             {/* Info del usuario */}
             <div className="px-3 py-2.5 mb-1">
-              <p className="text-sm font-bold text-gray-900">{user?.name}</p>
-              <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+              <p className="text-sm font-bold text-gray-900">{nombre}</p>
+              <p className="text-xs text-gray-400 truncate">{correo}</p>
             </div>
 
             <Separator className="my-1" />
