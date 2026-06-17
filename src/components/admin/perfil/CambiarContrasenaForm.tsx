@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Eye, EyeOff, KeyRound, Loader2, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/Button'

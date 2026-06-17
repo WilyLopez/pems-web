@@ -1,9 +1,10 @@
-export type RolAdmin = 'GERENTE' | 'SUBGERENTE' | 'ADMINISTRATIVO'
+export type RolAdmin = 'SUPERADMIN' | 'ADMIN' | 'CAJERO'
 export type EstadoAdmin = 'ACTIVO' | 'INACTIVO' | 'BLOQUEADO'
 
 export interface UsuarioAdmin {
   id: number
   idSede: number
+  sedeNombre?: string
   nombre: string
   correo: string
   rol: RolAdmin

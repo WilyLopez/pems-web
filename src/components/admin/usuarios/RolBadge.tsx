@@ -3,15 +3,15 @@ import { RolAdmin } from '@/types/usuario-admin.types'
 import { cn } from '@/lib/utils'
 
 const STYLES: Record<RolAdmin, string> = {
-  GERENTE: 'bg-purple-100 text-purple-800',
-  SUBGERENTE: 'bg-blue-100 text-blue-800',
-  ADMINISTRATIVO: 'bg-gray-100 text-gray-700',
+  SUPERADMIN: 'bg-red-100 text-red-800',
+  ADMIN: 'bg-purple-100 text-purple-800',
+  CAJERO: 'bg-blue-100 text-blue-800',
 }
 
 const LABELS: Record<RolAdmin, string> = {
-  GERENTE: 'Gerente',
-  SUBGERENTE: 'Subgerente',
-  ADMINISTRATIVO: 'Administrativo',
+  SUPERADMIN: 'Super Admin',
+  ADMIN: 'Administrador',
+  CAJERO: 'Cajero',
 }
 
 export function RolBadge({ rol }: { rol: RolAdmin }) {

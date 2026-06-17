@@ -7,7 +7,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useQuery } from '@tanstack/react-query'
 import { RefreshCw, ArrowUpDown, Eye, UserPlus } from 'lucide-react'
 
-import { Cliente } from '@/types/cliente.types'
+import { Cliente, OrigenCliente, SegmentoCliente } from '@/types/cliente.types'
 import { clienteService } from '@/services/cliente.service'
 import { useDebounce } from '@/hooks/useDebounce'
 
@@ -26,10 +26,7 @@ import {
 import { NuevoClienteModal } from '@/components/admin/clientes/NuevoClienteModal'
 import {
   VipBadge,
-  EstadoBadge,
-  VerificadoBadge,
   VisitasBadge,
-  TipoBadge,
   OrigenBadge,
   SegmentoBadge,
 } from '@/components/admin/clientes/ClienteBadges'
@@ -52,16 +49,18 @@ function buildParams(
     esVip: filtro === 'vip' ? true : undefined,
     activo:
       filtro === 'activos' ? true : filtro === 'inactivos' ? false : undefined,
-    verificado: filtro === 'verificados' ? true : undefined,
     frecuente: filtro === 'frecuentes' ? true : undefined,
-    origenRegistro:
+    origen: (
       filtro === 'web' ? 'WEB'
-      : filtro === 'presenciales' ? 'PRESENCIAL'
+      : filtro === 'presenciales' ? 'MOSTRADOR'
       : filtro === 'admin' ? 'ADMIN'
-      : undefined,
-    segmentoCliente: filtro === 'nuevos' ? 'NUEVO'
+      : undefined
+    ) as OrigenCliente | undefined,
+    segmentoCodigo: (
+      filtro === 'nuevos' ? 'NUEVO'
       : filtro === 'inactivos_seg' ? 'INACTIVO'
-      : undefined,
+      : undefined
+    ) as SegmentoCliente | undefined,
   }
 }
 
@@ -96,7 +95,7 @@ export default function ClientesPage() {
 
   const columns: ColumnDef<Cliente>[] = [
     {
-      accessorKey: 'nombre',
+      accessorKey: 'nombreCompleto',
       header: ({ column }) => (
         <button
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
@@ -111,14 +110,14 @@ export default function ClientesPage() {
         return (
           <div className="flex items-center gap-3">
             <ClienteAvatar
-              nombre={c.nombre}
-              fotoPerfil={c.fotoPerfil}
+              nombre={c.nombreCompleto}
+              fotoPerfil={undefined}
               esVip={c.esVip}
               size="sm"
             />
             <div className="min-w-0">
               <p className="font-semibold text-sm text-gray-900 truncate">
-                {c.nombre}
+                {c.nombreCompleto}
               </p>
               <p className="text-xs text-gray-400 truncate">{c.correo}</p>
             </div>
@@ -140,15 +139,6 @@ export default function ClientesPage() {
       ),
     },
     {
-      accessorKey: 'tipoCliente',
-      header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Tipo
-        </span>
-      ),
-      cell: ({ row }) => <TipoBadge tipo={row.original.tipoCliente} />,
-    },
-    {
       accessorKey: 'esVip',
       header: () => (
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -163,22 +153,22 @@ export default function ClientesPage() {
         ),
     },
     {
-      accessorKey: 'origenRegistro',
+      accessorKey: 'origen',
       header: () => (
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           Origen
         </span>
       ),
-      cell: ({ row }) => <OrigenBadge origen={row.original.origenRegistro} />,
+      cell: ({ row }) => <OrigenBadge origen={row.original.origen} />,
     },
     {
-      accessorKey: 'segmentoCliente',
+      accessorKey: 'segmentoCodigo',
       header: () => (
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           Segmento
         </span>
       ),
-      cell: ({ row }) => <SegmentoBadge segmento={row.original.segmentoCliente} />,
+      cell: ({ row }) => <SegmentoBadge segmento={row.original.segmentoCodigo} />,
     },
     {
       accessorKey: 'contadorVisitas',
@@ -196,27 +186,7 @@ export default function ClientesPage() {
       ),
     },
     {
-      accessorKey: 'correoVerificado',
-      header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Verif.
-        </span>
-      ),
-      cell: ({ row }) => (
-        <VerificadoBadge verificado={row.original.correoVerificado} />
-      ),
-    },
-    {
-      accessorKey: 'activo',
-      header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Estado
-        </span>
-      ),
-      cell: ({ row }) => <EstadoBadge activo={row.original.activo} />,
-    },
-    {
-      accessorKey: 'fechaCreacion',
+      accessorKey: 'creadoEn',
       header: () => (
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           Registro
@@ -224,7 +194,7 @@ export default function ClientesPage() {
       ),
       cell: ({ row }) => (
         <span className="text-xs text-gray-500">
-          {formatDate(row.original.fechaCreacion)}
+          {formatDate(row.original.creadoEn)}
         </span>
       ),
     },

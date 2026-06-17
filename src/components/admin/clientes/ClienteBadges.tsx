@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/utils'
-import { OrigenRegistro, SegmentoCliente } from '@/types/cliente.types'
+import { OrigenCliente, SegmentoCliente } from '@/types/cliente.types'
 
 /* ── VIP ─────────────────────────────────────────────────────────────────────── */
 export function VipBadge({ descuento }: { descuento?: number | null }) {
@@ -74,12 +74,12 @@ export function TipoBadge({ tipo }: { tipo?: string | null }) {
 }
 
 /* ── Origen de registro ──────────────────────────────────────────────────────── */
-export function OrigenBadge({ origen }: { origen?: OrigenRegistro | null }) {
-  if (origen === 'PRESENCIAL') {
+export function OrigenBadge({ origen }: { origen?: OrigenCliente | null }) {
+  if (origen === 'MOSTRADOR') {
     return (
       <Badge variant="outline" className="gap-1 text-xs text-orange-600 border-orange-200 bg-orange-50">
         <MapPin className="h-3 w-3" />
-        Presencial
+        Mostrador
       </Badge>
     )
   }

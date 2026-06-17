@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { ArrowLeft, UserPlus, Loader2 } from 'lucide-react'
@@ -17,14 +16,21 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 
+const TIPOS_DOCUMENTO = [
+  { value: 'DNI', label: 'DNI' },
+  { value: 'CE', label: 'Carnet de extranjería' },
+  { value: 'RUC', label: 'RUC' },
+  { value: 'PASAPORTE', label: 'Pasaporte' },
+]
+
 const schema = z.object({
-  nombre: z.string().min(2).max(120),
-  correo: z.string().email().max(120).optional().or(z.literal('')),
-  telefono: z.string().min(6).max(20),
-  dni: z.string().length(8).optional().or(z.literal('')),
-  fechaNacimiento: z.string().optional().or(z.literal('')),
-  observaciones: z.string().max(500).optional().or(z.literal('')),
-  tipoCliente: z.enum(['PERSONA', 'EMPRESA']).default('PERSONA'),
+  tipoDocumentoCodigo: z.string().min(1, 'Selecciona el tipo de documento'),
+  numeroDocumento: z.string().min(1, 'El número de documento es obligatorio').max(20),
+  nombres: z.string().min(2, 'Mínimo 2 caracteres').max(100),
+  apellidoPaterno: z.string().min(1, 'El apellido paterno es obligatorio').max(100),
+  apellidoMaterno: z.string().max(100).optional().or(z.literal('')),
+  correo: z.string().email('Correo inválido').max(150).optional().or(z.literal('')),
+  telefono: z.string().max(20).optional().or(z.literal('')),
   aceptaComunicaciones: z.boolean().default(true),
 })
 
@@ -39,24 +45,25 @@ export default function NuevoClientePage() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { tipoCliente: 'PERSONA', aceptaComunicaciones: true },
+    defaultValues: { tipoDocumentoCodigo: 'DNI', aceptaComunicaciones: true },
   })
 
   const crear = useMutation({
     mutationFn: (values: FormValues) =>
       clienteService.registrarAdmin({
-        nombre: values.nombre,
+        tipoDocumentoCodigo: values.tipoDocumentoCodigo,
+        numeroDocumento: values.numeroDocumento,
+        nombres: values.nombres,
+        apellidoPaterno: values.apellidoPaterno,
+        apellidoMaterno: values.apellidoMaterno || undefined,
         correo: values.correo || undefined,
-        telefono: values.telefono,
-        dni: values.dni || undefined,
-        fechaNacimiento: values.fechaNacimiento || undefined,
-        observaciones: values.observaciones || undefined,
-        tipoCliente: values.tipoCliente,
+        telefono: values.telefono || undefined,
+        origen: 'ADMIN',
         aceptaComunicaciones: values.aceptaComunicaciones,
       }),
-    onSuccess: (cliente) => {
+    onSuccess: () => {
       toast.success('Cliente registrado correctamente.')
-      router.push(`/admin/clientes`)
+      router.push('/admin/clientes')
     },
     onError: () => toast.error('No se pudo registrar el cliente.'),
   })
@@ -90,64 +97,62 @@ export default function NuevoClientePage() {
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="nombre">Nombre *</Label>
-              <Input id="nombre" {...register('nombre')} placeholder="Juan Pérez" />
-              {errors.nombre && (
-                <p className="text-xs text-red-500">{errors.nombre.message}</p>
+              <Label htmlFor="tipoDocumentoCodigo">Tipo de documento *</Label>
+              <select
+                id="tipoDocumentoCodigo"
+                {...register('tipoDocumentoCodigo')}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-azul/30"
+              >
+                {TIPOS_DOCUMENTO.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+              {errors.tipoDocumentoCodigo && (
+                <p className="text-xs text-red-500">{errors.tipoDocumentoCodigo.message}</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="telefono">Teléfono *</Label>
+              <Label htmlFor="numeroDocumento">Número de documento *</Label>
+              <Input id="numeroDocumento" {...register('numeroDocumento')} placeholder="12345678" />
+              {errors.numeroDocumento && (
+                <p className="text-xs text-red-500">{errors.numeroDocumento.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="nombres">Nombres *</Label>
+              <Input id="nombres" {...register('nombres')} placeholder="Juan Carlos" />
+              {errors.nombres && (
+                <p className="text-xs text-red-500">{errors.nombres.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="apellidoPaterno">Apellido paterno *</Label>
+              <Input id="apellidoPaterno" {...register('apellidoPaterno')} placeholder="García" />
+              {errors.apellidoPaterno && (
+                <p className="text-xs text-red-500">{errors.apellidoPaterno.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="apellidoMaterno">Apellido materno</Label>
+              <Input id="apellidoMaterno" {...register('apellidoMaterno')} placeholder="López" />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="telefono">Teléfono</Label>
               <Input id="telefono" {...register('telefono')} placeholder="999888777" />
-              {errors.telefono && (
-                <p className="text-xs text-red-500">{errors.telefono.message}</p>
-              )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="col-span-full space-y-1.5">
               <Label htmlFor="correo">Correo electrónico</Label>
               <Input id="correo" type="email" {...register('correo')} placeholder="juan@email.com" />
               {errors.correo && (
                 <p className="text-xs text-red-500">{errors.correo.message}</p>
               )}
             </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="dni">DNI</Label>
-              <Input id="dni" {...register('dni')} placeholder="12345678" maxLength={8} />
-              {errors.dni && (
-                <p className="text-xs text-red-500">{errors.dni.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="fechaNacimiento">Fecha de nacimiento</Label>
-              <Input id="fechaNacimiento" type="date" {...register('fechaNacimiento')} />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="tipoCliente">Tipo de cliente</Label>
-              <select
-                id="tipoCliente"
-                {...register('tipoCliente')}
-                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-azul/30"
-              >
-                <option value="PERSONA">Persona natural</option>
-                <option value="EMPRESA">Empresa</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="observaciones">Observaciones</Label>
-            <textarea
-              id="observaciones"
-              {...register('observaciones')}
-              rows={3}
-              placeholder="Notas internas sobre el cliente..."
-              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-azul/30 resize-none"
-            />
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer">

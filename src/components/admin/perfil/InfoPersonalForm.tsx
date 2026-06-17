@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Loader2, Save, User, Mail, Phone, Briefcase } from 'lucide-react'
 import { UsuarioAdmin } from '@/types/usuario-admin.types'

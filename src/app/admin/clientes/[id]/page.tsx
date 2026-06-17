@@ -7,21 +7,16 @@ import {
   ArrowLeft,
   Phone,
   Mail,
-  MapPin,
-  Building2,
   BadgeCheck,
   CalendarDays,
   Clock,
   Ticket,
   CreditCard,
   Crown,
-  UserCheck,
-  UserX,
   RefreshCw,
   Loader2,
   Star,
   MessageSquare,
-  Globe,
   ShoppingBag,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -32,14 +27,10 @@ import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { ClienteAvatar } from '@/components/admin/clientes/ClienteAvatar'
 import {
   VipBadge,
-  EstadoBadge,
-  VerificadoBadge,
-  TipoBadge,
   OrigenBadge,
   SegmentoBadge,
 } from '@/components/admin/clientes/ClienteBadges'
 import { Button } from '@/components/ui/Button'
-import { Separator } from '@/components/ui/Separator'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
@@ -109,18 +100,6 @@ export default function ClienteDetailPage({
     queryClient.invalidateQueries({ queryKey: ['clientes'] })
   }
 
-  const toggleActivo = useMutation({
-    mutationFn: () =>
-      cliente!.activo
-        ? clienteService.desactivar(clienteId)
-        : clienteService.activar(clienteId),
-    onSuccess: () => {
-      invalidar()
-      toast.success(cliente!.activo ? 'Cliente desactivado.' : 'Cliente activado.')
-    },
-    onError: () => toast.error('No se pudo cambiar el estado.'),
-  })
-
   const toggleVip = useMutation({
     mutationFn: () =>
       cliente!.esVip
@@ -157,12 +136,12 @@ export default function ClienteDetailPage({
       <Breadcrumbs
         items={[
           { label: 'Clientes', href: '/admin/clientes' },
-          { label: cliente.nombre },
+          { label: cliente.nombreCompleto },
         ]}
       />
 
       <PageHeader
-        title={cliente.nombre}
+        title={cliente.nombreCompleto}
         description="Perfil CRM del cliente"
         actions={
           <Link href="/admin/clientes">
@@ -175,33 +154,27 @@ export default function ClienteDetailPage({
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Columna izquierda */}
         <div className="space-y-4">
-          {/* Hero */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4">
             <ClienteAvatar
-              nombre={cliente.nombre}
-              fotoPerfil={cliente.fotoPerfil}
+              nombre={cliente.nombreCompleto}
+              fotoPerfil={undefined}
               esVip={cliente.esVip}
               size="lg"
             />
             <div className="flex-1 min-w-0 space-y-2">
-              <h2 className="font-black text-gray-900">{cliente.nombre}</h2>
+              <h2 className="font-black text-gray-900">{cliente.nombreCompleto}</h2>
               <p className="text-sm text-gray-500 truncate">{cliente.correo}</p>
               <div className="flex flex-wrap gap-1.5">
-                <EstadoBadge activo={cliente.activo} />
-                <TipoBadge tipo={cliente.tipoCliente} />
-                <OrigenBadge origen={cliente.origenRegistro} />
+                <OrigenBadge origen={cliente.origen} />
+                <SegmentoBadge segmento={cliente.segmentoCodigo} />
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {cliente.esVip && <VipBadge descuento={cliente.descuentoVip} />}
-                <SegmentoBadge segmento={cliente.segmentoCliente} />
-                <VerificadoBadge verificado={cliente.correoVerificado} />
               </div>
             </div>
           </div>
 
-          {/* Estadísticas */}
           <div className="grid grid-cols-2 gap-3">
             <StatCard
               icon={Ticket}
@@ -221,7 +194,6 @@ export default function ClienteDetailPage({
             />
           </div>
 
-          {/* Acciones */}
           <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">
               Acciones
@@ -250,28 +222,6 @@ export default function ClienteDetailPage({
               <Button
                 variant="outline"
                 size="sm"
-                className={cn(
-                  'rounded-xl gap-1.5 text-xs font-semibold',
-                  cliente.activo
-                    ? 'border-red-200 text-red-600 hover:bg-red-50'
-                    : 'border-green-200 text-green-700 hover:bg-green-50'
-                )}
-                onClick={() => toggleActivo.mutate()}
-                disabled={toggleActivo.isPending}
-              >
-                {toggleActivo.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : cliente.activo ? (
-                  <UserX className="h-3.5 w-3.5" />
-                ) : (
-                  <UserCheck className="h-3.5 w-3.5" />
-                )}
-                {cliente.activo ? 'Desactivar' : 'Activar'}
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
                 className="rounded-xl gap-1.5 text-xs font-semibold col-span-2 border-brand-azul/30 text-brand-azul hover:bg-brand-azul/8"
                 onClick={() => registrarVisita.mutate()}
                 disabled={registrarVisita.isPending}
@@ -287,59 +237,34 @@ export default function ClienteDetailPage({
           </div>
         </div>
 
-        {/* Columna derecha */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Información de contacto */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">
               Datos de contacto
             </p>
             <InfoRow icon={Mail} label="Correo" value={cliente.correo} />
             <InfoRow icon={Phone} label="Teléfono" value={cliente.telefono} />
-            <InfoRow icon={BadgeCheck} label="DNI" value={cliente.dni} />
-            <InfoRow icon={MapPin} label="Dirección" value={cliente.direccion} />
-            {cliente.tipoCliente === 'EMPRESA' && (
-              <>
-                <Separator className="my-1" />
-                <InfoRow icon={Building2} label="RUC" value={cliente.ruc} />
-                <InfoRow icon={Building2} label="Razón social" value={cliente.razonSocial} />
-              </>
-            )}
+            <InfoRow
+              icon={BadgeCheck}
+              label={cliente.tipoDocumentoCodigo}
+              value={cliente.numeroDocumento}
+            />
           </div>
 
-          {/* Actividad y CRM */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">
               Actividad y CRM
             </p>
             <InfoRow
-              icon={CalendarDays}
-              label="Fecha de nacimiento"
-              value={cliente.fechaNacimiento ? formatDate(cliente.fechaNacimiento) : null}
-            />
-            <InfoRow
               icon={Clock}
-              label="Último acceso"
-              value={cliente.ultimoLogin ? formatDate(cliente.ultimoLogin) : 'Sin acceso aún'}
-            />
-            <InfoRow
-              icon={CalendarDays}
-              label="Última visita registrada"
-              value={cliente.ultimaVisita ? formatDate(cliente.ultimaVisita) : 'Sin visitas'}
+              label="Última visita"
+              value={cliente.ultimaVisitaAt ? formatDate(cliente.ultimaVisitaAt) : 'Sin visitas'}
             />
             <InfoRow
               icon={CalendarDays}
               label="Registrado"
-              value={formatDate(cliente.fechaCreacion)}
+              value={formatDate(cliente.creadoEn)}
             />
-            {cliente.fechaMigracionWeb && (
-              <InfoRow
-                icon={Globe}
-                label="Migración a web"
-                value={formatDate(cliente.fechaMigracionWeb)}
-              />
-            )}
-            <Separator className="my-1" />
             <InfoRow
               icon={Star}
               label="Descuento VIP"
@@ -352,7 +277,6 @@ export default function ClienteDetailPage({
             />
           </div>
 
-          {/* Marketing y comunicaciones */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">
               Marketing y comunicaciones
@@ -370,33 +294,7 @@ export default function ClienteDetailPage({
                   : 'No acepta comunicaciones'}
               </span>
             </div>
-            <div className="flex items-center gap-2 mt-2">
-              <div
-                className={cn(
-                  'w-2 h-2 rounded-full',
-                  cliente.tieneAccesoWeb ? 'bg-brand-azul' : 'bg-gray-300'
-                )}
-              />
-              <span className="text-sm text-gray-700">
-                {cliente.tieneAccesoWeb ? 'Tiene acceso web activo' : 'Sin cuenta web'}
-              </span>
-            </div>
           </div>
-
-          {/* Observaciones */}
-          {cliente.observaciones && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <MessageSquare className="h-4 w-4 text-gray-400" />
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-                  Observaciones
-                </p>
-              </div>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {cliente.observaciones}
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </div>
