@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '@/hooks/useAuth'
 import { parseISO, startOfDay, differenceInDays } from 'date-fns'
 import {
   Ticket,
@@ -79,20 +79,20 @@ function AccesoRapido({ href, icon: Icon, label, color }: AccesoRapidoProps) {
 }
 
 export default function ClienteDashboard() {
-  const { data: session } = useSession()
-  const userName = session?.user?.name?.split(' ')[0] ?? 'Cliente'
+  const { nombre, isAuthenticated } = useAuth()
+  const userName = nombre?.split(' ')[0] ?? 'Cliente'
   const [reservaDetalle, setReservaDetalle] = useState<Reserva | null>(null)
 
   const { data: reservasData, isLoading: loadingReservas } = useQuery({
     queryKey: ['mis-reservas-dashboard'],
     queryFn: () => reservaService.listar({ page: 0, size: 20 }),
-    enabled: !!session,
+    enabled: isAuthenticated,
   })
 
   const { data: eventosData } = useQuery({
     queryKey: ['mis-eventos-dashboard'],
     queryFn: () => eventoService.listar({ page: 0, size: 20 }),
-    enabled: !!session,
+    enabled: isAuthenticated,
   })
 
   const proximasReservas = useMemo<Reserva[]>(() => {

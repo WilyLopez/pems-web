@@ -37,7 +37,7 @@ const navLinks = [
 
 export function ClienteNavbar() {
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { nombre, correo, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const isActive = (href: string, exact?: boolean) =>
@@ -75,18 +75,18 @@ export function ClienteNavbar() {
               >
                 <Avatar className="h-7 w-7">
                   <AvatarFallback className="text-xs bg-brand-rosa text-white font-bold">
-                    {user?.name ? getInitials(user.name) : 'C'}
+                    {nombre ? getInitials(nombre) : 'C'}
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden md:block text-sm font-semibold">
-                  {user?.name?.split(' ')[0]}
+                  {nombre?.split(' ')[0]}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
               <div className="px-3 py-2">
-                <p className="text-sm font-bold text-gray-900">{user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+                <p className="text-sm font-bold text-gray-900">{nombre}</p>
+                <p className="text-xs text-gray-500">{correo}</p>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>

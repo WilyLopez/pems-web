@@ -3,7 +3,7 @@ export type ResultadoAuditoria = 'EXITOSO' | 'FALLIDO' | 'DENEGADO'
 
 export interface LogAuditoria {
   id: number
-  idUsuarioAdmin?: number
+  idUsuarioAdmin?: string
   nombreUsuario?: string
   accion: string
   modulo: string

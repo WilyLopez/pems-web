@@ -2,69 +2,70 @@
 
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Clock, Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { useActualizarConfiguracion } from '@/hooks/useConfiguracion'
-import { ConfiguracionSistema } from '@/types/configuracion.types'
+import { useActualizarConfiguracionCalendario } from '@/hooks/useConfiguracion'
+import { ConfiguracionCalendario } from '@/types/configuracion.types'
 
 const schema = z.object({
-  HORA_APERTURA: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  HORA_CIERRE: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  AFORO_MAXIMO: z.coerce.number().int().min(1).max(10000),
-  INTERVALO_PREPARACION_INICIO: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  INTERVALO_PREPARACION_FIN: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+  horaApertura:  z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+  horaCierre:    z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+  aforoMaximo:   z.coerce.number().int().min(1),
+  turnoT1Inicio: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+  turnoT1Fin:    z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+  turnoT2Inicio: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+  turnoT2Fin:    z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
 })
 
 type FormValues = z.infer<typeof schema>
 
-function toMap(configs: ConfiguracionSistema[]): Record<string, string> {
-  return Object.fromEntries(configs.map((c) => [c.clave, c.valor]))
+interface Props {
+  config: ConfiguracionCalendario
+  idSede: number
 }
 
-export function OperacionTab({ configs }: { configs: ConfiguracionSistema[] }) {
-  const actualizar = useActualizarConfiguracion()
-  const map = toMap(configs)
+export function OperacionTab({ config, idSede }: Props) {
+  const actualizar = useActualizarConfiguracionCalendario(idSede)
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isDirty },
-  } = useForm<FormValues>({
+  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      HORA_APERTURA: map.HORA_APERTURA ?? '10:00',
-      HORA_CIERRE: map.HORA_CIERRE ?? '20:00',
-      AFORO_MAXIMO: Number(map.AFORO_MAXIMO ?? 60),
-      INTERVALO_PREPARACION_INICIO: map.INTERVALO_PREPARACION_INICIO ?? '14:00',
-      INTERVALO_PREPARACION_FIN: map.INTERVALO_PREPARACION_FIN ?? '16:00',
+      horaApertura:  config.horaApertura,
+      horaCierre:    config.horaCierre,
+      aforoMaximo:   config.aforoMaximo,
+      turnoT1Inicio: config.turnoT1Inicio,
+      turnoT1Fin:    config.turnoT1Fin,
+      turnoT2Inicio: config.turnoT2Inicio,
+      turnoT2Fin:    config.turnoT2Fin,
     },
   })
 
   useEffect(() => {
-    const m = toMap(configs)
     reset({
-      HORA_APERTURA: m.HORA_APERTURA ?? '10:00',
-      HORA_CIERRE: m.HORA_CIERRE ?? '20:00',
-      AFORO_MAXIMO: Number(m.AFORO_MAXIMO ?? 60),
-      INTERVALO_PREPARACION_INICIO: m.INTERVALO_PREPARACION_INICIO ?? '14:00',
-      INTERVALO_PREPARACION_FIN: m.INTERVALO_PREPARACION_FIN ?? '16:00',
+      horaApertura:  config.horaApertura,
+      horaCierre:    config.horaCierre,
+      aforoMaximo:   config.aforoMaximo,
+      turnoT1Inicio: config.turnoT1Inicio,
+      turnoT1Fin:    config.turnoT1Fin,
+      turnoT2Inicio: config.turnoT2Inicio,
+      turnoT2Fin:    config.turnoT2Fin,
     })
-  }, [configs, reset])
+  }, [config, reset])
 
   function onSubmit(values: FormValues) {
     actualizar.mutate({
-      HORA_APERTURA: values.HORA_APERTURA,
-      HORA_CIERRE: values.HORA_CIERRE,
-      AFORO_MAXIMO: String(values.AFORO_MAXIMO),
-      INTERVALO_PREPARACION_INICIO: values.INTERVALO_PREPARACION_INICIO,
-      INTERVALO_PREPARACION_FIN: values.INTERVALO_PREPARACION_FIN,
+      ...config,
+      horaApertura:  values.horaApertura,
+      horaCierre:    values.horaCierre,
+      aforoMaximo:   values.aforoMaximo,
+      turnoT1Inicio: values.turnoT1Inicio,
+      turnoT1Fin:    values.turnoT1Fin,
+      turnoT2Inicio: values.turnoT2Inicio,
+      turnoT2Fin:    values.turnoT2Fin,
     })
   }
 
@@ -76,104 +77,63 @@ export function OperacionTab({ configs }: { configs: ConfiguracionSistema[] }) {
         </div>
         <div>
           <h3 className="font-semibold text-gray-900">Horarios del local</h3>
-          <p className="text-xs text-muted-foreground">
-            Hora de apertura y cierre del local (formato 24 h)
-          </p>
+          <p className="text-xs text-muted-foreground">Hora de apertura y cierre (formato 24 h)</p>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="HORA_APERTURA">Hora de apertura</Label>
-          <Input
-            id="HORA_APERTURA"
-            type="time"
-            {...register('HORA_APERTURA')}
-          />
-          {errors.HORA_APERTURA && (
-            <p className="text-xs text-destructive">
-              {errors.HORA_APERTURA.message}
-            </p>
-          )}
+          <Label htmlFor="horaApertura">Hora de apertura</Label>
+          <Input id="horaApertura" type="time" {...register('horaApertura')} />
+          {errors.horaApertura && <p className="text-xs text-destructive">{errors.horaApertura.message}</p>}
         </div>
-
         <div className="space-y-1.5">
-          <Label htmlFor="HORA_CIERRE">Hora de cierre</Label>
-          <Input id="HORA_CIERRE" type="time" {...register('HORA_CIERRE')} />
-          {errors.HORA_CIERRE && (
-            <p className="text-xs text-destructive">
-              {errors.HORA_CIERRE.message}
-            </p>
-          )}
+          <Label htmlFor="horaCierre">Hora de cierre</Label>
+          <Input id="horaCierre" type="time" {...register('horaCierre')} />
+          {errors.horaCierre && <p className="text-xs text-destructive">{errors.horaCierre.message}</p>}
         </div>
-
         <div className="space-y-1.5">
-          <Label htmlFor="AFORO_MAXIMO">Aforo máximo (personas)</Label>
-          <Input
-            id="AFORO_MAXIMO"
-            type="number"
-            min={1}
-            {...register('AFORO_MAXIMO')}
-          />
-          {errors.AFORO_MAXIMO && (
-            <p className="text-xs text-destructive">
-              {errors.AFORO_MAXIMO.message}
-            </p>
-          )}
+          <Label htmlFor="aforoMaximo">Aforo máximo (personas)</Label>
+          <Input id="aforoMaximo" type="number" min={1} {...register('aforoMaximo')} />
+          {errors.aforoMaximo && <p className="text-xs text-destructive">{errors.aforoMaximo.message}</p>}
         </div>
       </div>
 
       <div className="pt-2 border-t border-gray-100">
-        <p className="text-sm font-medium text-gray-700 mb-3">
-          Intervalo de preparación entre turnos
-        </p>
+        <p className="text-sm font-medium text-gray-700 mb-3">Turnos de atención</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="INTERVALO_PREPARACION_INICIO">
-              Inicio del intervalo
-            </Label>
-            <Input
-              id="INTERVALO_PREPARACION_INICIO"
-              type="time"
-              {...register('INTERVALO_PREPARACION_INICIO')}
-            />
-            {errors.INTERVALO_PREPARACION_INICIO && (
-              <p className="text-xs text-destructive">
-                {errors.INTERVALO_PREPARACION_INICIO.message}
-              </p>
-            )}
+            <Label htmlFor="turnoT1Inicio">Inicio turno 1</Label>
+            <Input id="turnoT1Inicio" type="time" {...register('turnoT1Inicio')} />
+            {errors.turnoT1Inicio && <p className="text-xs text-destructive">{errors.turnoT1Inicio.message}</p>}
           </div>
-
           <div className="space-y-1.5">
-            <Label htmlFor="INTERVALO_PREPARACION_FIN">Fin del intervalo</Label>
-            <Input
-              id="INTERVALO_PREPARACION_FIN"
-              type="time"
-              {...register('INTERVALO_PREPARACION_FIN')}
-            />
-            {errors.INTERVALO_PREPARACION_FIN && (
-              <p className="text-xs text-destructive">
-                {errors.INTERVALO_PREPARACION_FIN.message}
-              </p>
-            )}
+            <Label htmlFor="turnoT1Fin">Fin turno 1</Label>
+            <Input id="turnoT1Fin" type="time" {...register('turnoT1Fin')} />
+            {errors.turnoT1Fin && <p className="text-xs text-destructive">{errors.turnoT1Fin.message}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="turnoT2Inicio">Inicio turno 2</Label>
+            <Input id="turnoT2Inicio" type="time" {...register('turnoT2Inicio')} />
+            {errors.turnoT2Inicio && <p className="text-xs text-destructive">{errors.turnoT2Inicio.message}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="turnoT2Fin">Fin turno 2</Label>
+            <Input id="turnoT2Fin" type="time" {...register('turnoT2Fin')} />
+            {errors.turnoT2Fin && <p className="text-xs text-destructive">{errors.turnoT2Fin.message}</p>}
           </div>
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          El intervalo entre el fin del turno 1 y el inicio del turno 2 es el tiempo de preparación del local.
+        </p>
       </div>
 
       <div className="flex justify-end pt-1">
-        <Button
-          type="submit"
-          disabled={actualizar.isPending || !isDirty}
-          size="sm"
-        >
+        <Button type="submit" disabled={actualizar.isPending || !isDirty} size="sm">
           {actualizar.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...
-            </>
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...</>
           ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" /> Guardar cambios
-            </>
+            <><Save className="mr-2 h-4 w-4" /> Guardar cambios</>
           )}
         </Button>
       </div>

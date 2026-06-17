@@ -86,12 +86,7 @@ function DetalleReserva({ reserva, onReprogramar, onCancelar }: DetalleProps) {
   const puedeCancelar =
     reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA'
 
-  const turnoLabel =
-    reserva.turno === 'T1'
-      ? 'Mañana 10:00 – 14:00'
-      : reserva.turno === 'T2'
-      ? 'Tarde 16:00 – 20:00'
-      : null
+  const turnoLabel = null
 
   return (
     <div className="flex flex-col">

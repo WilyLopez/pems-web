@@ -13,7 +13,11 @@ import {
   Pencil,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { useConfiguracion, useSede } from '@/hooks/useConfiguracion'
+import {
+  useConfiguracion,
+  useConfiguracionCalendario,
+  useSede,
+} from '@/hooks/useConfiguracion'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -33,15 +37,11 @@ import { PagosTab }      from '@/components/admin/configuracion/PagosTab'
 import { SedeTab }       from '@/components/admin/configuracion/SedeTab'
 import { CatalogosTab }  from '@/components/admin/configuracion/CatalogosTab'
 import { SistemaCard }   from '@/components/admin/configuracion/SistemaCard'
-import { ConfiguracionSistema } from '@/types/configuracion.types'
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
+import { ConfiguracionSistema, ConfiguracionCalendario } from '@/types/configuracion.types'
 
 function toMap(configs: ConfiguracionSistema[]): Record<string, string> {
   return Object.fromEntries(configs.map((c) => [c.clave, c.valor]))
 }
-
-// ── Base card ─────────────────────────────────────────────────────────────────
 
 interface SummaryItem { label: string; value: string }
 
@@ -119,8 +119,6 @@ function ModuleCard({
   )
 }
 
-// ── Read-only view helper ─────────────────────────────────────────────────────
-
 function ReadOnlyList({ items }: { items: SummaryItem[] }) {
   return (
     <ul className="divide-y divide-gray-100">
@@ -134,66 +132,62 @@ function ReadOnlyList({ items }: { items: SummaryItem[] }) {
   )
 }
 
-// ── Module cards ──────────────────────────────────────────────────────────────
-
-function OperacionCard({ configs }: { configs: ConfiguracionSistema[] }) {
-  const m = toMap(configs)
+function OperacionCard({ config, idSede }: { config: ConfiguracionCalendario; idSede: number }) {
   const summary: SummaryItem[] = [
-    { label: 'Apertura',      value: m.HORA_APERTURA    ?? '—' },
-    { label: 'Cierre',        value: m.HORA_CIERRE      ?? '—' },
-    { label: 'Aforo máximo',  value: m.AFORO_MAXIMO ? `${m.AFORO_MAXIMO} personas` : '—' },
+    { label: 'Apertura',      value: config.horaApertura },
+    { label: 'Cierre',        value: config.horaCierre   },
+    { label: 'Aforo máximo',  value: `${config.aforoMaximo} personas` },
   ]
   const viewItems: SummaryItem[] = [
     ...summary,
-    { label: 'Intervalo preparación inicio', value: m.INTERVALO_PREPARACION_INICIO ?? '—' },
-    { label: 'Intervalo preparación fin',    value: m.INTERVALO_PREPARACION_FIN    ?? '—' },
+    { label: 'Turno 1', value: `${config.turnoT1Inicio} – ${config.turnoT1Fin}` },
+    { label: 'Turno 2', value: `${config.turnoT2Inicio} – ${config.turnoT2Fin}` },
   ]
   return (
     <ModuleCard
       icon={Clock} color="bg-blue-50 text-blue-600"
       title="Horarios de operación"
-      description="Apertura, cierre, aforo e intervalos del local"
+      description="Apertura, cierre, turnos y aforo del local"
       summary={summary}
+      editSize="sm:max-w-xl"
       viewContent={<ReadOnlyList items={viewItems} />}
-      editContent={<OperacionTab configs={configs} />}
+      editContent={<OperacionTab config={config} idSede={idSede} />}
     />
   )
 }
 
-function ReservasCard({ configs }: { configs: ConfiguracionSistema[] }) {
-  const m = toMap(configs)
+function ReservasCard({ config, idSede }: { config: ConfiguracionCalendario; idSede: number }) {
   const summary: SummaryItem[] = [
-    { label: 'Anticipación mín.',   value: m.ANTICIPACION_MIN_RESERVA_PUBLICA_H ? `${m.ANTICIPACION_MIN_RESERVA_PUBLICA_H}h` : '—' },
-    { label: 'Plazo reprog.',       value: m.PLAZO_REPROGRAMACION_H              ? `${m.PLAZO_REPROGRAMACION_H}h`             : '—' },
-    { label: 'Reprog. máximas',     value: m.MAX_REPROGRAMACIONES_POR_ENTRADA    ?? '—' },
-    { label: 'Visitas entrada free', value: m.VISITAS_PARA_ENTRADA_GRATIS        ?? '—' },
+    { label: 'Anticipación mín.', value: `${config.diasMinReservaPublica} días` },
+    { label: 'Anticipación máx.', value: `${config.diasMaxReservaPublica} días` },
+    { label: 'Bloqueo máx.',      value: `${config.rangoMaxBloqueo} días`       },
   ]
   return (
     <ModuleCard
       icon={CalendarCheck} color="bg-green-50 text-green-600"
       title="Reservas públicas"
-      description="Plazos, reprogramaciones y fidelización del portal"
+      description="Ventanas de anticipación y rango de bloqueos"
       summary={summary}
       viewContent={<ReadOnlyList items={summary} />}
-      editContent={<ReservasTab configs={configs} />}
+      editContent={<ReservasTab config={config} idSede={idSede} />}
     />
   )
 }
 
-function EventosCard({ configs }: { configs: ConfiguracionSistema[] }) {
-  const m = toMap(configs)
+function EventosCard({ config, idSede }: { config: ConfiguracionCalendario; idSede: number }) {
   const summary: SummaryItem[] = [
-    { label: 'Anticipación mínima', value: m.ANTICIPACION_MIN_EVENTO_PRIVADO_D ? `${m.ANTICIPACION_MIN_EVENTO_PRIVADO_D} días` : '—' },
+    { label: 'Anticipación mín.', value: `${config.diasMinEventoPrivado} días` },
+    { label: 'Anticipación máx.', value: `${config.diasMaxEventoPrivado} días` },
   ]
   return (
     <ModuleCard
       icon={CalendarRange} color="bg-violet-50 text-violet-600"
       title="Eventos privados"
-      description="Anticipación mínima para solicitar eventos"
+      description="Ventana de anticipación para contratar eventos"
       summary={summary}
       editSize="sm:max-w-md"
       viewContent={<ReadOnlyList items={summary} />}
-      editContent={<EventosTab configs={configs} />}
+      editContent={<EventosTab config={config} idSede={idSede} />}
     />
   )
 }
@@ -220,7 +214,7 @@ function SeguridadCard({ configs }: { configs: ConfiguracionSistema[] }) {
 function PagosCard({ configs }: { configs: ConfiguracionSistema[] }) {
   const m = toMap(configs)
   const summary: SummaryItem[] = [
-    { label: 'Proveedor PSE', value: m.PSE_PROVEEDOR ?? '—' },
+    { label: 'Proveedor SUNAT', value: m.SUNAT_PROVEEDOR ?? '—' },
   ]
   return (
     <ModuleCard
@@ -240,9 +234,9 @@ function SedeCard({ idSede }: { idSede: number | null }) {
   const [modal, setModal] = useState<'view' | 'edit' | null>(null)
 
   const summary: SummaryItem[] = sede ? [
-    { label: 'Nombre',     value: sede.nombre      },
-    { label: 'Ciudad',     value: sede.ciudad       },
-    { label: 'RUC',        value: sede.ruc ?? '—'   },
+    { label: 'Nombre', value: sede.nombre  },
+    { label: 'Ciudad', value: sede.ciudad  },
+    { label: 'RUC',    value: sede.ruc ?? '—' },
   ] : []
 
   return (
@@ -370,8 +364,6 @@ function CatalogosCard() {
   )
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 function GridSkeleton() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -383,8 +375,29 @@ function GridSkeleton() {
 }
 
 export default function ConfiguracionPage() {
-  const { idSede }                                       = useAuth()
-  const { data: configs, isLoading, isError, refetch }   = useConfiguracion()
+  const { idSede } = useAuth()
+
+  const {
+    data: configs,
+    isLoading: loadingGlobal,
+    isError: errorGlobal,
+    refetch: refetchGlobal,
+  } = useConfiguracion()
+
+  const {
+    data: configCalendario,
+    isLoading: loadingCalendario,
+    isError: errorCalendario,
+    refetch: refetchCalendario,
+  } = useConfiguracionCalendario(idSede ?? null)
+
+  const isLoading = loadingGlobal || loadingCalendario
+  const isError   = errorGlobal   || errorCalendario
+
+  function refetch() {
+    refetchGlobal()
+    refetchCalendario()
+  }
 
   return (
     <div className="space-y-6">
@@ -396,13 +409,13 @@ export default function ConfiguracionPage() {
 
       {isLoading ? (
         <GridSkeleton />
-      ) : isError || !configs ? (
+      ) : isError || !configs || !configCalendario ? (
         <ErrorState onRetry={refetch} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <OperacionCard  configs={configs} />
-          <ReservasCard   configs={configs} />
-          <EventosCard    configs={configs} />
+          <OperacionCard  config={configCalendario} idSede={idSede!} />
+          <ReservasCard   config={configCalendario} idSede={idSede!} />
+          <EventosCard    config={configCalendario} idSede={idSede!} />
           <SeguridadCard  configs={configs} />
           <PagosCard      configs={configs} />
           <SedeCard       idSede={idSede ?? null} />

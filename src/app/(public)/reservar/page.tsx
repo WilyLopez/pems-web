@@ -1,23 +1,24 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useSearchParams, usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSearchParams } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   format,
   addWeeks,
-  subWeeks,
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
   parseISO,
   isToday,
   isBefore,
+  isAfter,
   startOfDay,
+  parse,
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -34,6 +35,8 @@ import {
 import Link from 'next/link'
 
 import { useDisponibilidadRango } from '@/hooks/useDisponibilidad'
+import { useConfiguracionCalendario } from '@/hooks/useCalendario'
+import { usePreciosPublicos } from '@/hooks/useTarifas'
 import { reservaService } from '@/services/reserva.service'
 import { reservaSchema, ReservaFormValues } from '@/lib/validations/reserva.schema'
 import { Reserva, MedioPago } from '@/types/reserva.types'
@@ -45,8 +48,6 @@ import { Checkbox } from '@/components/ui/Checkbox'
 import { cn } from '@/lib/utils'
 
 const SEDE_ID = 1
-const DIAS_MAX_RESERVA = 14
-const SEMANAS_MAX = Math.ceil(DIAS_MAX_RESERVA / 7)
 
 type PasoReserva = 1 | 2 | 3 | 4
 
@@ -125,19 +126,42 @@ function AuthGuard({ fecha }: { fecha: string | null }) {
   )
 }
 
-function PrecioLabel({ tipoDia }: { tipoDia?: string }) {
-  const precio = tipoDia === 'SEMANA' ? 25 : 35
-  return <span className="font-black text-brand-azul">S/ {precio}</span>
+function PrecioLabel({
+  tipoDia,
+  precioMap,
+}: {
+  tipoDia?: string
+  precioMap?: Record<string, number>
+}) {
+  const precio = tipoDia && precioMap
+    ? (precioMap[tipoDia] ?? (tipoDia === 'SEMANA' ? 25 : 35))
+    : tipoDia === 'SEMANA' ? 25 : 35
+  return <span className="font-black text-brand-azul">S/ {Number(precio).toFixed(2)}</span>
 }
 
 export default function ReservarPage() {
   const searchParams = useSearchParams()
-  const { data: session, status } = useSession()
+  const { idUsuario, correo, isAuthenticated, isLoading: authLoading } = useAuth()
 
   const [paso, setPaso] = useState<PasoReserva>(1)
   const [fechaSeleccionada, setFecha] = useState<string | null>(null)
   const [dispSeleccionada, setDispSeleccionada] = useState<Disponibilidad | null>(null)
   const [semanaOffset, setSemanaOffset] = useState(0)
+
+  const { data: config } = useConfiguracionCalendario(SEDE_ID)
+  const { data: preciosPublicos } = usePreciosPublicos(SEDE_ID)
+  const precioMap: Record<string, number> | undefined = preciosPublicos
+    ? Object.fromEntries(preciosPublicos.map((p) => [p.tipoDia, Number(p.precio)]))
+    : undefined
+
+  const diasMax = config?.diasMaxReservaPublica ?? 14
+  const horaApertura = config?.horaApertura ?? '10:00'
+  const horaCierre = config?.horaCierre ?? '20:00'
+  const semanasMax = Math.ceil(diasMax / 7)
+
+  const hoyYaCerro = (fecha: string) =>
+    isToday(parseISO(fecha)) &&
+    isAfter(new Date(), parse(horaCierre, 'HH:mm', new Date()))
 
   const [metodoPago, setMetodoPago] = useState<MedioPago | null>(null)
   const [codigoYape, setCodigoYape] = useState('')
@@ -182,7 +206,7 @@ export default function ReservarPage() {
 
   const crear = useMutation({
     mutationFn: (payload: Parameters<typeof reservaService.crear>[2]) =>
-      reservaService.crear(Number(session?.user?.id), SEDE_ID, payload),
+      reservaService.crear(idUsuario!, SEDE_ID, payload),
     onSuccess: async (reserva) => {
       if (metodoPago === 'YAPE' && comprobante) {
         try {
@@ -199,9 +223,9 @@ export default function ReservarPage() {
     },
   })
 
-  if (status === 'loading') return null
+  if (authLoading) return null
 
-  if (!session) return <AuthGuard fecha={fechaSeleccionada} />
+  if (!isAuthenticated) return <AuthGuard fecha={fechaSeleccionada} />
 
   async function confirmarReserva() {
     setIntentoEnvio(true)
@@ -286,7 +310,7 @@ export default function ReservarPage() {
 
           <p className="text-xs text-gray-500">
             Recibiras un correo con tu ticket en PDF en{' '}
-            <strong>{session?.user?.email}</strong>
+            <strong>{correo}</strong>
           </p>
 
           <div className="flex gap-3">
@@ -331,7 +355,7 @@ export default function ReservarPage() {
               Elige el dia en que deseas visitar Kiki y Lala
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              Puedes reservar hasta con {DIAS_MAX_RESERVA} dias de anticipacion.
+              Puedes reservar hasta con {diasMax} dias de anticipacion. Atencion {horaApertura} a {horaCierre}.
             </p>
           </div>
 
@@ -350,7 +374,7 @@ export default function ReservarPage() {
                 </button>
                 <button
                   onClick={() => setSemanaOffset((o) => o + 1)}
-                  disabled={semanaOffset >= SEMANAS_MAX - 1}
+                  disabled={semanaOffset >= semanasMax - 1}
                   className="h-8 w-8 rounded-lg border border-gray-200 flex items-center justify-center hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -370,16 +394,17 @@ export default function ReservarPage() {
                   const disp = getDisp(dia)
                   const hoy = startOfDay(new Date())
                   const pasado = isBefore(dia, hoy)
-                  const disabled = pasado || !disp || !disp.disponiblePublico
-                  const seleccionado = fechaSeleccionada === format(dia, 'yyyy-MM-dd')
+                  const fechaStr = format(dia, 'yyyy-MM-dd')
+                  const cerroHoy = hoyYaCerro(fechaStr)
+                  const disabled = pasado || !disp || !disp.disponiblePublico || cerroHoy
+                  const seleccionado = fechaSeleccionada === fechaStr
 
                   return (
                     <button
                       key={dia.toISOString()}
                       disabled={disabled}
                       onClick={() => {
-                        const f = format(dia, 'yyyy-MM-dd')
-                        setFecha(f)
+                        setFecha(fechaStr)
                         setDispSeleccionada(disp ?? null)
                       }}
                       className={cn(
@@ -410,13 +435,15 @@ export default function ReservarPage() {
                       )}
                       {disp && !disabled && (
                         <span className="text-[9px] font-bold text-brand-azul mt-auto">
-                          {disp.tipoDia === 'SEMANA' ? 'S/25' : 'S/35'}
+                          {precioMap
+                            ? `S/${Number(precioMap[disp.tipoDia] ?? (disp.tipoDia === 'SEMANA' ? 25 : 35)).toFixed(0)}`
+                            : disp.tipoDia === 'SEMANA' ? 'S/25' : 'S/35'}
                         </span>
                       )}
-                      {disabled && !pasado && disp?.tipoOcupacion === 'PRIVADO' && (
+                      {disabled && !pasado && (disp?.tipoOcupacion === 'PRIVADO_PARCIAL' || disp?.tipoOcupacion === 'PRIVADO_LLENO') && (
                         <Lock className="h-3 w-3 text-pink-400 mt-auto" />
                       )}
-                      {disabled && !pasado && disp?.aforoCompleto && disp?.tipoOcupacion !== 'PRIVADO' && (
+                      {disabled && !pasado && disp?.aforoCompleto && disp?.tipoOcupacion !== 'PRIVADO_PARCIAL' && disp?.tipoOcupacion !== 'PRIVADO_LLENO' && (
                         <span className="text-[9px] text-red-500 font-bold">Lleno</span>
                       )}
                     </button>
@@ -438,7 +465,7 @@ export default function ReservarPage() {
                 <span className="text-sm text-gray-600">
                   {dispSeleccionada.plazasDisponibles} plazas disponibles
                 </span>
-                <PrecioLabel tipoDia={dispSeleccionada.tipoDia} />
+                <PrecioLabel tipoDia={dispSeleccionada.tipoDia} precioMap={precioMap} />
               </div>
               <button
                 onClick={() => setPaso(2)}
@@ -657,7 +684,7 @@ export default function ReservarPage() {
               {fechaSeleccionada && dispSeleccionada && (
                 <p className="text-sm text-gray-500">
                   Total:{' '}
-                  <PrecioLabel tipoDia={dispSeleccionada.tipoDia} />
+                  <PrecioLabel tipoDia={dispSeleccionada.tipoDia} precioMap={precioMap} />
                 </p>
               )}
               <Button
@@ -696,7 +723,7 @@ export default function ReservarPage() {
             <p className="text-sm text-gray-600">Nino: {getValues('nombreNino')}</p>
             <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between">
               <span className="text-sm text-gray-500">Total a pagar</span>
-              <PrecioLabel tipoDia={dispSeleccionada?.tipoDia} />
+              <PrecioLabel tipoDia={dispSeleccionada?.tipoDia} precioMap={precioMap} />
             </div>
           </div>
 
@@ -731,7 +758,7 @@ export default function ReservarPage() {
                   <li>
                     Envía exactamente{' '}
                     <strong className="text-[#6E2FEC]">
-                      <PrecioLabel tipoDia={dispSeleccionada?.tipoDia} />
+                      <PrecioLabel tipoDia={dispSeleccionada?.tipoDia} precioMap={precioMap} />
                     </strong>
                   </li>
                   <li>Escribe tu nombre como concepto</li>

@@ -1,188 +1,220 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { CalendarCheck, Loader2, Save } from 'lucide-react'
+import { Baby, CalendarCheck, Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { useActualizarConfiguracion } from '@/hooks/useConfiguracion'
-import { ConfiguracionSistema } from '@/types/configuracion.types'
+import { Separator } from '@/components/ui/Separator'
+import {
+  useActualizarConfiguracionCalendario,
+  useConfiguracion,
+  useActualizarConfiguracion,
+} from '@/hooks/useConfiguracion'
+import { ConfiguracionCalendario } from '@/types/configuracion.types'
 
 const schema = z.object({
-  ANTICIPACION_MIN_RESERVA_PUBLICA_H: z.coerce.number().int().min(0),
-  PLAZO_REPROGRAMACION_H: z.coerce.number().int().min(0),
-  MAX_REPROGRAMACIONES_POR_ENTRADA: z.coerce.number().int().min(0),
-  VISITAS_PARA_ENTRADA_GRATIS: z.coerce.number().int().min(1),
+  diasMinReservaPublica: z.coerce.number().int().min(0),
+  diasMaxReservaPublica: z.coerce.number().int().min(1),
+  rangoMaxBloqueo:       z.coerce.number().int().min(1),
 })
 
 type FormValues = z.infer<typeof schema>
 
-function toMap(configs: ConfiguracionSistema[]): Record<string, string> {
-  return Object.fromEntries(configs.map((c) => [c.clave, c.valor]))
+interface Props {
+  config: ConfiguracionCalendario
+  idSede: number
 }
 
-interface FieldProps {
-  label: string
-  suffix?: string
-  description?: string
-}
+const EDAD_MAX_NINO_KEY = 'EDAD_MAX_NINO'
 
-function NumericField({
-  id,
-  label,
-  suffix,
-  description,
-  error,
-  ...props
-}: FieldProps &
-  React.InputHTMLAttributes<HTMLInputElement> & { error?: string }) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <div className="flex items-center gap-2">
-        <Input
-          id={id}
-          type="number"
-          min={0}
-          className="max-w-[140px]"
-          {...props}
-        />
-        {suffix && (
-          <span className="text-sm text-muted-foreground">{suffix}</span>
-        )}
-      </div>
-      {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
-      )}
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
+export function ReservasTab({ config, idSede }: Props) {
+  const actualizar = useActualizarConfiguracionCalendario(idSede)
+
+  // Config global: edad máxima del niño
+  const { data: sysConfig }  = useConfiguracion()
+  const actualizarSys        = useActualizarConfiguracion()
+  const edadMaxActual        = parseInt(
+    sysConfig?.find(c => c.clave === EDAD_MAX_NINO_KEY)?.valor ?? '12',
+    10,
   )
-}
+  const [edadMaxInput, setEdadMaxInput] = useState<string>('')
+  useEffect(() => {
+    if (!Number.isNaN(edadMaxActual)) setEdadMaxInput(String(edadMaxActual))
+  }, [edadMaxActual])
 
-export function ReservasTab({ configs }: { configs: ConfiguracionSistema[] }) {
-  const actualizar = useActualizarConfiguracion()
-  const map = toMap(configs)
+  function guardarEdadMax() {
+    const num = parseInt(edadMaxInput, 10)
+    if (Number.isNaN(num) || num < 1 || num > 17) return
+    actualizarSys.mutate({ [EDAD_MAX_NINO_KEY]: String(num) })
+  }
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isDirty },
-  } = useForm<FormValues>({
+  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      ANTICIPACION_MIN_RESERVA_PUBLICA_H: Number(
-        map.ANTICIPACION_MIN_RESERVA_PUBLICA_H ?? 1
-      ),
-      PLAZO_REPROGRAMACION_H: Number(map.PLAZO_REPROGRAMACION_H ?? 48),
-      MAX_REPROGRAMACIONES_POR_ENTRADA: Number(
-        map.MAX_REPROGRAMACIONES_POR_ENTRADA ?? 1
-      ),
-      VISITAS_PARA_ENTRADA_GRATIS: Number(map.VISITAS_PARA_ENTRADA_GRATIS ?? 6),
+      diasMinReservaPublica: config.diasMinReservaPublica,
+      diasMaxReservaPublica: config.diasMaxReservaPublica,
+      rangoMaxBloqueo:       config.rangoMaxBloqueo,
     },
   })
 
   useEffect(() => {
-    const m = toMap(configs)
     reset({
-      ANTICIPACION_MIN_RESERVA_PUBLICA_H: Number(
-        m.ANTICIPACION_MIN_RESERVA_PUBLICA_H ?? 1
-      ),
-      PLAZO_REPROGRAMACION_H: Number(m.PLAZO_REPROGRAMACION_H ?? 48),
-      MAX_REPROGRAMACIONES_POR_ENTRADA: Number(
-        m.MAX_REPROGRAMACIONES_POR_ENTRADA ?? 1
-      ),
-      VISITAS_PARA_ENTRADA_GRATIS: Number(m.VISITAS_PARA_ENTRADA_GRATIS ?? 6),
+      diasMinReservaPublica: config.diasMinReservaPublica,
+      diasMaxReservaPublica: config.diasMaxReservaPublica,
+      rangoMaxBloqueo:       config.rangoMaxBloqueo,
     })
-  }, [configs, reset])
+  }, [config, reset])
 
   function onSubmit(values: FormValues) {
     actualizar.mutate({
-      ANTICIPACION_MIN_RESERVA_PUBLICA_H: String(
-        values.ANTICIPACION_MIN_RESERVA_PUBLICA_H
-      ),
-      PLAZO_REPROGRAMACION_H: String(values.PLAZO_REPROGRAMACION_H),
-      MAX_REPROGRAMACIONES_POR_ENTRADA: String(
-        values.MAX_REPROGRAMACIONES_POR_ENTRADA
-      ),
-      VISITAS_PARA_ENTRADA_GRATIS: String(values.VISITAS_PARA_ENTRADA_GRATIS),
+      ...config,
+      diasMinReservaPublica: values.diasMinReservaPublica,
+      diasMaxReservaPublica: values.diasMaxReservaPublica,
+      rangoMaxBloqueo:       values.rangoMaxBloqueo,
     })
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div className="flex items-center gap-2 mb-1">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50">
-          <CalendarCheck className="h-4 w-4 text-green-600" />
+    <div className="space-y-6">
+      {/* ── Sección: ventanas de reserva ── */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50">
+            <CalendarCheck className="h-4 w-4 text-green-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900">Reservas públicas</h3>
+            <p className="text-xs text-muted-foreground">Ventanas de anticipación y bloqueos</p>
+          </div>
         </div>
-        <div>
-          <h3 className="font-semibold text-gray-900">
-            Reglas de reservas públicas
-          </h3>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="diasMinReservaPublica">Anticipación mínima</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="diasMinReservaPublica"
+                type="number"
+                min={0}
+                className="max-w-[120px]"
+                {...register('diasMinReservaPublica')}
+              />
+              <span className="text-sm text-muted-foreground">días</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Días mínimos de anticipación para reservar una entrada.
+            </p>
+            {errors.diasMinReservaPublica && (
+              <p className="text-xs text-destructive">{errors.diasMinReservaPublica.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="diasMaxReservaPublica">Anticipación máxima</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="diasMaxReservaPublica"
+                type="number"
+                min={1}
+                className="max-w-[120px]"
+                {...register('diasMaxReservaPublica')}
+              />
+              <span className="text-sm text-muted-foreground">días</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Con cuántos días de anticipación máxima se puede reservar.
+            </p>
+            {errors.diasMaxReservaPublica && (
+              <p className="text-xs text-destructive">{errors.diasMaxReservaPublica.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="rangoMaxBloqueo">Rango máximo de bloqueo</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="rangoMaxBloqueo"
+                type="number"
+                min={1}
+                className="max-w-[120px]"
+                {...register('rangoMaxBloqueo')}
+              />
+              <span className="text-sm text-muted-foreground">días</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Duración máxima permitida para un bloqueo de calendario.
+            </p>
+            {errors.rangoMaxBloqueo && (
+              <p className="text-xs text-destructive">{errors.rangoMaxBloqueo.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-end pt-1">
+          <Button type="submit" disabled={actualizar.isPending || !isDirty} size="sm">
+            {actualizar.isPending ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...</>
+            ) : (
+              <><Save className="mr-2 h-4 w-4" /> Guardar cambios</>
+            )}
+          </Button>
+        </div>
+      </form>
+
+      <Separator />
+
+      {/* ── Sección: edad máxima permitida para niños ── */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50">
+            <Baby className="h-4 w-4 text-purple-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-900">Edad máxima de niños</h3>
+            <p className="text-xs text-muted-foreground">Límite de edad para venta presencial y reservas</p>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="edadMaxNino">Edad máxima permitida</Label>
+          <div className="flex items-center gap-3">
+            <Input
+              id="edadMaxNino"
+              type="number"
+              min={1}
+              max={17}
+              value={edadMaxInput}
+              onChange={e => setEdadMaxInput(e.target.value)}
+              className="max-w-[120px]"
+            />
+            <span className="text-sm text-muted-foreground">años</span>
+            <Button
+              type="button"
+              size="sm"
+              onClick={guardarEdadMax}
+              disabled={
+                actualizarSys.isPending ||
+                edadMaxInput === String(edadMaxActual) ||
+                Number.isNaN(parseInt(edadMaxInput, 10))
+              }
+            >
+              {actualizarSys.isPending ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...</>
+              ) : (
+                <><Save className="mr-2 h-4 w-4" /> Guardar</>
+              )}
+            </Button>
+          </div>
           <p className="text-xs text-muted-foreground">
-            Plazos y límites para las reservas del portal
+            Los niños con edad superior a este valor no podrán ser registrados en entradas.
+            Actualmente: <strong>{edadMaxActual} años</strong>.
           </p>
         </div>
       </div>
-
-      <div className="grid gap-5 sm:grid-cols-2">
-        <NumericField
-          id="ANTICIPACION_MIN_RESERVA_PUBLICA_H"
-          label="Anticipación mínima"
-          suffix="horas"
-          description="Mínimo de horas antes del turno para reservar"
-          error={errors.ANTICIPACION_MIN_RESERVA_PUBLICA_H?.message}
-          {...register('ANTICIPACION_MIN_RESERVA_PUBLICA_H')}
-        />
-
-        <NumericField
-          id="PLAZO_REPROGRAMACION_H"
-          label="Plazo de reprogramación"
-          suffix="horas"
-          description="Límite de horas para que el cliente reprograme"
-          error={errors.PLAZO_REPROGRAMACION_H?.message}
-          {...register('PLAZO_REPROGRAMACION_H')}
-        />
-
-        <NumericField
-          id="MAX_REPROGRAMACIONES_POR_ENTRADA"
-          label="Reprogramaciones máximas"
-          suffix="por entrada"
-          description="Número máximo de veces que se puede reprogramar"
-          error={errors.MAX_REPROGRAMACIONES_POR_ENTRADA?.message}
-          {...register('MAX_REPROGRAMACIONES_POR_ENTRADA')}
-        />
-
-        <NumericField
-          id="VISITAS_PARA_ENTRADA_GRATIS"
-          label="Visitas para entrada gratis"
-          suffix="visitas"
-          description="Cantidad de visitas acumuladas para el beneficio de fidelización"
-          error={errors.VISITAS_PARA_ENTRADA_GRATIS?.message}
-          {...register('VISITAS_PARA_ENTRADA_GRATIS')}
-        />
-      </div>
-
-      <div className="flex justify-end pt-1">
-        <Button
-          type="submit"
-          disabled={actualizar.isPending || !isDirty}
-          size="sm"
-        >
-          {actualizar.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" /> Guardar cambios
-            </>
-          )}
-        </Button>
-      </div>
-    </form>
+    </div>
   )
 }

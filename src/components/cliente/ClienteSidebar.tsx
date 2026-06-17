@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
 import {
   LayoutDashboard,
@@ -35,19 +34,17 @@ const mainNav = [
 
 export function ClienteSidebar() {
   const pathname = usePathname()
-  const { user, logout } = useAuth()
-  const { data: session } = useSession()
-  const userId = parseInt(session?.user?.id ?? '0')
+  const { nombre, correo, idUsuario, logout } = useAuth()
 
   const { data: perfil } = useQuery({
-    queryKey: ['cliente-perfil', userId],
-    queryFn: () => clienteService.obtener(userId),
-    enabled: !!userId && userId > 0,
+    queryKey: ['cliente-perfil', idUsuario],
+    queryFn: () => clienteService.obtener(idUsuario!),
+    enabled: !!idUsuario,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
 
-  const fotoUrl = fileUrl(perfil?.fotoPerfil)
+  const fotoUrl = fileUrl(undefined)
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
@@ -144,17 +141,17 @@ export function ClienteSidebar() {
         >
           <Avatar className="h-9 w-9 shrink-0">
             {fotoUrl && (
-              <AvatarImage src={fotoUrl} alt={user?.name ?? ''} className="object-cover" />
+              <AvatarImage src={fotoUrl} alt={nombre ?? ''} className="object-cover" />
             )}
             <AvatarFallback className="text-xs bg-brand-rosa text-white font-bold">
-              {user?.name ? getInitials(user.name) : 'C'}
+              {nombre ? getInitials(nombre) : 'C'}
             </AvatarFallback>
           </Avatar>
           <div className="overflow-hidden flex-1">
             <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-brand-azul transition-colors leading-tight">
-              {user?.name}
+              {nombre}
             </p>
-            <p className="text-xs text-gray-400 truncate leading-tight mt-0.5">{user?.email}</p>
+            <p className="text-xs text-gray-400 truncate leading-tight mt-0.5">{correo}</p>
           </div>
           <ChevronRight className="h-3.5 w-3.5 text-gray-300 shrink-0 group-hover:text-brand-azul transition-colors" />
         </Link>

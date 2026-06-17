@@ -18,6 +18,7 @@ import {
   BookOpen,
   Image,
   HelpCircle,
+  DollarSign,
 } from 'lucide-react'
 import { ADMIN_ROUTES, CLIENT_ROUTES, PUBLIC_ROUTES } from './routes'
 
@@ -59,6 +60,7 @@ export const adminNav: NavItem[] = [
   { label: 'Clientes', href: ADMIN_ROUTES.clientes, icon: Users },
   { label: 'Inventario', href: ADMIN_ROUTES.inventario, icon: Package },
   { label: 'Proveedores', href: ADMIN_ROUTES.proveedores, icon: Truck },
+  { label: 'Tarifas', href: ADMIN_ROUTES.tarifas, icon: DollarSign },
   { label: 'Promociones', href: ADMIN_ROUTES.promociones, icon: Megaphone },
   { label: 'Usuarios', href: ADMIN_ROUTES.usuarios, icon: UserCog },
   {

@@ -7,8 +7,8 @@ export type AnchoContenido = 'BOXED' | 'FULL'
 export type PrimerDiaSemana = 'SUNDAY' | 'MONDAY'
 
 export interface PreferenciaAdmin {
-  id: number
-  idUsuarioAdmin: number
+  id: string
+  idUsuarioAdmin: string
 
   // Apariencia
   tema: TemaAdmin

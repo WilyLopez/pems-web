@@ -98,7 +98,7 @@ function PaqueteCard({ paquete, destacado }: { paquete: PaqueteEvento; destacado
         {formatCurrency(paquete.precio)}
       </p>
 
-      {paquete.beneficios?.length > 0 && (
+      {paquete.beneficios && paquete.beneficios.length > 0 && (
         <ul className="space-y-1.5 flex-1">
           {paquete.beneficios.slice(0, 4).map((b) => (
             <li key={b} className="flex items-center gap-2 text-xs text-gray-600">

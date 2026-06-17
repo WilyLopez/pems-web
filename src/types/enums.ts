@@ -15,7 +15,12 @@ export enum EstadoEvento {
 
 export enum EstadoContrato {
   BORRADOR = 'BORRADOR',
+  ENVIADO = 'ENVIADO',
+  PENDIENTE_FIRMA = 'PENDIENTE_FIRMA',
   FIRMADO = 'FIRMADO',
+  VENCIDO = 'VENCIDO',
+  CANCELADO = 'CANCELADO',
+  ARCHIVADO = 'ARCHIVADO',
 }
 
 export enum EstadoComprobante {
@@ -30,6 +35,7 @@ export enum MedioPago {
   EFECTIVO = 'EFECTIVO',
   TRANSFERENCIA = 'TRANSFERENCIA',
   TARJETA = 'TARJETA',
+  PLIN = 'PLIN',
 }
 
 export enum TipoPago {

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { CreditCard, Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -20,7 +20,7 @@ import { ConfiguracionSistema } from '@/types/configuracion.types'
 const PROVEEDORES = ['NUBEFACT', 'SUNAT_DIRECTA', 'EFACT'] as const
 
 const schema = z.object({
-  PSE_PROVEEDOR: z.enum(PROVEEDORES),
+  SUNAT_PROVEEDOR: z.enum(PROVEEDORES),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -41,21 +41,21 @@ export function PagosTab({ configs }: { configs: ConfiguracionSistema[] }) {
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      PSE_PROVEEDOR:
-        (map.PSE_PROVEEDOR as (typeof PROVEEDORES)[number]) ?? 'NUBEFACT',
+      SUNAT_PROVEEDOR:
+        (map.SUNAT_PROVEEDOR as (typeof PROVEEDORES)[number]) ?? 'NUBEFACT',
     },
   })
 
   useEffect(() => {
     const m = toMap(configs)
     reset({
-      PSE_PROVEEDOR:
-        (m.PSE_PROVEEDOR as (typeof PROVEEDORES)[number]) ?? 'NUBEFACT',
+      SUNAT_PROVEEDOR:
+        (m.SUNAT_PROVEEDOR as (typeof PROVEEDORES)[number]) ?? 'NUBEFACT',
     })
   }, [configs, reset])
 
   function onSubmit(values: FormValues) {
-    actualizar.mutate({ PSE_PROVEEDOR: values.PSE_PROVEEDOR })
+    actualizar.mutate({ SUNAT_PROVEEDOR: values.SUNAT_PROVEEDOR })
   }
 
   return (
@@ -75,15 +75,15 @@ export function PagosTab({ configs }: { configs: ConfiguracionSistema[] }) {
       </div>
 
       <div className="max-w-sm space-y-1.5">
-        <Label htmlFor="PSE_PROVEEDOR">
+        <Label htmlFor="SUNAT_PROVEEDOR">
           Proveedor de servicios electrónicos
         </Label>
         <Controller
           control={control}
-          name="PSE_PROVEEDOR"
+          name="SUNAT_PROVEEDOR"
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id="PSE_PROVEEDOR">
+              <SelectTrigger id="SUNAT_PROVEEDOR">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
