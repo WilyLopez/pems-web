@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Mail,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { marketingService } from '@/services/marketing.service'
@@ -22,15 +23,16 @@ import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { EstadoCampanaBadge } from '@/components/admin/marketing/EstadoCampanaBadge'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { EstadoEnvio } from '@/types/marketing.types'
+import { type EstadoEnvio } from '@/types/marketing.types'
 import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
-const ENVIO_CONFIG: Record<EstadoEnvio, { label: string; icon: React.ElementType; cls: string }> = {
-  PENDIENTE: { label: 'Pendiente', icon: Clock,        cls: 'bg-gray-100 text-gray-600 border-gray-200' },
-  ENVIADO:   { label: 'Enviado',   icon: CheckCircle,  cls: 'bg-green-100 text-green-700 border-green-200' },
-  ERROR:     { label: 'Error',     icon: AlertCircle,  cls: 'bg-red-100 text-red-600 border-red-200' },
-  REBOTADO:  { label: 'Rebotado',  icon: XCircle,      cls: 'bg-orange-100 text-orange-700 border-orange-200' },
+const ENVIO_CONFIG: Record<EstadoEnvio, { label: string; icon: LucideIcon; cls: string }> = {
+  PENDIENTE:  { label: 'Pendiente',  icon: Clock,        cls: 'bg-gray-100 text-gray-600 border-gray-200' },
+  ENVIADO:    { label: 'Enviado',    icon: CheckCircle,  cls: 'bg-green-100 text-green-700 border-green-200' },
+  ERROR:      { label: 'Error',      icon: AlertCircle,  cls: 'bg-red-100 text-red-600 border-red-200' },
+  REBOTADO:   { label: 'Rebotado',   icon: XCircle,      cls: 'bg-orange-100 text-orange-700 border-orange-200' },
+  CANCELADO:  { label: 'Cancelado',  icon: XCircle,      cls: 'bg-gray-100 text-gray-500 border-gray-200' },
 }
 
 function EstadoEnvioBadge({ estado }: { estado: EstadoEnvio }) {
@@ -49,14 +51,13 @@ export default function CampanaDetailPage() {
   const campanaId = Number(id)
   const [page, setPage] = useState(0)
 
-  const { data: campanas } = useQuery({
-    queryKey: ['campanas', 0],
-    queryFn: () => marketingService.listarCampanas(0, 100),
+  const { data: campana, isLoading: loadingCampana } = useQuery({
+    queryKey: ['campana', campanaId],
+    queryFn: () => marketingService.getCampanaById(campanaId),
+    enabled: !!campanaId,
   })
 
-  const campana = campanas?.content.find((c) => c.id === campanaId)
-
-  const { data: envios, isLoading } = useQuery({
+  const { data: envios, isLoading: loadingEnvios } = useQuery({
     queryKey: ['envios', campanaId, page],
     queryFn: () => marketingService.listarEnvios(campanaId, page, 20),
     enabled: !!campanaId,
@@ -65,6 +66,14 @@ export default function CampanaDetailPage() {
   const totalEnviados = campana?.totalEnviados ?? 0
   const totalDestinatarios = campana?.totalDestinatarios ?? 0
   const porcentaje = totalDestinatarios > 0 ? Math.round((totalEnviados / totalDestinatarios) * 100) : 0
+
+  if (loadingCampana) {
+    return (
+      <div className="flex items-center justify-center h-40">
+        <Loader2 className="h-6 w-6 animate-spin text-brand-azul" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-5">
@@ -129,7 +138,7 @@ export default function CampanaDetailPage() {
           <h3 className="font-bold text-gray-900">Registro de envíos</h3>
         </div>
 
-        {isLoading ? (
+        {loadingEnvios ? (
           <div className="flex items-center justify-center h-40">
             <Loader2 className="h-6 w-6 animate-spin text-brand-azul" />
           </div>

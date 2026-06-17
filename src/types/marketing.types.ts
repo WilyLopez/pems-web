@@ -1,14 +1,14 @@
 export interface TipoEmail {
-  id: number
   codigo: string
   nombre: string
   descripcion?: string | null
+  esSistema: boolean
+  orden: number
   activo: boolean
 }
 
 export interface PlantillaEmail {
   id: number
-  idTipoEmail: number
   tipoEmailCodigo: string
   tipoEmailNombre: string
   nombre: string
@@ -16,9 +16,39 @@ export interface PlantillaEmail {
   contenidoHtml: string
   contenidoFallback?: string | null
   variablesPermitidas?: string | null
+  contenidoBloques?: string | null
   activa: boolean
-  idUsuarioEditor?: number | null
   fechaActualizacion: string
+}
+
+export interface CorreoMarketing {
+  id: number
+  tipoEmailCodigo: string
+  tipoEmailNombre: string
+  nombre: string
+  asunto: string
+  contenidoBloques: string
+  variablesPermitidas?: string | null
+  contenidoFallback?: string | null
+  activa: boolean
+  fechaActualizacion: string
+}
+
+export interface CrearCorreoMarketingPayload {
+  tipoEmailCodigo: string
+  nombre: string
+  asunto: string
+  contenidoBloques: string
+  variablesPermitidas?: string
+  contenidoFallback?: string
+}
+
+export interface ActualizarCorreoMarketingPayload {
+  nombre: string
+  asunto: string
+  contenidoBloques: string
+  variablesPermitidas?: string
+  contenidoFallback?: string
 }
 
 export type EstadoCampana =
@@ -39,11 +69,11 @@ export interface CampanaEmail {
   totalDestinatarios: number
   totalEnviados: number
   totalFallidos: number
-  idUsuarioCreador?: number | null
+  createdBy?: string
   fechaCreacion: string
 }
 
-export type EstadoEnvio = 'PENDIENTE' | 'ENVIADO' | 'ERROR' | 'REBOTADO'
+export type EstadoEnvio = 'PENDIENTE' | 'ENVIADO' | 'ERROR' | 'REBOTADO' | 'CANCELADO'
 
 export interface EnvioEmail {
   id: number
@@ -59,7 +89,7 @@ export interface EnvioEmail {
 }
 
 export interface CrearPlantillaPayload {
-  idTipoEmail: number
+  tipoEmailCodigo: string
   nombre: string
   asunto: string
   contenidoHtml: string

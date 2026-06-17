@@ -29,8 +29,8 @@ export const marketingService = {
     return data.data
   },
 
-  eliminarTipo: async (id: number): Promise<void> => {
-    await api.delete(`/marketing/tipos-email/${id}`)
+  eliminarTipo: async (codigo: string): Promise<void> => {
+    await api.delete(`/marketing/tipos-email/${codigo}`)
   },
 
   listarPlantillas: async (
@@ -61,6 +61,13 @@ export const marketingService = {
     const { data } = await api.get<ApiResponse<PagedResponse<CampanaEmail>>>(
       '/marketing/campanas',
       { params: { page, size } }
+    )
+    return data.data
+  },
+
+  getCampanaById: async (id: number): Promise<CampanaEmail> => {
+    const { data } = await api.get<ApiResponse<CampanaEmail>>(
+      `/marketing/campanas/${id}`
     )
     return data.data
   },
