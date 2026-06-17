@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { UserPlus, Loader2 } from 'lucide-react'
@@ -19,30 +19,35 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 
+const TIPOS_DOCUMENTO = [
+  { value: 'DNI',       label: 'DNI' },
+  { value: 'CE',        label: 'Carnet de extranjería' },
+  { value: 'RUC',       label: 'RUC' },
+  { value: 'PASAPORTE', label: 'Pasaporte' },
+]
+
 const schema = z.object({
-  nombre: z
+  tipoDocumentoCodigo: z.string().min(1, { message: 'Selecciona el tipo de documento' }),
+  numeroDocumento: z
     .string()
-    .min(1, { message: 'El nombre es obligatorio' })
-    .max(120, { message: 'Maximo 120 caracteres' }),
+    .min(1, { message: 'El número de documento es obligatorio' })
+    .max(20),
+  nombres: z
+    .string()
+    .min(2, { message: 'El nombre es obligatorio' })
+    .max(100),
+  apellidoPaterno: z
+    .string()
+    .min(1, { message: 'El apellido paterno es obligatorio' })
+    .max(100),
+  apellidoMaterno: z.string().max(100).optional().or(z.literal('')),
   correo: z
     .string()
-    .email({ message: 'Correo invalido' })
-    .max(120)
+    .email({ message: 'Correo inválido' })
+    .max(150)
     .optional()
     .or(z.literal('')),
-  telefono: z
-    .string()
-    .min(1, { message: 'El telefono es obligatorio' })
-    .min(6, { message: 'Minimo 6 digitos' })
-    .max(20),
-  dni: z
-    .string()
-    .length(8, { message: 'El DNI debe tener exactamente 8 digitos' })
-    .optional()
-    .or(z.literal('')),
-  fechaNacimiento: z.string().optional().or(z.literal('')),
-  observaciones: z.string().max(500).optional().or(z.literal('')),
-  tipoCliente: z.enum(['PERSONA', 'EMPRESA']).default('PERSONA'),
+  telefono: z.string().max(20).optional().or(z.literal('')),
   aceptaComunicaciones: z.boolean().default(true),
 })
 
@@ -63,23 +68,27 @@ export function NuevoClienteModal({ open, onOpenChange }: Props) {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { tipoCliente: 'PERSONA', aceptaComunicaciones: true },
+    defaultValues: {
+      tipoDocumentoCodigo: 'DNI',
+      aceptaComunicaciones: true,
+    },
   })
 
   useEffect(() => {
-    if (open) reset({ tipoCliente: 'PERSONA', aceptaComunicaciones: true })
+    if (open) reset({ tipoDocumentoCodigo: 'DNI', aceptaComunicaciones: true })
   }, [open, reset])
 
   const crear = useMutation({
     mutationFn: (values: FormValues) =>
       clienteService.registrarAdmin({
-        nombre: values.nombre,
+        tipoDocumentoCodigo: values.tipoDocumentoCodigo,
+        numeroDocumento: values.numeroDocumento,
+        nombres: values.nombres,
+        apellidoPaterno: values.apellidoPaterno,
+        apellidoMaterno: values.apellidoMaterno || undefined,
         correo: values.correo || undefined,
-        telefono: values.telefono,
-        dni: values.dni || undefined,
-        fechaNacimiento: values.fechaNacimiento || undefined,
-        observaciones: values.observaciones || undefined,
-        tipoCliente: values.tipoCliente,
+        telefono: values.telefono || undefined,
+        origen: 'ADMIN',
         aceptaComunicaciones: values.aceptaComunicaciones,
       }),
     onSuccess: () => {
@@ -100,64 +109,62 @@ export function NuevoClienteModal({ open, onOpenChange }: Props) {
         <form onSubmit={handleSubmit((v) => crear.mutate(v))} className="space-y-4 pt-1">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="nombre">Nombre *</Label>
-              <Input id="nombre" {...register('nombre')} placeholder="Juan Perez" />
-              {errors.nombre && (
-                <p className="text-xs text-red-500">{errors.nombre.message}</p>
+              <Label htmlFor="tipoDocumentoCodigo">Tipo de documento *</Label>
+              <select
+                id="tipoDocumentoCodigo"
+                {...register('tipoDocumentoCodigo')}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-azul/30"
+              >
+                {TIPOS_DOCUMENTO.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+              {errors.tipoDocumentoCodigo && (
+                <p className="text-xs text-red-500">{errors.tipoDocumentoCodigo.message}</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="telefono">Telefono *</Label>
+              <Label htmlFor="numeroDocumento">Número de documento *</Label>
+              <Input id="numeroDocumento" {...register('numeroDocumento')} placeholder="12345678" />
+              {errors.numeroDocumento && (
+                <p className="text-xs text-red-500">{errors.numeroDocumento.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="nombres">Nombres *</Label>
+              <Input id="nombres" {...register('nombres')} placeholder="Juan Carlos" />
+              {errors.nombres && (
+                <p className="text-xs text-red-500">{errors.nombres.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="apellidoPaterno">Apellido paterno *</Label>
+              <Input id="apellidoPaterno" {...register('apellidoPaterno')} placeholder="García" />
+              {errors.apellidoPaterno && (
+                <p className="text-xs text-red-500">{errors.apellidoPaterno.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="apellidoMaterno">Apellido materno</Label>
+              <Input id="apellidoMaterno" {...register('apellidoMaterno')} placeholder="López" />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="telefono">Teléfono</Label>
               <Input id="telefono" {...register('telefono')} placeholder="999888777" />
-              {errors.telefono && (
-                <p className="text-xs text-red-500">{errors.telefono.message}</p>
-              )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="correo">Correo electronico</Label>
+            <div className="col-span-2 space-y-1.5">
+              <Label htmlFor="correo">Correo electrónico</Label>
               <Input id="correo" type="email" {...register('correo')} placeholder="juan@email.com" />
               {errors.correo && (
                 <p className="text-xs text-red-500">{errors.correo.message}</p>
               )}
             </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="dni">DNI</Label>
-              <Input id="dni" {...register('dni')} placeholder="12345678" maxLength={8} />
-              {errors.dni && (
-                <p className="text-xs text-red-500">{errors.dni.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="fechaNacimiento">Fecha de nacimiento</Label>
-              <Input id="fechaNacimiento" type="date" {...register('fechaNacimiento')} />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="tipoCliente">Tipo de cliente</Label>
-              <select
-                id="tipoCliente"
-                {...register('tipoCliente')}
-                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-azul/30"
-              >
-                <option value="PERSONA">Persona natural</option>
-                <option value="EMPRESA">Empresa</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="observaciones">Observaciones</Label>
-            <textarea
-              id="observaciones"
-              {...register('observaciones')}
-              rows={2}
-              placeholder="Notas internas sobre el cliente..."
-              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-azul/30 resize-none"
-            />
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer">

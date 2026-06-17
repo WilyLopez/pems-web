@@ -10,14 +10,12 @@ import { useAuth } from '@/hooks/useAuth'
 import { PerfilHeader } from '@/components/admin/perfil/PerfilHeader'
 import { InfoPersonalForm } from '@/components/admin/perfil/InfoPersonalForm'
 import { SeguridadInfo } from '@/components/admin/perfil/SeguridadInfo'
-import { CambiarContrasenaForm } from '@/components/admin/perfil/CambiarContrasenaForm'
 import { ActividadReciente } from '@/components/admin/perfil/ActividadReciente'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-import { Shield, KeyRound, User, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Shield, KeyRound, User, ArrowRight, Crown, Users, Settings, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
-type Tab = 'perfil' | 'seguridad' | 'contrasena'
+type Tab = 'perfil' | 'seguridad'
 
 function PerfilSkeleton() {
   return (
@@ -61,16 +59,12 @@ function AccesoRapidoCard({
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          <div
-            className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}
-          >
+          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}>
             <Icon className={`h-5 w-5 ${iconColor}`} />
           </div>
           <div>
             <p className="text-sm font-bold text-gray-900">{title}</p>
-            <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-              {description}
-            </p>
+            <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{description}</p>
           </div>
         </div>
         <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-brand-azul group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
@@ -79,8 +73,51 @@ function AccesoRapidoCard({
   )
 }
 
+function AccesoRapidoLink({
+  icon: Icon,
+  title,
+  description,
+  href,
+  iconBg,
+  iconColor,
+  badge,
+}: {
+  icon: React.ElementType
+  title: string
+  description: string
+  href: string
+  iconBg: string
+  iconColor: string
+  badge?: string
+}) {
+  return (
+    <Link
+      href={href}
+      className="group w-full text-left rounded-2xl border border-gray-100 bg-white p-5 hover:border-brand-azul/30 hover:shadow-card transition-all duration-200 flex items-start justify-between"
+    >
+      <div className="flex items-start gap-4">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}>
+          <Icon className={`h-5 w-5 ${iconColor}`} />
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-gray-900">{title}</p>
+            {badge && (
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 leading-none">
+                {badge}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{description}</p>
+        </div>
+      </div>
+      <ExternalLink className="h-4 w-4 text-gray-300 group-hover:text-brand-azul transition-colors shrink-0 mt-1" />
+    </Link>
+  )
+}
+
 export default function PerfilPage() {
-  const { user } = useAuth()
+  const { idUsuario } = useAuth()
   const { data: admin, isLoading, isError, refetch } = usePerfil()
 
   const [tab, setTab] = useState<Tab>('perfil')
@@ -88,9 +125,7 @@ export default function PerfilPage() {
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.replace('#', '')
-      if (hash === 'seguridad' || hash === 'contrasena') {
-        setTab(hash as Tab)
-      }
+      if (hash === 'seguridad') setTab('seguridad')
     }
     handleHash()
     window.addEventListener('hashchange', handleHash)
@@ -100,17 +135,15 @@ export default function PerfilPage() {
   if (isLoading)
     return (
       <div className="space-y-6">
-        <PageHeader
-          title="Mi perfil"
-          description="Informacion personal y seguridad de cuenta"
-        />
+        <PageHeader title="Mi perfil" description="Información personal y seguridad de cuenta" />
         <PerfilSkeleton />
       </div>
     )
 
   if (isError || !admin) return <ErrorState onRetry={refetch} />
 
-  const idAdmin = user?.id ? parseInt(user.id) : admin.id
+  const idAdmin     = idUsuario ?? admin.id
+  const isSuperAdmin = admin.rol === 'SUPERADMIN'
 
   return (
     <div className="space-y-6">
@@ -118,7 +151,7 @@ export default function PerfilPage() {
 
       <PageHeader
         title="Mi perfil"
-        description="Informacion personal y configuracion de seguridad"
+        description="Información personal y configuración de seguridad"
       />
 
       <PerfilHeader admin={admin} onTabChange={setTab} />
@@ -139,19 +172,39 @@ export default function PerfilPage() {
             <Shield className="h-4 w-4" />
             Seguridad
           </TabsTrigger>
-          <TabsTrigger
-            value="contrasena"
-            className="rounded-lg text-sm gap-2 px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-          >
-            <KeyRound className="h-4 w-4" />
-            Contrasena
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="perfil" className="mt-5">
           <div className="grid gap-5 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-5">
               <InfoPersonalForm admin={admin} />
+
+              {isSuperAdmin && (
+                <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-5 space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-9 w-9 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+                      <Crown className="h-4 w-4 text-violet-700" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-violet-900">Privilegios de Super Administrador</h4>
+                      <p className="text-xs text-violet-600">Tu cuenta tiene acceso completo a todos los módulos del sistema</p>
+                    </div>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {[
+                      { icon: Users,    label: 'Gestión de usuarios y roles' },
+                      { icon: Settings, label: 'Configuración del sistema' },
+                      { icon: Shield,   label: 'Seguridad y accesos' },
+                      { icon: Crown,    label: 'Administración de sedes' },
+                    ].map(({ icon: Icon, label }) => (
+                      <div key={label} className="flex items-center gap-2 text-xs text-violet-700">
+                        <Icon className="h-3.5 w-3.5 shrink-0" />
+                        <span>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <AccesoRapidoCard
@@ -163,14 +216,14 @@ export default function PerfilPage() {
                   iconBg="bg-blue-50"
                   iconColor="text-blue-600"
                 />
-                <AccesoRapidoCard
+                <AccesoRapidoLink
                   icon={KeyRound}
-                  title="Cambiar contrasena"
-                  description="Actualiza tu contrasena periodicamente para mantener tu cuenta segura."
-                  tab="contrasena"
-                  onTabChange={setTab}
+                  title="Cambiar contraseña"
+                  description="Actualiza tu contraseña periódicamente para mantener tu cuenta segura."
+                  href="/auth/cambiar-contrasena"
                   iconBg="bg-amber-50"
                   iconColor="text-amber-600"
+                  badge="Página dedicada"
                 />
               </div>
             </div>
@@ -185,31 +238,6 @@ export default function PerfilPage() {
               <SeguridadInfo admin={admin} />
             </div>
             <ActividadReciente idAdmin={idAdmin} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="contrasena" className="mt-5">
-          <div className="grid gap-5 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <CambiarContrasenaForm />
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3 self-start">
-              <h4 className="text-sm font-bold text-gray-900">
-                Recomendaciones
-              </h4>
-              {[
-                'Usa al menos 8 caracteres',
-                'Incluye mayusculas y numeros',
-                'Agrega caracteres especiales',
-                'No reutilices contrasenas anteriores',
-                'Cambia tu contrasena cada 3 meses',
-              ].map((tip, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-brand-azul mt-1.5 shrink-0" />
-                  <p className="text-xs text-gray-600">{tip}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </TabsContent>
       </Tabs>

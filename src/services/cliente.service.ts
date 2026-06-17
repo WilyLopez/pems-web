@@ -6,7 +6,6 @@ import {
   Cliente,
   ActualizarClientePayload,
   ListarClientesParams,
-  MigrarClienteWebPayload,
   RegistrarClienteAdminPayload,
 } from '@/types/cliente.types'
 
@@ -33,14 +32,6 @@ export const clienteService = {
   ): Promise<Cliente> => {
     const { data } = await api.post<ApiResponse<Cliente>>(
       '/clientes/admin',
-      payload
-    )
-    return data.data
-  },
-
-  migrarWeb: async (payload: MigrarClienteWebPayload): Promise<Cliente> => {
-    const { data } = await api.post<ApiResponse<Cliente>>(
-      '/clientes/migrar-web',
       payload
     )
     return data.data

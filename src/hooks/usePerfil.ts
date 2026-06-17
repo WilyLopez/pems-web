@@ -7,13 +7,13 @@ import { ApiResponse } from '@/types/api.types'
 import { UsuarioAdmin } from '@/types/usuario-admin.types'
 import { useAuth } from '@/hooks/useAuth'
 
-function useAdminId() {
-  const { user } = useAuth()
-  return user?.id ? parseInt(user.id) : null
+function useStaffId(): number | null {
+  const { idUsuario } = useAuth()
+  return idUsuario ?? null
 }
 
 export function usePerfil() {
-  const id = useAdminId()
+  const id = useStaffId()
   return useQuery({
     queryKey: ['perfil', id],
     queryFn: async () => {
@@ -27,14 +27,14 @@ export function usePerfil() {
 }
 
 export function useActualizarPerfil() {
-  const id = useAdminId()
+  const id = useStaffId()
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (values: { nombre: string; telefono?: string }) =>
-      api.put<ApiResponse<UsuarioAdmin>>(`/usuarios-admin/${id}`, values),
-    onSuccess: () => {
+      api.put<ApiResponse<UsuarioAdmin>>(`/usuarios-admin/${id}`, values).then((r) => r.data.data),
+    onSuccess: (updated) => {
       toast.success('Perfil actualizado correctamente.')
-      qc.invalidateQueries({ queryKey: ['perfil', id] })
+      qc.setQueryData(['perfil', id], updated)
     },
     onError: (err: { message?: string }) =>
       toast.error(err?.message ?? 'No se pudo actualizar el perfil.'),
@@ -42,7 +42,7 @@ export function useActualizarPerfil() {
 }
 
 export function useCambiarContrasena() {
-  const id = useAdminId()
+  const id = useStaffId()
   return useMutation({
     mutationFn: (values: {
       contrasenaActual: string

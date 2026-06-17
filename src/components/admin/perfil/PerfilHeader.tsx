@@ -5,19 +5,20 @@ import {
   Shield,
   KeyRound,
   Calendar,
-  MapPin,
   Building2,
   Clock,
+  Crown,
 } from 'lucide-react'
-import { UsuarioAdmin, getEstadoAdmin } from '@/types/usuario-admin.types'
+import { UsuarioAdmin, RolAdmin, getEstadoAdmin } from '@/types/usuario-admin.types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar'
 import { RolBadge } from '@/components/admin/usuarios/RolBadge'
 import { EstadoBadge } from '@/components/admin/usuarios/EstadoBadge'
 import { Button } from '@/components/ui/Button'
 import { formatDateTime } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
-type Tab = 'perfil' | 'seguridad' | 'contrasena'
+type Tab = 'perfil' | 'seguridad'
 
 function initials(nombre: string) {
   return nombre
@@ -26,6 +27,18 @@ function initials(nombre: string) {
     .map((n) => n[0])
     .join('')
     .toUpperCase()
+}
+
+const ROL_GRADIENT: Record<RolAdmin, string> = {
+  SUPERADMIN: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 60%, #3b0764 100%)',
+  ADMIN:      'linear-gradient(135deg, #00AEEF 0%, #0086c3 60%, #005f8e 100%)',
+  CAJERO:     'linear-gradient(135deg, #059669 0%, #047857 60%, #064e3b 100%)',
+}
+
+const ROL_LABEL: Record<RolAdmin, string> = {
+  SUPERADMIN: 'Super Administrador',
+  ADMIN:      'Administrador',
+  CAJERO:     'Cajero',
 }
 
 interface PerfilHeaderProps {
@@ -51,16 +64,24 @@ function StatItem({ icon: Icon, label, value }: StatItemProps) {
 }
 
 export function PerfilHeader({ admin, onTabChange }: PerfilHeaderProps) {
-  const estado = getEstadoAdmin(admin)
+  const estado      = getEstadoAdmin(admin)
+  const isSuperAdmin = admin.rol === 'SUPERADMIN'
+  const gradient    = ROL_GRADIENT[admin.rol] ?? ROL_GRADIENT.ADMIN
 
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-100 shadow-card">
+      {/* SUPERADMIN banner */}
+      {isSuperAdmin && (
+        <div className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white text-xs font-semibold">
+          <Crown className="h-3.5 w-3.5 text-yellow-300 fill-yellow-300" />
+          <span>Cuenta con acceso total al sistema — todos los permisos habilitados</span>
+        </div>
+      )}
+
+      {/* Gradient hero */}
       <div
         className="relative px-6 pt-6 pb-8"
-        style={{
-          background:
-            'linear-gradient(135deg, #00AEEF 0%, #0086c3 60%, #005f8e 100%)',
-        }}
+        style={{ background: gradient }}
       >
         <div
           className="absolute inset-0 opacity-10"
@@ -72,6 +93,7 @@ export function PerfilHeader({ admin, onTabChange }: PerfilHeaderProps) {
         />
 
         <div className="relative flex flex-col sm:flex-row sm:items-start gap-5">
+          {/* Avatar */}
           <div className="relative shrink-0">
             <Avatar className="h-20 w-20 ring-4 ring-white/30 shadow-xl">
               <AvatarImage src={admin.fotoPerfilUrl} alt={admin.nombre} />
@@ -85,8 +107,14 @@ export function PerfilHeader({ admin, onTabChange }: PerfilHeaderProps) {
             >
               <Camera className="h-3.5 w-3.5 text-gray-600" />
             </button>
+            {isSuperAdmin && (
+              <div className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-yellow-400 flex items-center justify-center shadow-md ring-2 ring-white">
+                <Crown className="h-3 w-3 text-yellow-900 fill-yellow-900" />
+              </div>
+            )}
           </div>
 
+          {/* Name + info */}
           <div className="flex-1 min-w-0 space-y-3">
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -97,58 +125,57 @@ export function PerfilHeader({ admin, onTabChange }: PerfilHeaderProps) {
                 <EstadoBadge estado={estado} />
               </div>
               <p className="text-sm text-white/70">{admin.correo}</p>
+              <p className="text-xs text-white/50 mt-0.5">{ROL_LABEL[admin.rol]}</p>
             </div>
 
             <div className="flex flex-wrap gap-x-5 gap-y-1.5">
               <StatItem
                 icon={Building2}
                 label="Sede"
-                value={`ID ${admin.idSede}`}
+                value={admin.sedeNombre ?? `ID ${admin.idSede}`}
               />
               <StatItem
                 icon={Clock}
                 label="Último acceso"
-                value={
-                  admin.ultimoAcceso
-                    ? formatDateTime(admin.ultimoAcceso)
-                    : 'Nunca'
-                }
+                value={admin.ultimoAcceso ? formatDateTime(admin.ultimoAcceso) : 'Nunca'}
               />
               <StatItem
                 icon={Calendar}
                 label="Miembro desde"
-                value={formatDateTime(admin.fechaCreacion)}
+                value={admin.fechaCreacion ? formatDateTime(admin.fechaCreacion) : null}
               />
             </div>
           </div>
 
+          {/* Action buttons */}
           <div className="flex sm:flex-col gap-2 shrink-0 self-start">
             {onTabChange && (
-              <>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-white/15 hover:bg-white/25 text-white border-white/20 rounded-xl gap-1.5 backdrop-blur-sm text-xs h-8"
-                  onClick={() => onTabChange('seguridad')}
-                >
-                  <Shield className="h-3.5 w-3.5" />
-                  Seguridad
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-white/15 hover:bg-white/25 text-white border-white/20 rounded-xl gap-1.5 backdrop-blur-sm text-xs h-8"
-                  onClick={() => onTabChange('contrasena')}
-                >
-                  <KeyRound className="h-3.5 w-3.5" />
-                  Contraseña
-                </Button>
-              </>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="bg-white/15 hover:bg-white/25 text-white border-white/20 rounded-xl gap-1.5 backdrop-blur-sm text-xs h-8"
+                onClick={() => onTabChange('seguridad')}
+              >
+                <Shield className="h-3.5 w-3.5" />
+                Seguridad
+              </Button>
             )}
+            <Button
+              size="sm"
+              variant="secondary"
+              className="bg-white/15 hover:bg-white/25 text-white border-white/20 rounded-xl gap-1.5 backdrop-blur-sm text-xs h-8"
+              asChild
+            >
+              <Link href="/auth/cambiar-contrasena">
+                <KeyRound className="h-3.5 w-3.5" />
+                Contraseña
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
 
+      {/* Stats bar */}
       <div className="bg-white px-6 py-3 flex flex-wrap gap-x-8 gap-y-1.5 border-t border-gray-100">
         {[
           {
@@ -166,13 +193,20 @@ export function PerfilHeader({ admin, onTabChange }: PerfilHeaderProps) {
             value: estado === 'BLOQUEADO' ? 'Bloqueado' : 'Activo',
             danger: estado === 'BLOQUEADO',
           },
+          ...(isSuperAdmin
+            ? [{ label: 'Nivel de acceso', value: 'Total', danger: false }]
+            : []),
         ].map(({ label, value, danger }) => (
           <div key={label} className="flex items-center gap-1.5 text-xs">
             <span className="text-gray-400">{label}:</span>
             <span
               className={cn(
                 'font-semibold',
-                danger ? 'text-red-600' : 'text-gray-700'
+                label === 'Nivel de acceso'
+                  ? 'text-violet-700'
+                  : danger
+                  ? 'text-red-600'
+                  : 'text-gray-700'
               )}
             >
               {value}
