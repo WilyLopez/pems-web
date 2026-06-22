@@ -12,12 +12,10 @@ function applyAdminTheme(theme: string) {
 export function AdminThemeRoot({ children }: { children: React.ReactNode }) {
   const theme = useThemeStore((s) => s.theme)
 
-  // Apply dark class when theme changes
   useEffect(() => {
     applyAdminTheme(theme)
   }, [theme])
 
-  // Sync with system preference in system mode
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = () => {
@@ -27,7 +25,6 @@ export function AdminThemeRoot({ children }: { children: React.ReactNode }) {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  // Remove dark class when leaving the admin panel
   useEffect(() => {
     return () => {
       document.documentElement.classList.remove('dark')
@@ -35,7 +32,7 @@ export function AdminThemeRoot({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background font-inter">
+    <div className="flex h-screen w-screen overflow-hidden bg-background font-inter">
       {children}
     </div>
   )
