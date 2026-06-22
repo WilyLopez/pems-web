@@ -1,21 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/common/Errorstate'
-import { usePerfil } from '@/hooks/usePerfil'
 import { useAuth } from '@/hooks/useAuth'
-import { PerfilHeader } from '@/components/admin/perfil/PerfilHeader'
-import { InfoPersonalForm } from '@/components/admin/perfil/InfoPersonalForm'
-import { SeguridadInfo } from '@/components/admin/perfil/SeguridadInfo'
-import { ActividadReciente } from '@/components/admin/perfil/ActividadReciente'
+import { usePerfilData } from '@/features/admin/perfil/hooks/usePerfilData'
+import { usePerfilNav, PerfilTab } from '@/features/admin/perfil/hooks/usePerfilNav'
+import { PerfilHeader } from '@/features/admin/perfil/components/ui/PerfilHeader'
+import { InfoPersonalForm } from '@/features/admin/perfil/components/forms/InfoPersonalForm'
+import { SeguridadInfo } from '@/features/admin/perfil/components/ui/SeguridadInfo'
+import { ActividadReciente } from '@/features/admin/perfil/components/ui/ActividadReciente'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 import { Shield, KeyRound, User, ArrowRight, Crown, Users, Settings, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
-
-type Tab = 'perfil' | 'seguridad'
 
 function PerfilSkeleton() {
   return (
@@ -47,8 +46,8 @@ function AccesoRapidoCard({
   icon: React.ElementType
   title: string
   description: string
-  tab: Tab
-  onTabChange: (t: Tab) => void
+  tab: PerfilTab
+  onTabChange: (t: PerfilTab) => void
   iconBg: string
   iconColor: string
 }) {
@@ -117,22 +116,22 @@ function AccesoRapidoLink({
 }
 
 export default function PerfilPage() {
-  const { idUsuario } = useAuth()
-  const { data: admin, isLoading, isError, refetch } = usePerfil()
-
-  const [tab, setTab] = useState<Tab>('perfil')
+  const { idUsuario, isSuperAdmin } = useAuth()
+  const { tab, userId, setTab, setUserId } = usePerfilNav()
 
   useEffect(() => {
-    const handleHash = () => {
-      const hash = window.location.hash.replace('#', '')
-      if (hash === 'seguridad') setTab('seguridad')
+    if (userId && idUsuario && userId !== idUsuario && !isSuperAdmin) {
+      setUserId(null)
     }
-    handleHash()
-    window.addEventListener('hashchange', handleHash)
-    return () => window.removeEventListener('hashchange', handleHash)
-  }, [])
+  }, [userId, idUsuario, isSuperAdmin, setUserId])
 
-  if (isLoading)
+  const targetUserId = (userId && isSuperAdmin) ? userId : idUsuario
+  const isOwnProfile = !userId || userId === idUsuario
+  const canEdit = isOwnProfile || isSuperAdmin
+
+  const { admin, isLoading, isError, refetch } = usePerfilData(targetUserId)
+
+  if (isLoading || !idUsuario)
     return (
       <div className="space-y-6">
         <PageHeader title="Mi perfil" description="Información personal y seguridad de cuenta" />
@@ -142,21 +141,20 @@ export default function PerfilPage() {
 
   if (isError || !admin) return <ErrorState onRetry={refetch} />
 
-  const idAdmin     = idUsuario ?? admin.id
-  const isSuperAdmin = admin.rol === 'SUPERADMIN'
+  const showSeguridadTab = isOwnProfile || isSuperAdmin
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={[{ label: 'Mi perfil' }]} />
+      <Breadcrumbs items={isOwnProfile ? [{ label: 'Mi perfil' }] : [{ label: 'Usuarios', href: '/admin/usuarios' }, { label: `Perfil: ${admin.nombre}` }]} />
 
       <PageHeader
-        title="Mi perfil"
-        description="Información personal y configuración de seguridad"
+        title={isOwnProfile ? 'Mi perfil' : `Perfil de ${admin.nombre}`}
+        description={isOwnProfile ? 'Información personal y configuración de seguridad' : 'Gestión de cuenta de administrador'}
       />
 
-      <PerfilHeader admin={admin} onTabChange={setTab} />
+      <PerfilHeader admin={admin} onTabChange={setTab} isOwnProfile={isOwnProfile} />
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as PerfilTab)}>
         <TabsList className="bg-gray-100/80 rounded-xl p-1 h-auto">
           <TabsTrigger
             value="perfil"
@@ -165,21 +163,23 @@ export default function PerfilPage() {
             <User className="h-4 w-4" />
             Perfil
           </TabsTrigger>
-          <TabsTrigger
-            value="seguridad"
-            className="rounded-lg text-sm gap-2 px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-          >
-            <Shield className="h-4 w-4" />
-            Seguridad
-          </TabsTrigger>
+          {showSeguridadTab && (
+            <TabsTrigger
+              value="seguridad"
+              className="rounded-lg text-sm gap-2 px-4 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+            >
+              <Shield className="h-4 w-4" />
+              Seguridad
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="perfil" className="mt-5">
           <div className="grid gap-5 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-5">
-              <InfoPersonalForm admin={admin} />
+              <InfoPersonalForm admin={admin} canEdit={canEdit} />
 
-              {isSuperAdmin && (
+              {isSuperAdmin && isOwnProfile && (
                 <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-5 space-y-3">
                   <div className="flex items-center gap-2.5">
                     <div className="h-9 w-9 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
@@ -207,39 +207,45 @@ export default function PerfilPage() {
               )}
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <AccesoRapidoCard
-                  icon={Shield}
-                  title="Seguridad de la cuenta"
-                  description="Revisa el estado de tu cuenta, intentos de acceso y restricciones activas."
-                  tab="seguridad"
-                  onTabChange={setTab}
-                  iconBg="bg-blue-50"
-                  iconColor="text-blue-600"
-                />
-                <AccesoRapidoLink
-                  icon={KeyRound}
-                  title="Cambiar contraseña"
-                  description="Actualiza tu contraseña periódicamente para mantener tu cuenta segura."
-                  href="/auth/cambiar-contrasena"
-                  iconBg="bg-amber-50"
-                  iconColor="text-amber-600"
-                  badge="Página dedicada"
-                />
+                {isOwnProfile && (
+                  <AccesoRapidoCard
+                    icon={Shield}
+                    title="Seguridad de la cuenta"
+                    description="Revisa el estado de tu cuenta, intentos de acceso y restricciones activas."
+                    tab="seguridad"
+                    onTabChange={setTab}
+                    iconBg="bg-blue-50"
+                    iconColor="text-blue-600"
+                  />
+                )}
+                {isOwnProfile && (
+                  <AccesoRapidoLink
+                    icon={KeyRound}
+                    title="Cambiar contraseña"
+                    description="Actualiza tu contraseña periódicamente para mantener tu cuenta segura."
+                    href="/auth/cambiar-contrasena"
+                    iconBg="bg-amber-50"
+                    iconColor="text-amber-600"
+                    badge="Página dedicada"
+                  />
+                )}
               </div>
             </div>
 
-            <ActividadReciente idAdmin={idAdmin} />
+            <ActividadReciente idAdmin={targetUserId!} />
           </div>
         </TabsContent>
 
-        <TabsContent value="seguridad" className="mt-5">
-          <div className="grid gap-5 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <SeguridadInfo admin={admin} />
+        {showSeguridadTab && (
+          <TabsContent value="seguridad" className="mt-5">
+            <div className="grid gap-5 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <SeguridadInfo admin={admin} />
+              </div>
+              <ActividadReciente idAdmin={targetUserId!} />
             </div>
-            <ActividadReciente idAdmin={idAdmin} />
-          </div>
-        </TabsContent>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   )

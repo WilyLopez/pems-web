@@ -1,10 +1,10 @@
 import { Suspense } from 'react'
-import LoginForm from './LoginForm'
+import { LoginView } from '@/features/auth/components/views/LoginView'
 
 export default function LoginPage() {
   return (
     <Suspense>
-      <LoginForm />
+      <LoginView />
     </Suspense>
   )
 }
