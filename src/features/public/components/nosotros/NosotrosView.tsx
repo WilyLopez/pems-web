@@ -70,7 +70,7 @@ export function NosotrosView() {
           <div className="w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center mx-auto animate-float">
             <Heart className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-5xl font-black leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-black leading-tight">
             Somos <span className="text-brand-azul">Kiki</span> y{' '}
             <span className="text-brand-rosa">Lala</span>
           </h1>
@@ -88,7 +88,7 @@ export function NosotrosView() {
               <Badge className="bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20">
                 Nuestra historia
               </Badge>
-              <h2 className="text-4xl font-black text-gray-900">
+              <h2 className="text-3xl sm:text-4xl font-black text-gray-900">
                 Nacimos de un sueño familiar
               </h2>
               <div className="space-y-4 text-gray-650 leading-relaxed">
@@ -132,7 +132,7 @@ export function NosotrosView() {
           <div className="text-center mb-10">
             <h2 className="text-3xl font-black text-gray-900">Nuestros valores</h2>
           </div>
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3">
             {[
               {
                 icon: Shield,
@@ -171,7 +171,7 @@ export function NosotrosView() {
       <section id="faq" className="py-20 bg-white">
         <div className="container max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-black text-gray-900 mb-2">Preguntas frecuentes</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-2">Preguntas frecuentes</h2>
             <p className="text-gray-600">Todo lo que necesitas saber antes de visitarnos</p>
           </div>
           {loadingFaqs ? (

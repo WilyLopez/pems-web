@@ -41,32 +41,31 @@ function HomeHeroBanner() {
 
   if (isLoading) {
     return (
-      <div className="hidden lg:flex justify-center relative">
-        <Skeleton className="w-[420px] h-[420px] rounded-3xl" />
+      <div className="flex justify-center relative mt-8 lg:mt-0">
+        <Skeleton className="w-[280px] h-[280px] sm:w-[420px] sm:h-[420px] rounded-3xl" />
       </div>
     )
   }
 
   if (!banner) {
     return (
-      <div className="hidden lg:flex justify-center relative">
-        <div className="relative w-[420px] h-[420px]">
+      <div className="flex justify-center relative mt-8 lg:mt-0">
+        <div className="relative w-[280px] h-[280px] sm:w-[420px] sm:h-[420px]">
           <div className="absolute inset-0 bg-brand-gradient rounded-3xl opacity-30 blur-2xl scale-110" />
           <div className="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-gradient-to-br from-brand-azul/30 to-brand-rosa/30 backdrop-blur h-full flex items-center justify-center">
             <Image
               src="/logo-principal.png"
               alt="Kiki y Lala"
-              width={340}
-              height={340}
-              className="object-contain drop-shadow-2xl animate-float"
+              fill
+              className="object-contain drop-shadow-2xl animate-float p-6"
               priority
             />
           </div>
-          <div className="absolute -top-4 -right-4 bg-brand-amarillo text-gray-900 rounded-2xl px-4 py-2 text-sm font-black shadow-lg rotate-6 flex items-center gap-1.5 animate-pulse">
+          <div className="absolute -top-3 -right-2 sm:-top-4 sm:-right-4 bg-brand-amarillo text-gray-900 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-black shadow-lg rotate-6 flex items-center gap-1.5 animate-pulse">
             <Zap className="h-4 w-4" />
             Nuevo show
           </div>
-          <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl px-4 py-2 text-sm font-bold shadow-lg -rotate-3 flex items-center gap-2">
+          <div className="absolute -bottom-3 -left-2 sm:-bottom-4 sm:-left-4 bg-white rounded-xl sm:rounded-2xl px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold shadow-lg -rotate-3 flex items-center gap-2">
             <Shield className="h-4 w-4 text-brand-azul" />
             100% Seguro
           </div>
@@ -76,8 +75,8 @@ function HomeHeroBanner() {
   }
 
   const content = (
-    <div className="hidden lg:flex justify-center relative">
-      <div className="relative w-[420px] h-[420px]">
+    <div className="flex justify-center relative mt-8 lg:mt-0">
+      <div className="relative w-[280px] h-[280px] sm:w-[420px] sm:h-[420px]">
         <div className="absolute inset-0 bg-brand-gradient rounded-3xl opacity-30 blur-2xl scale-110" />
         <div className="relative rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-gradient-to-br from-brand-azul/30 to-brand-rosa/30 backdrop-blur h-full">
           <Image
@@ -85,7 +84,7 @@ function HomeHeroBanner() {
             alt={banner.titulo}
             fill
             className="object-cover"
-            sizes="420px"
+            sizes="(max-w-768px) 280px, 420px"
             priority
           />
           {banner.descripcion && (
@@ -96,12 +95,12 @@ function HomeHeroBanner() {
             </div>
           )}
         </div>
-        <div className="absolute -top-4 -right-4 bg-brand-amarillo text-gray-900 rounded-2xl px-4 py-2 text-sm font-black shadow-lg rotate-6 flex items-center gap-1.5">
+        <div className="absolute -top-3 -right-2 sm:-top-4 sm:-right-4 bg-brand-amarillo text-gray-900 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-black shadow-lg rotate-6 flex items-center gap-1.5">
           <Zap className="h-4 w-4" />
           {banner.titulo}
         </div>
         {banner.enlaceDestino && (
-          <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl px-4 py-2 text-sm font-bold shadow-lg -rotate-3 flex items-center gap-2">
+          <div className="absolute -bottom-3 -left-2 sm:-bottom-4 sm:-left-4 bg-white rounded-xl sm:rounded-2xl px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold shadow-lg -rotate-3 flex items-center gap-2">
             <Shield className="h-4 w-4 text-brand-azul" />
             Ver más
           </div>
@@ -536,7 +535,7 @@ function HomeTestimonios() {
             Lo que dicen las familias
           </h2>
         </div>
-        <div className="grid gap-6 sm:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {list.slice(0, 3).map((t) => (
             <div
               key={t.id}
@@ -590,7 +589,7 @@ export function PublicHomeView() {
 
         <div className="container max-w-6xl mx-auto px-4 pt-24 pb-16 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 text-white">
+            <div className="space-y-8 text-white flex flex-col items-center lg:items-start text-center lg:text-left">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm font-semibold text-brand-amarillo">
                 <Zap className="h-4 w-4" />
                 El local más divertido de Chiclayo
@@ -608,7 +607,7 @@ export function PublicHomeView() {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-center lg:justify-start">
                 <Button
                   size="lg"
                   asChild
@@ -632,7 +631,7 @@ export function PublicHomeView() {
                 </Button>
               </div>
 
-              <div className="flex items-center gap-6 pt-2">
+              <div className="flex items-center justify-center lg:justify-start gap-6 pt-2 w-full">
                 <div className="text-center">
                   <div className="text-3xl font-black text-brand-amarillo">+500</div>
                   <div className="text-xs text-white/60">Familias felices</div>
@@ -682,7 +681,7 @@ export function PublicHomeView() {
               Cada rincón de Kiki y Lala está diseñado pensando en el bienestar de los niños
             </p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
               { icon: Shield, titulo: 'Supervisión constante', desc: 'Personal capacitado en cada zona' },
               { icon: Heart, titulo: 'Higiene garantizada', desc: 'Desinfección después de cada turno' },

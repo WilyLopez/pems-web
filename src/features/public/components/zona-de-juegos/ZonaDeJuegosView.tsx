@@ -36,7 +36,7 @@ export function ZonaDeJuegosView() {
       badge: 'Tarifa regular',
       badgeClass: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20',
       borderClass: 'border-brand-azul/30 bg-brand-azul/5',
-      desc: 'Acceso a todas las zonas de juego por sesión de 90 minutos',
+      desc: 'Acceso ilimitado a todas las zonas de juego durante todo el día',
     },
     {
       tipo: 'Fin de Semana',
@@ -45,16 +45,7 @@ export function ZonaDeJuegosView() {
       badge: 'Shows incluidos',
       badgeClass: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20',
       borderClass: 'border-brand-rosa/40 bg-brand-rosa/5',
-      desc: 'Acceso completo + shows de personajes a las 3pm y 6pm',
-    },
-    {
-      tipo: 'Pack Familiar',
-      icon: Users,
-      precio: 'S/ 90',
-      badge: '3 niños + 1 gratis',
-      badgeClass: 'bg-brand-amarillo/20 text-yellow-700 border-brand-amarillo/30',
-      borderClass: 'border-brand-amarillo/40 bg-brand-amarillo/5',
-      desc: '4 entradas (3 niños + 1 adicional gratis). Válido todos los días',
+      desc: 'Acceso a todas las zonas de juego por sesión de 2 horas ',
     },
   ]
 
@@ -97,7 +88,7 @@ export function ZonaDeJuegosView() {
           <Badge className="bg-brand-azul/10 text-brand-azul border-brand-azul/20 text-sm px-4 py-1">
             Zona de Juegos
           </Badge>
-          <h1 className="text-5xl font-black text-gray-900 max-w-3xl mx-auto leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-black text-gray-900 max-w-3xl mx-auto leading-tight">
             El mundo de diversión de{' '}
             <span className="text-brand-azul">Kiki y Lala</span>
           </h1>
@@ -121,11 +112,11 @@ export function ZonaDeJuegosView() {
       <section id="comprar" className="py-20 bg-white">
         <div className="container max-w-5xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-black text-gray-900 mb-2">Precios y entradas</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-2">Precios y entradas</h2>
             <p className="text-gray-600">Elige la entrada que mejor se adapte a tu familia</p>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 max-w-3xl mx-auto">
             {precios.map(({ tipo, icon: Icon, precio, badge, badgeClass, borderClass, desc }) => (
               <div key={tipo} className={`rounded-3xl border-2 ${borderClass} p-7 flex flex-col gap-4 shadow-sm hover:scale-102 transition-transform`}>
                 <div>
@@ -167,7 +158,7 @@ export function ZonaDeJuegosView() {
         <section className="py-16 bg-gray-50">
           <div className="container max-w-6xl mx-auto px-4 space-y-6">
             <Skeleton className="h-10 w-48 mx-auto" />
-            <div className="grid gap-6 sm:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-64 rounded-2xl bg-gray-200" />
               ))}

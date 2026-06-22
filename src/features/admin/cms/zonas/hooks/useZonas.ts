@@ -10,7 +10,14 @@ export function useZonasAdmin() {
   return useQuery({
     queryKey: CMS_QUERY_KEYS.zonasAdmin(),
     queryFn: comercialService.zonas.listarAdmin,
+    staleTime: 1000 * 60 * 2,
+    select: (data) => [...data].sort((a, b) => a.orden - b.orden),
   })
+}
+
+export function useZona(id: number | null) {
+  const { data: zonas } = useZonasAdmin()
+  return id !== null ? (zonas?.find((z) => z.id === id) ?? null) : null
 }
 
 export function useZonasPublico() {
@@ -23,9 +30,9 @@ export function useZonasPublico() {
 
 export function useZonaMutations() {
   const qc = useQueryClient()
-  const invalidar = () => {
-    qc.invalidateQueries({ queryKey: ['zonas'] })
-  }
+  const key = CMS_QUERY_KEYS.zonasAdmin()
+
+  const invalidar = () => qc.invalidateQueries({ queryKey: key })
 
   const crear = useMutation({
     mutationFn: (payload: CrearZonaPayload) => comercialService.zonas.crear(payload),
@@ -56,13 +63,29 @@ export function useZonaMutations() {
   const toggleActivo = useMutation({
     mutationFn: (z: ZonaJuego) =>
       comercialService.zonas.actualizar(z.id, {
-        nombre: z.nombre, descripcion: z.descripcion,
-        edadMinima: z.edadMinima, edadMaxima: z.edadMaxima,
-        imagenes: z.imagenes, videos: z.videos,
-        activa: !z.activa, destacada: z.destacada, orden: z.orden,
+        nombre: z.nombre,
+        descripcion: z.descripcion,
+        edadMinima: z.edadMinima,
+        edadMaxima: z.edadMaxima,
+        imagenes: z.imagenes,
+        videos: z.videos,
+        activa: !z.activa,
+        destacada: z.destacada,
+        orden: z.orden,
       }),
-    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
-    onError: () => toast.error('No se pudo cambiar el estado'),
+    onMutate: async (z) => {
+      await qc.cancelQueries({ queryKey: key })
+      const prev = qc.getQueryData<ZonaJuego[]>(key)
+      qc.setQueryData<ZonaJuego[]>(key, (old = []) =>
+        old.map((item) => (item.id === z.id ? { ...item, activa: !item.activa } : item))
+      )
+      return { prev }
+    },
+    onError: (_err, _z, ctx) => {
+      if (ctx?.prev) qc.setQueryData(key, ctx.prev)
+      toast.error('No se pudo cambiar el estado')
+    },
+    onSettled: () => invalidar(),
   })
 
   return { crear, actualizar, eliminar, reordenar, toggleActivo }

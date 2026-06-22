@@ -5,10 +5,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Calendar, Ticket, PartyPopper, Tag, Mail, Users, Globe,
-  ClipboardList, UserCog, ChevronLeft, ChevronDown, ScanLine, DoorOpen,
+  ClipboardList, UserCog, ChevronDown, ScanLine,
   TrendingUp, ArrowDownCircle, ArrowUpCircle, BarChart3, Landmark,
   HeadphonesIcon, Settings, Package2, MapPin, Zap, Newspaper, DollarSign,
-  LayoutGrid, PanelLeftClose, PanelLeftOpen, MailOpen,
+  LayoutGrid, PanelLeftClose, PanelLeftOpen,
+  Image as ImageIcon, Images, FileText, HelpCircle, Scale, Star, SlidersHorizontal,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSidebarStore } from '@/lib/store/sidebar.store'
@@ -16,9 +17,28 @@ import { Logo } from '@/components/brand/Logo'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip'
 import type { LucideIcon } from 'lucide-react'
 
+type NavLeaf = {
+  label: string
+  href: string
+  icon: LucideIcon
+  exact?: boolean
+}
+
+type NavAccordionItem = {
+  label: string
+  icon: LucideIcon
+  children: NavLeaf[]
+}
+
+type NavGroupItem = NavLeaf | NavAccordionItem
+
+function isAccordion(item: NavGroupItem): item is NavAccordionItem {
+  return 'children' in item
+}
+
 const navGroups: {
   label: string
-  items: { label: string; href: string; icon: LucideIcon; exact?: boolean }[]
+  items: NavGroupItem[]
 }[] = [
     {
       label: 'Principal',
@@ -58,10 +78,23 @@ const navGroups: {
     {
       label: 'Sitio web',
       items: [
-        { label: 'CMS', href: '/admin/cms', icon: Globe },
-        { label: 'Zonas de juego', href: '/admin/cms/zonas', icon: MapPin },
-        { label: 'Actividades', href: '/admin/cms/actividades', icon: Zap },
-        { label: 'Novedades', href: '/admin/cms/novedades', icon: Newspaper },
+        {
+          label: 'CMS',
+          icon: Globe,
+          children: [
+            { label: 'Inicio', href: '/admin/cms', icon: LayoutDashboard, exact: true },
+            { label: 'Zonas de juego', href: '/admin/cms/zonas', icon: MapPin },
+            { label: 'Actividades', href: '/admin/cms/actividades', icon: Zap },
+            { label: 'Novedades', href: '/admin/cms/novedades', icon: Newspaper },
+            { label: 'Banners', href: '/admin/cms/banners', icon: ImageIcon },
+            { label: 'Galería', href: '/admin/cms/galeria', icon: Images },
+            { label: 'Contenido', href: '/admin/cms/contenido', icon: FileText },
+            { label: 'FAQ', href: '/admin/cms/faq', icon: HelpCircle },
+            { label: 'Legal', href: '/admin/cms/legal', icon: Scale },
+            { label: 'Reseñas', href: '/admin/cms/resenas', icon: Star },
+            { label: 'Config. pública', href: '/admin/cms/configuracion-publica', icon: SlidersHorizontal },
+          ],
+        },
       ],
     },
     {
@@ -128,22 +161,27 @@ function NavItem({ href, label, icon: Icon, active, collapsed, onClick }: NavIte
   return link
 }
 
-interface NavGroupProps {
+interface AccordionItemProps {
   label: string
-  items: { label: string; href: string; icon: LucideIcon; exact?: boolean }[]
+  icon: LucideIcon
+  children: NavLeaf[]
   collapsed: boolean
   isActive: (href: string, exact?: boolean) => boolean
   onItemClick?: () => void
 }
 
-function NavGroup({ label, items, collapsed, isActive, onItemClick }: NavGroupProps) {
-  const hasActive = items.some(({ href, exact }) => isActive(href, exact))
-  const [open, setOpen] = useState(true)
+function AccordionItem({ label, icon: Icon, children, collapsed, isActive, onItemClick }: AccordionItemProps) {
+  const hasActiveChild = children.some(({ href, exact }) => isActive(href, exact))
+  const [open, setOpen] = useState(hasActiveChild)
+
+  useEffect(() => {
+    if (hasActiveChild) setOpen(true)
+  }, [hasActiveChild])
 
   if (collapsed) {
     return (
       <div className="space-y-1">
-        {items.map(({ label: l, href, icon, exact }) => (
+        {children.map(({ label: l, href, icon, exact }) => (
           <NavItem key={href} href={href} label={l} icon={icon} active={isActive(href, exact)} collapsed />
         ))}
       </div>
@@ -153,40 +191,159 @@ function NavGroup({ label, items, collapsed, isActive, onItemClick }: NavGroupPr
   return (
     <div>
       <button
-        onClick={() => setOpen(p => !p)}
+        type="button"
+        onClick={() => setOpen((p) => !p)}
         className={cn(
-          'group mb-0.5 flex w-full items-center justify-between rounded-md px-2.5 py-1.5',
-          'text-left transition-colors hover:bg-gray-50',
+          'group flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-colors duration-150',
+          hasActiveChild
+            ? 'bg-brand-azul/8 text-brand-azul'
+            : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
         )}
       >
-        <span className={cn(
-          'text-[10px] font-bold uppercase tracking-widest select-none transition-colors',
-          hasActive ? 'text-brand-azul' : 'text-gray-400 group-hover:text-gray-500',
-        )}>
-          {label}
-        </span>
-        <ChevronDown className={cn(
-          'h-3 w-3 text-gray-300 transition-transform duration-200',
-          !open && '-rotate-90',
-        )} />
+        <Icon
+          className={cn(
+            'h-[17px] w-[17px] shrink-0',
+            hasActiveChild ? 'text-brand-azul' : 'text-gray-400 group-hover:text-gray-700',
+          )}
+        />
+        <span className="flex-1 truncate leading-none text-left">{label}</span>
+        <ChevronDown
+          className={cn(
+            'h-3.5 w-3.5 shrink-0 transition-transform duration-200',
+            open && 'rotate-180',
+            hasActiveChild ? 'text-brand-azul/50' : 'text-gray-300',
+          )}
+        />
       </button>
 
-      <div className={cn(
-        'grid overflow-hidden transition-all duration-200 ease-in-out',
-        open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-      )}>
-        <div className="space-y-0.5 overflow-hidden">
-          {items.map(({ label: l, href, icon, exact }) => (
+      <div
+        className={cn(
+          'grid overflow-hidden transition-all duration-200 ease-in-out',
+          open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="ml-[30px] mt-0.5 space-y-0.5 border-l border-gray-100 pl-3 pb-1">
+            {children.map(({ label: l, href, icon, exact }) => (
+              <NavItem
+                key={href}
+                href={href}
+                label={l}
+                icon={icon}
+                active={isActive(href, exact)}
+                collapsed={false}
+                onClick={onItemClick}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface NavGroupProps {
+  label: string
+  items: NavGroupItem[]
+  collapsed: boolean
+  isActive: (href: string, exact?: boolean) => boolean
+  onItemClick?: () => void
+}
+
+function NavGroup({ label, items, collapsed, isActive, onItemClick }: NavGroupProps) {
+  const hasActive = items.some((item) => {
+    if (isAccordion(item)) return item.children.some(({ href, exact }) => isActive(href, exact))
+    return isActive(item.href, item.exact)
+  })
+  const [open, setOpen] = useState(true)
+
+  if (collapsed) {
+    return (
+      <div className="space-y-1">
+        {items.map((item) => {
+          if (isAccordion(item)) {
+            return (
+              <AccordionItem
+                key={item.label}
+                label={item.label}
+                icon={item.icon}
+                children={item.children}
+                collapsed
+                isActive={isActive}
+              />
+            )
+          }
+          return (
             <NavItem
-              key={href}
-              href={href}
-              label={l}
-              icon={icon}
-              active={isActive(href, exact)}
-              collapsed={false}
-              onClick={onItemClick}
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+              active={isActive(item.href, item.exact)}
+              collapsed
             />
-          ))}
+          )
+        })}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        className="group mb-0.5 flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left transition-colors hover:bg-gray-50"
+      >
+        <span
+          className={cn(
+            'text-[10px] font-bold uppercase tracking-widest select-none transition-colors',
+            hasActive ? 'text-brand-azul' : 'text-gray-400 group-hover:text-gray-500',
+          )}
+        >
+          {label}
+        </span>
+        <ChevronDown
+          className={cn(
+            'h-3 w-3 text-gray-300 transition-transform duration-200',
+            !open && '-rotate-90',
+          )}
+        />
+      </button>
+
+      <div
+        className={cn(
+          'grid overflow-hidden transition-all duration-200 ease-in-out',
+          open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="space-y-0.5 overflow-hidden">
+          {items.map((item) => {
+            if (isAccordion(item)) {
+              return (
+                <AccordionItem
+                  key={item.label}
+                  label={item.label}
+                  icon={item.icon}
+                  children={item.children}
+                  collapsed={false}
+                  isActive={isActive}
+                  onItemClick={onItemClick}
+                />
+              )
+            }
+            return (
+              <NavItem
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                active={isActive(item.href, item.exact)}
+                collapsed={false}
+                onClick={onItemClick}
+              />
+            )
+          })}
         </div>
       </div>
     </div>
@@ -204,11 +361,8 @@ function SidebarContent({
 }) {
   return (
     <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain scrollbar-thin pr-2">
-      <nav className={cn(
-        'py-3 space-y-4',
-        collapsed ? 'px-3' : 'px-3'
-      )}>
-        {navGroups.map(group => (
+      <nav className={cn('py-3 space-y-4', collapsed ? 'px-3' : 'px-3')}>
+        {navGroups.map((group) => (
           <NavGroup
             key={group.label}
             label={group.label}
@@ -330,6 +484,7 @@ export function AdminSidebar() {
           </div>
 
           <button
+            type="button"
             onClick={toggle}
             className={cn(
               'absolute -right-3 top-[78px] z-50',
