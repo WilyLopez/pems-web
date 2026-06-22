@@ -1,16 +1,21 @@
 /** @type {import('next').NextConfig} */
 
-// Derive the backend origin from the API URL so this config stays DRY.
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1'
-const backendOrigin = new URL(apiUrl).origin   // e.g. "http://localhost:8080"
+
+let backendOrigin = 'http://localhost:8080'
+try {
+  backendOrigin = new URL(apiUrl.trim()).origin
+} catch (e) {
+  if (apiUrl.startsWith('http')) {
+    const match = apiUrl.match(/^https?:\/\/[^\/]+/);
+    if (match) backendOrigin = match[0];
+  }
+}
 
 const nextConfig = {
   async rewrites() {
     return [
       {
-        // Proxy every /files/** request to the Spring Boot static-file endpoint.
-        // This avoids 404s (Next.js has no /files handler) and avoids the
-        // "private IP" block in the Next.js image optimizer.
         source: '/files/:path*',
         destination: `${backendOrigin}/files/:path*`,
       },
@@ -27,7 +32,6 @@ const nextConfig = {
         hostname: 'divljjsnorvkrgcznwlh.supabase.co',
         pathname: '/**',
       },
-      // Keep localhost:8080 for any remaining absolute-URL usages during migration.
       {
         protocol: 'http',
         hostname: 'localhost',
