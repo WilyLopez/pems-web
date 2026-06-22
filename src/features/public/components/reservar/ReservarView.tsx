@@ -553,7 +553,7 @@ export function ReservarView() {
                 </p>
               </div>
 
-              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-3 sm:p-6">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="font-bold text-gray-900 capitalize text-sm">
                     {format(semanaInicio, "'Semana del' d 'de' MMMM yyyy", { locale: es })}
@@ -577,13 +577,13 @@ export function ReservarView() {
                 </div>
 
                 {loadingDisp ? (
-                  <div className="grid grid-cols-7 gap-2">
+                  <div className="grid grid-cols-7 gap-1 sm:gap-2">
                     {Array.from({ length: 7 }).map((_, i) => (
-                      <Skeleton key={i} className="h-24 rounded-xl" />
+                      <Skeleton key={i} className="h-20 sm:h-24 rounded-xl" />
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-7 gap-2">
+                  <div className="grid grid-cols-7 gap-1 sm:gap-2">
                     {dias.map((dia) => {
                       const disp = getDisp(dia)
                       const hoy = startOfDay(new Date())
@@ -607,19 +607,19 @@ export function ReservarView() {
                             setDispSeleccionada(disp ?? null)
                           }}
                           className={cn(
-                            'relative h-24 w-full rounded-2xl border p-2 flex flex-col gap-0.5 transition-all text-left duration-200',
+                            'relative h-20 sm:h-24 w-full rounded-xl sm:rounded-2xl border p-1.5 xs:p-2 flex flex-col gap-0.5 transition-all text-left duration-200',
                             seleccionado && 'border-brand-azul bg-brand-azul/8 ring-2 ring-brand-azul/10 shadow-sm scale-95',
                             !seleccionado && !disabled && 'hover:border-brand-azul/45 hover:bg-brand-azul/4 border-gray-200 bg-white hover:shadow-sm',
                             disabled && 'opacity-35 cursor-not-allowed bg-gray-50 border-gray-100',
                             isToday(dia) && !seleccionado && 'border-brand-rosa/40'
                           )}
                         >
-                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-wide">
+                          <span className="text-[8px] xs:text-[9px] font-black text-gray-400 uppercase tracking-wide">
                             {format(dia, 'EEE', { locale: es })}
                           </span>
                           <span
                             className={cn(
-                              'text-lg font-black leading-none mt-0.5',
+                              'text-sm xs:text-base sm:text-lg font-black leading-none mt-0.5',
                               seleccionado && 'text-brand-azul',
                               isToday(dia) && !seleccionado && 'text-brand-rosa',
                               !seleccionado && !isToday(dia) && 'text-gray-800'
@@ -628,12 +628,12 @@ export function ReservarView() {
                             {format(dia, 'd')}
                           </span>
                           {disp && !disabled && (
-                            <span className="text-[9px] text-green-600 font-bold mt-1">
-                              {disp.plazasDisponibles} pl.
+                            <span className="text-[8px] xs:text-[9px] text-green-600 font-bold mt-1 leading-none">
+                              {disp.plazasDisponibles}<span className="hidden xs:inline"> pl.</span>
                             </span>
                           )}
                           {disp && !disabled && (
-                            <span className="text-[9px] font-black text-brand-azul mt-auto">
+                            <span className="text-[8px] xs:text-[9px] font-black text-brand-azul mt-auto leading-none">
                               S/{Number(
                                 precioMap
                                   ? (precioMap[getTarifaKey(fechaStr, disp.esFeriado)] ?? (getTarifaKey(fechaStr, disp.esFeriado) === 'SEMANA' ? 25 : 35))
@@ -642,10 +642,10 @@ export function ReservarView() {
                             </span>
                           )}
                           {disabled && !pasado && (disp?.tipoOcupacion === 'PRIVADO_PARCIAL' || disp?.tipoOcupacion === 'PRIVADO_LLENO') && (
-                            <Lock className="h-3 w-3 text-pink-450 mt-auto" />
+                            <Lock className="h-3 w-3 text-pink-450 mt-auto shrink-0" />
                           )}
                           {disabled && !pasado && disp?.aforoCompleto && disp?.tipoOcupacion !== 'PRIVADO_PARCIAL' && disp?.tipoOcupacion !== 'PRIVADO_LLENO' && (
-                            <span className="text-[9px] text-red-500 font-bold mt-auto">Lleno</span>
+                            <span className="text-[8px] xs:text-[9px] text-red-500 font-bold mt-auto leading-none">Lleno</span>
                           )}
                         </button>
                       )
@@ -1209,7 +1209,7 @@ export function ReservarView() {
 
       {/* Mobile Sticky Bar/Bottom Sheet summary */}
       {paso > 1 && paso < 4 && fechaSeleccionada && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] p-4.5 z-50 rounded-t-3xl transition-all duration-300">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] p-4 z-50 rounded-t-3xl transition-all duration-300">
           <div className="flex items-center justify-between">
             <div className="max-w-[70%]">
               <p className="text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none">Resumen de reserva</p>

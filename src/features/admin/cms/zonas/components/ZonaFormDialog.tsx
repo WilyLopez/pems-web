@@ -6,6 +6,7 @@ import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Video, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import {
   Dialog,
@@ -20,25 +21,38 @@ import { ZonaPreview } from '@/components/admin/comercial/zonas/ZonaPreview'
 import { useZonaMutations } from '../hooks/useZonas'
 import { ZonaJuego } from '@/types/comercial.types'
 import { MediaValue } from '@/types/media.types'
-import { fixMediaUrl, resolverMediaValues } from '@/lib/media'
+import { fixMediaUrl, resolverMediaValue } from '@/lib/media'
 
 const VIDEO_REGEX = /^https:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|tiktok\.com\/).+$/
 
-export const zonasSchema = z.object({
-  nombre:      z.string()
-    .min(1, 'El nombre es obligatorio')
-    .max(50, 'Máximo 50 caracteres'),
-  descripcion: z.string()
-    .min(1, 'La descripción es obligatoria')
-    .max(130, 'Máximo 130 caracteres'),
-  edadMinima:  z.coerce.number('Ingresa un número')
-    .min(0, 'Mínimo 0 años').optional().nullable(),
-  edadMaxima:  z.coerce.number('Ingresa un número')
-    .max(10, 'Máximo 10 años').optional().nullable(),
-  activa:      z.boolean().default(true),
-  destacada:   z.boolean().default(false),
-  orden:       z.coerce.number('Ingresa un número').default(0),
-})
+const zonasSchema = z
+  .object({
+    nombre: z.string()
+      .min(1, 'El nombre es obligatorio')
+      .max(25, 'Máximo 25 caracteres')
+      .trim(),
+    descripcion: z.string()
+      .min(1, 'La descripción es obligatoria')
+      .max(100, 'Máximo 100 caracteres')
+      .trim(),
+    edadMinima: z.coerce.number('Ingresa un número')
+      .min(0, 'Mínimo 0 años').optional().nullable(),
+    edadMaxima: z.coerce.number('Ingresa un número')
+      .max(17, 'Máximo 17 años').optional().nullable(),
+    activa: z.boolean().default(true),
+    destacada: z.boolean().default(false),
+    orden: z.coerce.number('Ingresa un número').default(0),
+  })
+  .refine(
+    (d) => {
+      if (d.edadMinima != null && d.edadMaxima != null) {
+        return d.edadMaxima >= d.edadMinima
+      }
+      return true
+    },
+    { message: 'La edad máxima no puede ser menor que la mínima', path: ['edadMaxima'] }
+  )
+
 export type ZonaFormValues = z.infer<typeof zonasSchema>
 
 interface ZonaFormDialogProps {
@@ -47,31 +61,48 @@ interface ZonaFormDialogProps {
   zona: ZonaJuego | null
 }
 
-export function ZonaFormDialog({
-  open,
-  onOpenChange,
-  zona,
-}: ZonaFormDialogProps) {
+export function ZonaFormDialog({ open, onOpenChange, zona }: ZonaFormDialogProps) {
   const { crear, actualizar } = useZonaMutations()
   const isEditing = !!zona
+
   const [imagenesMedia, setImagenesMedia] = useState<MediaValue[]>([])
   const [videos, setVideos]               = useState<string[]>([])
   const [videoInput, setVideoInput]       = useState('')
   const [uploading, setUploading]         = useState(false)
+  const [uploadMsg, setUploadMsg]         = useState('')
   const [mobileTab, setMobileTab]         = useState<'form' | 'preview'>('form')
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<ZonaFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<ZonaFormValues>({
     resolver: zodResolver(zonasSchema),
-    defaultValues: { nombre: '', descripcion: '', edadMinima: null, edadMaxima: null, activa: true, destacada: false, orden: 0 },
+    defaultValues: {
+      nombre: '',
+      descripcion: '',
+      edadMinima: null,
+      edadMaxima: null,
+      activa: true,
+      destacada: false,
+      orden: 0,
+    },
+    mode: 'onChange',
   })
 
   useEffect(() => {
     if (open) {
       if (zona) {
         reset({
-          nombre: zona.nombre, descripcion: zona.descripcion,
-          edadMinima: zona.edadMinima ?? null, edadMaxima: zona.edadMaxima ?? null,
-          activa: zona.activa, destacada: zona.destacada, orden: zona.orden,
+          nombre:      zona.nombre,
+          descripcion: zona.descripcion,
+          edadMinima:  zona.edadMinima ?? null,
+          edadMaxima:  zona.edadMaxima ?? null,
+          activa:      zona.activa,
+          destacada:   zona.destacada,
+          orden:       zona.orden,
         })
         setImagenesMedia((zona.imagenes ?? []).map((url) => ({ url: fixMediaUrl(url), esLocal: false })))
         setVideos(zona.videos ?? [])
@@ -96,18 +127,42 @@ export function ZonaFormDialog({
     setVideoInput('')
   }
 
+  function cerrar() {
+    reset()
+    setImagenesMedia([])
+    setVideos([])
+    setVideoInput('')
+    setUploadMsg('')
+    onOpenChange(false)
+  }
+
   async function onSubmit(data: ZonaFormValues) {
     setUploading(true)
     try {
-      const imagenesUrls = await resolverMediaValues(imagenesMedia, 'zonas')
+      const localCount = imagenesMedia.filter((m) => m.esLocal).length
+      let uploaded = 0
+      const imagenesUrls: string[] = []
+
+      for (const v of imagenesMedia) {
+        if (v.esLocal) {
+          uploaded++
+          setUploadMsg(`Subiendo imagen ${uploaded} de ${localCount}`)
+        }
+        const url = await resolverMediaValue(v, 'zonas')
+        if (url) imagenesUrls.push(url)
+      }
+
+      setUploadMsg('')
+
       const payload = {
-        nombre: data.nombre,
+        nombre:      data.nombre,
         descripcion: data.descripcion,
-        edadMinima: data.edadMinima || undefined,
-        edadMaxima: data.edadMaxima || undefined,
-        imagenes: imagenesUrls,
+        edadMinima:  data.edadMinima || undefined,
+        edadMaxima:  data.edadMaxima || undefined,
+        imagenes:    imagenesUrls,
         videos,
       }
+
       if (isEditing && zona) {
         await actualizar.mutateAsync({
           id: zona.id,
@@ -116,17 +171,18 @@ export function ZonaFormDialog({
       } else {
         await crear.mutateAsync(payload)
       }
-      onOpenChange(false)
-      reset()
+
+      cerrar()
     } catch {
-      toast.error('No se pudo guardar la zona')
+      toast.error('Error al guardar la zona')
     } finally {
       setUploading(false)
+      setUploadMsg('')
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) { reset(); setImagenesMedia([]) } onOpenChange(v) }}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) cerrar() }}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar zona' : 'Nueva zona'}</DialogTitle>
@@ -145,31 +201,46 @@ export function ZonaFormDialog({
           <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] gap-6">
             <div className={mobileTab === 'preview' ? 'hidden lg:block' : undefined}>
               <div className="space-y-4">
+
                 <div className="space-y-1">
-                  <Label>Nombre *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Nombre *</Label>
+                    <span className={cn('text-xs tabular-nums', (nombre?.length ?? 0) > 22 ? 'text-destructive' : 'text-muted-foreground')}>
+                      {nombre?.length ?? 0}/25
+                    </span>
+                  </div>
                   <Input {...register('nombre')} placeholder="Aventura" />
                   {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Descripción *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Descripción *</Label>
+                    <span className={cn('text-xs tabular-nums', (descripcion?.length ?? 0) > 90 ? 'text-destructive' : 'text-muted-foreground')}>
+                      {descripcion?.length ?? 0}/100
+                    </span>
+                  </div>
                   <Input {...register('descripcion')} placeholder="Zona de..." />
                   {errors.descripcion && <p className="text-xs text-destructive">{errors.descripcion.message}</p>}
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className={cn('grid gap-4', isEditing ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
                   <div className="space-y-1">
                     <Label>Edad mínima</Label>
-                    <Input type="number" {...register('edadMinima')} />
+                    <Input type="number" min={0} {...register('edadMinima')} placeholder="0" />
+                    {errors.edadMinima && <p className="text-xs text-destructive">{errors.edadMinima.message}</p>}
                   </div>
                   <div className="space-y-1">
                     <Label>Edad máxima</Label>
-                    <Input type="number" {...register('edadMaxima')} />
+                    <Input type="number" max={17} {...register('edadMaxima')} placeholder="17" />
+                    {errors.edadMaxima && <p className="text-xs text-destructive">{errors.edadMaxima.message}</p>}
                   </div>
-                  <div className="space-y-1">
-                    <Label>Orden</Label>
-                    <Input type="number" {...register('orden')} />
-                  </div>
+                  {isEditing && (
+                    <div className="space-y-1">
+                      <Label>Orden</Label>
+                      <Input type="number" min={0} {...register('orden')} />
+                    </div>
+                  )}
                 </div>
 
                 <MediaUploaderMulti
@@ -213,11 +284,11 @@ export function ZonaFormDialog({
                 )}
 
                 <div className="flex justify-end gap-2 pt-2 border-t">
-                  <Button type="button" variant="outline" onClick={() => { reset(); setImagenesMedia([]); onOpenChange(false) }}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={uploading} className="bg-brand-azul text-white">
-                    {uploading ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear zona'}
+                  <Button type="button" variant="outline" onClick={cerrar}>Cancelar</Button>
+                  <Button type="submit" disabled={uploading} className="bg-brand-azul text-white min-w-[160px]">
+                    {uploading
+                      ? (uploadMsg || 'Guardando...')
+                      : isEditing ? 'Guardar cambios' : 'Crear zona'}
                   </Button>
                 </div>
               </div>

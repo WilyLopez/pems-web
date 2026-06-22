@@ -35,8 +35,10 @@ export async function resolverMediaValues(
   values: MediaValue[],
   carpeta: CarpetaMedia
 ): Promise<string[]> {
-  const urls = await Promise.all(
-    values.map((v) => resolverMediaValue(v, carpeta).then((u) => u ?? ''))
-  )
-  return urls.filter(Boolean)
+  const urls: string[] = []
+  for (const v of values) {
+    const url = await resolverMediaValue(v, carpeta)
+    if (url) urls.push(url)
+  }
+  return urls
 }

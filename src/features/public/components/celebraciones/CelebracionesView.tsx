@@ -54,7 +54,7 @@ export function CelebracionesView() {
           <Badge className="bg-brand-rosa/15 text-brand-rosa border-brand-rosa/30 text-sm px-4 py-1">
             Celebraciones Privadas
           </Badge>
-          <h1 className="text-5xl font-black text-gray-900 max-w-3xl mx-auto leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-black text-gray-900 max-w-3xl mx-auto leading-tight">
             Celebraciones mágicas en{' '}
             <span className="text-brand-rosa">Kiki y Lala</span>
           </h1>
@@ -126,13 +126,13 @@ export function CelebracionesView() {
           </div>
 
           {loadingPaquetes ? (
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-96 rounded-3xl bg-gray-200" />
               ))}
             </div>
           ) : paquetes && paquetes.length > 0 ? (
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {paquetes.map((paquete) => {
                 const waBadge = whatsappUrl
                   ? `${whatsappUrl}?text=${encodeURIComponent(`Hola! Me interesa el ${paquete.nombre}`)}`
@@ -234,7 +234,7 @@ export function CelebracionesView() {
           <h2 className="text-3xl font-black text-gray-900 mb-10">
             ¿Cómo reservar tu celebración?
           </h2>
-          <div className="grid gap-6 sm:grid-cols-4">
+          <div className="grid gap-6 grid-cols-2 md:grid-cols-4">
             {pasosPorDefecto.map(({ n, icon: Icon, titulo, desc }) => (
               <div key={n} className="relative">
                 <div className="w-12 h-12 rounded-full bg-brand-gradient flex items-center justify-center text-white font-black text-lg mx-auto mb-3">
