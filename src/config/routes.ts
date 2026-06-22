@@ -56,6 +56,9 @@ export const ADMIN_ROUTES = {
   cmsResenas: '/admin/cms/resenas',
   cmsLegal: '/admin/cms/legal',
   cmsConfiguracion: '/admin/cms/configuracion-publica',
+  cmsZonas: '/admin/cms/zonas',
+  cmsActividades: '/admin/cms/actividades',
+  cmsNovedades: '/admin/cms/novedades',
 } as const
 
 // ─── Rutas protegidas por rol ─────────────────────────────────────────────────

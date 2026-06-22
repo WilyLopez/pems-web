@@ -95,10 +95,24 @@ export function useActualizarSede(idSede: number | null) {
 
 const EDAD_MAX_NINO_KEY     = 'EDAD_MAX_NINO'
 const EDAD_MAX_NINO_DEFAULT = 12
+const EDAD_MIN_NINO_KEY     = 'EDAD_MIN_NINO'
+const EDAD_MIN_NINO_DEFAULT = 1
+
+export function useConfiguracionVenta() {
+  const { data } = useConfiguracion()
+  
+  const edadMaxRaw = data?.find(c => c.clave === EDAD_MAX_NINO_KEY)?.valor
+  const edadMaxParsed = edadMaxRaw !== undefined ? parseInt(edadMaxRaw, 10) : NaN
+  const edadMax = Number.isNaN(edadMaxParsed) ? EDAD_MAX_NINO_DEFAULT : edadMaxParsed
+
+  const edadMinRaw = data?.find(c => c.clave === EDAD_MIN_NINO_KEY)?.valor
+  const edadMinParsed = edadMinRaw !== undefined ? parseInt(edadMinRaw, 10) : NaN
+  const edadMin = Number.isNaN(edadMinParsed) ? EDAD_MIN_NINO_DEFAULT : edadMinParsed
+
+  return { edadMin, edadMax }
+}
 
 export function useEdadMaxNino(): number {
-  const { data } = useConfiguracion()
-  const raw    = data?.find(c => c.clave === EDAD_MAX_NINO_KEY)?.valor
-  const parsed = raw !== undefined ? parseInt(raw, 10) : NaN
-  return Number.isNaN(parsed) ? EDAD_MAX_NINO_DEFAULT : parsed
+  const { edadMax } = useConfiguracionVenta()
+  return edadMax
 }

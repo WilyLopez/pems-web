@@ -60,7 +60,12 @@ export const ConfigurarCalendarioModal = React.memo(({
   })
 
   const onSubmit = (values: ConfigForm) => {
-    actualizar.mutate(values, {
+    if (!config) return
+    const { idSede: _, ...restConfig } = config
+    actualizar.mutate({
+      ...restConfig,
+      ...values,
+    }, {
       onSuccess: () => onClose(),
     })
   }

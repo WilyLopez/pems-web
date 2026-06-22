@@ -21,7 +21,7 @@ import Link from 'next/link'
 
 import { useResumenDia, useBloquearFechas } from '../../hooks/useCalendarData'
 import { AlertaDia, ResumenTurno, ResumenDia } from '../../types'
-import { GastosOperativosDia } from '@/components/admin/finanzas/GastosOperativosDia'
+import { GastosOperativosDia } from '@/features/admin/finance'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'

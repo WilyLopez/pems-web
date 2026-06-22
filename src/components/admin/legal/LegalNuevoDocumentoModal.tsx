@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { useCrearContenidoLegal } from '@/hooks/useContenidoLegal'
+import { useCrearContenidoLegal } from '@/features/admin/cms/legal/hooks/useContenidoLegal'
 
 const schema = z.object({
   nombre: z

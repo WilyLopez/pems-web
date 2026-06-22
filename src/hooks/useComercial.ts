@@ -80,71 +80,12 @@ export function useTipoEventoMutations() {
 }
 
 // ── Paquetes ─────────────────────────────────────────────────────────────────
-
-export function usePaquetesAdmin() {
-  return useQuery({
-    queryKey: ['paquetes', 'admin'],
-    queryFn: comercialService.paquetes.listarAdmin,
-  })
-}
-
-export function usePaquetesPublico() {
-  return useQuery({
-    queryKey: ['paquetes', 'publico'],
-    queryFn: comercialService.paquetes.listarActivos,
-    staleTime: STALE_5M,
-  })
-}
-
-export function usePaqueteMutations() {
-  const qc = useQueryClient()
-  const invalidar = () => {
-    qc.invalidateQueries({ queryKey: ['paquetes'] })
-  }
-
-  const crear = useMutation({
-    mutationFn: (payload: CrearPaquetePayload) => comercialService.paquetes.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Paquete creado') },
-    onError: () => toast.error('Error al crear el paquete'),
-  })
-
-  const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ActualizarPaquetePayload }) =>
-      comercialService.paquetes.actualizar(id, payload),
-    onSuccess: () => { invalidar(); toast.success('Paquete actualizado') },
-    onError: () => toast.error('Error al actualizar el paquete'),
-  })
-
-  const eliminar = useMutation({
-    mutationFn: (id: number) => comercialService.paquetes.eliminar(id),
-    onSuccess: () => { invalidar(); toast.success('Paquete eliminado') },
-    onError: () => toast.error('Error al eliminar el paquete'),
-  })
-
-  const reordenar = useMutation({
-    mutationFn: ({ id, nuevoOrden }: { id: number; nuevoOrden: number }) =>
-      comercialService.paquetes.reordenar(id, nuevoOrden),
-    onSuccess: () => invalidar(),
-    onError: () => toast.error('Error al reordenar'),
-  })
-
-  const toggleActivo = useMutation({
-    mutationFn: (p: PaqueteEvento) =>
-      comercialService.paquetes.actualizar(p.id, {
-        nombre: p.nombre, descripcionCorta: p.descripcionCorta,
-        descripcionLarga: p.descripcionLarga, precio: p.precio,
-        badge: p.badge, color: p.color, imagenUrl: p.imagenUrl,
-        duracionMinutos: p.duracionMinutos, limitepersonas: p.limitepersonas,
-        beneficios: p.beneficios, activo: !p.activo,
-        destacado: p.destacado, orden: p.orden,
-        tipoEventoCodigo: p.tipoEventoCodigo ?? '',
-      }),
-    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
-    onError: () => toast.error('No se pudo cambiar el estado'),
-  })
-
-  return { crear, actualizar, eliminar, reordenar, toggleActivo }
-}
+export {
+  usePaquetesAdmin,
+  usePaquetesPublico,
+  usePaqueteMutations,
+  usePaquete,
+} from '@/features/admin/comercial/paquetes/hooks/usePaquetes'
 
 // ── Beneficios ───────────────────────────────────────────────────────────────
 

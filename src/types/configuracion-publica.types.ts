@@ -29,6 +29,8 @@ export interface ConfiguracionPublica {
   colorTema?: string
   colorSecundario?: string
   copyrightTexto?: string
+  metricasNegocio?: string
+  reglasLocal?: string
   updatedAt?: string
 }
 

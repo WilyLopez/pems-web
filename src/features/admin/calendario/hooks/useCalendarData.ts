@@ -19,6 +19,15 @@ export function useResumenDia(idSede: number, fecha: string | null) {
   })
 }
 
+export function useDisponibilidad(idSede: number, fecha: string | null) {
+  return useQuery({
+    queryKey: [CALENDAR_KEYS.DISPONIBILIDAD, idSede, fecha],
+    queryFn: () => calendarApi.getDisponibilidad(idSede, fecha!),
+    enabled: !!idSede && !!fecha,
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
 export function useDisponibilidadRango(idSede: number, inicio: string, fin: string) {
   return useQuery({
     queryKey: [CALENDAR_KEYS.RANGO, idSede, inicio, fin],

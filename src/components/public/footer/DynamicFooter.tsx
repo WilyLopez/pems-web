@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { MapPin, Clock, Phone, Mail, MessageCircle } from 'lucide-react'
 import { ConfiguracionPublica } from '@/types/configuracion-publica.types'
+import { TIPO_LEGAL_LABELS, SLUG_TO_TIPO } from '@/types/legal.types'
 
 interface DynamicFooterProps {
   config?: ConfiguracionPublica | null
@@ -14,14 +15,6 @@ const SERVICES_LINKS = [
   { href: '/celebraciones', label: 'Eventos Temáticos' },
 ]
 
-const INFO_LINKS = [
-  { href: '/nosotros', label: 'Nosotros' },
-  { href: '/faq', label: 'Preguntas Frecuentes' },
-  { href: '/legal/privacidad', label: 'Política de Privacidad' },
-  { href: '/legal/terminos', label: 'Términos y Condiciones' },
-  { href: '/legal/reembolsos', label: 'Política de Reembolso' },
-]
-
 export function DynamicFooter({ config }: DynamicFooterProps) {
   const nombre = config?.nombreNegocio ?? 'Kiki y Lala'
   const slogan = config?.slogan ?? 'El espacio de diversión favorito de los niños.'
@@ -32,6 +25,20 @@ export function DynamicFooter({ config }: DynamicFooterProps) {
   const horarioSemana = config?.horarioSemana ?? 'Lun–Vie: 10am – 8pm'
   const horarioFinDeSemana = config?.horarioFinDeSemana ?? 'Sáb–Dom: 9am – 9pm'
   const tiktokUrl = config?.tiktokUrl
+
+  const infoLinks = [
+    { href: '/nosotros', label: 'Nosotros' },
+    { href: '/faq', label: 'Preguntas Frecuentes' },
+    ...Object.entries(SLUG_TO_TIPO).map(([slug, tipo]) => ({
+      href: `/legal/${slug}`,
+      label: TIPO_LEGAL_LABELS[tipo],
+    })),
+  ]
+
+  const rawCopyright = config?.copyrightTexto ?? '© {year} {name} · Todos los derechos reservados'
+  const copyright = rawCopyright
+    .replace('{year}', new Date().getFullYear().toString())
+    .replace('{name}', nombre)
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -125,7 +132,7 @@ export function DynamicFooter({ config }: DynamicFooterProps) {
           <div>
             <h4 className="font-bold mb-4 text-white">Información</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              {INFO_LINKS.map(({ href, label }) => (
+              {infoLinks.map(({ href, label }) => (
                 <li key={label}>
                   <Link href={href} className="hover:text-brand-azul transition-colors">
                     {label}
@@ -185,7 +192,7 @@ export function DynamicFooter({ config }: DynamicFooterProps) {
         </div>
 
         <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} {nombre} &middot; Todos los derechos reservados</p>
+          <p>{copyright}</p>
           <p>Hecho con dedicación para las familias del Perú</p>
         </div>
       </div>
