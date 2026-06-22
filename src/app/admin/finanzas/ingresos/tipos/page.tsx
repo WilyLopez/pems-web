@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { useTiposIngreso, useTipoIngresoMutations } from '@/hooks/useFinanzas'
+import { useTiposIngreso, useTipoIngresoMutations, tipoIngresoSchema } from '@/features/admin/finance'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -17,12 +17,8 @@ import {
   DialogTitle,
 } from '@/components/ui/Dialog'
 import { cn } from '@/lib/utils'
-const schema = z.object({
-  codigo:      z.string().min(2, 'Mínimo 2 caracteres').max(50).toUpperCase(),
-  nombre:      z.string().min(2, 'Mínimo 2 caracteres'),
-  descripcion: z.string().optional(),
-})
-type FormValues = z.infer<typeof schema>
+
+type FormValues = z.infer<typeof tipoIngresoSchema>
 
 export default function TiposIngresoPage() {
   const [openModal, setModal] = useState(false)
@@ -31,7 +27,7 @@ export default function TiposIngresoPage() {
   const { crear, desactivar }            = useTipoIngresoMutations()
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(tipoIngresoSchema),
   })
 
   function onSubmit(values: FormValues) {

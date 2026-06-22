@@ -4,15 +4,19 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Plus, ChevronLeft, ChevronRight, Pencil, X, Tag } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { useEgresos, useEgresosPorRango, useEgresoMutations } from '@/hooks/useFinanzas'
-import { RegistrarEgresoModal } from '@/components/admin/finanzas/RegistrarEgresoModal'
+import {
+  useEgresos,
+  useEgresosPorRango,
+  useEgresoMutations,
+  RegistrarEgresoModal,
+  RegistroEgreso,
+} from '@/features/admin/finance'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { RegistroEgreso } from '@/types/finanzas.types'
 
 function useEgresosPorRangoHook(
   idSede: number | undefined,

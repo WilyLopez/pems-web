@@ -12,7 +12,7 @@ import {
   Landmark,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { useDashboardFinanciero } from '@/hooks/useFinanzas'
+import { useDashboardFinanciero } from '@/features/admin/finance'
 import { PageHeader } from '@/components/common/PageHeader'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'

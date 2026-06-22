@@ -22,7 +22,7 @@ const SECCIONES = [
     accent: 'group-hover:bg-brand-azul/20',
   },
   {
-    href: '/admin/comercial/tipos-evento',
+    href: '/admin/comercial/paquetes/tipos-evento',
     icon: Tag,
     titulo: 'Tipos de Evento',
     descripcion: 'Clasifica los tipos de evento disponibles en el sistema',

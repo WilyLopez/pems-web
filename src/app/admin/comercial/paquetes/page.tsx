@@ -1,12 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useForm, useFieldArray } from 'react-hook-form'
-import { zodResolver } from '@/lib/resolver'
-import { z } from 'zod'
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, Package2, X, Check, ListChecks, Tag } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, Package2, Tag, Check, Eye } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import Image from 'next/image'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
@@ -16,312 +14,20 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/common/Emptystate'
 import { ErrorState } from '@/components/common/Errorstate'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/Dialog'
-import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/Textarea'
-import { Label } from '@/components/ui/Label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-import { MediaUploader } from '@/components/common/MediaUploader'
-import { PaquetePreview } from '@/components/admin/comercial/paquetes/PaquetePreview'
 import { QuickToggle } from '@/components/admin/comercial/shared/QuickToggle'
-import { usePaquetesAdmin, usePaqueteMutations, useTiposEventoPublico } from '@/hooks/useComercial'
+import { usePaquetesAdmin, usePaqueteMutations } from '@/features/admin/comercial/paquetes/hooks/usePaquetes'
 import { PaqueteEvento } from '@/types/comercial.types'
-import { MediaValue } from '@/types/media.types'
 import { formatCurrency } from '@/lib/utils'
-import { fixMediaUrl, resolverMediaValue } from '@/lib/media'
-
-const schema = z.object({
-  nombre:           z.string().min(1).max(30),
-  descripcionCorta: z.string().min(1).max(80),
-  descripcionLarga: z.string().max(500).optional(),
-  precio:           z.coerce.number().min(0.01),
-  badge:            z.string().max(20).optional(),
-  color:            z.string().max(7).optional(),
-  duracionMinutos:  z.coerce.number().min(1).optional().nullable(),
-  limitepersonas:   z.coerce.number().min(1).optional().nullable(),
-  activo:           z.boolean().default(true),
-  destacado:        z.boolean().default(false),
-  orden:            z.coerce.number().default(0),
-  tipoEventoCodigo: z.string().min(1, 'Debe seleccionar un tipo de evento'),
-  beneficios:       z.array(z.object({ valor: z.string().max(60) })).max(8).default([]),
-})
-type FormValues = z.infer<typeof schema>
-
-function PaqueteFormDialog({
-  open, onOpenChange, paquete,
-}: {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  paquete: PaqueteEvento | null
-}) {
-  const { crear, actualizar } = usePaqueteMutations()
-  const { data: tiposEvento = [] } = useTiposEventoPublico()
-  const isEditing = !!paquete
-  const [imagenMedia, setImagenMedia] = useState<MediaValue | null>(null)
-  const [uploading, setUploading]     = useState(false)
-  const [mobileTab, setMobileTab]     = useState<'form' | 'preview'>('form')
-
-  const { register, handleSubmit, reset, watch, control, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      nombre: '', descripcionCorta: '', descripcionLarga: '',
-      precio: 0, badge: '', color: '#00AEEF',
-      duracionMinutos: null, limitepersonas: null,
-      activo: true, destacado: false, orden: 0,
-      tipoEventoCodigo: '', beneficios: [],
-    },
-  })
-
-  useEffect(() => {
-    if (open) {
-      if (paquete) {
-        reset({
-          nombre: paquete.nombre, descripcionCorta: paquete.descripcionCorta,
-          descripcionLarga: paquete.descripcionLarga ?? '',
-          precio: paquete.precio, badge: paquete.badge ?? '',
-          color: paquete.color ?? '#00AEEF',
-          duracionMinutos: paquete.duracionMinutos ?? null,
-          limitepersonas: paquete.limitepersonas ?? null,
-          activo: paquete.activo, destacado: paquete.destacado, orden: paquete.orden,
-          tipoEventoCodigo: paquete.tipoEventoCodigo ?? '',
-          beneficios: (paquete.beneficios ?? []).map((b) => ({ valor: b })),
-        })
-        setImagenMedia(paquete.imagenUrl
-          ? { url: fixMediaUrl(paquete.imagenUrl), esLocal: false }
-          : null)
-      } else {
-        reset({
-          nombre: '', descripcionCorta: '', descripcionLarga: '',
-          precio: 0, badge: '', color: '#00AEEF',
-          duracionMinutos: null, limitepersonas: null,
-          activo: true, destacado: false, orden: 0,
-          tipoEventoCodigo: '', beneficios: [],
-        })
-        setImagenMedia(null)
-      }
-      setMobileTab('form')
-    }
-  }, [open, paquete, reset])
-
-  const { fields, append, remove } = useFieldArray({ control, name: 'beneficios' })
-  const nombre          = watch('nombre')
-  const precio          = watch('precio')
-  const descripcionCorta = watch('descripcionCorta')
-  const beneficios      = watch('beneficios')?.map((b) => b.valor) ?? []
-
-  async function onSubmit(data: FormValues) {
-    setUploading(true)
-    try {
-      const imagenUrl = await resolverMediaValue(imagenMedia, 'paquetes')
-      const beneficiosArr = data.beneficios.map((b) => b.valor).filter(Boolean)
-      const payload = {
-        nombre: data.nombre, descripcionCorta: data.descripcionCorta,
-        descripcionLarga: data.descripcionLarga || undefined,
-        precio: data.precio, badge: data.badge || undefined,
-        color: data.color || undefined,
-        imagenUrl: imagenUrl ?? undefined,
-        duracionMinutos: data.duracionMinutos || undefined,
-        limitepersonas: data.limitepersonas || undefined,
-        tipoEventoCodigo: data.tipoEventoCodigo,
-        beneficios: beneficiosArr,
-      }
-      if (isEditing && paquete) {
-        await actualizar.mutateAsync({
-          id: paquete.id,
-          payload: { ...payload, activo: data.activo, destacado: data.destacado, orden: data.orden },
-        })
-      } else {
-        await crear.mutateAsync(payload)
-      }
-      onOpenChange(false)
-      reset()
-    } catch {
-      toast.error('No se pudo guardar el paquete')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) { reset(); setImagenMedia(null) } onOpenChange(v) }}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar paquete' : 'Nuevo paquete'}</DialogTitle>
-        </DialogHeader>
-
-        <div className="flex lg:hidden gap-1 rounded-lg bg-muted p-1 mb-2">
-          {(['form', 'preview'] as const).map((t) => (
-            <button key={t} type="button" onClick={() => setMobileTab(t)}
-              className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors ${mobileTab === t ? 'bg-white shadow-sm' : 'text-muted-foreground'}`}>
-              {t === 'form' ? 'Formulario' : 'Vista previa'}
-            </button>
-          ))}
-        </div>
-
-        {tiposEvento.length === 0 && (
-          <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800 mb-4">
-            Debe crear al menos un tipo de evento antes de crear paquetes.{' '}
-            <Link href="/admin/comercial/tipos-evento" className="font-medium underline">
-              Ir a Tipos de Evento
-            </Link>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] gap-6">
-            <div className={mobileTab === 'preview' ? 'hidden lg:block' : undefined}>
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <Label>Tipo de Evento *</Label>
-                  <select {...register('tipoEventoCodigo')}
-                    disabled={tiposEvento.length === 0}
-                    className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50">
-                    <option value="">Seleccione un tipo de evento</option>
-                    {tiposEvento.map((t) => (
-                      <option key={t.codigo} value={t.codigo}>{t.nombre}</option>
-                    ))}
-                  </select>
-                  {errors.tipoEventoCodigo && (
-                    <p className="text-xs text-destructive">{errors.tipoEventoCodigo.message}</p>
-                  )}
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <Label>Nombre *</Label>
-                    <Input {...register('nombre')} placeholder="Pack Básico" />
-                    {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Precio (S/) *</Label>
-                    <Input type="number" step="0.01" {...register('precio')} />
-                    {errors.precio && <p className="text-xs text-destructive">{errors.precio.message}</p>}
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex justify-between">
-                    <Label>Descripción corta *</Label>
-                    <span className="text-xs text-muted-foreground">{descripcionCorta?.length ?? 0}/80</span>
-                  </div>
-                  <Input {...register('descripcionCorta')} placeholder="Resumen en una línea" />
-                  {errors.descripcionCorta && <p className="text-xs text-destructive">{errors.descripcionCorta.message}</p>}
-                </div>
-
-                <div className="space-y-1">
-                  <Label>Descripción larga</Label>
-                  <Textarea rows={3} {...register('descripcionLarga')} className="resize-none" />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="space-y-1">
-                    <Label>Badge</Label>
-                    <Input {...register('badge')} placeholder="Más vendido" />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Color</Label>
-                    <input type="color" {...register('color')} className="h-9 w-full rounded-md border border-input cursor-pointer" />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Orden</Label>
-                    <Input type="number" {...register('orden')} />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <Label>Duración (min)</Label>
-                    <Input type="number" {...register('duracionMinutos')} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Límite de personas</Label>
-                    <Input type="number" {...register('limitepersonas')} />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <Label>Imagen del paquete</Label>
-                  <MediaUploader
-                    value={imagenMedia}
-                    onChange={setImagenMedia}
-                    carpeta="paquetes"
-                    aspectRatio="16:9"
-                    uploading={uploading}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Beneficios ({fields.length}/8)</Label>
-                    {fields.length < 8 && (
-                      <button type="button" onClick={() => append({ valor: '' })}
-                        className="text-xs text-brand-azul hover:underline">
-                        + Agregar
-                      </button>
-                    )}
-                  </div>
-                  {fields.map((field, i) => (
-                    <div key={field.id} className="flex items-center gap-2">
-                      <Check className="h-3.5 w-3.5 text-green-500 shrink-0" />
-                      <Input {...register(`beneficios.${i}.valor`)} placeholder={`Beneficio ${i + 1}`} className="h-8 text-sm" />
-                      <button type="button" onClick={() => remove(i)}>
-                        <X className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {isEditing && (
-                  <div className="flex items-center gap-6 pt-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" {...register('activo')} className="w-4 h-4 rounded" />
-                      <span className="text-sm">Activo</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" {...register('destacado')} className="w-4 h-4 rounded" />
-                      <span className="text-sm">Destacado</span>
-                    </label>
-                  </div>
-                )}
-
-                <div className="flex justify-end gap-2 pt-2 border-t">
-                  <Button type="button" variant="outline" onClick={() => { reset(); setImagenMedia(null); onOpenChange(false) }}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={uploading || tiposEvento.length === 0} className="bg-brand-azul text-white">
-                    {uploading ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear paquete'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className={mobileTab === 'form' ? 'hidden lg:block' : undefined}>
-              <div className="sticky top-0">
-                <PaquetePreview
-                  nombre={nombre}
-                  precio={precio ?? 0}
-                  descripcionCorta={descripcionCorta}
-                  beneficios={beneficios}
-                  imagenUrl={imagenMedia?.url ?? null}
-                />
-              </div>
-            </div>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+import { fixMediaUrl } from '@/lib/media'
+import { PaqueteFormDialog } from '@/features/admin/comercial/paquetes/components/PaqueteFormDialog'
+import { PaqueteDetailDialog } from '@/features/admin/comercial/paquetes/components/PaqueteDetailDialog'
 
 export default function PaquetesPage() {
   const [formOpen, setFormOpen]   = useState(false)
   const [editTarget, setEditTarget] = useState<PaqueteEvento | null>(null)
-  const [deleteId, setDeleteId]   = useState<number | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailTarget, setDetailTarget] = useState<PaqueteEvento | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<PaqueteEvento | null>(null)
 
   const { data: paquetes = [], isLoading, isError, refetch } = usePaquetesAdmin()
   const { eliminar, reordenar, toggleActivo } = usePaqueteMutations()
@@ -352,7 +58,7 @@ export default function PaquetesPage() {
         actions={
           <div className="flex gap-2">
             <Button size="sm" variant="outline" className="gap-1.5" asChild>
-              <Link href="/admin/comercial/tipos-evento">
+              <Link href="/admin/comercial/paquetes/tipos-evento">
                 <Tag className="h-4 w-4" /> Tipos de Evento
               </Link>
             </Button>
@@ -391,70 +97,98 @@ export default function PaquetesPage() {
       {!isLoading && paquetes.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[...paquetes].sort((a, b) => a.orden - b.orden).map((p, i, sorted) => (
-            <Card key={p.id} className="overflow-hidden">
+            <Card key={p.id} className="overflow-hidden transition-all duration-300 hover:shadow-md border-gray-200 flex flex-col">
+              <div className="h-1.5 w-full shrink-0" style={{ backgroundColor: p.color ?? '#00AEEF' }} />
               {p.imagenUrl ? (
                 <div className="aspect-[4/3] relative overflow-hidden">
-                  <img src={fixMediaUrl(p.imagenUrl)} alt={p.nombre} className="w-full h-full object-cover" />
+                  <Image
+                    src={fixMediaUrl(p.imagenUrl)}
+                    alt={p.nombre}
+                    fill
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    unoptimized
+                  />
                   {p.badge && (
-                    <span className="absolute top-2 left-2 bg-brand-amarillo text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white shadow-sm"
+                      style={{ backgroundColor: p.color ?? '#EC4899' }}>
                       {p.badge}
                     </span>
                   )}
                 </div>
               ) : (
-                <div className="aspect-[4/3] flex items-center justify-center"
-                  style={{ backgroundColor: p.color ?? '#f3f4f6' }}>
-                  <Package2 className="h-10 w-10 text-white/60" />
+                <div className="aspect-[4/3] flex items-center justify-center relative overflow-hidden transition-all duration-300 hover:brightness-95"
+                  style={{
+                    background: `linear-gradient(135deg, ${p.color ?? '#00AEEF'} 0%, ${p.color ? p.color + 'aa' : '#EC4899'} 100%)`
+                  }}>
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:16px_16px]" />
+                  <Package2 className="h-12 w-12 text-white/70 relative z-10 animate-pulse" style={{ animationDuration: '3s' }} />
+                  {p.badge && (
+                    <span className="absolute top-2 left-2 bg-white/90 text-gray-900 border border-gray-100 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                      {p.badge}
+                    </span>
+                  )}
                 </div>
               )}
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="font-semibold text-sm">{p.nombre}</h3>
-                    <p className="text-lg font-bold text-brand-azul">{formatCurrency(p.precio)}</p>
+              <CardContent className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-semibold text-sm">{p.nombre}</h3>
+                      <p className="text-lg font-bold" style={{ color: p.color ?? '#00AEEF' }}>{formatCurrency(p.precio)}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <QuickToggle
+                        activo={p.activo}
+                        onToggle={() => toggleActivo.mutate(p)}
+                        isPending={toggleActivo.isPending && (toggleActivo.variables as PaqueteEvento)?.id === p.id}
+                      />
+                      {p.destacado && <Badge className="bg-amber-100 text-amber-800 text-xs">Destacado</Badge>}
+                    </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <QuickToggle
-                      activo={p.activo}
-                      onToggle={() => toggleActivo.mutate(p)}
-                      isPending={toggleActivo.isPending && (toggleActivo.variables as PaqueteEvento)?.id === p.id}
-                    />
-                    {p.destacado && <Badge className="bg-amber-100 text-amber-800 text-xs">Destacado</Badge>}
+
+                  {p.tipoEventoCodigo && (
+                    <Badge className="text-xs h-5 border-0 font-medium" style={{ backgroundColor: `${p.color ?? '#00AEEF'}15`, color: p.color ?? '#00AEEF' }}>
+                      {p.tipoEventoCodigo}
+                    </Badge>
+                  )}
+
+                  <p className="text-xs text-muted-foreground line-clamp-2">{p.descripcionCorta}</p>
+
+                  <div className="space-y-1.5">
+                    {(p.beneficios ?? []).slice(0, 3).map((b, j) => (
+                      <div key={j} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <div
+                          className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
+                          style={{ backgroundColor: `${p.color ?? '#00AEEF'}15` }}
+                        >
+                          <Check className="h-2.5 w-2.5" style={{ color: p.color ?? '#00AEEF' }} />
+                        </div>
+                        <span className="line-clamp-1">{b}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {p.tipoEventoCodigo && (
-                  <Badge className="bg-brand-azul/10 text-brand-azul text-xs h-5">{p.tipoEventoCodigo}</Badge>
-                )}
-
-                <p className="text-xs text-muted-foreground line-clamp-2">{p.descripcionCorta}</p>
-
-                {(p.beneficios ?? []).slice(0, 3).map((b, j) => (
-                  <div key={j} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Check className="h-3 w-3 text-green-500 shrink-0" />{b}
-                  </div>
-                ))}
-
                 <div className="flex items-center gap-1 pt-1 border-t flex-wrap">
+                  <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1"
+                    onClick={() => { setDetailTarget(p); setDetailOpen(true) }}>
+                    <Eye className="h-3 w-3" /> Ver
+                  </Button>
                   <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1"
                     onClick={() => { setEditTarget(p); setFormOpen(true) }}>
                     <Pencil className="h-3 w-3" /> Editar
                   </Button>
-                  <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1" asChild>
-                    <Link href={`/admin/comercial/paquetes/${p.id}/beneficios`}>
-                      <ListChecks className="h-3 w-3" /> Beneficios
-                    </Link>
-                  </Button>
                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                    disabled={i === 0} onClick={() => handleReordenar(p.id, 'arriba')}>
+                    disabled={i === 0 || reordenar.isPending} onClick={() => handleReordenar(p.id, 'arriba')}>
                     <ChevronUp className="h-3.5 w-3.5" />
                   </Button>
                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                    disabled={i === sorted.length - 1} onClick={() => handleReordenar(p.id, 'abajo')}>
+                    disabled={i === sorted.length - 1 || reordenar.isPending} onClick={() => handleReordenar(p.id, 'abajo')}>
                     <ChevronDown className="h-3.5 w-3.5" />
                   </Button>
                   <Button size="sm" variant="ghost" className="h-7 w-7 p-0 ml-auto hover:text-destructive"
-                    onClick={() => setDeleteId(p.id)}>
+                    onClick={() => setDeleteTarget(p)}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -466,14 +200,16 @@ export default function PaquetesPage() {
 
       <PaqueteFormDialog open={formOpen} onOpenChange={setFormOpen} paquete={editTarget} />
 
+      <PaqueteDetailDialog open={detailOpen} onOpenChange={setDetailOpen} paquete={detailTarget} />
+
       <ConfirmDialog
-        open={deleteId !== null}
-        onOpenChange={(v) => !v && setDeleteId(null)}
+        open={deleteTarget !== null}
+        onOpenChange={(v) => !v && setDeleteTarget(null)}
         title="Eliminar paquete"
-        description="El paquete será eliminado permanentemente."
+        description={deleteTarget ? `¿Deseas eliminar el paquete "${deleteTarget.nombre}"?` : 'El paquete será eliminado permanentemente.'}
         confirmLabel="Eliminar"
         onConfirm={() => {
-          if (deleteId !== null) eliminar.mutate(deleteId, { onSettled: () => setDeleteId(null) })
+          if (deleteTarget !== null) eliminar.mutate(deleteTarget.id, { onSettled: () => setDeleteTarget(null) })
         }}
         loading={eliminar.isPending}
       />

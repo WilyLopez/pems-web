@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { useCaja, useMovimientosCaja } from '@/hooks/useFinanzas'
+import { useCaja, useMovimientosCaja } from '@/features/admin/finance'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Input } from '@/components/ui/Input'
 import { formatCurrency } from '@/lib/utils'

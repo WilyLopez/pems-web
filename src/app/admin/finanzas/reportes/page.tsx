@@ -8,11 +8,11 @@ import {
   useResumenMensual,
   useResumenDiario,
   useMetricasReservas,
-} from '@/hooks/useFinanzas'
-import { ResumenMensualCards } from '@/components/admin/finanzas/ResumenMensualCards'
-import { DesgloseTiposEgreso } from '@/components/admin/finanzas/DesgloseTiposEgreso'
-import { GraficaLineaDiaria } from '@/components/admin/finanzas/GraficaLineaDiaria'
-import { MetricasReservasSection } from '@/components/admin/finanzas/MetricasReservasSection'
+  ResumenMensualCards,
+  DesgloseTiposEgreso,
+  GraficaLineaDiaria,
+  MetricasReservasSection,
+} from '@/features/admin/finance'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
 import { Input } from '@/components/ui/Input'

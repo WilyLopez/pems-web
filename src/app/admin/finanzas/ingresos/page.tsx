@@ -7,7 +7,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { useAuth } from '@/hooks/useAuth'
-import { useIngresos, useIngresoMutations, useTiposIngreso } from '@/hooks/useFinanzas'
+import {
+  useIngresos,
+  useIngresoMutations,
+  useTiposIngreso,
+  ingresoManualSchema,
+} from '@/features/admin/finance'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -20,14 +25,8 @@ import {
 } from '@/components/ui/Dialog'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-const schema = z.object({
-  tipoIngresoCodigo: z.string().min(1, 'Selecciona un tipo'),
-  monto:             z.coerce.number().positive('El monto debe ser mayor a 0'),
-  fecha:             z.string().min(1, 'La fecha es obligatoria'),
-  medioPago:         z.string().optional(),
-  descripcion:       z.string().optional(),
-})
-type FormValues = z.infer<typeof schema>
+
+type FormValues = z.infer<typeof ingresoManualSchema>
 
 export default function IngresosPage() {
   const { idSede } = useAuth()
@@ -44,7 +43,7 @@ export default function IngresosPage() {
   const totalPages = paginado?.totalPages ?? 0
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(ingresoManualSchema),
     defaultValues: { fecha: new Date().toISOString().slice(0, 10) },
   })
 
