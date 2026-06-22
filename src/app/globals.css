@@ -1,0 +1,331 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-rosa: #f64b8a;
+    --brand-azul: #00aeef;
+    --brand-amarillo: #ffd84d;
+    --brand-menta: #6ee7b7;
+
+    --background: 0 0% 100%;
+    --foreground: 222 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 20% 15%;
+
+    --primary: 197 100% 47%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 335 91% 64%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 197 100% 95%;
+    --accent-foreground: 197 100% 28%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 20% 91%;
+    --input: 214 20% 91%;
+    --ring: 197 100% 47%;
+    --radius: 0.625rem;
+
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 222 20% 15%;
+    --sidebar-border: 214 20% 91%;
+    --sidebar-accent: 197 100% 97%;
+    --sidebar-accent-foreground: 197 100% 30%;
+    --sidebar-primary: 197 100% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-ring: 197 100% 47%;
+  }
+
+  .dark {
+    --background: 222 20% 9%;
+    --foreground: 210 20% 95%;
+    --card: 222 20% 12%;
+    --card-foreground: 210 20% 95%;
+    --popover: 222 20% 12%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 197 100% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 335 91% 60%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 217 20% 18%;
+    --muted-foreground: 215 20% 60%;
+    --accent: 217 20% 18%;
+    --accent-foreground: 210 20% 95%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 20% 18%;
+    --input: 217 20% 18%;
+    --ring: 197 100% 55%;
+    --sidebar: 222 20% 11%;
+    --sidebar-foreground: 210 20% 95%;
+    --sidebar-border: 217 20% 18%;
+    --sidebar-accent: 217 20% 16%;
+    --sidebar-accent-foreground: 197 100% 70%;
+    --sidebar-primary: 197 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-ring: 197 100% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+.dark .bg-white {
+  background-color: hsl(222 20% 12%) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: hsl(222 20% 10%) !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: hsl(217 20% 16%) !important;
+}
+
+.dark .bg-gray-200 {
+  background-color: hsl(217 20% 20%) !important;
+}
+
+.dark .bg-white\/80 {
+  background-color: hsl(222 20% 12% / 0.8) !important;
+}
+
+.dark .bg-white\/60 {
+  background-color: hsl(222 20% 12% / 0.6) !important;
+}
+
+.dark .bg-white\/40 {
+  background-color: hsl(222 20% 12% / 0.4) !important;
+}
+
+.dark .bg-gray-50\/80 {
+  background-color: hsl(222 20% 10% / 0.8) !important;
+}
+
+.dark .bg-gray-50\/60 {
+  background-color: hsl(222 20% 10% / 0.6) !important;
+}
+
+.dark .bg-gray-50\/40 {
+  background-color: hsl(222 20% 10% / 0.4) !important;
+}
+
+.dark .bg-gray-50\/20 {
+  background-color: hsl(222 20% 10% / 0.2) !important;
+}
+
+.dark .bg-gray-100\/80 {
+  background-color: hsl(217 20% 16% / 0.8) !important;
+}
+
+.dark .bg-gray-100\/60 {
+  background-color: hsl(217 20% 16% / 0.6) !important;
+}
+
+.dark .bg-gray-100\/50 {
+  background-color: hsl(217 20% 16% / 0.5) !important;
+}
+
+.dark .bg-gray-100\/40 {
+  background-color: hsl(217 20% 16% / 0.4) !important;
+}
+
+.dark .text-gray-900 {
+  color: hsl(210 20% 95%) !important;
+}
+
+.dark .text-gray-800 {
+  color: hsl(210 20% 88%) !important;
+}
+
+.dark .text-gray-700 {
+  color: hsl(210 20% 78%) !important;
+}
+
+.dark .text-gray-600 {
+  color: hsl(215 16% 62%) !important;
+}
+
+.dark .text-gray-500 {
+  color: hsl(215 16% 52%) !important;
+}
+
+.dark .text-gray-400 {
+  color: hsl(215 16% 42%) !important;
+}
+
+.dark .text-gray-300 {
+  color: hsl(215 16% 32%) !important;
+}
+
+.dark .border-gray-100 {
+  border-color: hsl(217 20% 18%) !important;
+}
+
+.dark .border-gray-200 {
+  border-color: hsl(217 20% 22%) !important;
+}
+
+.dark .border-gray-300 {
+  border-color: hsl(217 20% 28%) !important;
+}
+
+.dark .divide-gray-100>*+* {
+  border-color: hsl(217 20% 18%) !important;
+}
+
+.dark .divide-gray-50>*+* {
+  border-color: hsl(217 20% 15%) !important;
+}
+
+.dark .hover\:bg-white:hover {
+  background-color: hsl(222 20% 16%) !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: hsl(217 20% 16%) !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: hsl(217 20% 20%) !important;
+}
+
+.dark .animate-pulse {
+  --tw-bg-opacity: 1;
+}
+
+.dark .bg-gray-100.animate-pulse {
+  background-color: hsl(217 20% 20%) !important;
+}
+
+.dark select,
+.dark textarea,
+.dark input[type="date"],
+.dark input[type="number"],
+.dark input[type="text"],
+.dark input[type="email"] {
+  background-color: hsl(222 20% 14%) !important;
+  color: hsl(210 20% 90%) !important;
+  border-color: hsl(217 20% 22%) !important;
+}
+
+.dark .glass {
+  background: rgba(18, 22, 36, 0.88) !important;
+}
+
+.dark .scrollbar-thin {
+  scrollbar-color: hsl(197 100% 35%) transparent;
+}
+
+@layer utilities {
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, #00aeef 0%, #f64b8a 100%);
+  }
+
+  .bg-brand-gradient-soft {
+    background: linear-gradient(135deg, #e0f7ff 0%, #ffe0f0 100%);
+  }
+
+  .bg-brand-gradient-dark {
+    background: linear-gradient(135deg, #001a2c 0%, #003a5c 50%, #001a2c 100%);
+  }
+
+  .text-brand-rosa {
+    color: #f64b8a;
+  }
+
+  .text-brand-azul {
+    color: #00aeef;
+  }
+
+  .text-brand-amarillo {
+    color: #ffd84d;
+  }
+
+  .text-brand-menta {
+    color: #6ee7b7;
+  }
+
+  .bg-brand-rosa {
+    background-color: #f64b8a;
+  }
+
+  .bg-brand-azul {
+    background-color: #00aeef;
+  }
+
+  .bg-brand-amarillo {
+    background-color: #ffd84d;
+  }
+
+  .bg-brand-menta {
+    background-color: #6ee7b7;
+  }
+
+  .border-brand-rosa {
+    border-color: #f64b8a;
+  }
+
+  .border-brand-azul {
+    border-color: #00aeef;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #00aeef transparent;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+html,
+body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.flex.h-screen,
+.flex.h-full,
+main,
+.overflow-auto,
+.overflow-hidden {
+  overflow-x: hidden !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+table,
+[class*="calendar"] {
+  max-width: 100%;
+}

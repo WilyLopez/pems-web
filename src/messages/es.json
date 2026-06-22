@@ -1,0 +1,80 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "retry": "Reintentar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "actions": "Acciones",
+    "yes": "Sí",
+    "no": "No",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "enabled": "Habilitado",
+    "disabled": "Deshabilitado"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "register": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "alreadyAccount": "¿Ya tienes cuenta?",
+    "invalidCredentials": "Credenciales incorrectas"
+  },
+  "nav": {
+    "home": "Inicio",
+    "events": "Eventos",
+    "reserve": "Reservar",
+    "promotions": "Promociones",
+    "about": "Nosotros",
+    "faq": "Preguntas frecuentes",
+    "contact": "Contacto"
+  },
+  "reservations": {
+    "title": "Mis Reservas",
+    "new": "Nueva reserva",
+    "status": {
+      "pendiente": "Pendiente",
+      "confirmada": "Confirmada",
+      "cancelada": "Cancelada",
+      "reprogramada": "Reprogramada"
+    }
+  },
+  "events": {
+    "title": "Eventos",
+    "private": "Evento privado",
+    "public": "Evento público"
+  },
+  "cms": {
+    "banners": "Banners",
+    "gallery": "Galería",
+    "faq": "Preguntas frecuentes",
+    "reviews": "Reseñas",
+    "legal": "Contenido legal",
+    "settings": "Configuración pública"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendario",
+    "clients": "Clientes",
+    "inventory": "Inventario",
+    "sales": "Ventas",
+    "payments": "Pagos",
+    "contracts": "Contratos",
+    "suppliers": "Proveedores",
+    "users": "Usuarios",
+    "audit": "Auditoría",
+    "settings": "Configuración"
+  }
+}
