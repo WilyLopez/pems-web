@@ -21,8 +21,11 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: { default: 'Kiki y Lala PEMS', template: '%s | Kiki y Lala' },
+  title: { default: 'Kiki y Lala', template: '%s | Kiki y Lala' },
   description: 'Sistema de gestión de eventos Kiki y Lala',
+  icons: {
+    icon: '/logo-secundario.png',
+  },
 }
 
 export default function RootLayout({
