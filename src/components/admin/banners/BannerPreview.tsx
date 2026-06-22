@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Monitor, Smartphone, Image as ImageIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -79,10 +80,12 @@ export function BannerPreview({
         }}
       >
         {srcImagen ? (
-          <img
+          <Image
             src={srcImagen}
+            fill
             className="absolute inset-0 w-full h-full object-cover"
             alt="preview banner"
+            unoptimized
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gray-100">

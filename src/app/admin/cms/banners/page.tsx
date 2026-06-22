@@ -1,199 +1,104 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Plus,
-  Image as ImageIcon,
-  Pencil,
-  Trash2,
-  Copy,
-  Loader2,
-  CalendarDays,
-  Monitor,
-  Smartphone,
-} from 'lucide-react'
+import { Plus, Image as ImageIcon, Search } from 'lucide-react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { PageHeader } from '@/components/common/PageHeader'
+import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { Switch } from '@/components/ui/Switch'
 import { ErrorState } from '@/components/common/Errorstate'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import { BannerEstadoBadge } from '@/components/admin/banners/BannerEstadoBadge'
 import { BannerFormDrawer } from '@/components/admin/banners/BannerFormDrawer'
-import {
-  useBanners,
-  useToggleBanner,
-  useDuplicarBanner,
-  useEliminarBanner,
-} from '@/hooks/useBanners'
+import { useBanners, useEliminarBanner } from '@/features/admin/cms/banners/hooks/useBanners'
+import { BannerCard } from '@/features/admin/cms/banners/components/BannerCard'
 import { Banner } from '@/types/banner.types'
-import { cn, formatDate } from '@/lib/utils'
-
-const TIPO_CONFIG: Record<string, { label: string; cls: string }> = {
-  HERO:        { label: 'Hero',        cls: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20'  },
-  PROMOCION:   { label: 'Promocion',   cls: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20'  },
-  EVENTO:      { label: 'Evento',      cls: 'bg-purple-100 text-purple-700 border-purple-200'        },
-  INFORMATIVO: { label: 'Informativo', cls: 'bg-gray-100 text-gray-600 border-gray-200'              },
-  TEMPORADA:   { label: 'Temporada',   cls: 'bg-green-100 text-green-700 border-green-200'           },
-}
-
-function TipoBadge({ tipo }: { tipo: string }) {
-  const cfg = TIPO_CONFIG[tipo] ?? { label: tipo, cls: 'bg-gray-100 text-gray-500 border-gray-200' }
-  return (
-    <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border', cfg.cls)}>
-      {cfg.label}
-    </span>
-  )
-}
-
-function BannerCard({
-  banner,
-  onEditar,
-  onEliminar,
-}: {
-  banner:    Banner
-  onEditar:  () => void
-  onEliminar: () => void
-}) {
-  const toggle   = useToggleBanner()
-  const duplicar = useDuplicarBanner()
-
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-      <div className="relative aspect-video bg-gray-100">
-        {banner.imagenUrl ? (
-          <img
-            src={banner.imagenUrl}
-            className="w-full h-full object-cover"
-            alt={banner.titulo}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <ImageIcon className="h-8 w-8 text-gray-300" />
-          </div>
-        )}
-
-        {banner.tipoBanner && (
-          <div className="absolute top-2 left-2">
-            <TipoBadge tipo={banner.tipoBanner} />
-          </div>
-        )}
-
-        <div className="absolute top-2 right-2">
-          <BannerEstadoBadge banner={banner} />
-        </div>
-
-        {(banner.soloMovil || banner.soloDesktop) && (
-          <div className="absolute bottom-2 right-2 flex gap-1">
-            {banner.soloMovil && (
-              <div className="bg-black/50 rounded p-1">
-                <Smartphone className="h-3 w-3 text-white" />
-              </div>
-            )}
-            {banner.soloDesktop && (
-              <div className="bg-black/50 rounded p-1">
-                <Monitor className="h-3 w-3 text-white" />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="p-4">
-        <h3 className="font-bold text-sm text-gray-900 truncate">{banner.titulo}</h3>
-        {banner.descripcion && (
-          <p className="text-xs text-gray-400 truncate mt-0.5">{banner.descripcion}</p>
-        )}
-        <div className="flex items-center gap-1.5 mt-2 text-[11px] text-gray-400">
-          <CalendarDays className="h-3 w-3 shrink-0" />
-          <span>{formatDate(banner.fechaInicio)}</span>
-          {banner.fechaFin && (
-            <>
-              <span className="text-gray-300">→</span>
-              <span>{formatDate(banner.fechaFin)}</span>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="border-t border-gray-100 px-4 py-2.5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={banner.activo}
-            disabled={toggle.isPending}
-            onCheckedChange={() => toggle.mutate({ id: banner.id, activo: banner.activo })}
-            className="scale-[0.8]"
-          />
-          <span className="text-xs text-gray-500">{banner.activo ? 'Activo' : 'Inactivo'}</span>
-        </div>
-
-        <div className="flex items-center gap-0.5">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-lg"
-            onClick={onEditar}
-            title="Editar"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-lg"
-            onClick={() => duplicar.mutate(banner.id)}
-            disabled={duplicar.isPending}
-            title="Duplicar"
-          >
-            {duplicar.isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Copy className="h-3.5 w-3.5" />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-lg text-destructive/60 hover:text-destructive"
-            onClick={onEliminar}
-            title="Eliminar"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
+import { cn } from '@/lib/utils'
 
 export default function BannersPage() {
-  const [drawerOpen,     setDrawerOpen]     = useState(false)
-  const [bannerEditando, setBannerEditando] = useState<Banner | null>(null)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const query = searchParams.get('q') ?? ''
+  const tipoFiltro = searchParams.get('tipo') ?? 'TODOS'
+  const formOpenParam = searchParams.get('open') === 'true'
+  const editIdParam = searchParams.get('edit')
+
   const [confirmOpen,    setConfirmOpen]    = useState(false)
   const [eliminarTarget, setEliminarTarget] = useState<Banner | null>(null)
 
   const { data, isLoading, isError, refetch } = useBanners()
   const eliminar = useEliminarBanner()
 
+  const banners = data?.content ?? []
+  const bannerEditando = editIdParam
+    ? banners.find((b) => b.id === Number(editIdParam)) ?? null
+    : null
+
+  const drawerOpen = formOpenParam || !!bannerEditando
+
   function abrirCrear() {
-    setBannerEditando(null)
-    setDrawerOpen(true)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('open', 'true')
+    params.delete('edit')
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   function abrirEditar(b: Banner) {
-    setBannerEditando(b)
-    setDrawerOpen(true)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('edit', b.id.toString())
+    params.delete('open')
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   function cerrarDrawer() {
-    setDrawerOpen(false)
-    setBannerEditando(null)
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('open')
+    params.delete('edit')
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }
+
+  function handleSearch(term: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (term) {
+      params.set('q', term)
+    } else {
+      params.delete('q')
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }
+
+  function handleSelectTipo(tipo: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (tipo && tipo !== 'TODOS') {
+      params.set('tipo', tipo)
+    } else {
+      params.delete('tipo')
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   if (isError) return <ErrorState onRetry={refetch} />
 
+  const filteredBanners = banners.filter((b) => {
+    const matchesQuery =
+      b.titulo.toLowerCase().includes(query.toLowerCase()) ||
+      (b.descripcion && b.descripcion.toLowerCase().includes(query.toLowerCase()))
+    const matchesTipo = tipoFiltro === 'TODOS' || b.tipoBanner === tipoFiltro
+    return matchesQuery && matchesTipo
+  })
+
   return (
     <div className="space-y-4">
+      <Breadcrumbs
+        items={[
+          { label: 'CMS', href: '/admin/cms' },
+          { label: 'Banners' },
+        ]}
+      />
+
       <PageHeader
         title="Banners"
         description="Gestiona los banners del sitio publico"
@@ -204,6 +109,37 @@ export default function BannersPage() {
           </Button>
         }
       />
+
+      {banners.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+          <div className="relative max-w-md w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Buscar banner por título o descripción..."
+              value={query}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-9 h-9 text-sm rounded-xl"
+            />
+          </div>
+          <div className="flex flex-wrap gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100 self-stretch sm:self-auto justify-center">
+            {['TODOS', 'HERO', 'PROMOCION', 'EVENTO', 'INFORMATIVO', 'TEMPORADA'].map((t) => (
+              <button
+                key={t}
+                onClick={() => handleSelectTipo(t)}
+                className={cn(
+                  'px-3 py-1 text-xs font-semibold rounded-lg transition-all',
+                  tipoFiltro === t
+                    ? 'bg-white text-gray-900 shadow-sm border border-gray-200/50'
+                    : 'text-gray-500 hover:text-gray-900 border border-transparent'
+                )}
+              >
+                {t === 'TODOS' ? 'Todos' : t.charAt(0) + t.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {isLoading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -219,7 +155,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {!isLoading && data?.content?.length === 0 && (
+      {!isLoading && banners.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
             <ImageIcon className="h-8 w-8 text-gray-300" />
@@ -231,9 +167,15 @@ export default function BannersPage() {
         </div>
       )}
 
-      {!isLoading && data?.content && data.content.length > 0 && (
+      {!isLoading && banners.length > 0 && filteredBanners.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 gap-4 bg-white rounded-2xl border border-gray-100">
+          <p className="text-sm font-medium text-gray-500">No se encontraron banners que coincidan con la búsqueda.</p>
+        </div>
+      )}
+
+      {!isLoading && filteredBanners.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.content.map((banner) => (
+          {filteredBanners.map((banner) => (
             <BannerCard
               key={banner.id}
               banner={banner}
@@ -248,6 +190,7 @@ export default function BannersPage() {
       )}
 
       <BannerFormDrawer
+        key={editIdParam ?? (formOpenParam ? 'new' : 'none')}
         open={drawerOpen}
         onClose={cerrarDrawer}
         banner={bannerEditando}

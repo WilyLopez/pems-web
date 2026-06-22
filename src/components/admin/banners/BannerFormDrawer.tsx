@@ -23,29 +23,69 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Textarea } from '@/components/ui/Textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
 import { MediaUploader } from '@/components/common/MediaUploader'
-import { useCrearBanner, useActualizarBanner } from '@/hooks/useBanners'
+import { useCrearBanner, useActualizarBanner } from '@/features/admin/cms/banners/hooks/useBanners'
 import { Banner, TipoBanner, CrearBannerPayload } from '@/types/banner.types'
 import { BannerTipoSelector } from './BannerTipoSelector'
 import { BannerPreview } from './BannerPreview'
 
-const schema = z.object({
-  tipoBanner:     z.string().optional(),
-  titulo:         z.string().min(1, 'Requerido').max(60, 'Maximo 60 caracteres'),
-  descripcion:    z.string().max(150).optional(),
-  imagenUrl:      z.string().min(1, 'La imagen principal es requerida'),
-  imagenMovilUrl: z.string().optional(),
-  colorOverlay:   z.string().optional(),
-  overlayOpacity: z.number().min(0).max(80).default(0),
-  enlaceDestino:  z.string().optional(),
-  textoBoton:     z.string().max(30).optional(),
-  soloMovil:      z.boolean().default(false),
-  soloDesktop:    z.boolean().default(false),
-  prioridad:      z.number().min(0).max(100).default(0),
-  fechaInicio:    z.string().min(1, 'Requerido'),
-  fechaFin:       z.string().optional(),
-  orden:          z.number().default(0),
-})
+const schema = z
+  .object({
+    tipoBanner:     z.string().optional(),
+    titulo:         z.string().min(1, 'Requerido').max(60, 'Máximo 60 caracteres'),
+    descripcion:    z.string().max(150).optional(),
+    imagenUrl:      z.string().min(1, 'La imagen principal es requerida'),
+    imagenMovilUrl: z.string().optional(),
+    colorOverlay:   z.string().optional(),
+    overlayOpacity: z.number().min(0).max(80).default(0),
+    enlaceDestino:  z.string().optional(),
+    textoBoton:     z.string().max(30).optional(),
+    soloMovil:      z.boolean().default(false),
+    soloDesktop:    z.boolean().default(false),
+    prioridad:      z.number().min(0).max(100).default(0),
+    fechaInicio:    z.string().min(1, 'Requerido'),
+    fechaFin:       z.string().optional(),
+    orden:          z.number().default(0),
+  })
+  .refine(
+    (data) => {
+      const hasBoton = !!data.textoBoton?.trim()
+      const hasEnlace = !!data.enlaceDestino?.trim()
+      if (hasBoton && !hasEnlace) return false
+      if (hasEnlace && !hasBoton) return false
+      return true
+    },
+    {
+      message: 'Si configuras un botón, debes indicar tanto el texto como el enlace de destino.',
+      path: ['enlaceDestino'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.fechaFin && data.fechaInicio) {
+        return new Date(data.fechaFin) >= new Date(data.fechaInicio)
+      }
+      return true
+    },
+    {
+      message: 'La fecha de fin debe ser posterior o igual a la de inicio.',
+      path: ['fechaFin'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.enlaceDestino && data.enlaceDestino.trim()) {
+        const val = data.enlaceDestino.trim()
+        return val.startsWith('/') || val.startsWith('http://') || val.startsWith('https://')
+      }
+      return true
+    },
+    {
+      message: 'Debe ser una ruta interna (empieza con /) o enlace externo válido (http/https).',
+      path: ['enlaceDestino'],
+    }
+  )
 
 type FormValues = z.infer<typeof schema>
 
@@ -55,8 +95,19 @@ interface BannerFormDrawerProps {
   banner?: Banner | null
 }
 
+const RUTAS_COMUNES = [
+  { value: '/', label: 'Inicio (Página Principal)' },
+  { value: '/promociones', label: 'Promociones y Ofertas' },
+  { value: '/reservas', label: 'Reservas de Eventos y Shows' },
+  { value: '/faqs', label: 'Preguntas Frecuentes (FAQs)' },
+  { value: '/sedes', label: 'Ubicaciones / Sedes' },
+  { value: '/contacto', label: 'Contacto y Soporte' },
+  { value: 'custom', label: 'Enlace personalizado o externo 🔗' },
+]
+
 export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProps) {
   const [imagenMovilDistinta, setImagenMovilDistinta] = useState(false)
+  const [selectedRouteType, setSelectedRouteType] = useState<string>('none')
 
   const crear      = useCrearBanner()
   const actualizar = useActualizarBanner()
@@ -95,9 +146,21 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
     if (banner && open) {
       reset({ ...banner, overlayOpacity: 0 })
       setImagenMovilDistinta(!!banner.imagenMovilUrl)
+
+      if (banner.enlaceDestino) {
+        const match = RUTAS_COMUNES.find((r) => r.value === banner.enlaceDestino)
+        if (match && match.value !== 'custom') {
+          setSelectedRouteType(match.value)
+        } else {
+          setSelectedRouteType('custom')
+        }
+      } else {
+        setSelectedRouteType('none')
+      }
     } else if (!open) {
       reset()
       setImagenMovilDistinta(false)
+      setSelectedRouteType('none')
     }
   }, [banner, open])
 
@@ -143,7 +206,7 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                 className="px-6"
               >
                 <AccordionItem value="clasificacion">
-                  <AccordionTrigger>Clasificacion</AccordionTrigger>
+                  <AccordionTrigger>Clasificación</AccordionTrigger>
                   <AccordionContent>
                     <Controller
                       name="tipoBanner"
@@ -163,7 +226,7 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                   <AccordionContent>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="titulo">Titulo</Label>
+                        <Label htmlFor="titulo">Título</Label>
                         <span className="text-xs text-gray-400">{titulo?.length ?? 0}/60</span>
                       </div>
                       <Input
@@ -177,12 +240,12 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="descripcion">Descripcion</Label>
+                        <Label htmlFor="descripcion">Descripción</Label>
                         <span className="text-xs text-gray-400">{descripcion?.length ?? 0}/150</span>
                       </div>
                       <Textarea
                         id="descripcion"
-                        placeholder="Descripcion opcional del banner..."
+                        placeholder="Descripción opcional del banner..."
                         rows={3}
                         {...register('descripcion')}
                         className="resize-none"
@@ -221,13 +284,13 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                         onCheckedChange={setImagenMovilDistinta}
                       />
                       <Label htmlFor="movil-distinta" className="cursor-pointer font-normal">
-                        Configurar imagen diferente para movil
+                        Configurar imagen diferente para móvil
                       </Label>
                     </div>
 
                     {imagenMovilDistinta && (
                       <div className="space-y-1">
-                        <Label>Imagen para movil</Label>
+                        <Label>Imagen para móvil</Label>
                         <Controller
                           name="imagenMovilUrl"
                           control={control}
@@ -235,7 +298,7 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                             <MediaUploader
                               carpeta="banners"
                               aspectRatio="libre"
-                              placeholder="Imagen para movil (vertical recomendado)"
+                              placeholder="Imagen para móvil (vertical recomendado)"
                               value={field.value ? { url: field.value, esLocal: false } : null}
                               onChange={(mv) => field.onChange(mv?.url)}
                             />
@@ -280,25 +343,71 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                 </AccordionItem>
 
                 <AccordionItem value="cta">
-                  <AccordionTrigger>Accion CTA</AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-1">
-                      <Label htmlFor="enlaceDestino">Enlace de destino</Label>
-                      <Input
-                        id="enlaceDestino"
-                        placeholder="/promociones o https://..."
-                        {...register('enlaceDestino')}
-                      />
+                  <AccordionTrigger>Acción CTA (Botón y Enlace)</AccordionTrigger>
+                  <AccordionContent className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Label>Destino del botón</Label>
+                      <Select
+                        value={selectedRouteType}
+                        onValueChange={(val) => {
+                          if (val === 'none') {
+                            setSelectedRouteType('none')
+                            setValue('enlaceDestino', '')
+                            setValue('textoBoton', '')
+                          } else {
+                            setSelectedRouteType(val)
+                            if (val === 'custom') {
+                              setValue('enlaceDestino', '')
+                            } else {
+                              setValue('enlaceDestino', val, { shouldValidate: true })
+                            }
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-full rounded-xl">
+                          <SelectValue placeholder="Selecciona una página destino..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Sin botón de acción</SelectItem>
+                          {RUTAS_COMUNES.map((ruta) => (
+                            <SelectItem key={ruta.value} value={ruta.value}>
+                              {ruta.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="textoBoton">Texto del boton</Label>
-                      <Input
-                        id="textoBoton"
-                        placeholder="Ver mas, Reservar, ..."
-                        maxLength={30}
-                        {...register('textoBoton')}
-                      />
-                    </div>
+
+                    {selectedRouteType === 'custom' && (
+                      <div className="space-y-1.5">
+                        <Label htmlFor="enlaceDestino">Ruta personalizada o URL externa</Label>
+                        <Input
+                          id="enlaceDestino"
+                          placeholder="Ej: /promociones/mi-evento o https://..."
+                          {...register('enlaceDestino')}
+                          className="rounded-xl"
+                        />
+                        {errors.enlaceDestino && (
+                          <p className="text-xs text-destructive">{errors.enlaceDestino.message}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {selectedRouteType !== 'none' && (
+                      <div className="space-y-1.5">
+                        <Label htmlFor="textoBoton">Texto del botón</Label>
+                        <Input
+                          id="textoBoton"
+                          placeholder="Ej: Ver más, Reservar..."
+                          maxLength={30}
+                          {...register('textoBoton')}
+                          className="rounded-xl"
+                        />
+                        {errors.textoBoton && (
+                          <p className="text-xs text-destructive">{errors.textoBoton.message}</p>
+                        )}
+                      </div>
+                    )}
                   </AccordionContent>
                 </AccordionItem>
 
@@ -307,7 +416,7 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                   <AccordionContent>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <Label>Solo movil</Label>
+                        <Label>Solo móvil</Label>
                         <Controller
                           name="soloMovil"
                           control={control}
@@ -353,7 +462,7 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                 </AccordionItem>
 
                 <AccordionItem value="publicacion">
-                  <AccordionTrigger>Publicacion</AccordionTrigger>
+                  <AccordionTrigger>Publicación</AccordionTrigger>
                   <AccordionContent>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
@@ -374,10 +483,13 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                           type="date"
                           {...register('fechaFin')}
                         />
+                        {errors.fechaFin && (
+                          <p className="text-xs text-destructive">{errors.fechaFin.message}</p>
+                        )}
                       </div>
                     </div>
                     <div className="space-y-1 w-1/2">
-                      <Label htmlFor="orden">Orden de visualizacion</Label>
+                      <Label htmlFor="orden">Orden de visualización</Label>
                       <Input
                         id="orden"
                         type="number"
