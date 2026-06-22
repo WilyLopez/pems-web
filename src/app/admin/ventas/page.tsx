@@ -1,35 +1,5 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
-import { Plus } from 'lucide-react'
-import { PageHeader } from '@/components/common/PageHeader'
-import { Breadcrumbs } from '@/components/common/Breadcrumbs'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent } from '@/components/ui/Card'
-
-export const metadata: Metadata = { title: 'Ventas' }
+import { VentasListView } from '@/features/admin/ventas/components/views/VentasListView'
 
 export default function VentasPage() {
-  return (
-    <div className="space-y-4">
-      <Breadcrumbs items={[{ label: 'Ventas' }]} />
-
-      <PageHeader
-        title="Ventas"
-        description="Historial y registro de ventas de productos"
-        actions={
-          <Button size="sm" asChild>
-            <Link href="/admin/ventas/nueva">
-              <Plus className="mr-2 h-4 w-4" />
-              Nueva venta
-            </Link>
-          </Button>
-        }
-      />
-      <Card>
-        <CardContent className="py-16 text-center text-sm text-muted-foreground">
-          Historial de ventas — próximamente
-        </CardContent>
-      </Card>
-    </div>
-  )
+  return <VentasListView />
 }

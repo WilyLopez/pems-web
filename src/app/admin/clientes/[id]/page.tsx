@@ -1,8 +1,6 @@
 'use client'
 
-import { use } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useParams } from 'next/navigation'
 import {
   ArrowLeft,
   Phone,
@@ -11,115 +9,42 @@ import {
   CalendarDays,
   Clock,
   Ticket,
-  CreditCard,
   Crown,
   RefreshCw,
   Loader2,
   Star,
-  MessageSquare,
+  CreditCard,
   ShoppingBag,
 } from 'lucide-react'
 import Link from 'next/link'
 
-import { clienteService } from '@/services/cliente.service'
+import { useClienteDetail, useMutacionesCliente } from '@/features/admin/clientes/hooks/useClientesData'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
-import { ClienteAvatar } from '@/components/admin/clientes/ClienteAvatar'
-import {
-  VipBadge,
-  OrigenBadge,
-  SegmentoBadge,
-} from '@/components/admin/clientes/ClienteBadges'
+import { ClienteAvatar } from '@/features/admin/clientes/components/ui/ClienteAvatar'
+import { VipBadge, OrigenBadge, SegmentoBadge } from '@/features/admin/clientes/components/ui/ClienteBadges'
+import { DetalleRow } from '@/features/admin/clientes/components/ui/DetalleRow'
+import { StatCard } from '@/features/admin/clientes/components/ui/StatCard'
 import { Button } from '@/components/ui/Button'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
-function InfoRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ElementType
-  label: string
-  value?: string | null | React.ReactNode
-}) {
-  if (!value) return null
-  return (
-    <div className="flex items-start gap-3 py-2.5">
-      <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-        <Icon className="h-4 w-4 text-gray-500" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-          {label}
-        </p>
-        <div className="text-sm text-gray-900 mt-0.5">{value}</div>
-      </div>
-    </div>
-  )
-}
+export default function ClienteDetailPage() {
+  const params = useParams()
+  const clienteId = typeof params?.id === 'string' ? Number(params.id) : null
 
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  color,
-}: {
-  icon: React.ElementType
-  label: string
-  value: string | number
-  color: string
-}) {
-  return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-1">
-      <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', color)}>
-        <Icon className="h-4 w-4" />
-      </div>
-      <p className="text-xl font-black text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500">{label}</p>
-    </div>
-  )
-}
+  const { data: cliente, isLoading } = useClienteDetail(clienteId)
+  const { toggleVip, registrarVisita } = useMutacionesCliente(clienteId)
 
-export default function ClienteDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = use(params)
-  const clienteId = Number(id)
-  const queryClient = useQueryClient()
-
-  const { data: cliente, isLoading } = useQuery({
-    queryKey: ['cliente', clienteId],
-    queryFn: () => clienteService.obtener(clienteId),
-  })
-
-  const invalidar = () => {
-    queryClient.invalidateQueries({ queryKey: ['cliente', clienteId] })
-    queryClient.invalidateQueries({ queryKey: ['clientes'] })
+  const handleToggleVip = () => {
+    if (!cliente) return
+    toggleVip.mutate({ id: cliente.id, esVip: cliente.esVip })
   }
 
-  const toggleVip = useMutation({
-    mutationFn: () =>
-      cliente!.esVip
-        ? clienteService.quitarVip(clienteId)
-        : clienteService.hacerVip(clienteId, 10),
-    onSuccess: () => {
-      invalidar()
-      toast.success(cliente!.esVip ? 'Estado VIP removido.' : 'Cliente promovido a VIP.')
-    },
-    onError: () => toast.error('No se pudo actualizar estado VIP.'),
-  })
-
-  const registrarVisita = useMutation({
-    mutationFn: () => clienteService.registrarVisita(clienteId),
-    onSuccess: () => {
-      invalidar()
-      toast.success('Visita registrada.')
-    },
-    onError: () => toast.error('No se pudo registrar la visita.'),
-  })
+  const handleRegistrarVisita = () => {
+    if (!clienteId) return
+    registrarVisita.mutate(clienteId)
+  }
 
   if (isLoading) {
     return (
@@ -208,7 +133,7 @@ export default function ClienteDetailPage({
                     ? 'border-yellow-200 text-yellow-700 hover:bg-yellow-50'
                     : 'border-brand-amarillo/40 text-yellow-700 hover:bg-brand-amarillo/10'
                 )}
-                onClick={() => toggleVip.mutate()}
+                onClick={handleToggleVip}
                 disabled={toggleVip.isPending}
               >
                 {toggleVip.isPending ? (
@@ -223,7 +148,7 @@ export default function ClienteDetailPage({
                 variant="outline"
                 size="sm"
                 className="rounded-xl gap-1.5 text-xs font-semibold col-span-2 border-brand-azul/30 text-brand-azul hover:bg-brand-azul/8"
-                onClick={() => registrarVisita.mutate()}
+                onClick={handleRegistrarVisita}
                 disabled={registrarVisita.isPending}
               >
                 {registrarVisita.isPending ? (
@@ -242,9 +167,9 @@ export default function ClienteDetailPage({
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">
               Datos de contacto
             </p>
-            <InfoRow icon={Mail} label="Correo" value={cliente.correo} />
-            <InfoRow icon={Phone} label="Teléfono" value={cliente.telefono} />
-            <InfoRow
+            <DetalleRow icon={Mail} label="Correo" value={cliente.correo} />
+            <DetalleRow icon={Phone} label="Teléfono" value={cliente.telefono} />
+            <DetalleRow
               icon={BadgeCheck}
               label={cliente.tipoDocumentoCodigo}
               value={cliente.numeroDocumento}
@@ -255,22 +180,22 @@ export default function ClienteDetailPage({
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">
               Actividad y CRM
             </p>
-            <InfoRow
+            <DetalleRow
               icon={Clock}
               label="Última visita"
               value={cliente.ultimaVisitaAt ? formatDate(cliente.ultimaVisitaAt) : 'Sin visitas'}
             />
-            <InfoRow
+            <DetalleRow
               icon={CalendarDays}
               label="Registrado"
               value={formatDate(cliente.creadoEn)}
             />
-            <InfoRow
+            <DetalleRow
               icon={Star}
               label="Descuento VIP"
               value={cliente.descuentoVip ? `${cliente.descuentoVip}%` : null}
             />
-            <InfoRow
+            <DetalleRow
               icon={CreditCard}
               label="Total gastado"
               value={`S/ ${Number(cliente.totalGastado ?? 0).toFixed(2)}`}
