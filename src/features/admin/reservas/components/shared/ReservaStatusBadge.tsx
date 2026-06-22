@@ -2,12 +2,14 @@ import React from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { EstadoReserva } from '../../types'
 import { cn } from '@/lib/utils'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, Clock } from 'lucide-react'
+import { isBefore, parseISO, startOfDay } from 'date-fns'
 
 interface ReservaStatusBadgeProps {
   estado: EstadoReserva
   ingresado?: boolean
   esReprogramacion?: boolean
+  fechaEvento?: string
 }
 
 const ESTADO_CONFIG: Record<EstadoReserva, string> = {
@@ -18,7 +20,14 @@ const ESTADO_CONFIG: Record<EstadoReserva, string> = {
   CANCELADA: 'bg-red-100 text-red-700 border-red-200',
 }
 
-export const ReservaStatusBadge = React.memo(({ estado, ingresado, esReprogramacion }: ReservaStatusBadgeProps) => {
+export const ReservaStatusBadge = React.memo(({ estado, ingresado, esReprogramacion, fechaEvento }: ReservaStatusBadgeProps) => {
+  const expirada = React.useMemo(() => {
+    if (!fechaEvento || ingresado || estado === 'COMPLETADA' || estado === 'CANCELADA') return false
+    const dateLimit = startOfDay(parseISO(fechaEvento))
+    const today = startOfDay(new Date())
+    return isBefore(dateLimit, today)
+  }, [fechaEvento, ingresado, estado])
+
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
       <Badge
@@ -27,6 +36,15 @@ export const ReservaStatusBadge = React.memo(({ estado, ingresado, esReprogramac
       >
         {estado}
       </Badge>
+      
+      {expirada && (
+        <Badge
+          variant="outline"
+          className="text-[9px] font-bold bg-red-50 text-red-600 border-red-200 uppercase tracking-tighter px-1.5 h-4 flex items-center gap-0.5"
+        >
+          <Clock className="h-2.5 w-2.5 shrink-0" /> Expirado
+        </Badge>
+      )}
       
       {esReprogramacion && estado !== 'REPROGRAMADA' && (
         <Badge variant="outline" className="text-[9px] bg-purple-50 text-purple-600 border-purple-200 uppercase tracking-tighter px-1 h-4">

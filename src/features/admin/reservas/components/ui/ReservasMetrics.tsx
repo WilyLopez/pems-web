@@ -21,21 +21,21 @@ function MetricaCard({
   sub?: string
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
+    <div className="bg-white rounded-3xl border border-gray-100/80 p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5">
       <div
         className={cn(
-          'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+          'w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300',
           color
         )}
       >
         <Icon className="h-5 w-5" />
       </div>
-      <div>
-        <p className="text-2xl font-black text-gray-900 leading-none">
+      <div className="min-w-0">
+        <p className="text-2xl font-black text-gray-900 leading-tight">
           {value}
         </p>
-        <p className="text-xs text-gray-500 mt-0.5">{label}</p>
-        {sub && <p className="text-[10px] text-gray-400">{sub}</p>}
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-0.5 truncate">{label}</p>
+        {sub && <p className="text-[10px] text-gray-500 font-medium mt-0.5 truncate">{sub}</p>}
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ import { BuscarReservasParams } from '../types'
 export const RESERVAS_KEYS = {
   ADMIN_LIST: 'reservas-admin-list',
   METRICS: 'reservas-admin-metrics',
+  ESTADOS: 'reservas-estados',
 } as const
 
 export function useReservas(params: BuscarReservasParams = {}) {
@@ -20,6 +21,14 @@ export function useMetricasReservas(idSede?: number, fecha?: string) {
     queryKey: [RESERVAS_KEYS.METRICS, idSede, fecha],
     queryFn: () => reservasApi.metricas(idSede, fecha),
     staleTime: 1000 * 30,
+  })
+}
+
+export function useEstadosReserva() {
+  return useQuery({
+    queryKey: [RESERVAS_KEYS.ESTADOS],
+    queryFn: () => reservasApi.getEstados(),
+    staleTime: 1000 * 60 * 60, // 1 hour
   })
 }
 
@@ -65,6 +74,21 @@ export function useConfirmarPago() {
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.mensaje ?? err?.message ?? 'No se pudo confirmar el pago.')
+    },
+  })
+}
+
+export function useEliminarReserva() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => reservasApi.eliminar(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.ADMIN_LIST] })
+      qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
+      toast.success('Reserva eliminada con éxito.')
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.mensaje ?? err?.message ?? 'No se pudo eliminar la reserva.')
     },
   })
 }
