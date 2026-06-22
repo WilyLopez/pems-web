@@ -1,4 +1,4 @@
-// components/layout/AdminNavbar.tsx
+// features/admin/shared/layout/AdminNavbar.tsx
 
 'use client'
 
@@ -261,11 +261,10 @@ function NotificacionesMenu() {
   )
 }
 
-/* ─── Navbar ─────────────────────────────────────────────────────────────────── */
 
 export function AdminNavbar() {
   const { nombre, correo, logout } = useAuth()
-  const { toggle } = useSidebarStore()
+  const { toggleMobile } = useSidebarStore()
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 px-4 sm:px-6 glass border-b border-gray-100">
@@ -273,7 +272,7 @@ export function AdminNavbar() {
       <Button
         variant="ghost"
         size="icon"
-        onClick={toggle}
+        onClick={toggleMobile}
         className="lg:hidden h-9 w-9 rounded-xl hover:bg-gray-100"
       >
         <Menu className="h-5 w-5 text-gray-600" />

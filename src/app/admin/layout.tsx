@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { AdminSidebar } from '@/components/layout/AdminSidebar'
-import { AdminNavbar } from '@/components/layout/AdminNavbar'
-import { AdminThemeRoot } from '@/components/layout/AdminThemeRoot'
+import { AdminSidebar } from '@/features/admin/shared/layout/AdminSidebar'
+import { AdminNavbar } from '@/features/admin/shared/layout/AdminNavbar'
+import { AdminThemeRoot } from '@/features/admin/shared/layout/AdminThemeRoot'
+
 export default async function AdminLayout({
   children,
 }: {
@@ -19,8 +20,8 @@ export default async function AdminLayout({
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/health/me`,
-      { 
-        headers: { Authorization: `Bearer ${session.access_token}` }, 
+      {
+        headers: { Authorization: `Bearer ${session.access_token}` },
         cache: 'no-store',
         next: { revalidate: 0 }
       }
@@ -38,16 +39,18 @@ export default async function AdminLayout({
     }
   } catch (error) {
     console.error('Error al validar perfil STAFF en el backend:', error)
-    // No redirigimos en caso de error de red (fetch failed) para evitar bucles si el backend está caído.
-    // El usuario ya está autenticado en Supabase.
   }
 
   return (
     <AdminThemeRoot>
-      <AdminSidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <AdminNavbar />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <div className="flex h-full w-full overflow-hidden">
+        <AdminSidebar />
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <AdminNavbar />
+          <main className="flex-1 overflow-auto p-6 scrollbar-thin min-w-0 bg-background">
+            {children}
+          </main>
+        </div>
       </div>
     </AdminThemeRoot>
   )
