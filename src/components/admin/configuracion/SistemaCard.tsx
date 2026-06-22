@@ -18,7 +18,7 @@ import {
 import { cn } from '@/lib/utils'
 import {
   useConfiguracionAdmin,
-  useActualizarConfiguracion,
+  useActualizarConfiguracionPublica,
 } from '@/hooks/useConfiguracionPublica'
 
 const schema = z.object({
@@ -29,7 +29,7 @@ type FormValues = z.infer<typeof schema>
 
 function SistemaEditForm() {
   const { data: config }  = useConfiguracionAdmin()
-  const actualizar        = useActualizarConfiguracion()
+  const actualizar        = useActualizarConfiguracionPublica()
 
   const { control, register, handleSubmit, watch, reset, formState: { isDirty } } = useForm<FormValues>({
     resolver: zodResolver(schema),

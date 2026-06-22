@@ -22,8 +22,7 @@ export function useConfiguracionAdmin() {
     staleTime: 30_000,
   })
 }
-
-export function useActualizarConfiguracion() {
+export function useActualizarConfiguracionPublica() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (payload: ActualizarConfiguracionPayload) =>

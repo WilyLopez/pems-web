@@ -20,6 +20,8 @@ export interface Cliente {
   origen: OrigenCliente
   aceptaComunicaciones: boolean
   creadoEn: string
+  fotoPerfilPath?: string | null
+  fechaNacimiento?: string | null
 }
 
 export interface RegistrarClienteAdminPayload {

@@ -24,6 +24,7 @@ export interface ApiError {
   path: string
   timestamp: string
   errorsCampo?: CampoError[]
+  erroresCampo?: CampoError[]
 }
 
 export interface CampoError {

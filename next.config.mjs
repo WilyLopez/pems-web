@@ -22,6 +22,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'encrypted-tbn0.gstatic.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'divljjsnorvkrgcznwlh.supabase.co',
+        pathname: '/**',
+      },
       // Keep localhost:8080 for any remaining absolute-URL usages during migration.
       {
         protocol: 'http',

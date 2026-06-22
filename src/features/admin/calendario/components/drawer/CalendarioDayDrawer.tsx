@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { Separator } from '@/components/ui/Separator'
 import { isPast, isCurrentWeek } from '../../utils/date-helpers'
 import { useCalendarNav } from '../../hooks/useCalendarNav'
-import { GastosOperativosDia } from '@/components/admin/finanzas/GastosOperativosDia'
+import { GastosOperativosDia } from '@/features/admin/finance'
 
 import { DrawerStats } from './DrawerStats'
 import { DrawerAlerts } from './DrawerAlerts'

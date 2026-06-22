@@ -1,6 +1,6 @@
 import api from './api'
 import { ApiResponse } from '@/types/api.types'
-import { Tarifa } from '@/types/calendario.types'
+import { Tarifa } from '@/features/admin/calendario/types'
 
 export interface PrecioPublico {
   tipoDia: string

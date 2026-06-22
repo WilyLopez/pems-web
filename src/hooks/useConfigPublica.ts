@@ -7,10 +7,10 @@ import type { ConfiguracionPublica } from '@/types/configuracion-publica.types'
 const DEFAULTS: Partial<ConfiguracionPublica> = {
   nombreNegocio: 'Kiki y Lala',
   slogan: 'Diversión y juego para toda la familia',
-  telefono: '',
-  whatsapp: '',
-  correo: '',
-  direccion: '',
+  telefono: '987 654 321',
+  whatsapp: '51987654321',
+  correo: 'contacto@kikiylala.com',
+  direccion: 'Calle Principal 123, Chiclayo',
   horarioSemana: 'Lunes a Viernes: 10:00 am – 8:00 pm',
   horarioFinDeSemana: 'Sáb–Dom: 9:00 am – 9:00 pm',
 }

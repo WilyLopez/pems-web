@@ -1,18 +1,14 @@
-/* app/globals.css */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* ── Paleta de marca Kiki y Lala ── */
     --brand-rosa: #f64b8a;
     --brand-azul: #00aeef;
     --brand-amarillo: #ffd84d;
     --brand-menta: #6ee7b7;
 
-    /* ── Tokens shadcn (hsl para compatibilidad con Tailwind) ── */
     --background: 0 0% 100%;
     --foreground: 222 20% 15%;
     --card: 0 0% 100%;
@@ -20,11 +16,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 20% 15%;
 
-    /* Primario → azul turquesa #00AEEF */
     --primary: 197 100% 47%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secundario → rosa #F64B8A */
     --secondary: 335 91% 64%;
     --secondary-foreground: 0 0% 100%;
 
@@ -39,7 +33,6 @@
     --ring: 197 100% 47%;
     --radius: 0.625rem;
 
-    /* ── Sidebar tokens (panel admin) ── */
     --sidebar: 0 0% 100%;
     --sidebar-foreground: 222 20% 15%;
     --sidebar-border: 214 20% 91%;
@@ -85,12 +78,14 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-geist-sans), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
   h1,
   h2,
   h3,
@@ -99,56 +94,134 @@
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   DARK MODE — override de clases Tailwind hardcodeadas en componentes
-   Se activa cuando <html> tiene la clase .dark (ThemeProvider)
-   ══════════════════════════════════════════════════════════════════ */
+.dark .bg-white {
+  background-color: hsl(222 20% 12%) !important;
+}
 
-/* ── Fondos sólidos ── */
-.dark .bg-white          { background-color: hsl(222 20% 12%) !important; }
-.dark .bg-gray-50        { background-color: hsl(222 20% 10%) !important; }
-.dark .bg-gray-100       { background-color: hsl(217 20% 16%) !important; }
-.dark .bg-gray-200       { background-color: hsl(217 20% 20%) !important; }
+.dark .bg-gray-50 {
+  background-color: hsl(222 20% 10%) !important;
+}
 
-/* ── Fondos con opacidad (variantes /N) ── */
-.dark .bg-white\/80      { background-color: hsl(222 20% 12% / 0.8) !important; }
-.dark .bg-white\/60      { background-color: hsl(222 20% 12% / 0.6) !important; }
-.dark .bg-white\/40      { background-color: hsl(222 20% 12% / 0.4) !important; }
-.dark .bg-gray-50\/80    { background-color: hsl(222 20% 10% / 0.8) !important; }
-.dark .bg-gray-50\/60    { background-color: hsl(222 20% 10% / 0.6) !important; }
-.dark .bg-gray-50\/40    { background-color: hsl(222 20% 10% / 0.4) !important; }
-.dark .bg-gray-50\/20    { background-color: hsl(222 20% 10% / 0.2) !important; }
-.dark .bg-gray-100\/80   { background-color: hsl(217 20% 16% / 0.8) !important; }
-.dark .bg-gray-100\/60   { background-color: hsl(217 20% 16% / 0.6) !important; }
-.dark .bg-gray-100\/50   { background-color: hsl(217 20% 16% / 0.5) !important; }
-.dark .bg-gray-100\/40   { background-color: hsl(217 20% 16% / 0.4) !important; }
+.dark .bg-gray-100 {
+  background-color: hsl(217 20% 16%) !important;
+}
 
-/* ── Texto ── */
-.dark .text-gray-900     { color: hsl(210 20% 95%) !important; }
-.dark .text-gray-800     { color: hsl(210 20% 88%) !important; }
-.dark .text-gray-700     { color: hsl(210 20% 78%) !important; }
-.dark .text-gray-600     { color: hsl(215 16% 62%) !important; }
-.dark .text-gray-500     { color: hsl(215 16% 52%) !important; }
-.dark .text-gray-400     { color: hsl(215 16% 42%) !important; }
-.dark .text-gray-300     { color: hsl(215 16% 32%) !important; }
+.dark .bg-gray-200 {
+  background-color: hsl(217 20% 20%) !important;
+}
 
-/* ── Bordes ── */
-.dark .border-gray-100   { border-color: hsl(217 20% 18%) !important; }
-.dark .border-gray-200   { border-color: hsl(217 20% 22%) !important; }
-.dark .border-gray-300   { border-color: hsl(217 20% 28%) !important; }
-.dark .divide-gray-100 > * + * { border-color: hsl(217 20% 18%) !important; }
-.dark .divide-gray-50  > * + * { border-color: hsl(217 20% 15%) !important; }
+.dark .bg-white\/80 {
+  background-color: hsl(222 20% 12% / 0.8) !important;
+}
 
-/* ── Hover states ── */
-.dark .hover\:bg-white:hover    { background-color: hsl(222 20% 16%) !important; }
-.dark .hover\:bg-gray-50:hover  { background-color: hsl(217 20% 16%) !important; }
-.dark .hover\:bg-gray-100:hover { background-color: hsl(217 20% 20%) !important; }
+.dark .bg-white\/60 {
+  background-color: hsl(222 20% 12% / 0.6) !important;
+}
 
-/* ── Skeletons / placeholders ── */
-.dark .animate-pulse     { --tw-bg-opacity: 1; }
-.dark .bg-gray-100.animate-pulse { background-color: hsl(217 20% 20%) !important; }
+.dark .bg-white\/40 {
+  background-color: hsl(222 20% 12% / 0.4) !important;
+}
 
-/* ── Selectores / inputs nativos ── */
+.dark .bg-gray-50\/80 {
+  background-color: hsl(222 20% 10% / 0.8) !important;
+}
+
+.dark .bg-gray-50\/60 {
+  background-color: hsl(222 20% 10% / 0.6) !important;
+}
+
+.dark .bg-gray-50\/40 {
+  background-color: hsl(222 20% 10% / 0.4) !important;
+}
+
+.dark .bg-gray-50\/20 {
+  background-color: hsl(222 20% 10% / 0.2) !important;
+}
+
+.dark .bg-gray-100\/80 {
+  background-color: hsl(217 20% 16% / 0.8) !important;
+}
+
+.dark .bg-gray-100\/60 {
+  background-color: hsl(217 20% 16% / 0.6) !important;
+}
+
+.dark .bg-gray-100\/50 {
+  background-color: hsl(217 20% 16% / 0.5) !important;
+}
+
+.dark .bg-gray-100\/40 {
+  background-color: hsl(217 20% 16% / 0.4) !important;
+}
+
+.dark .text-gray-900 {
+  color: hsl(210 20% 95%) !important;
+}
+
+.dark .text-gray-800 {
+  color: hsl(210 20% 88%) !important;
+}
+
+.dark .text-gray-700 {
+  color: hsl(210 20% 78%) !important;
+}
+
+.dark .text-gray-600 {
+  color: hsl(215 16% 62%) !important;
+}
+
+.dark .text-gray-500 {
+  color: hsl(215 16% 52%) !important;
+}
+
+.dark .text-gray-400 {
+  color: hsl(215 16% 42%) !important;
+}
+
+.dark .text-gray-300 {
+  color: hsl(215 16% 32%) !important;
+}
+
+.dark .border-gray-100 {
+  border-color: hsl(217 20% 18%) !important;
+}
+
+.dark .border-gray-200 {
+  border-color: hsl(217 20% 22%) !important;
+}
+
+.dark .border-gray-300 {
+  border-color: hsl(217 20% 28%) !important;
+}
+
+.dark .divide-gray-100>*+* {
+  border-color: hsl(217 20% 18%) !important;
+}
+
+.dark .divide-gray-50>*+* {
+  border-color: hsl(217 20% 15%) !important;
+}
+
+.dark .hover\:bg-white:hover {
+  background-color: hsl(222 20% 16%) !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: hsl(217 20% 16%) !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: hsl(217 20% 20%) !important;
+}
+
+.dark .animate-pulse {
+  --tw-bg-opacity: 1;
+}
+
+.dark .bg-gray-100.animate-pulse {
+  background-color: hsl(217 20% 20%) !important;
+}
+
 .dark select,
 .dark textarea,
 .dark input[type="date"],
@@ -160,75 +233,99 @@
   border-color: hsl(217 20% 22%) !important;
 }
 
-/* ── Glassmorphism navbar ── */
 .dark .glass {
   background: rgba(18, 22, 36, 0.88) !important;
 }
 
-/* ── Scrollbar ── */
 .dark .scrollbar-thin {
   scrollbar-color: hsl(197 100% 35%) transparent;
 }
 
-/* ── Utilidades de marca ── */
 @layer utilities {
-  /* Gradientes */
   .bg-brand-gradient {
     background: linear-gradient(135deg, #00aeef 0%, #f64b8a 100%);
   }
+
   .bg-brand-gradient-soft {
     background: linear-gradient(135deg, #e0f7ff 0%, #ffe0f0 100%);
   }
+
   .bg-brand-gradient-dark {
     background: linear-gradient(135deg, #001a2c 0%, #003a5c 50%, #001a2c 100%);
   }
 
-  /* Texto */
   .text-brand-rosa {
     color: #f64b8a;
   }
+
   .text-brand-azul {
     color: #00aeef;
   }
+
   .text-brand-amarillo {
     color: #ffd84d;
   }
+
   .text-brand-menta {
     color: #6ee7b7;
   }
 
-  /* Fondos */
   .bg-brand-rosa {
     background-color: #f64b8a;
   }
+
   .bg-brand-azul {
     background-color: #00aeef;
   }
+
   .bg-brand-amarillo {
     background-color: #ffd84d;
   }
+
   .bg-brand-menta {
     background-color: #6ee7b7;
   }
 
-  /* Bordes */
   .border-brand-rosa {
     border-color: #f64b8a;
   }
+
   .border-brand-azul {
     border-color: #00aeef;
   }
 
-  /* Scrollbar */
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: #00aeef transparent;
   }
 
-  /* Glassmorphism — navbar admin */
   .glass {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
+}
+
+html,
+body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.flex.h-screen,
+.flex.h-full,
+main,
+.overflow-auto,
+.overflow-hidden {
+  overflow-x: hidden !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+table,
+[class*="calendar"] {
+  max-width: 100%;
 }

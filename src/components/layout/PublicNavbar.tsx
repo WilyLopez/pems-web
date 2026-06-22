@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 import { Logo } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/Button'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +31,9 @@ import {
 } from '@/components/ui/DropdownMenu'
 import { useAuth } from '@/hooks/useAuth'
 import { useWhatsAppUrl } from '@/hooks/useConfigPublica'
+import { useQuery } from '@tanstack/react-query'
+import { clienteService } from '@/services/cliente.service'
+import { clienteKeys } from '@/features/cliente/shared/queryKeys'
 
 const navLinks = [
   { href: '/', label: 'Inicio', icon: Home },
@@ -42,11 +45,22 @@ const navLinks = [
 const SCROLL_THRESHOLD = 60
 
 export function PublicNavbar() {
-  const { nombre, logout, isAdmin, isCliente } = useAuth()
+  const { nombre, correo, logout, isAdmin, isCliente, clientePerfilId } = useAuth()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const whatsappUrl = useWhatsAppUrl('Hola, quisiera más información sobre Kiki y Lala')
+
+  const { data: perfil } = useQuery({
+    queryKey: clienteKeys.perfil(clientePerfilId),
+    queryFn: () => clienteService.obtener(clientePerfilId!),
+    enabled: isCliente && !!clientePerfilId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+
+  const nombreMostrar = perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
+  const primerNombre = perfil?.nombres?.split(' ')[0] || nombre?.split(' ')[0] || correo?.split('@')[0] || ''
 
   const isLanding = pathname === '/'
   const forceSolid = !isLanding
@@ -129,11 +143,20 @@ export function PublicNavbar() {
                   )}
                 >
                   <User className="h-4 w-4" />
-                  {nombre?.split(' ')[0]}
+                  {primerNombre}
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl shadow-xl">
+                <div className="px-3 py-2 flex items-center gap-2 mb-1 border-b border-gray-50 pb-2">
+                  <div className="w-7 h-7 rounded-full bg-brand-rosa flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                    {nombreMostrar ? getInitials(nombreMostrar) : 'C'}
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-bold text-gray-900 truncate leading-tight">{nombreMostrar}</p>
+                    <p className="text-[10px] text-gray-400 truncate leading-tight mt-0.5">{correo}</p>
+                  </div>
+                </div>
                 <DropdownMenuItem asChild>
                   <Link href="/cliente/mis-entradas">
                     <Ticket className="mr-2 h-4 w-4" />
@@ -254,6 +277,15 @@ export function PublicNavbar() {
                 </Button>
               ) : isCliente ? (
                 <>
+                  <div className="px-4 py-2.5 flex items-center gap-2.5 mb-2 border-b border-gray-100 pb-3">
+                    <div className="w-8 h-8 rounded-full bg-brand-rosa flex items-center justify-center text-xs font-bold text-white shrink-0">
+                      {nombreMostrar ? getInitials(nombreMostrar) : 'C'}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-bold text-gray-900 truncate leading-tight">{nombreMostrar}</p>
+                      <p className="text-xs text-gray-400 truncate leading-tight mt-0.5">{correo}</p>
+                    </div>
+                  </div>
                   <Link
                     href="/cliente/mis-entradas"
                     onClick={() => setMobileOpen(false)}
