@@ -1,0 +1,193 @@
+'use client'
+
+import React, { useState } from 'react'
+import { Plus, X } from 'lucide-react'
+import { Controller, useFieldArray, useFormState, useWatch, type Control } from 'react-hook-form'
+import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/Label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
+import { formatCurrency, cn } from '@/lib/utils'
+import { PagoLinea } from '../../types'
+import { METODOS_PAGO, type VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
+import { calcularResumenPagos, DENOMINACIONES_EFECTIVO } from '../../utils/ventas.utils'
+
+interface PagoPosFormProps {
+  control: Control<VentaMostradorFormValues>
+  total: number
+}
+
+const METODOS: { value: (typeof METODOS_PAGO)[number]; label: string }[] = [
+  { value: 'EFECTIVO', label: 'Efectivo' },
+  { value: 'YAPE', label: 'Yape' },
+  { value: 'PLIN', label: 'Plin' },
+  { value: 'TARJETA', label: 'Tarjeta' },
+  { value: 'TRANSFERENCIA', label: 'Transferencia' },
+]
+
+export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
+  const { fields, append, remove } = useFieldArray({ control, name: 'pagos' })
+  const pagos = useWatch({ control, name: 'pagos' }) as PagoLinea[]
+  const efectivoRecibido = useWatch({ control, name: 'efectivoRecibido' }) as number
+  const [otroMonto, setOtroMonto] = useState('')
+
+  const { errors } = useFormState({ control, name: ['pagos', 'efectivoRecibido'] })
+
+  const addPago = () => {
+    const usados = new Set(pagos?.map((p) => p.medioPago) || [])
+    const disponible = METODOS.find((m) => !usados.has(m.value))
+    append({ medioPago: disponible ? disponible.value : 'EFECTIVO', monto: 0 })
+  }
+
+  const { sumaPagos, vuelto, saldo } = calcularResumenPagos(pagos || [], efectivoRecibido || 0, total)
+
+  const tieneEfectivo = pagos.some((p) => p.medioPago === 'EFECTIVO' && p.monto > 0)
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-bold text-gray-400 uppercase">Pagos</Label>
+        <button
+          type="button"
+          onClick={addPago}
+          className="flex items-center gap-1 text-[10px] font-bold text-primary hover:underline"
+        >
+          <Plus className="h-3 w-3" /> Dividir pago
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        {fields.map((field, i) => {
+          const errorMonto = errors?.pagos?.[i]?.monto?.message
+          return (
+            <div key={field.id} className="space-y-1">
+              <div className="flex gap-2">
+                <Controller
+                  control={control}
+                  name={`pagos.${i}.medioPago`}
+                  render={({ field: f }) => (
+                    <Select value={f.value} onValueChange={f.onChange}>
+                      <SelectTrigger className="h-8 text-xs w-32 shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {METODOS.map((m) => (
+                          <SelectItem key={m.value} value={m.value}>
+                            {m.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name={`pagos.${i}.monto`}
+                  render={({ field: f }) => (
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={f.value || ''}
+                      onChange={(e) => f.onChange(parseFloat(e.target.value) || 0)}
+                      className={cn('h-8 text-xs flex-1', errorMonto && 'border-red-400')}
+                    />
+                  )}
+                />
+                {fields.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => remove(i)}
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-input text-gray-400"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+              {errorMonto && <p className="text-[10px] text-red-500 pl-1">{errorMonto}</p>}
+            </div>
+          )
+        })}
+      </div>
+
+      {tieneEfectivo && (
+        <div className="p-3 bg-gray-50 border rounded-xl space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-[10px] font-bold text-gray-400 uppercase">Efectivo recibido</Label>
+            <span className="text-xs font-bold text-primary">{formatCurrency(efectivoRecibido)}</span>
+          </div>
+
+          <Controller
+            control={control}
+            name="efectivoRecibido"
+            render={({ field: f }) => {
+              const agregarOtro = () => {
+                const parsed = parseFloat(otroMonto)
+                if (!isNaN(parsed) && parsed > 0) {
+                  f.onChange((f.value || 0) + parsed)
+                  setOtroMonto('')
+                }
+              }
+              return (
+                <div className="space-y-2">
+                  <div className="flex gap-1.5 flex-wrap">
+                    {DENOMINACIONES_EFECTIVO.map((monto) => (
+                      <button
+                        key={monto}
+                        type="button"
+                        onClick={() => f.onChange((f.value || 0) + monto)}
+                        className="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-white hover:bg-gray-100 transition-colors"
+                      >
+                        S/{monto}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => f.onChange(0)}
+                      className="px-2.5 py-1 rounded-lg border border-rose-200 text-[10px] font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                    >
+                      Limpiar
+                    </button>
+                  </div>
+                  <div className="flex gap-1.5 items-center">
+                    <Input
+                      type="number"
+                      placeholder="Otro monto"
+                      value={otroMonto}
+                      onChange={(e) => setOtroMonto(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          agregarOtro()
+                        }
+                      }}
+                      className="h-7 w-24 text-[10px] px-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={agregarOtro}
+                      className="px-2.5 py-1 rounded-lg border text-[10px] font-bold text-primary hover:bg-primary/5 transition-colors"
+                    >
+                      Agregar
+                    </button>
+                  </div>
+                </div>
+              )
+            }}
+          />
+
+          {vuelto > 0 && (
+            <div className="flex items-center justify-between pt-2 border-t">
+              <span className="text-[10px] font-bold text-green-600 uppercase">Vuelto</span>
+              <span className="text-sm font-black text-green-600">{formatCurrency(vuelto)}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {sumaPagos > 0 && Math.abs(sumaPagos - total) > 0.01 && (
+        <p className="text-[10px] font-bold text-amber-600 text-center">
+          {sumaPagos < total ? `Falta cobrar ${formatCurrency(saldo)}` : `Sobra ${formatCurrency(sumaPagos - total)}`}
+        </p>
+      )}
+    </div>
+  )
+}
