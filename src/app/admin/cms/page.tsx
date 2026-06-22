@@ -114,7 +114,7 @@ export default function CmsDashboardPage() {
       alert: (pendientesData?.totalElements ?? 0) > 0,
     },
     {
-      label: 'FAQs publicadas',
+      label: 'Preguntas publicadas',
       value: faqsData?.filter((f) => f.visible)?.length ?? '—',
       icon: <HelpCircle className="h-4 w-4 text-brand-menta" />,
       bg: 'bg-brand-menta/10',
@@ -154,7 +154,7 @@ export default function CmsDashboardPage() {
     {
       title: 'Preguntas Frecuentes',
       description:
-        'Crea y ordena las FAQs que se muestran en el sitio público.',
+        'Crea y ordena las preguntas frecuentes que se muestran en el sitio público.',
       href: '/admin/cms/faq',
       icon: <HelpCircle className="h-5 w-5 text-brand-menta" />,
       color: 'bg-brand-menta/10',
@@ -254,7 +254,7 @@ export default function CmsDashboardPage() {
           {[
             { label: 'Nuevo banner', href: '/admin/cms/banners' },
             { label: 'Aprobar reseñas', href: '/admin/cms/resenas' },
-            { label: 'Crear FAQ', href: '/admin/cms/faq' },
+            { label: 'Crear pregunta frecuente', href: '/admin/cms/faq' },
             { label: 'Actualizar legal', href: '/admin/cms/legal' },
             { label: 'Subir imágenes', href: '/admin/cms/galeria' },
             {

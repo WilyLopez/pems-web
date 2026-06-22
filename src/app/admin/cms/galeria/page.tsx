@@ -1,12 +1,11 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { Upload, Star, Trash2, Image as ImageIcon, X } from 'lucide-react'
+import { useState } from 'react'
+import { Upload, Star, Image as ImageIcon } from 'lucide-react'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/common/Emptystate'
 import { ErrorState } from '@/components/common/Errorstate'
@@ -16,187 +15,11 @@ import {
   useSubirImagen,
   useDestacarImagen,
   useEliminarImagen,
-} from '@/hooks/useGaleria'
+} from '@/features/admin/cms/galeria/hooks/useGaleria'
 import { ImagenGaleria } from '@/types/galeria.types'
-
-function formatBytes(bytes?: number): string {
-  if (!bytes) return ''
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-function ImageCard({
-  imagen,
-  onDestacar,
-  onEliminar,
-}: {
-  imagen: ImagenGaleria
-  onDestacar: () => void
-  onEliminar: () => void
-}) {
-  const [hover, setHover] = useState(false)
-
-  return (
-    <div
-      className="relative group rounded-xl overflow-hidden border border-border/60 bg-muted aspect-square"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={imagen.url}
-        alt={imagen.titulo ?? 'Imagen galería'}
-        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none'
-        }}
-      />
-
-      {/* Overlay */}
-      <div
-        className={`absolute inset-0 bg-black/50 transition-opacity duration-200 ${hover ? 'opacity-100' : 'opacity-0'} flex flex-col justify-between p-2`}
-      >
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={onEliminar}
-            className="w-7 h-7 rounded-full bg-white/20 hover:bg-destructive flex items-center justify-center backdrop-blur-sm transition-colors"
-            title="Eliminar"
-          >
-            <Trash2 className="h-3.5 w-3.5 text-white" />
-          </button>
-        </div>
-        <div className="space-y-1">
-          {imagen.titulo && (
-            <p className="text-white text-xs font-medium truncate">
-              {imagen.titulo}
-            </p>
-          )}
-          <div className="flex items-center justify-between gap-1">
-            <span className="text-white/70 text-xs">
-              {formatBytes(imagen.tamanioBytes)}
-            </span>
-            <button
-              type="button"
-              onClick={onDestacar}
-              className={`w-6 h-6 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors ${
-                imagen.destacada
-                  ? 'bg-amber-400 hover:bg-amber-500'
-                  : 'bg-white/20 hover:bg-amber-400'
-              }`}
-              title={imagen.destacada ? 'Quitar destacado' : 'Destacar'}
-            >
-              <Star
-                className={`h-3 w-3 ${imagen.destacada ? 'text-white fill-white' : 'text-white'}`}
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Badge destacada siempre visible */}
-      {imagen.destacada && !hover && (
-        <div className="absolute top-1.5 right-1.5">
-          <div className="w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center shadow">
-            <Star className="h-3 w-3 text-white fill-white" />
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── Drop zone ─────────────────────────────────────────────────────────────────
-
-function DropZone({ onFiles }: { onFiles: (files: File[]) => void }) {
-  const [dragOver, setDragOver] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setDragOver(false)
-    const files = Array.from(e.dataTransfer.files).filter((f) =>
-      f.type.startsWith('image/')
-    )
-    if (files.length) onFiles(files)
-  }
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? [])
-    if (files.length) onFiles(files)
-    if (inputRef.current) inputRef.current.value = ''
-  }
-
-  return (
-    <div
-      onDragOver={(e) => {
-        e.preventDefault()
-        setDragOver(true)
-      }}
-      onDragLeave={() => setDragOver(false)}
-      onDrop={handleDrop}
-      onClick={() => inputRef.current?.click()}
-      className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 cursor-pointer transition-colors ${
-        dragOver
-          ? 'border-brand-azul bg-brand-azul/5'
-          : 'border-muted-foreground/30 hover:border-brand-azul hover:bg-muted/50'
-      }`}
-    >
-      <div className="w-12 h-12 rounded-full bg-brand-azul/10 flex items-center justify-center">
-        <Upload className="h-6 w-6 text-brand-azul" />
-      </div>
-      <div className="text-center">
-        <p className="text-sm font-medium">
-          Arrastra imágenes aquí o haz clic para seleccionar
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          PNG, JPG, WebP · Múltiples archivos permitidos
-        </p>
-      </div>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        className="hidden"
-        onChange={handleChange}
-      />
-    </div>
-  )
-}
-
-// ── Cola de subida ────────────────────────────────────────────────────────────
-
-function UploadQueue({
-  files,
-  onRemove,
-}: {
-  files: File[]
-  onRemove: (index: number) => void
-}) {
-  if (files.length === 0) return null
-  return (
-    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-      {files.map((f, i) => (
-        <div
-          key={i}
-          className="relative rounded-lg border border-brand-azul/30 bg-brand-azul/5 p-2 flex items-center gap-2"
-        >
-          <ImageIcon className="h-4 w-4 text-brand-azul shrink-0" />
-          <span className="text-xs truncate flex-1">{f.name}</span>
-          <button
-            type="button"
-            onClick={() => onRemove(i)}
-            className="w-4 h-4 rounded-full hover:bg-muted flex items-center justify-center shrink-0"
-          >
-            <X className="h-3 w-3" />
-          </button>
-        </div>
-      ))}
-    </div>
-  )
-}
+import { ImageCard } from '@/features/admin/cms/galeria/components/ImageCard'
+import { DropZone } from '@/features/admin/cms/galeria/components/DropZone'
+import { UploadQueue } from '@/features/admin/cms/galeria/components/UploadQueue'
 
 // ── Página ────────────────────────────────────────────────────────────────────
 

@@ -8,6 +8,7 @@ import {
   Pencil, Globe, Eye, EyeOff, Search, X,
   ChevronLeft, ChevronRight, ImageIcon,
 } from 'lucide-react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
@@ -257,13 +258,38 @@ function ContenidoRow({
 // ── Página ────────────────────────────────────────────────────────────────────
 
 export default function ContenidoWebPage() {
-  const [seccionId, setSeccionId]     = useState<string | undefined>(undefined)
-  const [search, setSearch]           = useState('')
-  const [page, setPage]               = useState(0)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const seccionId = searchParams.get('seccion') || undefined
+  const page = Number(searchParams.get('page')) || 0
+
+  const [search, setSearch] = useState(searchParams.get('search') || '')
   const [editTarget, setEditTarget]   = useState<ContenidoWeb | null>(null)
   const [togglingId, setTogglingId]   = useState<number | null>(null)
 
   const claveBusqueda = useDebounce(search.trim() || undefined, 350)
+
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '')
+  }, [searchParams])
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    const currentSearch = searchParams.get('search') || ''
+    const targetSearch = claveBusqueda || ''
+
+    if (currentSearch !== targetSearch) {
+      if (targetSearch) {
+        params.set('search', targetSearch)
+      } else {
+        params.delete('search')
+      }
+      params.delete('page')
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+    }
+  }, [claveBusqueda, pathname, router, searchParams])
 
   const {
     data: secciones = [], isLoading: loadingSecciones,
@@ -282,13 +308,28 @@ export default function ContenidoWebPage() {
   const total      = paged?.totalElements ?? 0
 
   function handleSeccionChange(codigo: string | undefined) {
-    setSeccionId(codigo)
-    setPage(0)
+    const params = new URLSearchParams(searchParams.toString())
+    if (codigo) {
+      params.set('seccion', codigo)
+    } else {
+      params.delete('seccion')
+    }
+    params.delete('page')
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   function handleSearch(value: string) {
     setSearch(value)
-    setPage(0)
+  }
+
+  function handlePageChange(newPage: number) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (newPage > 0) {
+      params.set('page', String(newPage))
+    } else {
+      params.delete('page')
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   function handleEdit(payload: ActualizarContenidoWebPayload) {
@@ -422,7 +463,7 @@ export default function ContenidoWebPage() {
                     <Button
                       size="sm" variant="outline"
                       disabled={page === 0}
-                      onClick={() => setPage((p) => p - 1)}
+                      onClick={() => handlePageChange(page - 1)}
                       className="h-7 w-7 p-0"
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -430,7 +471,7 @@ export default function ContenidoWebPage() {
                     <Button
                       size="sm" variant="outline"
                       disabled={page >= totalPages - 1}
-                      onClick={() => setPage((p) => p + 1)}
+                      onClick={() => handlePageChange(page + 1)}
                       className="h-7 w-7 p-0"
                     >
                       <ChevronRight className="h-4 w-4" />

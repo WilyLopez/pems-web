@@ -40,7 +40,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/common/Errorstate'
 import {
   useConfiguracionAdmin,
-  useActualizarConfiguracion,
+  useActualizarConfiguracionPublica,
 } from '@/hooks/useConfiguracionPublica'
 import { galeriaService } from '@/services/galeria.service'
 import { ActualizarConfiguracionPayload } from '@/types/configuracion-publica.types'
@@ -521,7 +521,7 @@ export default function ConfiguracionPublicaPage() {
   const [activeSection, setActiveSection] = useState<SectionId>('negocio')
 
   const { data: config, isLoading, isError, refetch } = useConfiguracionAdmin()
-  const actualizar = useActualizarConfiguracion()
+  const actualizar = useActualizarConfiguracionPublica()
 
   const { register, handleSubmit, reset, control, formState: { errors, isDirty } } = useForm<FormValues>({
     resolver: zodResolver(schema),
