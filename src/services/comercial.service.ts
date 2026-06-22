@@ -56,6 +56,10 @@ export const comercialService = {
       const { data } = await api.get<ApiResponse<PaqueteEvento[]>>('/paquetes/admin')
       return data.data
     },
+    obtener: async (id: number): Promise<PaqueteEvento> => {
+      const { data } = await api.get<ApiResponse<PaqueteEvento>>(`/paquetes/${id}`)
+      return data.data
+    },
     crear: async (payload: CrearPaquetePayload): Promise<PaqueteEvento> => {
       const { data } = await api.post<ApiResponse<PaqueteEvento>>('/paquetes', payload)
       return data.data

@@ -6,7 +6,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { useAuth } from '@/hooks/useAuth'
-import { useCaja, useCajaMutations, useMovimientosCaja } from '@/hooks/useFinanzas'
+import {
+  useCaja,
+  useCajaMutations,
+  useMovimientosCaja,
+  abrirCajaSchema,
+  cerrarCajaSchema,
+  movimientoCajaSchema,
+} from '@/features/admin/finance'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -19,25 +26,10 @@ import {
 } from '@/components/ui/Dialog'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { TipoMovimientoCaja } from '@/types/finanzas.types'
 
-const schemaAbrir = z.object({
-  saldoInicial:  z.coerce.number().min(0, 'El saldo inicial no puede ser negativo'),
-  observaciones: z.string().optional(),
-})
-const schemaCerrar = z.object({
-  saldoFinal:    z.coerce.number().min(0, 'El saldo final no puede ser negativo'),
-  observaciones: z.string().optional(),
-})
-const schemaMovimiento = z.object({
-  tipo:      z.enum(['INGRESO', 'EGRESO'], 'Selecciona tipo'),
-  concepto:  z.string().min(2, 'El concepto es obligatorio'),
-  monto:     z.coerce.number().positive('El monto debe ser mayor a 0'),
-  medioPago: z.string().optional(),
-})
-type AbrirForm       = z.infer<typeof schemaAbrir>
-type CerrarForm      = z.infer<typeof schemaCerrar>
-type MovimientoForm  = z.infer<typeof schemaMovimiento>
+type AbrirForm       = z.infer<typeof abrirCajaSchema>
+type CerrarForm      = z.infer<typeof cerrarCajaSchema>
+type MovimientoForm  = z.infer<typeof movimientoCajaSchema>
 
 export default function CajaPage() {
   const { idSede } = useAuth()
@@ -52,9 +44,9 @@ export default function CajaPage() {
   const { data: movimientos = [] } = useMovimientosCaja(caja?.id)
   const { abrir, cerrar, registrarMovimiento } = useCajaMutations()
 
-  const formAbrir = useForm<AbrirForm>({ resolver: zodResolver(schemaAbrir), defaultValues: { saldoInicial: 0 } })
-  const formCerrar = useForm<CerrarForm>({ resolver: zodResolver(schemaCerrar), defaultValues: { saldoFinal: 0 } })
-  const formMov    = useForm<MovimientoForm>({ resolver: zodResolver(schemaMovimiento) })
+  const formAbrir = useForm<AbrirForm>({ resolver: zodResolver(abrirCajaSchema), defaultValues: { saldoInicial: 0 } })
+  const formCerrar = useForm<CerrarForm>({ resolver: zodResolver(cerrarCajaSchema), defaultValues: { saldoFinal: 0 } })
+  const formMov    = useForm<MovimientoForm>({ resolver: zodResolver(movimientoCajaSchema) })
 
   function onAbrir(v: AbrirForm) {
     if (!idSede) return

@@ -1,6 +1,6 @@
 'use client'
 
-import { TiposEgresoManager } from '@/components/admin/finanzas/TiposEgresoManager'
+import { TiposEgresoManager } from '@/features/admin/finance'
 import { PageHeader } from '@/components/common/PageHeader'
 
 export default function TiposEgresoPage() {

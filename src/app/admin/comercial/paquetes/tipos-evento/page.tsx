@@ -1,10 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@/lib/resolver'
-import { z } from 'zod'
-import { Plus, Pencil, Trash2, Tag } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, Tag, Pencil, Trash2 } from 'lucide-react'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
@@ -13,142 +10,11 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/common/Emptystate'
 import { ErrorState } from '@/components/common/Errorstate'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/Dialog'
-import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/Textarea'
-import { Label } from '@/components/ui/Label'
 import { QuickToggle } from '@/components/admin/comercial/shared/QuickToggle'
-import { IconPicker, DynamicIcon } from '@/components/admin/comercial/shared/IconPicker'
-import { useTiposEventoAdmin, useTipoEventoMutations } from '@/hooks/useComercial'
+import { DynamicIcon } from '@/components/admin/comercial/shared/IconPicker'
+import { useTiposEventoAdmin, useTipoEventoMutations } from '@/features/admin/comercial/tipos-evento/hooks/useTiposEvento'
+import { TipoEventoFormDialog } from '@/features/admin/comercial/tipos-evento/components/TipoEventoFormDialog'
 import { TipoEvento } from '@/types/comercial.types'
-
-const schema = z.object({
-  nombre:      z.string().min(1, 'Requerido').max(80),
-  descripcion: z.string().max(200).optional(),
-  icono:       z.string().max(50).optional(),
-  orden:       z.coerce.number().min(0).default(0),
-  activo:      z.boolean().default(true),
-})
-type FormValues = z.infer<typeof schema>
-
-function TipoEventoFormDialog({
-  open, onOpenChange, tipoEvento,
-}: {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  tipoEvento: TipoEvento | null
-}) {
-  const { crear, actualizar } = useTipoEventoMutations()
-  const isEditing = !!tipoEvento
-
-  const { register, handleSubmit, reset, watch, control, formState: { errors, isSubmitting } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: { nombre: '', descripcion: '', icono: '', orden: 0, activo: true },
-  })
-
-  useEffect(() => {
-    if (open) {
-      if (tipoEvento) {
-        reset({
-          nombre: tipoEvento.nombre,
-          descripcion: tipoEvento.descripcion ?? '',
-          icono: tipoEvento.icono ?? '',
-          orden: tipoEvento.orden,
-          activo: tipoEvento.activo,
-        })
-      } else {
-        reset({ nombre: '', descripcion: '', icono: '', orden: 0, activo: true })
-      }
-    }
-  }, [open, tipoEvento, reset])
-
-  const nombre = watch('nombre')
-
-  async function onSubmit(data: FormValues) {
-    const payload = {
-      nombre: data.nombre,
-      descripcion: data.descripcion || undefined,
-      icono: data.icono || undefined,
-      orden: data.orden,
-      activo: data.activo,
-    }
-    try {
-      if (isEditing && tipoEvento) {
-        await actualizar.mutateAsync({ codigo: tipoEvento.codigo, payload })
-      } else {
-        await crear.mutateAsync(payload)
-      }
-      onOpenChange(false)
-    } catch {
-      // error handled by mutation
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v) }}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar tipo de evento' : 'Nuevo tipo de evento'}</DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-1">
-            <div className="flex justify-between">
-              <Label>Nombre *</Label>
-              <span className="text-xs text-muted-foreground">{nombre?.length ?? 0}/80</span>
-            </div>
-            <Input {...register('nombre')} placeholder="Ej: Cumpleaños" />
-            {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
-          </div>
-
-          <div className="space-y-1">
-            <Label>Descripcion</Label>
-            <Textarea rows={2} {...register('descripcion')} className="resize-none"
-              placeholder="Descripcion opcional del tipo de evento" />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1">
-              <Label>Icono</Label>
-              <Controller
-                control={control}
-                name="icono"
-                render={({ field }) => (
-                  <IconPicker value={field.value ?? ''} onChange={field.onChange} />
-                )}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Orden</Label>
-              <Input type="number" {...register('orden')} />
-            </div>
-          </div>
-
-          {isEditing && (
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" {...register('activo')} className="w-4 h-4 rounded" />
-              <span className="text-sm">Activo</span>
-            </label>
-          )}
-
-          <div className="flex justify-end gap-2 pt-2 border-t">
-            <Button type="button" variant="outline" onClick={() => { reset(); onOpenChange(false) }}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-brand-azul text-white">
-              {isSubmitting ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear tipo'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
 
 export default function TiposEventoPage() {
   const [formOpen, setFormOpen]     = useState(false)
@@ -164,12 +30,13 @@ export default function TiposEventoPage() {
     <div className="space-y-4">
       <Breadcrumbs items={[
         { label: 'Comercial', href: '/admin/comercial' },
+        { label: 'Paquetes', href: '/admin/comercial/paquetes' },
         { label: 'Tipos de Evento' },
       ]} />
 
       <PageHeader
         title="Tipos de Evento"
-        description="Catalogo de tipos de evento para clasificar los paquetes"
+        description="Catálogo de tipos de evento para clasificar los paquetes"
         actions={
           <Button size="sm" className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
             onClick={() => { setEditTarget(null); setFormOpen(true) }}>
@@ -271,10 +138,10 @@ export default function TiposEventoPage() {
         open={deleteCodigo !== null}
         onOpenChange={(v) => !v && setDeleteCodigo(null)}
         title="Eliminar tipo de evento"
-        description="Esta accion no se puede deshacer. No se podra eliminar si hay paquetes asociados."
+        description="Esta acción no se puede deshacer. No se podrá eliminar si hay paquetes asociados."
         confirmLabel="Eliminar"
         onConfirm={() => {
-          if (deleteCodigo) eliminar.mutate(deleteCodigo, { onSettled: () => setDeleteCodigo(null) })
+          if (deleteCodigo !== null) eliminar.mutate(deleteCodigo, { onSettled: () => setDeleteCodigo(null) })
         }}
         loading={eliminar.isPending}
       />
