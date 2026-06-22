@@ -1,31 +1,33 @@
-'use client'
-
 import { useState } from 'react'
 import { format, addDays } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { AlertTriangle, Download, ChevronLeft } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from '@/components/ui/Dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog'
 import { Textarea } from '@/components/ui/Textarea'
 import { cn, formatDate, formatCurrency } from '@/lib/utils'
-import { Reserva } from '@/types/reserva.types'
-import { EstadoBadge } from '@/components/cliente/EstadoBadge'
-import {
-  useReprogramarReservaCliente,
-  useCancelarReservaCliente,
-} from '@/hooks/useReservas'
+import { Reserva } from '@/features/cliente/shared/types'
+import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
 
-interface ReservaDetalleModalProps {
+interface ReservaDetalleDialogProps {
   reserva: Reserva | null
   open: boolean
   onClose: () => void
+  onReprogramar?: (params: { id: number; nuevaFecha: string }) => Promise<any>
+  isReprogramando?: boolean
+  onCancelar?: (params: { id: number; motivo: string }) => Promise<any>
+  isCancelando?: boolean
 }
 
-export function ReservaDetalleModal({ reserva, open, onClose }: ReservaDetalleModalProps) {
+export function ReservaDetalleDialog({
+  reserva,
+  open,
+  onClose,
+  onReprogramar,
+  isReprogramando = false,
+  onCancelar,
+  isCancelando = false,
+}: ReservaDetalleDialogProps) {
   const [vista, setVista] = useState<'detalle' | 'reprogramar' | 'cancelar'>('detalle')
 
   function handleClose() {
@@ -35,6 +37,9 @@ export function ReservaDetalleModal({ reserva, open, onClose }: ReservaDetalleMo
 
   if (!reserva) return null
 
+  const tieneReprogramar = !!onReprogramar
+  const tieneCancelar = !!onCancelar
+
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
       <DialogContent className="max-w-md w-[calc(100vw-2rem)] sm:w-full rounded-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
@@ -43,20 +48,26 @@ export function ReservaDetalleModal({ reserva, open, onClose }: ReservaDetalleMo
             reserva={reserva}
             onReprogramar={() => setVista('reprogramar')}
             onCancelar={() => setVista('cancelar')}
+            puedeReprogramarAccion={tieneReprogramar}
+            puedeCancelarAccion={tieneCancelar}
           />
         )}
-        {vista === 'reprogramar' && (
+        {vista === 'reprogramar' && onReprogramar && (
           <ReprogramarReserva
             reserva={reserva}
             onVolver={() => setVista('detalle')}
             onExito={() => { setVista('detalle'); handleClose() }}
+            onReprogramar={onReprogramar}
+            isReprogramando={isReprogramando}
           />
         )}
-        {vista === 'cancelar' && (
+        {vista === 'cancelar' && onCancelar && (
           <CancelarReserva
             reserva={reserva}
             onVolver={() => setVista('detalle')}
             onExito={() => { setVista('detalle'); handleClose() }}
+            onCancelar={onCancelar}
+            isCancelando={isCancelando}
           />
         )}
       </DialogContent>
@@ -77,16 +88,24 @@ interface DetalleProps {
   reserva: Reserva
   onReprogramar: () => void
   onCancelar: () => void
+  puedeReprogramarAccion: boolean
+  puedeCancelarAccion: boolean
 }
 
-function DetalleReserva({ reserva, onReprogramar, onCancelar }: DetalleProps) {
+function DetalleReserva({
+  reserva,
+  onReprogramar,
+  onCancelar,
+  puedeReprogramarAccion,
+  puedeCancelarAccion,
+}: DetalleProps) {
   const puedeReprogramar =
+    puedeReprogramarAccion &&
     (reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA') &&
     reserva.vecesReprogramada === 0
   const puedeCancelar =
-    reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA'
-
-  const turnoLabel = null
+    puedeCancelarAccion &&
+    (reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA')
 
   return (
     <div className="flex flex-col">
@@ -113,7 +132,6 @@ function DetalleReserva({ reserva, onReprogramar, onCancelar }: DetalleProps) {
           label="Fecha"
           valor={formatDate(reserva.fechaEvento, "d 'de' MMMM yyyy")}
         />
-        {turnoLabel && <FilaDetalle label="Turno" valor={turnoLabel} />}
         <FilaDetalle
           label="Niño"
           valor={`${reserva.nombreNino} · ${reserva.edadNino} años`}
@@ -187,6 +205,8 @@ interface SubVistaProps {
   reserva: Reserva
   onVolver: () => void
   onExito: () => void
+  onReprogramar: (params: { id: number; nuevaFecha: string }) => Promise<any>
+  isReprogramando: boolean
 }
 
 function SelectorFechaCompacto({
@@ -209,6 +229,7 @@ function SelectorFechaCompacto({
           return (
             <button
               key={fechaStr}
+              type="button"
               onClick={() => onSelect(fechaStr)}
               className={cn(
                 'flex flex-col items-center min-w-[52px] rounded-xl p-2 border snap-start transition-all shrink-0',
@@ -230,25 +251,29 @@ function SelectorFechaCompacto({
   )
 }
 
-function ReprogramarReserva({ reserva, onVolver, onExito }: SubVistaProps) {
+function ReprogramarReserva({
+  reserva,
+  onVolver,
+  onExito,
+  onReprogramar,
+  isReprogramando,
+}: SubVistaProps) {
   const [nuevaFecha, setNuevaFecha] = useState<string | null>(null)
-  const reprogramar = useReprogramarReservaCliente()
 
   async function confirmar() {
     if (!nuevaFecha) return
     try {
-      await reprogramar.mutateAsync({ id: reserva.id, nuevaFecha })
-      toast.success('Reserva reprogramada exitosamente.')
+      await onReprogramar({ id: reserva.id, nuevaFecha })
       onExito()
     } catch {
-      // error handled in hook
+      // toast is managed inside the hook
     }
   }
 
   return (
     <div className="flex flex-col">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center gap-2">
-        <button onClick={onVolver} className="text-gray-400 hover:text-gray-600">
+        <button onClick={onVolver} className="text-gray-400 hover:text-gray-600" type="button">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <DialogTitle className="text-lg font-black text-gray-900">
@@ -281,39 +306,53 @@ function ReprogramarReserva({ reserva, onVolver, onExito }: SubVistaProps) {
         <button
           onClick={onVolver}
           className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700"
+          type="button"
         >
           Volver
         </button>
         <button
           onClick={confirmar}
-          disabled={!nuevaFecha || reprogramar.isPending}
-          className="py-2.5 rounded-xl bg-brand-azul text-white text-sm font-bold disabled:opacity-50"
+          disabled={!nuevaFecha || isReprogramando}
+          className="py-2.5 rounded-xl bg-brand-azul text-white text-sm font-bold disabled:opacity-50 hover:bg-brand-azul/90 transition-colors"
+          type="button"
         >
-          {reprogramar.isPending ? 'Reprogramando...' : 'Confirmar'}
+          {isReprogramando ? 'Reprogramando...' : 'Confirmar'}
         </button>
       </div>
     </div>
   )
 }
 
-function CancelarReserva({ reserva, onVolver, onExito }: SubVistaProps) {
+interface CancelarProps {
+  reserva: Reserva
+  onVolver: () => void
+  onExito: () => void
+  onCancelar: (params: { id: number; motivo: string }) => Promise<any>
+  isCancelando: boolean
+}
+
+function CancelarReserva({
+  reserva,
+  onVolver,
+  onExito,
+  onCancelar,
+  isCancelando,
+}: CancelarProps) {
   const [motivo, setMotivo] = useState('')
-  const cancelar = useCancelarReservaCliente()
 
   async function confirmar() {
     try {
-      await cancelar.mutateAsync({ id: reserva.id, motivo })
-      toast.success('Reserva cancelada.')
+      await onCancelar({ id: reserva.id, motivo: motivo.trim() || (null as any) })
       onExito()
     } catch {
-      // error handled in hook
+      // toast is managed inside the hook
     }
   }
 
   return (
     <div className="flex flex-col">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center gap-2">
-        <button onClick={onVolver} className="text-gray-400 hover:text-gray-600">
+        <button onClick={onVolver} className="text-gray-400 hover:text-gray-600" type="button">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <DialogTitle className="text-lg font-black text-gray-900">
@@ -357,15 +396,17 @@ function CancelarReserva({ reserva, onVolver, onExito }: SubVistaProps) {
         <button
           onClick={onVolver}
           className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700"
+          type="button"
         >
           No cancelar
         </button>
         <button
           onClick={confirmar}
-          disabled={cancelar.isPending}
-          className="py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-50 hover:bg-red-700"
+          disabled={isCancelando}
+          className="py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-50 hover:bg-red-700 transition-colors"
+          type="button"
         >
-          {cancelar.isPending ? 'Cancelando...' : 'Sí, cancelar'}
+          {isCancelando ? 'Cancelando...' : 'Sí, cancelar'}
         </button>
       </div>
     </div>

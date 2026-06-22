@@ -1,9 +1,7 @@
-'use client'
-
 import { QrCode, AlertTriangle } from 'lucide-react'
 import { cn, formatDate, formatCurrency } from '@/lib/utils'
-import { Reserva } from '@/types/reserva.types'
-import { EstadoBadge } from '@/components/cliente/EstadoBadge'
+import { Reserva } from '@/features/cliente/shared/types'
+import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
 
 interface ReservaCardProps {
   reserva: Reserva

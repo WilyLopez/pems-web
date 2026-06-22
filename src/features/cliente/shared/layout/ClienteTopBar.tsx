@@ -17,7 +17,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
 import { clienteService } from '@/services/cliente.service'
-import { NotificacionesPanel } from '@/components/cliente/NotificacionesPanel'
+import { NotificacionesPanel } from '@/features/cliente/shared/components/NotificacionesPanel'
+import { clienteKeys } from '@/features/cliente/shared/queryKeys'
 
 const BREADCRUMB_MAP: Record<string, string> = {
   cliente:          'Inicio',
@@ -45,19 +46,20 @@ function getBreadcrumb(pathname: string): { label: string; href: string }[] {
 
 export function ClienteTopBar() {
   const pathname = usePathname()
-  const { nombre, correo, idUsuario, logout } = useAuth()
+  const { nombre, correo, clientePerfilId, logout } = useAuth()
   const breadcrumb = getBreadcrumb(pathname)
 
   const { data: perfil } = useQuery({
-    queryKey: ['cliente-perfil', idUsuario],
-    queryFn: () => clienteService.obtener(idUsuario!),
-    enabled: !!idUsuario,
+    queryKey: clienteKeys.perfil(clientePerfilId),
+    queryFn: () => clienteService.obtener(clientePerfilId!),
+    enabled: !!clientePerfilId,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
 
-  const fotoUrl = fileUrl(undefined)
-  const nombreCorto = nombre?.split(' ')[0] ?? ''
+  const fotoUrl = fileUrl(perfil?.fotoPerfilPath)
+  const nombreMostrar = perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
+  const nombreCorto = perfil?.nombres?.split(' ')[0] || nombre?.split(' ')[0] || correo?.split('@')[0] || ''
 
   return (
     <header className="sticky top-0 z-40 h-14 bg-white/95 backdrop-blur-sm border-b border-gray-100 flex items-center px-4 lg:px-6 gap-3">
@@ -105,12 +107,12 @@ export function ClienteTopBar() {
                 {fotoUrl && (
                   <AvatarImage
                     src={fotoUrl}
-                    alt={nombre ?? ''}
+                    alt={nombreMostrar}
                     className="object-cover"
                   />
                 )}
                 <AvatarFallback className="text-[11px] font-bold text-white bg-brand-rosa">
-                  {nombre ? getInitials(nombre) : 'C'}
+                  {nombreMostrar ? getInitials(nombreMostrar) : 'C'}
                 </AvatarFallback>
               </Avatar>
               <span className="hidden sm:block text-sm font-semibold text-gray-700 max-w-[110px] truncate">
@@ -128,16 +130,16 @@ export function ClienteTopBar() {
                 {fotoUrl && (
                   <AvatarImage
                     src={fotoUrl}
-                    alt={nombre ?? ''}
+                    alt={nombreMostrar}
                     className="object-cover"
                   />
                 )}
                 <AvatarFallback className="text-xs font-bold text-white bg-brand-rosa">
-                  {nombre ? getInitials(nombre) : 'C'}
+                  {nombreMostrar ? getInitials(nombreMostrar) : 'C'}
                 </AvatarFallback>
               </Avatar>
               <div className="overflow-hidden">
-                <p className="text-sm font-bold text-gray-900 truncate">{nombre}</p>
+                <p className="text-sm font-bold text-gray-900 truncate">{nombreMostrar}</p>
                 <p className="text-xs text-gray-400 truncate">{correo}</p>
               </div>
             </div>
