@@ -5,7 +5,9 @@ import {
   MetricasReserva,
   BuscarReservasParams,
   PageableResponse,
+  EstadoReservaInfo,
 } from '../types'
+import { downloadFile } from '@/utils/download.utils'
 
 export const reservasApi = {
   buscarAdmin: async (
@@ -32,6 +34,13 @@ export const reservasApi = {
     return data.data
   },
 
+  getEstados: async (): Promise<EstadoReservaInfo[]> => {
+    const { data } = await api.get<ApiResponse<EstadoReservaInfo[]>>(
+      '/reservas/catalogos/estados'
+    )
+    return data.data
+  },
+
   cancelar: async (id: number, motivo: string): Promise<Reserva> => {
     const { data } = await api.post<ApiResponse<Reserva>>(
       `/reservas/${id}/cancelar?motivo=${encodeURIComponent(motivo)}`
@@ -49,5 +58,13 @@ export const reservasApi = {
       `/reservas/${id}/confirmar-pago?medioPago=${medioPago}`
     )
     return data.data
+  },
+
+  descargarTicket: async (idReserva: number, numeroTicket: string) => {
+    return downloadFile(`/reservas/${idReserva}/ticket`, `ticket-${numeroTicket}.pdf`)
+  },
+
+  eliminar: async (id: number): Promise<void> => {
+    await api.delete(`/reservas/${id}`)
   },
 }

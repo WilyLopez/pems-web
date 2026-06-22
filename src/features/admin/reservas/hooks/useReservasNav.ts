@@ -80,6 +80,10 @@ export function useReservasNav() {
     updateParams({ modal: 'fidelizacion' })
   }, [updateParams])
 
+  const openEstados = useCallback(() => {
+    updateParams({ modal: 'estados' })
+  }, [updateParams])
+
   const closeAll = useCallback(() => {
     updateParams({ modal: null, actionId: null, drawerId: null })
   }, [updateParams])
@@ -103,6 +107,7 @@ export function useReservasNav() {
     openAction,
     openDrawer,
     openFidelizacion,
+    openEstados,
     closeAll,
   }
 }

@@ -73,6 +73,7 @@ export const ReservaDrawer = React.memo(({ reserva, onClose }: ReservaDrawerProp
                 estado={reserva.estado}
                 ingresado={reserva.ingresado}
                 esReprogramacion={reserva.esReprogramacion}
+                fechaEvento={reserva.fechaEvento}
               />
             </div>
           </div>
@@ -123,8 +124,28 @@ export const ReservaDrawer = React.memo(({ reserva, onClose }: ReservaDrawerProp
             <Row icon={User} label="Cliente" value={reserva.nombreCliente} />
             <Row icon={Mail} label="Correo" value={reserva.correoCliente} />
             <Row icon={User} label="Acompañante" value={reserva.nombreAcompanante} />
-            <Row icon={CalendarDays} label="Tipo de dia" value={reserva.tipoDia} />
-            <Row icon={Ticket} label="Canal" value={reserva.canalReserva} />
+            <Row
+              icon={CalendarDays}
+              label="Tipo de dia"
+              value={
+                reserva.tipoDia === 'FIN_SEMANA_FERIADO'
+                  ? 'Fin de Semana / Feriado'
+                  : reserva.tipoDia === 'SEMANA'
+                  ? 'Día de Semana'
+                  : reserva.tipoDia
+              }
+            />
+            <Row
+              icon={Ticket}
+              label="Canal"
+              value={
+                reserva.canalReserva === 'MOSTRADOR'
+                  ? 'Caja'
+                  : reserva.canalReserva === 'WEB'
+                  ? 'Web'
+                  : reserva.canalReserva
+              }
+            />
             {reserva.esReprogramacion && (
               <Row
                 icon={CalendarDays}

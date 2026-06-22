@@ -24,9 +24,7 @@ import {
   useRegistrarSaldo,
   useCancelarEvento,
 } from '@/hooks/useEventos'
-import { useResumenEvento } from '@/hooks/useFinanzas'
-import { GastosEventoPanel } from '@/components/admin/finanzas/GastosEventoPanel'
-import { PresupuestoEventoSection } from '@/components/admin/finanzas/PresupuestoEventoSection'
+import { useResumenEvento, GastosEventoPanel, PresupuestoEventoSection } from '@/features/admin/finance'
 import { ConfirmarEventoModal } from '@/components/admin/eventos/ConfirmarEventoModal'
 import { ContratoEventoTab } from '@/components/admin/contratos/ContratoEventoTab'
 import { calcularIndicadores } from '@/types/evento.types'

@@ -12,4 +12,8 @@ export const reservaHelpers = {
   needsYapeValidation: (reserva: Reserva) => {
     return reserva.estado === 'PENDIENTE' && reserva.medioPago === 'YAPE'
   },
+
+  needsCobro: (reserva: Reserva) => {
+    return reserva.ventaId === null && reserva.estado !== 'CANCELADA'
+  },
 }

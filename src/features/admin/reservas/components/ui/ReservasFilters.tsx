@@ -56,15 +56,15 @@ export const ReservasFilters = React.memo(({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-      <div className="relative flex-1 min-w-48 max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+    <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-3 flex-wrap items-center">
+      <div className="relative w-full sm:flex-1 min-w-[200px] sm:max-w-sm">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           placeholder="Ticket, niño, acompañante..."
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
-          className="pl-9 h-10 rounded-xl border-gray-200"
+          className="pl-10 pr-9 h-10 rounded-2xl border-gray-200 focus-visible:ring-brand-azul transition-all"
         />
         {localSearch && (
           <button
@@ -80,23 +80,23 @@ export const ReservasFilters = React.memo(({
         type="date"
         value={fecha}
         onChange={(e) => onFechaChange(e.target.value)}
-        className="h-10 rounded-xl border-gray-200 w-44"
+        className="h-10 rounded-2xl border-gray-200 w-full sm:w-44 focus-visible:ring-brand-azul transition-all"
       />
 
       <Select value={estado || 'todos'} onValueChange={(v) => onEstadoChange(v === 'todos' ? '' : v)}>
-        <SelectTrigger className="h-10 w-44 rounded-xl border-gray-200 text-sm">
+        <SelectTrigger className="h-10 w-full sm:w-44 rounded-2xl border-gray-200 text-sm focus-visible:ring-brand-azul transition-all">
           <SelectValue placeholder="Estado..." />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="rounded-2xl">
           {ESTADOS.map(({ value, label }) => (
-            <SelectItem key={value} value={value}>
+            <SelectItem key={value} value={value} className="rounded-xl">
               {label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 bg-gray-100/60 p-1 rounded-2xl border border-gray-100 w-full sm:w-auto">
         {(
           [
             { value: undefined, label: 'Todos' },
@@ -106,12 +106,13 @@ export const ReservasFilters = React.memo(({
         ).map(({ value, label }) => (
           <button
             key={String(value)}
+            type="button"
             onClick={() => onIngresadoChange(value)}
             className={cn(
-              'px-3 h-10 rounded-xl text-xs font-semibold border transition-all',
+              'flex-1 sm:flex-none px-3.5 h-8 rounded-xl text-xs font-bold transition-all duration-200',
               ingresado === value
-                ? 'bg-brand-azul text-white border-brand-azul'
-                : 'bg-white text-gray-500 border-gray-200 hover:border-brand-azul/40'
+                ? 'bg-brand-azul text-white shadow-sm'
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
             )}
           >
             {label}

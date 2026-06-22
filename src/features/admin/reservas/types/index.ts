@@ -5,9 +5,14 @@ export type EstadoReserva =
   | 'COMPLETADA'
   | 'CANCELADA'
 
+export interface EstadoReservaInfo {
+  nombre: string
+  descripcion: string
+}
+
 export interface Reserva {
   id: number
-  ventaId: number
+  ventaId: number | null
   idCliente: number
   idSede: number
   estado: EstadoReserva

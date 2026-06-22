@@ -20,7 +20,9 @@ import { CancelarDialog } from '../actions/CancelarDialog'
 import { IngresoDialog } from '../actions/IngresoDialog'
 import { ValidarPagoDialog } from '../actions/ValidarPagoDialog'
 import { FidelizacionConfigModal } from '../actions/FidelizacionConfigModal'
-import { Star } from 'lucide-react'
+import { EstadoReservaInfoModal } from '../actions/EstadoReservaInfoModal'
+import { EliminarDialog } from '../actions/EliminarDialog'
+import { Star, Info } from 'lucide-react'
 
 export const ReservasView = React.memo(() => {
   const { idSede } = useAuth()
@@ -43,6 +45,7 @@ export const ReservasView = React.memo(() => {
     openAction,
     openDrawer,
     openFidelizacion,
+    openEstados,
     closeAll,
   } = useReservasNav()
 
@@ -88,6 +91,15 @@ export const ReservasView = React.memo(() => {
         description="Gestion operativa de reservas y control de acceso al local"
         actions={
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openEstados}
+              className="rounded-xl gap-1.5 border-blue-200 hover:bg-blue-50 text-blue-700"
+            >
+              <Info className="h-4 w-4" />
+              Estados
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -154,10 +166,21 @@ export const ReservasView = React.memo(() => {
         numeroTicket={activeReserva?.numeroTicket}
       />
 
+      <EliminarDialog
+        open={modal === 'eliminar'}
+        onClose={closeAll}
+        reservaId={actionId ?? undefined}
+      />
+
       <FidelizacionConfigModal 
         open={modal === 'fidelizacion'}
         onClose={closeAll}
         idSede={idSede ?? undefined}
+      />
+
+      <EstadoReservaInfoModal 
+        open={modal === 'estados'}
+        onClose={closeAll}
       />
 
       <ReservaDrawer 
@@ -167,5 +190,6 @@ export const ReservasView = React.memo(() => {
     </div>
   )
 })
+
 
 ReservasView.displayName = 'ReservasView'

@@ -40,7 +40,11 @@ export const getColumns = ({ onView, onAction }: GetColumnsProps): ColumnDef<Res
           {formatDate(row.original.fechaEvento)}
         </span>
         <span className="text-[10px] text-gray-400 font-medium">
-          {row.original.tipoDia}
+          {row.original.tipoDia === 'FIN_SEMANA_FERIADO' 
+            ? 'Fin de Semana / Feriado' 
+            : row.original.tipoDia === 'SEMANA' 
+            ? 'Día de Semana' 
+            : row.original.tipoDia}
         </span>
       </div>
     ),
@@ -57,6 +61,7 @@ export const getColumns = ({ onView, onAction }: GetColumnsProps): ColumnDef<Res
         estado={row.original.estado} 
         ingresado={row.original.ingresado}
         esReprogramacion={row.original.esReprogramacion}
+        fechaEvento={row.original.fechaEvento}
       />
     ),
   },
@@ -86,8 +91,12 @@ export const getColumns = ({ onView, onAction }: GetColumnsProps): ColumnDef<Res
         <span className="text-sm text-gray-700 font-medium">
           {row.original.nombreCliente ?? '—'}
         </span>
-        <span className="text-[10px] text-gray-400">
-          {row.original.canalReserva}
+        <span className="text-[10px] text-gray-400 font-bold uppercase">
+          {row.original.canalReserva === 'MOSTRADOR' 
+            ? 'Caja' 
+            : row.original.canalReserva === 'WEB' 
+            ? 'Web' 
+            : row.original.canalReserva}
         </span>
       </div>
     ),
@@ -112,6 +121,11 @@ export const getColumns = ({ onView, onAction }: GetColumnsProps): ColumnDef<Res
   },
   {
     id: 'acciones',
+    header: () => (
+      <span className="text-xs font-bold text-gray-400 uppercase">
+        Acciones
+      </span>
+    ),
     cell: ({ row }) => (
       <RowActions 
         reserva={row.original} 
