@@ -1,5 +1,3 @@
-'use client'
-
 import { cn } from '@/lib/utils'
 
 const CONFIG: Record<string, { label: string; cls: string }> = {

@@ -2,14 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CalendarDays, PartyPopper, User } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, PartyPopper, Star, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
-  { href: '/cliente',              label: 'Inicio',    icon: LayoutDashboard, exact: true },
-  { href: '/cliente/mis-reservas', label: 'Reservas',  icon: CalendarDays },
-  { href: '/cliente/mis-eventos',  label: 'Eventos',   icon: PartyPopper },
-  { href: '/cliente/mi-cuenta',    label: 'Cuenta',    icon: User },
+  { href: '/cliente',              label: 'Inicio',     icon: LayoutDashboard, exact: true },
+  { href: '/cliente/mis-reservas', label: 'Reservas',   icon: CalendarDays },
+  { href: '/cliente/mis-eventos',  label: 'Eventos',    icon: PartyPopper },
+  { href: '/cliente/beneficios',   label: 'Beneficios', icon: Star },
+  { href: '/cliente/ayuda',        label: 'Ayuda',      icon: HelpCircle },
 ]
 
 export function ClienteBottomNav() {
@@ -20,7 +21,7 @@ export function ClienteBottomNav() {
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-area-pb">
-      <div className="grid grid-cols-4 h-16">
+      <div className="grid grid-cols-5 h-16">
         {navLinks.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact)
           return (

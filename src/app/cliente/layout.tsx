@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { ClienteSidebar } from '@/components/cliente/ClienteSidebar'
-import { ClienteBottomNav } from '@/components/cliente/ClienteBottomNav'
-import { ClienteTopBar } from '@/components/cliente/ClienteTopBar'
+import { ClienteSidebar } from '@/features/cliente/shared/layout/ClienteSidebar'
+import { ClienteBottomNav } from '@/features/cliente/shared/layout/ClienteBottomNav'
+import { ClienteTopBar } from '@/features/cliente/shared/layout/ClienteTopBar'
 
 export default async function ClienteLayout({
   children,

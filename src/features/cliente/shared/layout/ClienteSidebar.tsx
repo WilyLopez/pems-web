@@ -21,6 +21,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/Avatar'
 import { Separator } from '@/components/ui/Separator'
 import { cn, getInitials, fileUrl } from '@/lib/utils'
 import { clienteService } from '@/services/cliente.service'
+import { clienteKeys } from '@/features/cliente/shared/queryKeys'
 
 const WHATSAPP_URL = 'https://wa.me/51987654321'
 
@@ -30,21 +31,23 @@ const mainNav = [
   { href: '/cliente/mis-eventos',  label: 'Mis eventos',  icon: PartyPopper },
   { href: '/cliente/mi-cuenta',    label: 'Mi cuenta',    icon: User },
   { href: '/cliente/beneficios',   label: 'Beneficios',   icon: Star },
+  { href: '/cliente/ayuda',        label: 'Ayuda',        icon: HelpCircle },
 ]
 
 export function ClienteSidebar() {
   const pathname = usePathname()
-  const { nombre, correo, idUsuario, logout } = useAuth()
+  const { nombre, correo, clientePerfilId, logout } = useAuth()
 
   const { data: perfil } = useQuery({
-    queryKey: ['cliente-perfil', idUsuario],
-    queryFn: () => clienteService.obtener(idUsuario!),
-    enabled: !!idUsuario,
+    queryKey: clienteKeys.perfil(clientePerfilId),
+    queryFn: () => clienteService.obtener(clientePerfilId!),
+    enabled: !!clientePerfilId,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
 
-  const fotoUrl = fileUrl(undefined)
+  const fotoUrl = fileUrl(perfil?.fotoPerfilPath)
+  const nombreMostrar = perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
@@ -94,17 +97,7 @@ export function ClienteSidebar() {
           )
         })}
 
-        <a
-          href={WHATSAPP_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-150"
-        >
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-gray-400 group-hover:text-gray-600 group-hover:bg-gray-100 transition-colors">
-            <HelpCircle className="h-4 w-4" />
-          </div>
-          <span className="flex-1">Ayuda</span>
-        </a>
+
       </nav>
 
       <div className="px-3 pb-4">
@@ -132,29 +125,6 @@ export function ClienteSidebar() {
             Cerrar sesión
           </button>
         </div>
-      </div>
-
-      <div className="px-3 pb-3 border-t border-gray-100">
-        <Link
-          href="/cliente/mi-cuenta"
-          className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group mt-3"
-        >
-          <Avatar className="h-9 w-9 shrink-0">
-            {fotoUrl && (
-              <AvatarImage src={fotoUrl} alt={nombre ?? ''} className="object-cover" />
-            )}
-            <AvatarFallback className="text-xs bg-brand-rosa text-white font-bold">
-              {nombre ? getInitials(nombre) : 'C'}
-            </AvatarFallback>
-          </Avatar>
-          <div className="overflow-hidden flex-1">
-            <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-brand-azul transition-colors leading-tight">
-              {nombre}
-            </p>
-            <p className="text-xs text-gray-400 truncate leading-tight mt-0.5">{correo}</p>
-          </div>
-          <ChevronRight className="h-3.5 w-3.5 text-gray-300 shrink-0 group-hover:text-brand-azul transition-colors" />
-        </Link>
       </div>
 
       <div className="px-5 py-4 border-t border-gray-100 bg-gray-50/60">
