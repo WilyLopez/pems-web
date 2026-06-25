@@ -1,7 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useRef } from 'react'
 import {
   FileText,
   Upload,
@@ -13,40 +12,28 @@ import {
   XCircle,
   Archive,
   Loader2,
-  Sparkles,
 } from 'lucide-react'
+import { useState } from 'react'
 import {
   useContratoPorEvento,
   useGenerarContrato,
   useActualizarContrato,
   useFirmarContrato,
   useCambiarEstadoContrato,
-  useSubirContratoExterno,
-  CONTRATO_KEY,
-} from '@/hooks/useContratos'
+  useSubirDocumento,
+} from '@/features/admin/contratos/hooks/useContratos'
+import { contratosKeys } from '@/features/admin/contratos/shared/queryKeys'
+import { EstadoContrato } from '@/features/admin/contratos/types'
 import { ContratoEditor } from './ContratoEditor'
 import { ContratoDocumentos } from './ContratoDocumentos'
 import { ContratoTimeline } from './ContratoTimeline'
 import { ContratoFinanzas } from './ContratoFinanzas'
 import { ContratoBadgeEstado } from './ContratoBadgeEstado'
-import {
-  EstadoContrato,
-  PLANTILLAS,
-  PlantillaId,
-  aplicarPlantilla,
-  Contrato,
-} from '@/types/contrato.types'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
+import { useQueryClient } from '@tanstack/react-query'
 
 type DialogType = 'firmar' | 'enviar' | 'cancelar' | 'archivar' | null
 
@@ -66,55 +53,55 @@ interface ContratoEventoTabProps {
   evento?: EventoCtx
 }
 
-export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) {
-  const queryClient = useQueryClient()
+export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
+  const qc         = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { data: contrato, isLoading } = useContratoPorEvento(idEvento)
 
-  const generar      = useGenerarContrato()
-  const actualizar   = useActualizarContrato()
-  const firmar       = useFirmarContrato()
+  const generar       = useGenerarContrato()
+  const actualizar    = useActualizarContrato()
+  const firmar        = useFirmarContrato()
   const cambiarEstado = useCambiarEstadoContrato()
-  const subirExterno = useSubirContratoExterno()
+  const subirDoc      = useSubirDocumento()
 
   const [contenido, setContenido]   = useState<string | null>(null)
   const [editando, setEditando]     = useState(false)
   const [dialog, setDialog]         = useState<DialogType>(null)
-  const [creando, setCreando]       = useState(false)
-  const [plantillaId, setPlantillaId] = useState<PlantillaId | ''>('')
+  const subirInputRef               = useRef<HTMLInputElement>(null)
 
   const textoActual = contenido ?? contrato?.contenidoTexto ?? ''
-  const esEditable  = contrato?.estado &&
-    !['FIRMADO', 'CANCELADO', 'ARCHIVADO'].includes(contrato.estado)
+  const esEditable  = contrato?.esEditable ?? false
 
   function invalidarContrato() {
-    queryClient.invalidateQueries({ queryKey: [CONTRATO_KEY, 'evento', idEvento] })
+    qc.invalidateQueries({ queryKey: contratosKeys.porEvento(idEvento) })
   }
 
   function handleCrear() {
-    if (!plantillaId) return
-    const ctx: Partial<Contrato> = {
-      nombreCliente:      evento?.nombreCliente,
-      tipoEvento:         evento?.tipoEvento,
-      fechaEvento:        evento?.fechaEvento,
-      turno:              evento?.turno,
-      aforoDeclarado:     evento?.aforoDeclarado,
-      precioTotalContrato: evento?.precioTotalContrato ?? undefined,
-      montoAdelanto:      evento?.montoAdelanto ?? undefined,
-      saldoPendiente:     evento?.montoSaldo ?? undefined,
-    }
-    const texto = aplicarPlantilla(PLANTILLAS[plantillaId].plantilla, ctx)
-    generar.mutate(
-      { idEvento, payload: { contenidoTexto: texto, plantilla: plantillaId } },
-      { onSuccess: () => { setCreando(false); setPlantillaId(''); invalidarContrato() } }
-    )
+    generar.mutate({ idEvento }, { onSuccess: () => invalidarContrato() })
   }
 
   function handleSubir(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
+    if (!file || !contrato) return
+    subirDoc.mutate({ id: contrato.id, archivo: file }, { onSuccess: () => invalidarContrato() })
+    e.target.value = ''
+  }
+
+  function handleCrearYSubir(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
     if (!file) return
-    subirExterno.mutate({ idEvento, file }, { onSuccess: () => invalidarContrato() })
+    generar.mutate(
+      { idEvento },
+      {
+        onSuccess: (nuevoContrato) => {
+          subirDoc.mutate(
+            { id: nuevoContrato.id, archivo: file },
+            { onSuccess: () => invalidarContrato() }
+          )
+        },
+      }
+    )
     e.target.value = ''
   }
 
@@ -134,7 +121,6 @@ export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) 
     )
   }
 
-  /* ── Loading ─────────────────────────────────────────────────────────────── */
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -144,102 +130,62 @@ export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) 
     )
   }
 
-  /* ── Sin contrato ────────────────────────────────────────────────────────── */
   if (!contrato) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 p-8">
-        {creando ? (
-          <div className="space-y-4 max-w-sm mx-auto">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-brand-azul" />
-              <h3 className="text-sm font-bold text-gray-900">Seleccionar plantilla</h3>
-            </div>
-            <Select
-              value={plantillaId}
-              onValueChange={(v) => setPlantillaId(v as PlantillaId)}
-            >
-              <SelectTrigger className="h-9 rounded-xl w-full text-sm">
-                <SelectValue placeholder="Elige una plantilla..." />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(PLANTILLAS).map(([key, { label }]) => (
-                  <SelectItem key={key} value={key} className="text-sm">
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2 justify-end">
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-xl"
-                onClick={() => { setCreando(false); setPlantillaId('') }}
-                disabled={generar.isPending}
-              >
-                Cancelar
-              </Button>
-              <Button
-                size="sm"
-                className="rounded-xl bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
-                disabled={!plantillaId || generar.isPending}
-                onClick={handleCrear}
-              >
-                {generar.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                Generar contrato
-              </Button>
-            </div>
+        <div className="flex flex-col items-center text-center gap-4 py-4">
+          <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
+            <FileText className="h-7 w-7 text-gray-400" />
           </div>
-        ) : (
-          <div className="flex flex-col items-center text-center gap-4 py-4">
-            <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
-              <FileText className="h-7 w-7 text-gray-400" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-gray-900">Sin contrato asociado</h3>
-              <p className="text-sm text-gray-400 mt-1 max-w-xs">
-                Este evento aún no tiene contrato. Crea uno desde una plantilla o sube un documento existente.
-              </p>
-            </div>
-            <div className="flex gap-2 flex-wrap justify-center">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900">Sin contrato asociado</h3>
+            <p className="text-sm text-gray-400 mt-1 max-w-xs">
+              Crea un borrador para redactar el contrato, o sube directamente el PDF firmado.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-xl gap-1.5"
+              onClick={handleCrear}
+              disabled={generar.isPending || subirDoc.isPending}
+            >
+              {generar.isPending && !subirDoc.isPending
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <Plus className="h-4 w-4" />}
+              Crear borrador
+            </Button>
+            <label className="cursor-pointer">
               <Button
                 size="sm"
-                className="rounded-xl bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
-                onClick={() => setCreando(true)}
+                className="rounded-xl bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5 pointer-events-none"
+                disabled={generar.isPending || subirDoc.isPending}
+                asChild
               >
-                <Plus className="h-4 w-4" />
-                Crear contrato
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-xl gap-1.5"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={subirExterno.isPending}
-              >
-                {subirExterno.isPending
-                  ? <Loader2 className="h-4 w-4 animate-spin" />
-                  : <Upload className="h-4 w-4" />}
-                Subir contrato
+                <span>
+                  {subirDoc.isPending || generar.isPending
+                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                    : <Upload className="h-4 w-4" />}
+                  Subir PDF firmado
+                </span>
               </Button>
               <input
-                ref={fileInputRef}
+                ref={subirInputRef}
                 type="file"
                 accept=".pdf,.doc,.docx"
                 className="hidden"
-                onChange={handleSubir}
+                onChange={handleCrearYSubir}
               />
-            </div>
+            </label>
           </div>
-        )}
+        </div>
       </div>
     )
   }
 
-  /* ── Contrato existente ──────────────────────────────────────────────────── */
   return (
     <div className="space-y-4">
-      {/* Barra de estado y acciones */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <ContratoBadgeEstado estado={contrato.estado} />
@@ -299,6 +245,28 @@ export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) 
                 <XCircle className="h-4 w-4" />
                 Cancelar
               </Button>
+              <label className="cursor-pointer">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="rounded-xl gap-1.5 pointer-events-none"
+                  asChild
+                >
+                  <span>
+                    {subirDoc.isPending
+                      ? <Loader2 className="h-4 w-4 animate-spin" />
+                      : <Upload className="h-4 w-4" />}
+                    Adjuntar
+                  </span>
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  className="hidden"
+                  onChange={handleSubir}
+                />
+              </label>
             </>
           )}
           {editando && (
@@ -336,7 +304,6 @@ export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) 
         </div>
       </div>
 
-      {/* Editor de contrato */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5">
         <ContratoEditor
           value={textoActual}
@@ -346,7 +313,6 @@ export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) 
         />
       </div>
 
-      {/* Documentos adjuntos */}
       {contrato.documentos && contrato.documentos.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
           <h3 className="text-sm font-bold text-gray-900">Documentos asociados</h3>
@@ -354,7 +320,6 @@ export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) 
         </div>
       )}
 
-      {/* Finanzas e historial */}
       <div className="grid gap-4 sm:grid-cols-2">
         <ContratoFinanzas contrato={contrato} />
         {contrato.actividades && contrato.actividades.length > 0 && (
@@ -365,7 +330,6 @@ export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) 
         )}
       </div>
 
-      {/* Diálogos de confirmación */}
       <ConfirmDialog
         open={dialog === 'firmar'}
         onOpenChange={(o) => !o && setDialog(null)}
@@ -373,9 +337,7 @@ export function ContratoEventoTab({ idEvento, evento }: ContratoEventoTabProps) 
         description="Se generará el PDF y se marcará el contrato como firmado. Esta acción no puede revertirse."
         confirmLabel="Confirmar firma"
         loading={firmar.isPending}
-        onConfirm={() =>
-          contrato && firmar.mutate(contrato.id, { onSuccess: () => setDialog(null) })
-        }
+        onConfirm={() => contrato && firmar.mutate(contrato.id, { onSuccess: () => setDialog(null) })}
       />
       <ConfirmDialog
         open={dialog === 'enviar'}
