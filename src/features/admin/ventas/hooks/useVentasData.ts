@@ -32,6 +32,7 @@ export function usePrecioDia(idSede: number | null, fecha: string) {
     queryKey: [VENTAS_KEYS.PRECIO_DIA, idSede, fecha],
     queryFn: () => ventasApi.precioDia(idSede!, fecha),
     enabled: !!idSede && !!fecha,
+    staleTime: 5 * 60 * 1000,
   })
 }
 

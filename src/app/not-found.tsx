@@ -1,7 +1,24 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 
 export default function NotFound() {
+  const pathname = usePathname()
+
+  const homeHref = pathname?.startsWith('/admin')
+    ? '/admin'
+    : pathname?.startsWith('/cliente')
+    ? '/cliente'
+    : '/'
+
+  const homeLabel = pathname?.startsWith('/admin')
+    ? 'Ir al panel de administración'
+    : pathname?.startsWith('/cliente')
+    ? 'Ir a mi panel'
+    : 'Volver al inicio'
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="text-center space-y-4">
@@ -11,7 +28,7 @@ export default function NotFound() {
           La página que buscas no existe o fue movida.
         </p>
         <Button asChild>
-          <Link href="/">Volver al inicio</Link>
+          <Link href={homeHref}>{homeLabel}</Link>
         </Button>
       </div>
     </div>

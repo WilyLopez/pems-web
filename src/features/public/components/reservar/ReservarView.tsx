@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useForm, Controller } from 'react-hook-form'
@@ -32,7 +32,6 @@ import {
   CheckCircle2,
   Banknote,
   Loader2,
-  Clock,
   Download,
   Zap,
   Users,
@@ -42,6 +41,7 @@ import Image from 'next/image'
 
 import { useDisponibilidadRango } from '@/hooks/useDisponibilidad'
 import { useConfiguracionCalendario } from '@/hooks/useCalendario'
+import { useWizardTimer } from '@/hooks/useWizardTimer'
 import { usePublicPrecios } from '../../hooks/usePublicPrecios'
 import { usePublicConfig } from '../../hooks/usePublicConfig'
 import { getReservationSchema } from '../../shared/validations'
@@ -54,6 +54,7 @@ import { Disponibilidad } from '@/features/admin/calendario/types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Checkbox } from '@/components/ui/Checkbox'
+import { WizardHeader } from '@/components/wizard/WizardHeader'
 import { cn } from '@/lib/utils'
 
 const SEDE_ID = 1
@@ -237,30 +238,32 @@ export function ReservarView() {
   const [intentoEnvio, setIntentoEnvio] = useState(false)
   const [reservaCreada, setReservaCreada] = useState<Reserva | null>(null)
 
-  const [timeLeft, setTimeLeft] = useState<number | null>(null)
+  // Shared wizard timer — starts paused, activates when user enters paso 2
+  const prevPasoRef = useRef<PasoReserva>(1)
+  const reservaCreadaRef = useRef<Reserva | null>(null)
+  reservaCreadaRef.current = reservaCreada
 
-  useEffect(() => {
-    if (paso === 2 && timeLeft === null) {
-      setTimeLeft(600) // 10 minutes
-    }
-    if (paso === 1 || paso === 4) {
-      setTimeLeft(null)
-    }
-  }, [paso, timeLeft])
-
-  useEffect(() => {
-    if (timeLeft === null) return
-
-    if (timeLeft === 0) {
+  const {
+    secondsLeft,
+    progress: timerProgress,
+    phase: timerPhase,
+    displayTime: timerDisplay,
+    restart: restartTimer,
+    pause: pauseTimer,
+    resume: resumeTimer,
+  } = useWizardTimer({
+    durationSeconds: 600,
+    sessionKey: 'reservar_session_timer',
+    startPaused: true,
+    onExpire: () => {
       toast.error('El tiempo límite para realizar la reserva ha expirado. Por favor, inicia el proceso nuevamente.', {
         duration: 5000,
       })
-
-      if (reservaCreada && reservaCreada.estado === 'PENDIENTE') {
-        reservaService.cancelar(reservaCreada.id, 'Expiración de tiempo de reserva de 10 minutos')
+      const reserva = reservaCreadaRef.current
+      if (reserva && reserva.estado === 'PENDIENTE') {
+        reservaService.cancelar(reserva.id, 'Expiración de tiempo de reserva de 10 minutos')
           .catch((e) => console.error('Error al cancelar la reserva expirada:', e))
       }
-
       setPaso(1)
       setFecha(null)
       setDispSeleccionada(null)
@@ -269,22 +272,25 @@ export function ReservarView() {
       setComprobante(null)
       setCodigoYape('')
       setIntentoEnvio(false)
-      setTimeLeft(null)
-      return
+    },
+  })
+
+  // Control timer lifecycle based on wizard step
+  useEffect(() => {
+    const prev = prevPasoRef.current
+    prevPasoRef.current = paso
+
+    if (paso === 2 && prev === 1) {
+      restartTimer() // fresh 10 min when date is confirmed
+    } else if (paso === 1 || paso === 4) {
+      pauseTimer()
+    } else {
+      resumeTimer()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paso])
 
-    const timer = setTimeout(() => {
-      setTimeLeft(timeLeft - 1)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [timeLeft, reservaCreada])
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+  const timerActivo = paso === 2 || paso === 3
 
   useEffect(() => {
     const fecha = searchParams.get('fecha')
@@ -509,33 +515,36 @@ export function ReservarView() {
   }
 
   return (
-    <div className={cn("container max-w-7xl mx-auto px-4 pt-24 pb-12", paso > 1 && paso < 4 && "pb-28 lg:pb-12")}>
+    <>
+      {timerActivo && (
+        <WizardHeader
+          titulo="Reservar entrada"
+          secondsLeft={secondsLeft}
+          timerProgress={timerProgress}
+          timerPhase={timerPhase}
+          timerDisplay={timerDisplay}
+          className="top-16"
+        />
+      )}
+      <div className={cn("container max-w-7xl mx-auto px-4 pt-24 pb-12", timerActivo && "pb-28 lg:pb-12")}>
       <StepIndicator paso={paso} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Main flow content */}
         <div className="lg:col-span-2 space-y-6">
-          {timeLeft !== null && paso !== 4 && (
+          {timerActivo && timerPhase !== 'safe' && (
             <div className={cn(
-              "p-4 rounded-2xl flex items-center justify-between border transition-all duration-300 shadow-sm",
-              timeLeft <= 120 
-                ? "bg-red-50 border-red-200 text-red-900 animate-pulse" 
-                : "bg-brand-azul/5 border-brand-azul/20 text-brand-azul"
+              "p-4 rounded-2xl flex items-center gap-3 border transition-all duration-300 shadow-sm",
+              timerPhase === 'critical'
+                ? "bg-red-50 border-red-200 text-red-900 animate-pulse"
+                : "bg-amber-50 border-amber-200 text-amber-900"
             )}>
-              <div className="flex items-center gap-2.5">
-                <Clock className={cn("h-5 w-5 shrink-0", timeLeft <= 120 ? "text-red-600" : "text-brand-azul")} />
-                <div>
-                  <p className="text-sm font-black">Tiempo restante para reservar</p>
-                  <p className="text-xs opacity-90 mt-0.5">
-                    {timeLeft <= 120 
-                      ? "¡Completa tu reserva pronto para no perder tus cupos!" 
-                      : "Tus cupos se mantendrán reservados mientras completas los datos."}
-                  </p>
-                </div>
-              </div>
-              <span className="text-2xl font-black font-mono tracking-wider shrink-0 ml-2">
-                {formatTime(timeLeft)}
-              </span>
+              <AlertTriangle className={cn("h-5 w-5 shrink-0", timerPhase === 'critical' ? "text-red-600" : "text-amber-600")} />
+              <p className="text-sm font-semibold">
+                {timerPhase === 'critical'
+                  ? `¡Completa tu reserva pronto! Tiempo restante: ${timerDisplay}`
+                  : `Tu sesión expira en ${timerDisplay}. Completa los datos antes de que se agote.`}
+              </p>
             </div>
           )}
 
@@ -1227,5 +1236,6 @@ export function ReservarView() {
         </div>
       )}
     </div>
+    </>
   )
 }

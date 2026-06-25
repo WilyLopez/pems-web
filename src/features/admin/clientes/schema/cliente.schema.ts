@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { NOMBRE_REGEX, telefonoOpcionalField } from '@/lib/validations/campos'
 
 export const TIPOS_DOCUMENTO = [
   { value: 'DNI', label: 'DNI' },
@@ -14,24 +15,20 @@ export const clienteFormSchema = z.object({
     .string()
     .min(2, { message: 'El nombre debe tener mínimo 2 caracteres' })
     .max(100)
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/, { message: 'El nombre solo debe contener letras' }),
+    .regex(NOMBRE_REGEX, { message: 'El nombre solo debe contener letras' }),
   apellidoPaterno: z
     .string()
     .min(1, { message: 'El apellido paterno es obligatorio' })
     .max(100)
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/, { message: 'El apellido paterno solo debe contener letras' }),
+    .regex(NOMBRE_REGEX, { message: 'El apellido paterno solo debe contener letras' }),
   apellidoMaterno: z
     .string()
     .max(100)
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]*$/, { message: 'El apellido materno solo debe contener letras' })
+    .regex(NOMBRE_REGEX, { message: 'El apellido materno solo debe contener letras' })
     .optional()
     .or(z.literal('')),
   correo: z.string().email({ message: 'Correo electrónico inválido' }).max(150).optional().or(z.literal('')),
-  telefono: z
-    .string()
-    .regex(/^9\d{8}$/, { message: 'El teléfono debe ser un celular de 9 dígitos que comience con 9' })
-    .optional()
-    .or(z.literal('')),
+  telefono: telefonoOpcionalField,
   aceptaComunicaciones: z.boolean().default(true),
 }).superRefine((data, ctx) => {
   const { tipoDocumentoCodigo, numeroDocumento } = data
