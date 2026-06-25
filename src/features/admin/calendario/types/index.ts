@@ -35,6 +35,7 @@ export interface Disponibilidad {
   idEventoT1?: number | null
   tituloEventoT2?: string | null
   idEventoT2?: number | null
+  tieneProgramacionSemanal: boolean
 }
 
 export interface ConfiguracionCalendario {
@@ -52,6 +53,8 @@ export interface ConfiguracionCalendario {
   turnoT2Fin: string
   diasOperacion: string
   rangoMaxBloqueo: number
+  edadMinCumple: number
+  edadMaxCumple: number
 }
 
 export interface ConfiguracionCalendarioPublica {
@@ -63,6 +66,8 @@ export interface ConfiguracionCalendarioPublica {
   horaApertura: string
   horaCierre: string
   diasOperacion: string
+  edadMinCumple: number
+  edadMaxCumple: number
 }
 
 export type TipoBloqueo =
@@ -71,7 +76,16 @@ export type TipoBloqueo =
   | 'EVENTO_CORPORATIVO'
   | 'REMODELACION'
   | 'CIERRE_ESPECIAL'
-  | 'PLANIFICACION_SEMANAL'
+
+export interface ProgramacionSemanal {
+  id: number
+  idSede: number
+  semanaInicio: string
+  semanaFin: string
+  estado: 'ACTIVA' | 'CANCELADA'
+  autoGenerada: boolean
+  creadoEn: string
+}
 
 export interface ResumenDia {
   fecha: string

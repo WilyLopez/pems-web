@@ -8,6 +8,8 @@ export const CALENDAR_KEYS = {
   RANGO: 'disponibilidad-rango',
   RESUMEN: 'resumen-dia',
   CONFIG: 'configuracion-calendario',
+  CONFIG_PUBLICA: 'configuracion-calendario-publica',
+  PROGRAMACIONES: 'programaciones-semanal',
 } as const
 
 export function useResumenDia(idSede: number, fecha: string | null) {
@@ -95,6 +97,15 @@ export function useConfiguracionCalendario(idSede: number) {
   })
 }
 
+export function useConfiguracionCalendarioPublica(idSede: number) {
+  return useQuery({
+    queryKey: [CALENDAR_KEYS.CONFIG_PUBLICA, idSede],
+    queryFn: () => calendarApi.getConfiguracionPublica(idSede),
+    enabled: !!idSede,
+    staleTime: 1000 * 60 * 10,
+  })
+}
+
 export function useActualizarConfiguracion(idSede: number) {
   const qc = useQueryClient()
   return useMutation({
@@ -121,6 +132,46 @@ export function useEliminarFeriado() {
     },
     onError: (err: any) => {
       toast.error(err?.message ?? 'No se pudo eliminar el feriado.')
+    },
+  })
+}
+
+export function useProgramaciones(idSede: number) {
+  return useQuery({
+    queryKey: [CALENDAR_KEYS.PROGRAMACIONES, idSede],
+    queryFn: () => calendarApi.listarProgramaciones(idSede),
+    enabled: !!idSede,
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useCrearProgramacion(idSede: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: { semanaInicio: string; semanaFin: string }) =>
+      calendarApi.crearProgramacion(idSede, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [CALENDAR_KEYS.RANGO] })
+      qc.invalidateQueries({ queryKey: [CALENDAR_KEYS.PROGRAMACIONES, idSede] })
+      toast.success('Programacion semanal creada.')
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.mensaje ?? err.message ?? 'No se pudo crear la programacion.')
+    },
+  })
+}
+
+export function useCancelarProgramacion(idSede: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => calendarApi.cancelarProgramacion(idSede, id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [CALENDAR_KEYS.RANGO] })
+      qc.invalidateQueries({ queryKey: [CALENDAR_KEYS.PROGRAMACIONES, idSede] })
+      toast.success('Programacion cancelada.')
+    },
+    onError: (err: any) => {
+      toast.error(err?.message ?? 'No se pudo cancelar la programacion.')
     },
   })
 }

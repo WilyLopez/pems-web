@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
-import { format, parseISO } from 'date-fns'
+import React from 'react'
+import { format, parseISO, differenceInDays } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { Lock, CalendarPlus, Loader2, Settings, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { useBloquearFechas, useCrearFeriado, useDisponibilidadRango } from '../../hooks/useCalendarData'
+import { useBloquearFechas, useCrearFeriado, useDisponibilidadRango, useConfiguracionCalendario } from '../../hooks/useCalendarData'
 import { TipoBloqueo } from '../../types'
 import { ConfigurarCalendarioModal } from '../actions/ConfigurarCalendarioModal'
 import { ProgramacionSemanalModal } from '../actions/ProgramacionSemanalModal'
@@ -79,10 +79,11 @@ interface CalendarioAccionesProps {
 
 export const CalendarioAcciones = React.memo(({ idSede }: CalendarioAccionesProps) => {
   const { modal, openModal } = useCalendarNav()
-  const [pendingBloqueo, setPendingBloqueo] = useState<BloqueoForm | null>(null)
 
   const bloquear = useBloquearFechas()
   const crearFeriado = useCrearFeriado()
+  const { data: configCal } = useConfiguracionCalendario(idSede)
+  const rangoMaxBloqueo = configCal?.rangoMaxBloqueo ?? 90
 
   const bloqueoForm = useForm<BloqueoForm>({
     resolver: zodResolver(bloqueoSchema),
@@ -103,13 +104,15 @@ export const CalendarioAcciones = React.memo(({ idSede }: CalendarioAccionesProp
 
   const conflictosBloqueo = dispBloqueo?.filter(d => d.totalReservas > 0 || d.totalEventos > 0) ?? []
   const tieneAtencionBloqueo = dispBloqueo?.some(d => d.aforoPublicoActual > 0 && d.fecha === hoy)
-  const tieneProgramacionBloqueo = dispBloqueo?.some(d => d.tipoBloqueo === 'PLANIFICACION_SEMANAL')
+  const tieneProgramacionBloqueo = dispBloqueo?.some(d => d.tieneProgramacionSemanal)
+  const rangoExcedido = !!inicioBloqueo && !!finBloqueo &&
+    differenceInDays(parseISO(finBloqueo), parseISO(inicioBloqueo)) + 1 > rangoMaxBloqueo
 
   const conflictoFeriado = dispFeriado?.[0]
   const tieneActividadFeriado = (conflictoFeriado?.totalReservas ?? 0) > 0 || (conflictoFeriado?.totalEventos ?? 0) > 0
   const tieneAtencionFeriado = (conflictoFeriado?.aforoPublicoActual ?? 0) > 0 && conflictoFeriado?.fecha === hoy
 
-  const submitBloqueo = (values: BloqueoForm, confirmado = false) => {
+  const submitBloqueo = (values: BloqueoForm) => {
     if (tieneAtencionBloqueo) {
       toast.error('No se puede bloquear un rango que incluya el dia de hoy con atencion activa.')
       return
@@ -125,25 +128,18 @@ export const CalendarioAcciones = React.memo(({ idSede }: CalendarioAccionesProp
         fechaFin: values.fechaFin,
         tipoBloqueo: values.tipoBloqueo as TipoBloqueo,
         motivo: values.motivo,
-        confirmado: confirmado || conflictosBloqueo.length > 0,
+        confirmado: false,
       },
       {
         onSuccess: () => {
           openModal(null)
-          setPendingBloqueo(null)
           bloqueoForm.reset()
-        },
-        onError: (err: unknown) => {
-          const e = err as { response?: { data?: { codigoError?: string } } }
-          if (e?.response?.data?.codigoError === 'CONFLICTO_ACTIVIDAD') {
-            setPendingBloqueo(values)
-          }
         },
       }
     )
   }
 
-  const handleBloqueo = bloqueoForm.handleSubmit((v) => submitBloqueo(v, false))
+  const handleBloqueo = bloqueoForm.handleSubmit((v) => submitBloqueo(v))
 
   const handleFeriado = feriadoForm.handleSubmit((v) => {
     crearFeriado.mutate(v, {
@@ -288,13 +284,22 @@ export const CalendarioAcciones = React.memo(({ idSede }: CalendarioAccionesProp
               </div>
             )}
 
+            {rangoExcedido && (
+              <div className="bg-white border border-red-200 rounded-xl p-3 flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-red-800 font-medium">
+                  El rango no puede exceder {rangoMaxBloqueo} dias.
+                </p>
+              </div>
+            )}
+
             {conflictosBloqueo.length > 0 && !tieneAtencionBloqueo && (
-              <div className="bg-white border border-amber-200 rounded-xl p-3 space-y-2">
+              <div className="bg-white border border-red-200 rounded-xl p-3 space-y-2">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
-                  <p className="text-xs font-bold text-amber-800">Conflicto de actividad detectado</p>
+                  <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+                  <p className="text-xs font-bold text-red-800">No se puede bloquear: dias con actividad</p>
                 </div>
-                <ul className="text-[11px] text-amber-700 space-y-0.5 ml-6 list-disc">
+                <ul className="text-[11px] text-red-700 space-y-0.5 ml-6 list-disc">
                   {conflictosBloqueo.slice(0, 3).map(c => (
                     <li key={c.fecha}>
                       {format(parseISO(c.fecha), 'd MMM', { locale: es })}: {c.totalReservas} reservas, {c.totalEventos} eventos
@@ -350,11 +355,17 @@ export const CalendarioAcciones = React.memo(({ idSede }: CalendarioAccionesProp
             <Button
               variant="red"
               onClick={handleBloqueo}
-              disabled={bloquear.isPending || tieneAtencionBloqueo || (tieneProgramacionBloqueo && !esEmergencia)}
+              disabled={
+                bloquear.isPending ||
+                tieneAtencionBloqueo ||
+                (tieneProgramacionBloqueo && !esEmergencia) ||
+                conflictosBloqueo.length > 0 ||
+                rangoExcedido
+              }
               className="rounded-xl gap-1.5 font-bold"
             >
               {bloquear.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {conflictosBloqueo.length > 0 ? 'Bloquear con actividad' : 'Crear bloqueo'}
+              Crear bloqueo
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -416,11 +427,11 @@ export const CalendarioAcciones = React.memo(({ idSede }: CalendarioAccionesProp
             )}
 
             {tieneActividadFeriado && !tieneAtencionFeriado && (
-              <div className="bg-white border border-amber-200 rounded-xl p-3 flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                <div className="text-xs text-amber-800">
-                  <p className="font-bold">Este dia tiene actividad</p>
-                  <p className="mt-0.5 text-amber-700">{conflictoFeriado?.totalReservas} reservas y {conflictoFeriado?.totalEventos} eventos registrados.</p>
+              <div className="bg-white border border-red-200 rounded-xl p-3 flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                <div className="text-xs text-red-800">
+                  <p className="font-bold">No se puede registrar: dia con actividad</p>
+                  <p className="mt-0.5 text-red-700">{conflictoFeriado?.totalReservas} reservas y {conflictoFeriado?.totalEventos} eventos registrados.</p>
                 </div>
               </div>
             )}
@@ -450,11 +461,11 @@ export const CalendarioAcciones = React.memo(({ idSede }: CalendarioAccionesProp
             <Button
               variant="purple"
               onClick={handleFeriado}
-              disabled={crearFeriado.isPending || tieneAtencionFeriado}
+              disabled={crearFeriado.isPending || tieneAtencionFeriado || tieneActividadFeriado}
               className="rounded-xl gap-1.5 font-bold"
             >
               {crearFeriado.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {tieneActividadFeriado ? 'Registrar con actividad' : 'Registrar feriado'}
+              Registrar feriado
             </Button>
           </DialogFooter>
         </DialogContent>
