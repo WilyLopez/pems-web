@@ -26,6 +26,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   isLoading?: boolean
   emptyMessage?: string
+  onRowClick?: (row: TData) => void
+  getRowClassName?: (row: TData) => string
 }
 
 export function DataTable<TData, TValue>({
@@ -33,6 +35,8 @@ export function DataTable<TData, TValue>({
   data,
   isLoading,
   emptyMessage = 'No hay registros para mostrar.',
+  onRowClick,
+  getRowClassName,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
 
@@ -77,7 +81,14 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                className={[
+                  onRowClick ? 'cursor-pointer hover:bg-muted/50' : '',
+                  getRowClassName ? getRowClassName(row.original) : '',
+                ].filter(Boolean).join(' ') || undefined}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

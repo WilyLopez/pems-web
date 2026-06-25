@@ -1,24 +1,55 @@
 import React from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/Dialog'
-import { Separator } from '@/components/ui/Separator'
-import { Receipt, Calendar, User, Info, Loader2, Download, Ticket, Printer, ExternalLink } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { Loader2, Download, Printer } from 'lucide-react'
 import { useVentaDetail } from '../../hooks/useVentaDetail'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { TipoVentaBadge } from '../shared/TipoVentaBadge'
-import { EstadoVentaBadge } from '../shared/EstadoVentaBadge'
 import { Button } from '@/components/ui/Button'
 import { ventasApi } from '../../services/ventas.api'
 import { toast } from 'sonner'
-import api from '@/services/api'
+import { imprimirTicket } from '../../utils/printPdf'
 
 interface VentaDetailDrawerProps {
   ventaId: number | null
   onClose: () => void
 }
 
+const TIPO_LABEL: Record<string, string> = {
+  RESERVA: 'Venta de entradas',
+  ADELANTO_EVENTO: 'Adelanto evento privado',
+}
+
+const CANAL_LABEL: Record<string, string> = {
+  MOSTRADOR: 'Caja presencial',
+  WEB: 'Tienda web',
+  APP: 'Aplicación',
+}
+
+const METODO_LABEL: Record<string, string> = {
+  EFECTIVO: 'Efectivo',
+  YAPE: 'Yape',
+  PLIN: 'Plin',
+  TARJETA: 'Tarjeta',
+  TRANSFERENCIA: 'Transferencia',
+}
+
+function Divider({ dashed }: { dashed?: boolean }) {
+  return (
+    <div className={`border-t ${dashed ? 'border-dashed border-gray-300 dark:border-gray-600' : 'border-gray-200 dark:border-gray-700'}`} />
+  )
+}
+
+function Row({ label, value, bold, mono }: { label: string; value: React.ReactNode; bold?: boolean; mono?: boolean }) {
+  return (
+    <div className="flex justify-between items-baseline gap-4 py-0.5">
+      <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">{label}</span>
+      <span className={`text-xs text-right text-gray-900 dark:text-gray-100 ${bold ? 'font-bold' : 'font-medium'} ${mono ? 'font-mono' : ''}`}>
+        {value}
+      </span>
+    </div>
+  )
+}
+
 export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) => {
-  const router = useRouter()
   const { data: venta, isLoading, isError } = useVentaDetail(ventaId)
   const [descargando, setDescargando] = React.useState(false)
   const [loadingTicketId, setLoadingTicketId] = React.useState<number | null>(null)
@@ -30,7 +61,7 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
     try {
       await ventasApi.descargarNotaVenta(ventaId)
       toast.success('Nota de venta descargada')
-    } catch (err) {
+    } catch {
       toast.error('No se pudo descargar la nota de venta')
     } finally {
       setDescargando(false)
@@ -52,28 +83,9 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
   const handleImprimirTicket = async (idReserva: number) => {
     setLoadingPrintId(idReserva)
     try {
-      const response = await api.get(`/reservas/${idReserva}/ticket`, {
-        responseType: 'blob'
-      })
-      const blob = new Blob([response.data], { type: 'application/pdf' })
-      const url = URL.createObjectURL(blob)
-      
-      const iframe = document.createElement('iframe')
-      iframe.style.position = 'fixed'
-      iframe.style.width = '0'
-      iframe.style.height = '0'
-      iframe.style.border = 'none'
-      iframe.src = url
-      document.body.appendChild(iframe)
-      
-      iframe.onload = () => {
-        if (iframe.contentWindow) {
-          iframe.contentWindow.focus()
-          iframe.contentWindow.print()
-        }
-      }
+      await imprimirTicket(idReserva)
     } catch {
-      toast.error('Error al generar la impresión del ticket')
+      toast.error('Error al generar la impresión')
     } finally {
       setLoadingPrintId(null)
     }
@@ -81,213 +93,220 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
 
   return (
     <Dialog open={!!ventaId} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent aria-describedby="venta-detail-description" className="sm:max-w-xl p-0 gap-0 overflow-hidden bg-gray-50 border-none shadow-2xl">
+      <DialogContent
+        aria-describedby="venta-nota-desc"
+        className="sm:max-w-sm p-0 gap-0 overflow-hidden bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 shadow-2xl rounded-2xl"
+      >
         <DialogHeader className="sr-only">
-          <DialogTitle>Detalle de Venta</DialogTitle>
-          <DialogDescription id="venta-detail-description">
-            Información financiera y operativa detallada de la transacción.
-          </DialogDescription>
+          <DialogTitle>Nota de Venta</DialogTitle>
+          <DialogDescription id="venta-nota-desc">Comprobante de venta</DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
-          <div className="h-64 flex flex-col items-center justify-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-brand-azul" />
-            <p className="text-sm font-medium text-gray-500">Cargando detalles financieros...</p>
+          <div className="h-52 flex items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
           </div>
         ) : isError || !venta ? (
-          <div className="h-64 flex flex-col items-center justify-center space-y-4">
-            <p className="text-sm font-bold text-red-500">Ocurrió un error al cargar la venta</p>
+          <div className="h-52 flex items-center justify-center">
+            <p className="text-sm text-gray-400 dark:text-gray-500">No se pudo cargar la venta</p>
           </div>
         ) : (
-          <>
-            <div className="px-6 py-5 bg-white border-b sticky top-0 z-10 flex items-center justify-between">
-              <div className="flex items-start justify-between flex-1 mr-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-xl font-black text-gray-900">
-                    <Receipt className="h-5 w-5 text-gray-400" />
-                    Venta V-{venta.id.toString().padStart(5, '0')}
-                  </div>
-                  <p className="text-sm text-gray-500 font-medium">
-                    {formatDate(venta.createdAt, "d MMM yyyy, HH:mm")}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <EstadoVentaBadge total={venta.total} pagado={venta.totalPagado !== undefined ? venta.totalPagado : venta.total} />
-                  <TipoVentaBadge tipo={venta.tipo} />
-                </div>
+          <div className="overflow-y-auto max-h-[88vh]">
+
+            {/* Cabecera */}
+            <div className="px-6 pt-6 pb-4 text-center space-y-1 border-b border-gray-200 dark:border-gray-800">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
+                Nota de Venta
+              </p>
+              <p className="text-2xl font-black tracking-tight text-gray-900 dark:text-gray-100 font-mono">
+                V-{venta.id.toString().padStart(5, '0')}
+              </p>
+              <p className="text-[11px] text-gray-400 dark:text-gray-500">
+                {formatDate(venta.createdAt, "d 'de' MMMM yyyy, HH:mm")}
+              </p>
+              <div className="flex items-center justify-center gap-1.5 pt-1">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                  (venta.totalPagado ?? 0) >= venta.total
+                    ? 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-500'
+                }`}>
+                  {(venta.totalPagado ?? 0) >= venta.total ? 'PAGADA' : 'PENDIENTE'}
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400">
+                  {TIPO_LABEL[venta.tipo] ?? venta.tipo}
+                </span>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="rounded-xl font-bold h-9"
-                onClick={handleDescargar}
-                disabled={descargando}
-              >
-                {descargando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-                Nota Venta
-              </Button>
             </div>
 
-            <div className="px-6 py-6 space-y-6 overflow-y-auto max-h-[70vh]">
-              
-              <section className="bg-white rounded-2xl p-5 border shadow-sm space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
-                  Resumen Comercial
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                      <User className="h-3.5 w-3.5" /> Cliente
-                    </p>
-                    <p className="text-sm font-bold text-gray-900 truncate">
-                      {venta.nombreCliente || 'Cliente mostrador'}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" /> Fecha Operativa
-                    </p>
-                    <p className="text-sm font-bold text-gray-900">
-                      {venta.fechaVisita ? formatDate(venta.fechaVisita, "d MMM yyyy") : 'Inmediata'}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                      <Info className="h-3.5 w-3.5" /> Canal
-                    </p>
-                    <p className="text-sm font-bold text-gray-900 capitalize">
-                      {venta.canalCodigo?.toLowerCase().replace('_', ' ') || 'Caja'}
-                    </p>
-                  </div>
-                </div>
-              </section>
+            <div className="px-6 py-4 space-y-4 text-sm">
 
-              <section className="bg-white rounded-2xl p-5 border shadow-sm space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
-                  Desglose Financiero
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 font-medium">Subtotal</span>
-                    <span className="font-semibold text-gray-900">{formatCurrency(venta.subtotal)}</span>
-                  </div>
-                  {venta.descuento > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500 font-medium">Descuento</span>
-                      <span className="font-bold text-green-600">− {formatCurrency(venta.descuento)}</span>
-                    </div>
-                  )}
-                  <Separator className="my-2" />
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-black text-gray-900 uppercase">Total Pagado</span>
-                    <span className="text-xl font-black text-brand-azul">{formatCurrency(venta.total)}</span>
-                  </div>
-                </div>
-              </section>
+              {/* Datos operativos */}
+              <div className="space-y-1.5">
+                <Row label="Canal" value={CANAL_LABEL[venta.canalCodigo] ?? venta.canalCodigo} />
+                {venta.nombreCliente && (
+                  <Row label="Cliente" value={venta.nombreCliente} bold />
+                )}
+                {venta.nombreAcompanante && (
+                  <Row label="Acompañante" value={venta.nombreAcompanante} />
+                )}
+                {venta.dniAcompanante && (
+                  <Row label="DNI" value={venta.dniAcompanante} mono />
+                )}
+                {venta.fechaVisita && (
+                  <Row label="Fecha visita" value={formatDate(venta.fechaVisita, "d 'de' MMMM yyyy")} bold />
+                )}
+              </div>
 
-              {venta.pagos && venta.pagos.length > 0 && (
-                <section className="bg-white rounded-2xl p-5 border shadow-sm space-y-4">
-                  <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
-                    Métodos de Pago
-                  </h3>
+              <Divider dashed />
+
+              {/* Tickets */}
+              {venta.tickets?.length > 0 && (
+                <>
                   <div className="space-y-2">
-                    {venta.pagos.map((p) => (
-                      <div key={p.id} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
-                        <div>
-                          <span className="font-bold text-gray-700 uppercase">{p.medioPago}</span>
-                          {p.referencia && (
-                            <p className="text-[10px] text-gray-400 font-mono">Ref: {p.referencia}</p>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <span className="font-semibold text-gray-900">{formatCurrency(p.monto)}</span>
-                          <p className={`text-[9px] font-bold ${p.esValidado ? 'text-green-600' : 'text-amber-600'}`}>
-                            {p.esValidado ? 'Validado' : 'Pendiente'}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {venta.tickets && venta.tickets.length > 0 && (
-                <section className="bg-white rounded-2xl p-5 border shadow-sm space-y-4">
-                  <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
-                    Tickets Generados ({venta.tickets.length})
-                  </h3>
-                  <div className="space-y-3">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                      Entradas ({venta.tickets.length})
+                    </p>
                     {venta.tickets.map((t) => (
-                      <div key={t.id} className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0 gap-4">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-bold text-gray-900 truncate">
-                            {t.nombreNino} <span className="text-xs text-gray-400 font-normal">({t.edadNino} años)</span>
+                      <div key={t.id} className="flex items-center justify-between gap-2 py-1">
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">
+                            {t.nombreNino}
+                            <span className="text-gray-400 dark:text-gray-500 font-normal"> · {t.edadNino} años</span>
                           </p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[10px] font-mono font-bold text-primary">{t.numeroTicket}</span>
-                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                              t.ingresado ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                            }`}>
-                              {t.ingresado ? 'Ingresado' : 'Pendiente'}
-                            </span>
-                          </div>
+                          <p className="text-[10px] font-mono text-gray-500 dark:text-gray-400 mt-0.5">
+                            {t.numeroTicket}
+                          </p>
                         </div>
-                         <div className="flex items-center gap-1.5 shrink-0">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => {
-                              router.push(`/admin/reservas?search=${t.numeroTicket}&drawerId=${t.id}`);
-                            }}
-                            title="Ver en Reservas"
-                            className="h-8 w-8 text-gray-500 hover:text-gray-900"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                            t.ingresado
+                              ? 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'
+                              : 'border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500'
+                          }`}>
+                            {t.ingresado ? 'Ingresado' : 'Pendiente'}
+                          </span>
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => handleDescargarTicket(t.id)}
                             disabled={loadingTicketId === t.id || loadingPrintId === t.id}
-                            className="h-8 w-8 text-gray-500 hover:text-gray-900"
+                            className="h-7 w-7 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                            title="Descargar"
                           >
-                            {loadingTicketId === t.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Download className="h-4 w-4" />
-                            )}
+                            {loadingTicketId === t.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <Download className="h-3.5 w-3.5" />}
                           </Button>
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => handleImprimirTicket(t.id)}
                             disabled={loadingTicketId === t.id || loadingPrintId === t.id}
-                            className="h-8 w-8 text-gray-500 hover:text-gray-900"
+                            className="h-7 w-7 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                            title="Imprimir"
                           >
-                            {loadingPrintId === t.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Printer className="h-4 w-4" />
-                            )}
+                            {loadingPrintId === t.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <Printer className="h-3.5 w-3.5" />}
                           </Button>
                         </div>
                       </div>
                     ))}
                   </div>
-                </section>
-              )}
-              
-              {venta.notas && (
-                <section className="bg-amber-50/50 rounded-2xl p-5 border border-amber-100 shadow-sm space-y-2">
-                  <h3 className="text-[10px] font-black uppercase text-amber-800 tracking-widest">
-                    Notas Internas
-                  </h3>
-                  <p className="text-sm text-amber-900">{venta.notas}</p>
-                </section>
+                  <Divider dashed />
+                </>
               )}
 
+              {/* Desglose financiero */}
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">
+                  Desglose
+                </p>
+                <Row label="Subtotal" value={formatCurrency(venta.subtotal)} mono />
+                {venta.descuento > 0 && (
+                  <Row label="Descuento" value={`− ${formatCurrency(venta.descuento)}`} mono />
+                )}
+              </div>
+
+              <Divider />
+
+              <div className="flex justify-between items-baseline py-1">
+                <span className="text-sm font-black uppercase tracking-wide text-gray-900 dark:text-gray-100">
+                  Total
+                </span>
+                <span className="text-xl font-black font-mono text-gray-900 dark:text-gray-100">
+                  {formatCurrency(venta.total)}
+                </span>
+              </div>
+
+              <Divider />
+
+              {/* Métodos de pago */}
+              {venta.pagos?.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">
+                    Pagos recibidos
+                  </p>
+                  {venta.pagos.map((p) => (
+                    <div key={p.id} className="space-y-0.5">
+                      <Row
+                        label={METODO_LABEL[p.medioPago] ?? p.medioPago}
+                        value={formatCurrency(p.monto)}
+                        mono
+                      />
+                      {p.referencia && (
+                        <p className="text-[10px] font-mono text-gray-400 dark:text-gray-500 text-right">
+                          Ref: {p.referencia}
+                        </p>
+                      )}
+                      {!p.esValidado && (
+                        <p className="text-[10px] text-right text-gray-400 dark:text-gray-500 italic">
+                          Sin validar
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  {venta.vuelto != null && venta.vuelto > 0 && (
+                    <Row label="Vuelto" value={formatCurrency(venta.vuelto)} mono bold />
+                  )}
+                </div>
+              )}
+
+              {/* Notas */}
+              {venta.notas && (
+                <>
+                  <Divider dashed />
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                      Notas
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{venta.notas}</p>
+                  </div>
+                </>
+              )}
+
+              {/* Pie de página */}
+              <Divider dashed />
+              <div className="pb-2 flex items-center justify-between gap-2">
+                <p className="text-[10px] text-gray-300 dark:text-gray-600 font-mono">
+                  {formatDate(venta.createdAt, 'yyyy-MM-dd HH:mm')}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDescargar}
+                  disabled={descargando}
+                  className="h-7 text-xs gap-1.5 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                >
+                  {descargando
+                    ? <Loader2 className="h-3 w-3 animate-spin" />
+                    : <Download className="h-3 w-3" />}
+                  Descargar nota
+                </Button>
+              </div>
+
             </div>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>

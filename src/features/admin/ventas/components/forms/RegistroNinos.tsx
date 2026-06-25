@@ -21,13 +21,13 @@ export const RegistroNinos = ({ control, edadMin, edadMax }: RegistroNinosProps)
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Label className="text-xs font-bold text-gray-400 uppercase">
-          Niños <span className="text-primary">({fields.length})</span>
+        <Label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">
+          Niños <span className="text-brand-azul">({fields.length})</span>
         </Label>
         <button
           type="button"
           onClick={addNino}
-          className="flex items-center gap-1 text-[10px] font-bold text-primary hover:underline"
+          className="flex items-center gap-1 text-[10px] font-bold text-brand-azul hover:underline"
         >
           <Plus className="h-3 w-3" /> Agregar
         </button>
@@ -49,7 +49,7 @@ export const RegistroNinos = ({ control, edadMin, edadMax }: RegistroNinosProps)
                       {...f}
                       placeholder="Nombre completo"
                       onChange={(e) => f.onChange(e.target.value.toUpperCase())}
-                      className={cn('h-8 text-xs flex-1', errorNombre && 'border-red-400')}
+                      className={cn('h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700', errorNombre && 'border-red-400 dark:border-red-600')}
                     />
                   )}
                 />
@@ -64,7 +64,7 @@ export const RegistroNinos = ({ control, edadMin, edadMax }: RegistroNinosProps)
                       onChange={(e) => f.onChange(e.target.value === '' ? 0 : parseInt(e.target.value, 10))}
                       min={edadMin}
                       max={edadMax}
-                      className={cn('h-8 text-xs w-16', errorEdad && 'border-red-400')}
+                      className={cn('h-8 text-xs w-16 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700', errorEdad && 'border-red-400 dark:border-red-600')}
                     />
                   )}
                 />
@@ -72,14 +72,14 @@ export const RegistroNinos = ({ control, edadMin, edadMax }: RegistroNinosProps)
                   <button
                     type="button"
                     onClick={() => remove(i)}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-input text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-red-500 hover:border-red-200 dark:hover:border-red-800 dark:hover:text-red-400 transition-colors"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 )}
               </div>
               {(errorNombre || errorEdad) && (
-                <p className="text-[10px] text-red-500 pl-1">{errorNombre || errorEdad}</p>
+                <p className="text-[10px] text-red-500 dark:text-red-400 pl-1">{errorNombre || errorEdad}</p>
               )}
             </div>
           )

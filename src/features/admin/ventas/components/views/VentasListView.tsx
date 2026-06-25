@@ -1,42 +1,44 @@
 'use client'
 
 import React, { useState } from 'react'
+import { PlusCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { PageHeader } from '@/components/common/PageHeader'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-import { List, PlusCircle } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 import { useVentasNav } from '../../hooks/useVentasNav'
 import { useVentas } from '../../hooks/useVentasData'
 import { useAuth } from '@/hooks/useAuth'
-import { VentaMostradorView } from './VentaMostradorView'
 import { VentasTable } from '../table/VentasTable'
 import { VentasFilters } from '../table/VentasFilters'
 import { VentaDetailDrawer } from '../modals/VentaDetailDrawer'
 
 export const VentasListView = () => {
   const { idSede } = useAuth()
+  const router = useRouter()
   const {
     page,
     size,
     search,
     desde,
     hasta,
-    tab,
+    tipo,
     setPage,
     setSize,
     setSearch,
     setDesde,
     setHasta,
-    setTab,
+    setTipo,
   } = useVentasNav()
 
   const [selectedVentaId, setSelectedVentaId] = useState<number | null>(null)
 
-  const { data, isError, refetch } = useVentas({
+  const { data, isLoading, isError, refetch } = useVentas({
     idSede: idSede ?? undefined,
     page,
     size,
     search: search || undefined,
+    tipo: tipo || undefined,
     desde: desde || undefined,
     hasta: hasta || undefined,
   })
@@ -45,66 +47,60 @@ export const VentasListView = () => {
     <div className="space-y-5">
       <Breadcrumbs items={[{ label: 'Ventas' }]} />
 
-      <PageHeader
-        title="Gestión de Ventas"
-        description="Registro de ventas en mostrador e historial de transacciones"
+      <div className="flex items-start justify-between gap-4">
+        <PageHeader
+          title="Ventas"
+          description="Historial de transacciones y registro de ventas en caja"
+        />
+        <Button
+          onClick={() => router.push('/admin/ventas/nueva')}
+          className="shrink-0 gap-2 bg-brand-azul hover:bg-brand-azul/90 text-white h-10 px-5 rounded-xl font-bold text-sm"
+        >
+          <PlusCircle className="h-4 w-4" />
+          Nueva Venta
+        </Button>
+      </div>
+
+      <VentasFilters
+        search={search}
+        desde={desde}
+        hasta={hasta}
+        tipo={tipo}
+        onSearchChange={setSearch}
+        onDesdeChange={setDesde}
+        onHastaChange={setHasta}
+        onTipoChange={setTipo}
       />
 
-      <Tabs value={tab} onValueChange={setTab} className="space-y-5">
-        <TabsList className="bg-gray-100/80 border-none p-1 h-11">
-          <TabsTrigger 
-            value="lista" 
-            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 gap-2 text-xs font-bold"
+      {isError ? (
+        <div className="p-8 text-center bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-100 dark:border-red-900/50">
+          <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+            Error al cargar el historial de ventas.
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="text-xs font-bold text-red-500 dark:text-red-400 hover:underline mt-2"
           >
-            <List className="h-4 w-4" /> Historial
-          </TabsTrigger>
-          <TabsTrigger 
-            value="nueva" 
-            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 gap-2 text-xs font-bold"
-          >
-            <PlusCircle className="h-4 w-4" /> Nueva Venta
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="lista" className="space-y-4">
-          <VentasFilters
-            search={search}
-            desde={desde}
-            hasta={hasta}
-            onSearchChange={setSearch}
-            onDesdeChange={setDesde}
-            onHastaChange={setHasta}
-          />
-
-          {isError ? (
-            <div className="p-8 text-center bg-red-50 rounded-xl border border-red-100">
-              <p className="text-sm font-semibold text-red-600">Error al cargar el historial de ventas.</p>
-              <button onClick={() => refetch()} className="text-xs font-bold text-red-500 hover:underline mt-2">
-                Reintentar
-              </button>
-            </div>
-          ) : (
-            <VentasTable
-              data={data}
-              page={page}
-              size={size}
-              onPageChange={setPage}
-              onSizeChange={setSize}
-              onViewVenta={(id) => setSelectedVentaId(Number(id))}
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="nueva">
-          <VentaMostradorView />
-        </TabsContent>
-      </Tabs>
+            Reintentar
+          </button>
+        </div>
+      ) : (
+        <VentasTable
+          data={data}
+          isLoading={isLoading}
+          page={page}
+          size={size}
+          onPageChange={setPage}
+          onSizeChange={setSize}
+          onViewVenta={(id) => setSelectedVentaId(Number(id))}
+        />
+      )}
 
       <VentaDetailDrawer
         ventaId={selectedVentaId}
         onClose={() => setSelectedVentaId(null)}
       />
+
     </div>
   )
 }
-

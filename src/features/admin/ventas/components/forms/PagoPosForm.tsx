@@ -35,24 +35,29 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
   const addPago = () => {
     const usados = new Set(pagos?.map((p) => p.medioPago) || [])
     const disponible = METODOS.find((m) => !usados.has(m.value))
-    append({ medioPago: disponible ? disponible.value : 'EFECTIVO', monto: 0 })
+    if (!disponible) return
+    append({ medioPago: disponible.value, monto: 0 })
   }
 
   const { sumaPagos, vuelto, saldo } = calcularResumenPagos(pagos || [], efectivoRecibido || 0, total)
 
   const tieneEfectivo = pagos.some((p) => p.medioPago === 'EFECTIVO' && p.monto > 0)
+  const efectivoMonto = pagos.find((p) => p.medioPago === 'EFECTIVO')?.monto ?? 0
+  const todosUsados = (pagos?.length ?? 0) >= METODOS.length
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-xs font-bold text-gray-400 uppercase">Pagos</Label>
-        <button
-          type="button"
-          onClick={addPago}
-          className="flex items-center gap-1 text-[10px] font-bold text-primary hover:underline"
-        >
-          <Plus className="h-3 w-3" /> Dividir pago
-        </button>
+        <Label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Pagos</Label>
+        {!todosUsados && (
+          <button
+            type="button"
+            onClick={addPago}
+            className="flex items-center gap-1 text-[10px] font-bold text-brand-azul hover:underline"
+          >
+            <Plus className="h-3 w-3" /> Dividir pago
+          </button>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -66,7 +71,7 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                   name={`pagos.${i}.medioPago`}
                   render={({ field: f }) => (
                     <Select value={f.value} onValueChange={f.onChange}>
-                      <SelectTrigger className="h-8 text-xs w-32 shrink-0">
+                      <SelectTrigger className="h-8 text-xs w-32 shrink-0 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -88,7 +93,7 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                       placeholder="0.00"
                       value={f.value || ''}
                       onChange={(e) => f.onChange(parseFloat(e.target.value) || 0)}
-                      className={cn('h-8 text-xs flex-1', errorMonto && 'border-red-400')}
+                      className={cn('h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700', errorMonto && 'border-red-400 dark:border-red-600')}
                     />
                   )}
                 />
@@ -96,23 +101,23 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                   <button
                     type="button"
                     onClick={() => remove(i)}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-input text-gray-400"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-red-500 hover:border-red-200 dark:hover:text-red-400 dark:hover:border-red-800 transition-colors"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 )}
               </div>
-              {errorMonto && <p className="text-[10px] text-red-500 pl-1">{errorMonto}</p>}
+              {errorMonto && <p className="text-[10px] text-red-500 dark:text-red-400 pl-1">{errorMonto}</p>}
             </div>
           )
         })}
       </div>
 
       {tieneEfectivo && (
-        <div className="p-3 bg-gray-50 border rounded-xl space-y-3">
+        <div className="p-3 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-[10px] font-bold text-gray-400 uppercase">Efectivo recibido</Label>
-            <span className="text-xs font-bold text-primary">{formatCurrency(efectivoRecibido)}</span>
+            <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Efectivo recibido</Label>
+            <span className="text-xs font-bold text-brand-azul">{formatCurrency(efectivoRecibido)}</span>
           </div>
 
           <Controller
@@ -134,15 +139,22 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                         key={monto}
                         type="button"
                         onClick={() => f.onChange((f.value || 0) + monto)}
-                        className="px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-white hover:bg-gray-100 transition-colors"
+                        className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-600 text-[10px] font-bold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       >
                         S/{monto}
                       </button>
                     ))}
                     <button
                       type="button"
+                      onClick={() => f.onChange(efectivoMonto)}
+                      className="px-2.5 py-1 rounded-lg border border-brand-azul/40 text-[10px] font-bold text-brand-azul hover:bg-brand-azul/5 dark:hover:bg-brand-azul/10 transition-colors"
+                    >
+                      Exacto
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => f.onChange(0)}
-                      className="px-2.5 py-1 rounded-lg border border-rose-200 text-[10px] font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                      className="px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-800 text-[10px] font-bold text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                     >
                       Limpiar
                     </button>
@@ -159,12 +171,12 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                           agregarOtro()
                         }
                       }}
-                      className="h-7 w-24 text-[10px] px-2"
+                      className="h-7 w-24 text-[10px] px-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
                     />
                     <button
                       type="button"
                       onClick={agregarOtro}
-                      className="px-2.5 py-1 rounded-lg border text-[10px] font-bold text-primary hover:bg-primary/5 transition-colors"
+                      className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-600 text-[10px] font-bold text-brand-azul hover:bg-brand-azul/5 dark:hover:bg-brand-azul/10 transition-colors"
                     >
                       Agregar
                     </button>
@@ -175,16 +187,16 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
           />
 
           {vuelto > 0 && (
-            <div className="flex items-center justify-between pt-2 border-t">
-              <span className="text-[10px] font-bold text-green-600 uppercase">Vuelto</span>
-              <span className="text-sm font-black text-green-600">{formatCurrency(vuelto)}</span>
+            <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
+              <span className="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase">Vuelto</span>
+              <span className="text-sm font-black text-green-600 dark:text-green-400">{formatCurrency(vuelto)}</span>
             </div>
           )}
         </div>
       )}
 
       {sumaPagos > 0 && Math.abs(sumaPagos - total) > 0.01 && (
-        <p className="text-[10px] font-bold text-amber-600 text-center">
+        <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 text-center">
           {sumaPagos < total ? `Falta cobrar ${formatCurrency(saldo)}` : `Sobra ${formatCurrency(sumaPagos - total)}`}
         </p>
       )}

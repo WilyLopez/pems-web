@@ -36,7 +36,7 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
 
   const handleRegistrarVisita = () => {
     if (!cliente) return
-    router.push(`/admin/ventas?tab=nueva&clienteId=${cliente.id}`)
+    router.push(`/admin/ventas/nueva?clienteId=${cliente.id}`)
   }
 
   if (!cliente) return null

@@ -1,39 +1,29 @@
 import { z } from 'zod'
+import {
+  NOMBRE_REGEX, DNI_REGEX, TELEFONO_CELULAR_REGEX as TELEFONO_PERU_REGEX,
+  nombreField, dniField, montoCoerceField,
+} from '@/lib/validations/campos'
+import { format } from 'date-fns'
 
-export const NOMBRE_REGEX = /^[A-Za-zÁÉÍÓÚÑáéíóúñ][A-Za-zÁÉÍÓÚÑáéíóúñ\s]{1,79}$/
-export const DNI_REGEX = /^\d{8}$/
-export const TELEFONO_PERU_REGEX = /^9\d{8}$/
+export { NOMBRE_REGEX, DNI_REGEX, TELEFONO_PERU_REGEX }
 
 export const METODOS_PAGO = ['EFECTIVO', 'YAPE', 'PLIN', 'TARJETA', 'TRANSFERENCIA'] as const
 
 export const pagoLineaSchema = z.object({
   medioPago: z.enum(METODOS_PAGO),
-  monto: z.coerce
-    .number({ message: 'Ingresa un monto válido' })
-    .positive('El monto debe ser mayor a 0'),
+  monto:     montoCoerceField,
   referencia: z.string().trim().optional(),
 })
 
 export const acompananteSchema = z.object({
-  nombre: z
-    .string()
-    .trim()
-    .min(2, 'Ingresa el nombre completo')
-    .regex(NOMBRE_REGEX, 'El nombre no debe contener números ni símbolos'),
-  dni: z.string().trim().regex(DNI_REGEX, 'El DNI debe tener exactamente 8 dígitos'),
-  telefono: z
-    .string()
-    .trim()
-    .regex(TELEFONO_PERU_REGEX, 'Ingresa un celular válido (9 dígitos, empieza con 9)'),
+  nombre:   nombreField,
+  dni:      dniField,
+  telefono: z.string().trim().regex(TELEFONO_PERU_REGEX, 'Ingresa un celular válido (9 dígitos, empieza con 9)'),
 })
 
 function buildNinoSchema(edadMin: number, edadMax: number) {
   return z.object({
-    nombreNino: z
-      .string()
-      .trim()
-      .min(2, 'Ingresa el nombre completo')
-      .regex(NOMBRE_REGEX, 'El nombre no debe contener números ni símbolos'),
+    nombreNino: nombreField,
     edadNino: z.coerce
       .number({ message: 'Ingresa la edad' })
       .int('La edad debe ser un número entero')
@@ -43,19 +33,23 @@ function buildNinoSchema(edadMin: number, edadMax: number) {
 }
 
 export function buildVentaMostradorSchema(edadMin: number, edadMax: number) {
+  const hoy = format(new Date(), 'yyyy-MM-dd')
   return z.object({
-    fechaVisita: z.string().min(1, 'Selecciona una fecha de visita'),
+    fechaVisita: z.string()
+      .min(1, 'Selecciona una fecha de visita')
+      .refine((val) => !isNaN(new Date(val).getTime()), 'Fecha inválida')
+      .refine((val) => val >= hoy, 'La fecha de visita no puede ser en el pasado'),
     ninos: z
       .array(buildNinoSchema(edadMin, edadMax))
       .min(1, 'Agrega al menos un niño')
       .superRefine((ninos, ctx) => {
         const vistos = new Set<string>()
         ninos.forEach((nino, index) => {
-          const clave = nino.nombreNino.trim().toUpperCase()
+          const clave = `${nino.nombreNino.trim().toUpperCase()}_${nino.edadNino}`
           if (clave && vistos.has(clave)) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: 'Este niño ya fue agregado en la misma venta',
+              message: 'Ya agregaste un niño con el mismo nombre y edad',
               path: [index, 'nombreNino'],
             })
           }

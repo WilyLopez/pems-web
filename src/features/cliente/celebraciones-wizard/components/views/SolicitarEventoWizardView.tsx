@@ -33,6 +33,7 @@ import { useWizardTimer } from '../../hooks/useWizardTimer'
 import { usePaquetesPublico, useTiposEventoPublico } from '@/hooks/useComercial'
 import { useExtrasPaquete, useTurnos, useServiciosCotizacion } from '@/hooks/useEventos'
 import { useDisponibilidadRango } from '@/hooks/useDisponibilidad'
+import { useConfiguracionCalendarioPublica } from '@/hooks/useCalendario'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -160,7 +161,11 @@ export function SolicitarEventoWizardView() {
   const { idSede: idSedeAuth, idUsuario, clientePerfilId, isAuthenticated } = useAuth()
   const idSede = idSedeAuth ?? 1
 
-  const wizard = useSolicitarEventoWizard(clientePerfilId ?? idUsuario, idSede, isAuthenticated)
+  const { data: configPublica } = useConfiguracionCalendarioPublica(idSede)
+  const edadMin = configPublica?.edadMinCumple ?? 0
+  const edadMax = configPublica?.edadMaxCumple ?? 17
+
+  const wizard = useSolicitarEventoWizard(clientePerfilId ?? idUsuario, idSede, isAuthenticated, edadMin, edadMax)
   const {
     paso, setPaso,
     modalAnticipacion, setModalAnticipacion,
@@ -200,6 +205,7 @@ export function SolicitarEventoWizardView() {
     resume: resumeTimer,
   } = useWizardTimer({
     durationSeconds: WIZARD_DURATION,
+    sessionKey: 'evento_wizard_timer',
     onExpire: () => setTimerExpired(true),
   })
 
@@ -330,6 +336,7 @@ export function SolicitarEventoWizardView() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50/50">
       <WizardHeader
+        titulo="Solicitar evento"
         paso={paso}
         total={4}
         onSalir={() => router.push('/celebraciones')}
@@ -857,14 +864,14 @@ export function SolicitarEventoWizardView() {
                         id="edadCumple"
                         type="number"
                         placeholder="5"
-                        min={0}
-                        max={17}
+                        min={edadMin}
+                        max={edadMax}
                         value={edadCumple ?? ''}
                         onChange={(e) => setEdadCumple(e.target.value ? parseInt(e.target.value) : null)}
                         className={cn('h-11 rounded-xl', validationErrors.edadCumple && 'border-red-400')}
                       />
                       <FieldError message={validationErrors.edadCumple} />
-                      {edadCumple !== null && edadCumple >= 12 && !validationErrors.edadCumple && (
+                      {edadCumple !== null && edadCumple >= Math.max(edadMin, edadMax - 5) && !validationErrors.edadCumple && (
                         <FieldWarning message="Este paquete está pensado para niños. ¿Es correcto?" />
                       )}
                     </div>

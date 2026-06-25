@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { nombreField, correoField, telefonoField, dniOpcionalField } from '@/lib/validations/campos'
+import { nombreField, correoField, telefonoField, dniOpcionalField, contrasenaSeguraField } from '@/lib/validations/campos'
 
 export const loginSchema = z.object({
   correo: correoField,
@@ -12,7 +12,7 @@ export const registroSchema = z
   .object({
     nombre: nombreField,
     correo: correoField,
-    contrasena: z.string().min(8, 'Mínimo 8 caracteres').max(72),
+    contrasena: contrasenaSeguraField,
     confirmarContrasena: z.string().min(1, 'Confirma tu contraseña'),
     telefono: telefonoField,
     dni: dniOpcionalField,
