@@ -154,6 +154,7 @@ export function useGastoEventoMutations() {
     onSuccess: (_, variables) => {
       toast.success('Gasto registrado.')
       qc.invalidateQueries({ queryKey: FINANCE_KEYS.GASTOS_EVENTO(variables.idEvento) })
+      qc.invalidateQueries({ queryKey: FINANCE_KEYS.RESUMEN_EVENTO(variables.idEvento) })
     },
     onError: () => toast.error('No se pudo registrar el gasto.'),
   })
@@ -164,6 +165,7 @@ export function useGastoEventoMutations() {
     onSuccess: (_, variables) => {
       toast.success('Gasto eliminado.')
       qc.invalidateQueries({ queryKey: FINANCE_KEYS.GASTOS_EVENTO(variables.idEvento) })
+      qc.invalidateQueries({ queryKey: FINANCE_KEYS.RESUMEN_EVENTO(variables.idEvento) })
     },
     onError: () => toast.error('No se pudo eliminar el gasto.'),
   })

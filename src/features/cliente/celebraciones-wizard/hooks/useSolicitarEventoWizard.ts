@@ -5,11 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import { eventoService } from '@/services/evento.service'
 import { toast } from 'sonner'
 import { TipoEvento, Camino, EventoPrivado } from '../../shared/types'
-
-/** Regex: allows letters (including accented), spaces and apostrophes */
-const NOMBRE_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']+$/
-/** Regex: phone numbers – digits, spaces, +, - */
-const TELEFONO_REGEX = /^[0-9+\-\s]{7,15}$/
+import { NOMBRE_REGEX, TELEFONO_CELULAR_REGEX } from '@/lib/validations/campos'
 
 export interface WizardValidationErrors {
   descripcion?: string
@@ -21,7 +17,13 @@ export interface WizardValidationErrors {
   otrasIdeas?: string
 }
 
-export function useSolicitarEventoWizard(idUsuario: number | null, idSede: number, isAuthenticated: boolean) {
+export function useSolicitarEventoWizard(
+  idUsuario: number | null,
+  idSede: number,
+  isAuthenticated: boolean,
+  edadMin = 0,
+  edadMax = 17,
+) {
   const [paso, setPaso] = useState<1 | 2 | 3 | 4>(1)
   const [modalAnticipacion, setModalAnticipacion] = useState(false)
   const [tipoEvento, setTipoEvento] = useState<TipoEvento | null>(null)
@@ -86,11 +88,12 @@ export function useSolicitarEventoWizard(idUsuario: number | null, idSede: numbe
     }
 
     if (edadCumple !== null) {
-      if (edadCumple < 0 || edadCumple > 17) errors.edadCumple = 'La edad debe estar entre 0 y 17 años'
+      if (edadCumple < edadMin || edadCumple > edadMax)
+        errors.edadCumple = `La edad debe estar entre ${edadMin} y ${edadMax} años`
     }
 
-    if (telefonoAdicional && !TELEFONO_REGEX.test(telefonoAdicional)) {
-      errors.telefonoAdicional = 'Ingresa un número de teléfono válido (7–15 dígitos)'
+    if (telefonoAdicional && !TELEFONO_CELULAR_REGEX.test(telefonoAdicional)) {
+      errors.telefonoAdicional = 'Debe ser un celular de 9 dígitos que comience con 9'
     }
 
     if (presupuestoCliente !== null) {
@@ -128,8 +131,8 @@ export function useSolicitarEventoWizard(idUsuario: number | null, idSede: numbe
     // Nombre del niño required for cumpleaños
     if (tipoEvento === 'CUMPLEANOS' && (!nombreNino || nombreNino.trim().length < 2)) return false
     if (nombreNino && !NOMBRE_REGEX.test(nombreNino)) return false
-    if (telefonoAdicional && !TELEFONO_REGEX.test(telefonoAdicional)) return false
-    if (edadCumple !== null && (edadCumple < 0 || edadCumple > 17)) return false
+    if (telefonoAdicional && !TELEFONO_CELULAR_REGEX.test(telefonoAdicional)) return false
+    if (edadCumple !== null && (edadCumple < edadMin || edadCumple > edadMax)) return false
     return true
   }, [fechaSel, idTurno, invitados, tipoEvento, nombreNino, telefonoAdicional, edadCumple])
 

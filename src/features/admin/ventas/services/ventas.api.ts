@@ -45,6 +45,7 @@ export const ventasApi = {
     if (filtros.desde) params.append('desde', filtros.desde)
     if (filtros.hasta) params.append('hasta', filtros.hasta)
     if (filtros.search) params.append('search', filtros.search)
+    if (filtros.tipo) params.append('tipo', filtros.tipo)
     if (filtros.page !== undefined) params.append('page', filtros.page.toString())
     if (filtros.size !== undefined) params.append('size', filtros.size.toString())
     

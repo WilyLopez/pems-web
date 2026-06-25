@@ -27,8 +27,8 @@ export const crearUsuarioSchema = z
 export type CrearUsuarioFormValues = z.infer<typeof crearUsuarioSchema>
 
 export const editarUsuarioSchema = z.object({
-  nombre: z.string().min(2, 'Mínimo 2 caracteres').max(120),
-  telefono: z.string().optional(),
+  nombre:   nombreField,
+  telefono: telefonoOpcionalField,
 })
 
 export type EditarUsuarioFormValues = z.infer<typeof editarUsuarioSchema>
