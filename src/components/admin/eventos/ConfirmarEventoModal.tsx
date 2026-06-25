@@ -20,13 +20,12 @@ import {
 } from 'lucide-react'
 import { useConfirmarEvento } from '@/hooks/useEventos'
 import { useGenerarContrato } from '@/hooks/useContratos'
-import { EventoPrivado } from '@/types/evento.types'
+import { EventoPrivado, ModalidadPago, PagoItem } from '@/types/evento.types'
 import { PLANTILLAS, PlantillaId, aplicarPlantilla } from '@/types/contrato.types'
 import { formatCurrency, formatDate, cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { Badge } from '@/components/ui/Badge'
 import { Separator } from '@/components/ui/Separator'
 import {
   Dialog,
@@ -41,6 +40,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
+import { MultiMedioPago } from '@/features/admin/eventos/components/forms/MultiMedioPago'
+import { PlanCuotasBuilder, PlanCuotasValue } from '@/features/admin/eventos/components/forms/PlanCuotasBuilder'
 
 type Paso = 1 | 2 | 3
 
@@ -58,7 +59,6 @@ const preciSchema = z
     montoAdelanto: z.coerce
       .number('Ingresa un monto válido')
       .min(0, 'El adelanto no puede ser negativo'),
-    medioPagoAdelanto: z.string().min(1, 'Selecciona el medio de pago'),
   })
   .refine((v) => v.montoAdelanto <= v.precioTotal, {
     message: 'El adelanto no puede superar el precio total',
@@ -67,12 +67,12 @@ const preciSchema = z
 
 type PrecioValues = z.infer<typeof preciSchema>
 
-const MEDIOS_PAGO = [
-  { value: 'EFECTIVO',      label: 'Efectivo' },
-  { value: 'YAPE',          label: 'Yape' },
-  { value: 'TRANSFERENCIA', label: 'Transferencia bancaria' },
-  { value: 'TARJETA',       label: 'Tarjeta' },
-]
+type PrecioData = PrecioValues & {
+  pagosAdelanto: PagoItem[]
+  modalidadPago: ModalidadPago
+  numeroCuotas?: number
+  fechaLimitePago?: string
+}
 
 const PASOS_LABELS: Record<Paso, string> = {
   1: 'Contactar',
@@ -113,9 +113,14 @@ function StepIndicator({ paso }: { paso: Paso }) {
 }
 
 export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
-  const [paso, setPaso]           = useState<Paso>(1)
-  const [precioData, setPrecioData] = useState<PrecioValues | null>(null)
-  const [plantillaId, setPlantillaId] = useState<PlantillaId | ''>('')
+  const [paso, setPaso]                   = useState<Paso>(1)
+  const [precioData, setPrecioData]       = useState<PrecioData | null>(null)
+  const [pagosAdelanto, setPagosAdelanto] = useState<PagoItem[]>([{ medioPago: '', monto: 0 }])
+  const [modalidadPago, setModalidadPago] = useState<ModalidadPago>('AL_CONTADO')
+  const [planCuotas, setPlanCuotas]       = useState<PlanCuotasValue>({ numeroCuotas: 2, fechaLimitePago: '' })
+  const [pagoError, setPagoError]                     = useState<string | null>(null)
+  const [fechaLimitePagoContado, setFechaLimitePagoContado] = useState(evento.fechaEvento)
+  const [plantillaId, setPlantillaId]     = useState<PlantillaId | ''>('')
   const [opcionContrato, setOpcionContrato] = useState<'plantilla' | 'manual' | 'omitir' | null>(null)
   const [contratoGenerado, setContratoGenerado] = useState(false)
 
@@ -126,22 +131,26 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
     register,
     handleSubmit,
     watch,
-    setValue,
     reset,
     formState: { errors },
   } = useForm<PrecioValues>({
     resolver: zodResolver(preciSchema),
-    defaultValues: { precioTotal: 0, montoAdelanto: 0, medioPagoAdelanto: '' },
+    defaultValues: { precioTotal: 0, montoAdelanto: 0 },
   })
 
   useEffect(() => {
     if (open) {
       setPaso(1)
       setPrecioData(null)
+      setPagosAdelanto([{ medioPago: '', monto: 0 }])
+      setModalidadPago('AL_CONTADO')
+      setPlanCuotas({ numeroCuotas: 2, fechaLimitePago: '' })
+      setPagoError(null)
+      setFechaLimitePagoContado(evento.fechaEvento)
       setPlantillaId('')
       setOpcionContrato(null)
       setContratoGenerado(false)
-      reset({ precioTotal: 0, montoAdelanto: 0, medioPagoAdelanto: '' })
+      reset({ precioTotal: 0, montoAdelanto: 0 })
     }
   }, [open, reset])
 
@@ -175,7 +184,56 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
     : ''
 
   function onPrecioSubmit(values: PrecioValues) {
-    setPrecioData(values)
+    if (values.montoAdelanto > 0) {
+      const allValid = pagosAdelanto.every((p) => p.medioPago && p.monto > 0)
+      if (!allValid) {
+        setPagoError('Completa todos los medios de pago y sus montos.')
+        return
+      }
+      const sumaTotal = pagosAdelanto.reduce((acc, p) => acc + p.monto, 0)
+      if (Math.abs(sumaTotal - values.montoAdelanto) >= 0.01) {
+        setPagoError(
+          `La suma de los medios (${formatCurrency(sumaTotal)}) debe coincidir con el adelanto (${formatCurrency(values.montoAdelanto)}).`
+        )
+        return
+      }
+    }
+
+    if (modalidadPago === 'AL_CONTADO') {
+      if (!fechaLimitePagoContado) {
+        setPagoError('Define la fecha límite de pago del saldo.')
+        return
+      }
+      if (new Date(fechaLimitePagoContado) > new Date(evento.fechaEvento)) {
+        setPagoError('La fecha límite no puede ser posterior al día del evento.')
+        return
+      }
+    }
+
+    if (modalidadPago === 'CUOTAS') {
+      if (!planCuotas.fechaLimitePago) {
+        setPagoError('Define la fecha límite de pago para el plan de cuotas.')
+        return
+      }
+      if (new Date(planCuotas.fechaLimitePago) <= new Date()) {
+        setPagoError('La fecha límite de pago debe ser posterior a hoy.')
+        return
+      }
+      if (new Date(planCuotas.fechaLimitePago) > new Date(evento.fechaEvento)) {
+        setPagoError('La fecha límite no puede ser posterior al día del evento.')
+        return
+      }
+    }
+
+    setPagoError(null)
+    setPrecioData({
+      ...values,
+      pagosAdelanto: values.montoAdelanto > 0 ? pagosAdelanto : [],
+      modalidadPago,
+      ...(modalidadPago === 'CUOTAS'
+        ? { numeroCuotas: planCuotas.numeroCuotas, fechaLimitePago: planCuotas.fechaLimitePago }
+        : { fechaLimitePago: fechaLimitePagoContado }),
+    })
     setPaso(3)
   }
 
@@ -198,9 +256,12 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
       {
         id: evento.id,
         payload: {
-          precioTotal:       precioData.precioTotal,
-          montoAdelanto:     precioData.montoAdelanto,
-          medioPagoAdelanto: precioData.medioPagoAdelanto,
+          precioTotal:     precioData.precioTotal,
+          montoAdelanto:   precioData.montoAdelanto,
+          pagosAdelanto:   precioData.pagosAdelanto.length > 0 ? precioData.pagosAdelanto : undefined,
+          modalidadPago:   precioData.modalidadPago,
+          numeroCuotas:    precioData.numeroCuotas,
+          fechaLimitePago: precioData.fechaLimitePago,
         },
       },
       { onSuccess: onClose }
@@ -209,7 +270,7 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-base font-bold flex items-center gap-2">
             <PartyPopper className="h-4 w-4 text-brand-rosa" />
@@ -352,24 +413,69 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
               )}
             </div>
 
+            {montoAdelanto > 0 && (
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold">Medio(s) de pago del adelanto</Label>
+                <MultiMedioPago
+                  value={pagosAdelanto}
+                  onChange={setPagosAdelanto}
+                  totalEsperado={montoAdelanto}
+                />
+              </div>
+            )}
+
             <div className="space-y-1.5">
-              <Label className="text-sm font-semibold">Medio de pago del adelanto</Label>
-              <Select onValueChange={(v) => setValue('medioPagoAdelanto', v)}>
-                <SelectTrigger className="h-10 rounded-xl">
-                  <SelectValue placeholder="Selecciona..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {MEDIOS_PAGO.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      {m.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.medioPagoAdelanto && (
-                <p className="text-xs text-destructive">{errors.medioPagoAdelanto.message}</p>
-              )}
+              <Label className="text-sm font-semibold">Modalidad de pago</Label>
+              <div className="flex gap-2">
+                {(['AL_CONTADO', 'CUOTAS'] as ModalidadPago[]).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setModalidadPago(m)}
+                    className={cn(
+                      'flex-1 py-2 rounded-xl border-2 text-sm font-semibold transition-all',
+                      modalidadPago === m
+                        ? 'border-brand-azul bg-brand-azul/5 text-brand-azul'
+                        : 'border-gray-100 text-gray-500 hover:border-gray-200'
+                    )}
+                  >
+                    {m === 'AL_CONTADO' ? 'Al contado' : 'En cuotas'}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {modalidadPago === 'AL_CONTADO' && (
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold">Fecha límite de pago del saldo</Label>
+                <Input
+                  type="date"
+                  min={new Date().toISOString().split('T')[0]}
+                  max={evento.fechaEvento}
+                  value={fechaLimitePagoContado}
+                  onChange={(e) => setFechaLimitePagoContado(e.target.value)}
+                  className="h-10 rounded-xl"
+                />
+                {fechaLimitePagoContado && new Date(fechaLimitePagoContado) > new Date(evento.fechaEvento) && (
+                  <p className="text-xs text-destructive">
+                    La fecha límite no puede ser posterior al día del evento.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {modalidadPago === 'CUOTAS' && (
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold">Plan de cuotas</Label>
+                <PlanCuotasBuilder
+                  precioTotal={precioTotal}
+                  montoAdelanto={montoAdelanto}
+                  value={planCuotas}
+                  onChange={setPlanCuotas}
+                  fechaMaxima={evento.fechaEvento}
+                />
+              </div>
+            )}
 
             {precioTotal > 0 && (
               <div className="rounded-xl bg-gray-50 border border-gray-100 p-3 space-y-1.5 text-sm">
@@ -389,6 +495,10 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                   </span>
                 </div>
               </div>
+            )}
+
+            {pagoError && (
+              <p className="text-xs text-destructive">{pagoError}</p>
             )}
 
             <div className="flex justify-between gap-2 pt-1">
@@ -415,13 +525,22 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
         {paso === 3 && (
           <div className="space-y-4">
             {precioData && (
-              <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-2 flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                <span className="text-green-800">
-                  Precio: <strong>{formatCurrency(precioData.precioTotal)}</strong>
-                  {' · '}Adelanto: <strong>{formatCurrency(precioData.montoAdelanto)}</strong>
-                  {' · '}Saldo: <strong>{formatCurrency(precioData.precioTotal - precioData.montoAdelanto)}</strong>
-                </span>
+              <div className="rounded-xl bg-green-50 border border-green-100 px-3 py-2 space-y-1">
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                  <span className="text-green-800">
+                    Precio: <strong>{formatCurrency(precioData.precioTotal)}</strong>
+                    {' · '}Adelanto: <strong>{formatCurrency(precioData.montoAdelanto)}</strong>
+                    {' · '}Saldo: <strong>{formatCurrency(precioData.precioTotal - precioData.montoAdelanto)}</strong>
+                  </span>
+                </div>
+                {precioData.fechaLimitePago && (
+                  <p className="text-xs text-green-700 ml-6">
+                    {precioData.modalidadPago === 'CUOTAS'
+                      ? `${precioData.numeroCuotas} cuotas · vence ${formatDate(precioData.fechaLimitePago)}`
+                      : `Pago único antes del ${formatDate(precioData.fechaLimitePago)}`}
+                  </p>
+                )}
               </div>
             )}
 
