@@ -4,6 +4,7 @@ import {
   ConfiguracionCalendario,
   ConfiguracionCalendarioPublica,
   Disponibilidad,
+  ProgramacionSemanal,
   ResumenDia,
   TipoBloqueo,
 } from '../types'
@@ -94,5 +95,27 @@ export const calendarApi = {
 
   eliminarFeriado: async (idFeriado: number): Promise<void> => {
     await api.delete(`/feriados/${idFeriado}`)
+  },
+
+  crearProgramacion: async (
+    idSede: number,
+    payload: { semanaInicio: string; semanaFin: string }
+  ): Promise<ProgramacionSemanal> => {
+    const { data } = await api.post<ApiResponse<ProgramacionSemanal>>(
+      `/calendario/sedes/${idSede}/programaciones`,
+      payload
+    )
+    return data.data
+  },
+
+  cancelarProgramacion: async (idSede: number, id: number): Promise<void> => {
+    await api.delete(`/calendario/sedes/${idSede}/programaciones/${id}`)
+  },
+
+  listarProgramaciones: async (idSede: number): Promise<ProgramacionSemanal[]> => {
+    const { data } = await api.get<ApiResponse<ProgramacionSemanal[]>>(
+      `/calendario/sedes/${idSede}/programaciones`
+    )
+    return data.data
   },
 }
