@@ -1,22 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Columns2, Eye, Code, Sparkles } from 'lucide-react'
-import {
-  PLANTILLAS,
-  PlantillaId,
-  aplicarPlantilla,
-  Contrato,
-} from '@/types/contrato.types'
-import { Button } from '@/components/ui/Button'
-import { Label } from '@/components/ui/Label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
+import { useState } from 'react'
+import { Columns2, Eye, Code } from 'lucide-react'
+import { Contrato } from '@/types/contrato.types'
 import { cn } from '@/lib/utils'
 
 interface ContratoEditorProps {
@@ -26,52 +12,18 @@ interface ContratoEditorProps {
   readOnly?: boolean
 }
 
-export function ContratoEditor({
-  value,
-  onChange,
-  contrato,
-  readOnly,
-}: ContratoEditorProps) {
+export function ContratoEditor({ value, onChange, readOnly }: ContratoEditorProps) {
   const [vista, setVista] = useState<'editor' | 'preview' | 'split'>('split')
-  const [plantillaId, setPlantillaId] = useState<PlantillaId | ''>('')
-
-  const aplicar = (id: PlantillaId) => {
-    setPlantillaId(id)
-    const texto = aplicarPlantilla(PLANTILLAS[id].plantilla, contrato ?? {})
-    onChange(texto)
-  }
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
-        {!readOnly && (
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-brand-azul" />
-            <Label className="text-sm font-semibold">Plantilla</Label>
-            <Select
-              value={plantillaId}
-              onValueChange={(v) => aplicar(v as PlantillaId)}
-            >
-              <SelectTrigger className="h-9 rounded-xl w-52 text-xs">
-                <SelectValue placeholder="Seleccionar plantilla..." />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(PLANTILLAS).map(([key, { label }]) => (
-                  <SelectItem key={key} value={key} className="text-xs">
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        <div className="flex items-center bg-gray-100 rounded-xl p-1 gap-0.5 self-start">
+      <div className="flex justify-end">
+        <div className="flex items-center bg-gray-100 rounded-xl p-1 gap-0.5">
           {(
             [
-              { v: 'editor', icon: Code, label: 'Editor' },
-              { v: 'split', icon: Columns2, label: 'Dividido' },
-              { v: 'preview', icon: Eye, label: 'Vista previa' },
+              { v: 'editor',  icon: Code,    label: 'Editor' },
+              { v: 'split',   icon: Columns2, label: 'Dividido' },
+              { v: 'preview', icon: Eye,     label: 'Vista previa' },
             ] as const
           ).map(({ v, icon: Icon, label }) => (
             <button
@@ -98,12 +50,7 @@ export function ContratoEditor({
         )}
       >
         {(vista === 'editor' || vista === 'split') && (
-          <div
-            className={cn(
-              'relative',
-              vista === 'split' && 'border-r border-gray-200'
-            )}
-          >
+          <div className={cn('relative', vista === 'split' && 'border-r border-gray-200')}>
             {vista === 'split' && (
               <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100 text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
                 Editor
@@ -118,7 +65,7 @@ export function ContratoEditor({
                 'w-full p-4 text-xs font-mono text-gray-800 leading-relaxed resize-none outline-none bg-white',
                 readOnly && 'bg-gray-50 cursor-default'
               )}
-              placeholder="Redacta el contenido del contrato o selecciona una plantilla..."
+              placeholder="Redacta el contenido del contrato..."
             />
           </div>
         )}
