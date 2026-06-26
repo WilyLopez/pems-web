@@ -80,11 +80,9 @@ export default function BeneficiosPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-        {/* Columna Izquierda: Tarjeta de fidelidad actual */}
         <div className="space-y-4 md:col-span-1">
           <BeneficiosVip cliente={cliente} eventos={eventos} />
 
-          {/* Tarjeta estática informativa de nivel VIP */}
           <div className="bg-gradient-to-br from-indigo-900 to-brand-azul text-white rounded-2xl p-5 shadow-sm border border-indigo-950/20 space-y-4">
             <div className="flex items-center gap-2">
               <Award className="h-5 w-5 text-amber-300" />
@@ -99,7 +97,6 @@ export default function BeneficiosPage() {
           </div>
         </div>
 
-        {/* Columna Derecha: Todos los beneficios disponibles en el programa */}
         <div className="md:col-span-2 space-y-6">
           <SectionCard titulo="Beneficios exclusivos de tu membresía" icon={Sparkles}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">

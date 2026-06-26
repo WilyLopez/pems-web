@@ -15,7 +15,13 @@ export const clientesApi = {
   },
 
   registrarAdmin: async (payload: ClienteFormValues & { origen: 'ADMIN' }): Promise<Cliente> => {
-    const { data } = await api.post<ApiResponse<Cliente>>('/clientes/admin', payload)
+    const sanitized = {
+      ...payload,
+      correo:          payload.correo          || undefined,
+      apellidoMaterno: payload.apellidoMaterno || undefined,
+      telefono:        payload.telefono        || undefined,
+    }
+    const { data } = await api.post<ApiResponse<Cliente>>('/clientes/admin', sanitized)
     return data.data
   },
 

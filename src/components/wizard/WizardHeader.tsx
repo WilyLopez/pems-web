@@ -11,12 +11,9 @@ interface WizardHeaderProps {
   timerProgress: number
   timerPhase: TimerPhase
   timerDisplay: string
-  /** Show step dots. Requires both paso and total. */
   paso?: number
   total?: number
-  /** Render exit button. If omitted, button is hidden. */
   onSalir?: () => void
-  /** Override sticky top offset, e.g. 'top-16' when a navbar sits above. Default: top-0 */
   className?: string
 }
 
@@ -44,7 +41,6 @@ export function WizardHeader({
 
   return (
     <div className={cn('sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm', className)}>
-      {/* Timer progress bar */}
       <div className="h-1 w-full bg-gray-100 overflow-hidden">
         <div
           className={cn(
@@ -57,7 +53,6 @@ export function WizardHeader({
       </div>
 
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-        {/* Left: logo + title */}
         <div className="flex items-center gap-3">
           <Image
             src="/logo-secundario.png"
@@ -71,7 +66,6 @@ export function WizardHeader({
           <span className="hidden sm:block text-sm font-semibold text-gray-600">{titulo}</span>
         </div>
 
-        {/* Center: step dots (optional) */}
         {showDots && (
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
@@ -93,9 +87,7 @@ export function WizardHeader({
           </div>
         )}
 
-        {/* Right: timer + exit */}
         <div className="flex items-center gap-3">
-          {/* Timer — always visible on desktop, only in warning/critical on mobile */}
           <div className={cn('hidden sm:flex items-center gap-1.5 text-xs font-bold', styles.text)}>
             {showWarning ? (
               <AlertTriangle className={cn('h-3.5 w-3.5 shrink-0', styles.icon, timerPhase === 'critical' && 'animate-pulse')} />

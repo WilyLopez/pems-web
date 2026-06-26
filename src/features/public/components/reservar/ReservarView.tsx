@@ -44,6 +44,7 @@ import { useConfiguracionCalendario } from '@/hooks/useCalendario'
 import { useWizardTimer } from '@/hooks/useWizardTimer'
 import { usePublicPrecios } from '../../hooks/usePublicPrecios'
 import { usePublicConfig } from '../../hooks/usePublicConfig'
+import { useSedesPublicas } from '../../hooks/useSedesPublicas'
 import { getReservationSchema } from '../../shared/validations'
 import { Skeleton } from '../shared/Skeletons'
 import { reservaService } from '@/services/reserva.service'
@@ -56,8 +57,6 @@ import { Input } from '@/components/ui/Input'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { WizardHeader } from '@/components/wizard/WizardHeader'
 import { cn } from '@/lib/utils'
-
-const SEDE_ID = 1
 
 type MedioPago = 'YAPE' | 'CAJA'
 type PasoReserva = 1 | 2 | 3 | 4
@@ -132,7 +131,7 @@ function StepIndicator({ paso }: { paso: PasoReserva }) {
 }
 
 function AuthGuard({ fecha }: { fecha: string | null }) {
-  const callbackUrl = fecha ? `/reservar?fecha=${fecha}` : '/reservar'
+  const callbackUrl = fecha ? `/cliente/reservar?fecha=${fecha}` : '/cliente/reservar'
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <div className="max-w-sm w-full bg-white rounded-3xl border border-gray-100 shadow-sm p-8 text-center space-y-5">
@@ -146,13 +145,13 @@ function AuthGuard({ fecha }: { fecha: string | null }) {
           Necesitas una cuenta para comprar tu entrada a la zona de juegos.
         </p>
         <Link
-          href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+          href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
           className="block w-full py-3 bg-brand-azul text-white rounded-2xl font-bold text-sm text-center hover:bg-brand-azul/90 transition-colors shadow-sm shadow-blue-100"
         >
           Iniciar sesión
         </Link>
         <Link
-          href={`/registro?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+          href={`/auth/registro?callbackUrl=${encodeURIComponent(callbackUrl)}`}
           className="block w-full py-3 border border-gray-200 text-gray-700 rounded-2xl font-bold text-sm text-center hover:bg-gray-50 hover:border-gray-300 transition-colors"
         >
           Crear cuenta gratis
@@ -178,14 +177,16 @@ function PrecioLabel({
 export function ReservarView() {
   const searchParams = useSearchParams()
   const { clientePerfilId, correo, isAuthenticated, isLoading: authLoading } = useAuth()
+  const { idSedeUnica, isLoading: sedesLoading } = useSedesPublicas()
+  const idSede = idSedeUnica ?? 0
 
   const [paso, setPaso] = useState<PasoReserva>(1)
   const [fechaSeleccionada, setFecha] = useState<string | null>(null)
   const [dispSeleccionada, setDispSeleccionada] = useState<Disponibilidad | null>(null)
   const [semanaOffset, setSemanaOffset] = useState(0)
 
-  const { data: config } = useConfiguracionCalendario(SEDE_ID)
-  const { data: preciosPublicos } = usePublicPrecios(SEDE_ID)
+  const { data: config } = useConfiguracionCalendario(idSede)
+  const { data: preciosPublicos } = usePublicPrecios(idSede)
   const { data: publicConfig } = usePublicConfig()
 
   // Extraer edades dinámicas del reglamento de la configuración
@@ -304,7 +305,7 @@ export function ReservarView() {
   const semanaFin = endOfWeek(semanaInicio, { weekStartsOn: 1 })
 
   const { data: disponibilidades, isLoading: loadingDisp } = useDisponibilidadRango(
-    SEDE_ID,
+    idSede,
     format(semanaInicio, 'yyyy-MM-dd'),
     format(semanaFin, 'yyyy-MM-dd')
   )
@@ -364,7 +365,7 @@ export function ReservarView() {
 
   const crear = useMutation({
     mutationFn: (payload: Parameters<typeof reservaService.crear>[2]) =>
-      reservaService.crear(clientePerfilId!, SEDE_ID, payload),
+      reservaService.crear(clientePerfilId!, idSede, payload),
     onSuccess: async (reserva) => {
       localStorage.removeItem('pems_reserva_draft')
       if (metodoPago === 'YAPE' && comprobante) {
@@ -382,7 +383,7 @@ export function ReservarView() {
     },
   })
 
-  if (authLoading) return null
+  if (authLoading || sedesLoading) return null
   if (!isAuthenticated) return <AuthGuard fecha={fechaSeleccionada} />
 
   async function confirmarReserva() {
@@ -428,10 +429,12 @@ export function ReservarView() {
                   'text-xs font-bold px-3 py-1 rounded-full shadow-sm',
                   reservaCreada.estado === 'PENDIENTE'
                     ? 'bg-amber-100 text-amber-800'
+                    : reservaCreada.estado === 'CANCELADA'
+                    ? 'bg-red-100 text-red-800'
                     : 'bg-green-100 text-green-800'
                 )}
               >
-                {reservaCreada.estado}
+                {{ PENDIENTE: 'Pendiente de pago', CONFIRMADA: 'Confirmada', CANCELADA: 'Cancelada' }[reservaCreada.estado] ?? reservaCreada.estado}
               </span>
             </div>
             <div className="border-t border-gray-200/80 pt-3 space-y-2.5">

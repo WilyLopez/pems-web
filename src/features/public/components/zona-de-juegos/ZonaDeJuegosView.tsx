@@ -135,7 +135,7 @@ export function ZonaDeJuegosView() {
                   asChild
                   className="w-full bg-brand-azul hover:bg-brand-azul/90 text-white rounded-full font-bold mt-auto"
                 >
-                  <Link href="/reservar">
+                  <Link href="/cliente/reservar">
                     Comprar ahora
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Link>
@@ -278,7 +278,7 @@ export function ZonaDeJuegosView() {
             size="lg"
             className="bg-white text-brand-azul hover:bg-white/90 rounded-full font-bold px-10 gap-2"
           >
-            <Link href="/reservar">
+            <Link href="/cliente/reservar">
               <Ticket className="h-5 w-5" />
               Reservar ahora
             </Link>

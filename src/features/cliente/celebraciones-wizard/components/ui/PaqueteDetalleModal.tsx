@@ -1,19 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, PartyPopper } from 'lucide-react'
+import { Check, PartyPopper, X, Users, Clock } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
 import { fixMediaUrl } from '@/lib/media'
 import { PaqueteEvento } from '@/types/comercial.types'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog'
-import * as VisuallyHidden from '@radix-ui/react-visually-hidden'
-import { useGaleria } from '@/hooks/useGaleria'
+import { Dialog, DialogContent, DialogClose, DialogTitle } from '@/components/ui/Dialog'
+import { useGaleria } from '@/features/admin/cms/galeria/hooks/useGaleria'
 
-interface GaleriaProps {
-  paquete: PaqueteEvento
-}
-
-function GaleriaPaquete({ paquete }: GaleriaProps) {
+function GaleriaPaquete({ paquete }: { paquete: PaqueteEvento }) {
   const [activa, setActiva] = useState(0)
   const { data: galeriaFallback } = useGaleria(0, 8, true)
 
@@ -23,21 +18,21 @@ function GaleriaPaquete({ paquete }: GaleriaProps) {
 
   if (imagenes.length === 0) {
     return (
-      <div className="h-[200px] xs:h-[240px] sm:h-auto sm:aspect-video w-full bg-gradient-to-br from-brand-rosa/20 to-brand-azul/20 flex items-center justify-center">
-        <PartyPopper className="h-12 w-12 text-white/60 animate-bounce" />
+      <div className="h-44 w-full bg-gradient-to-br from-brand-rosa/20 to-brand-azul/20 flex items-center justify-center shrink-0">
+        <PartyPopper className="h-10 w-10 text-brand-rosa/40" />
       </div>
     )
   }
 
   return (
-    <div className="relative h-[200px] xs:h-[240px] sm:h-auto sm:aspect-video w-full bg-gray-100 overflow-hidden">
+    <div className="relative h-44 sm:h-52 w-full bg-gray-100 overflow-hidden shrink-0">
       <img
         src={fixMediaUrl(imagenes[activa])}
         alt={paquete.nombre}
         className="w-full h-full object-cover"
       />
       {imagenes.length > 1 && (
-        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">
           {imagenes.map((_, i) => (
             <button
               key={i}
@@ -67,63 +62,110 @@ export function PaqueteDetalleModal({ paquete, open, onClose, onElegir }: Props)
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
-      <DialogContent 
-        className={cn(
-          "max-w-lg w-[calc(100vw-1.5rem)] sm:w-full rounded-2xl p-0 overflow-hidden max-h-[92vh] sm:max-h-[90vh] overflow-y-auto gap-0",
-          // Give Radix's default close button a premium, contrasty, circular backdrop blur styling on top of the image
-          "[&>button]:bg-black/50 [&>button]:text-white [&>button]:backdrop-blur-md [&>button]:rounded-full [&>button]:p-2 [&>button]:shadow-lg [&>button]:hover:bg-black/75 [&>button]:transition-all [&>button]:duration-200 [&>button]:top-3 [&>button]:right-3 [&>button]:border [&>button]:border-white/10 [&>button>svg]:h-4 [&>button>svg]:w-4"
-        )} 
+      <DialogContent
+        className="flex flex-col max-w-lg w-[calc(100vw-2rem)] sm:w-full rounded-2xl p-0 max-h-[90vh] sm:max-h-[85vh] gap-0 [&>button:last-child]:hidden"
         aria-describedby={undefined}
       >
-        <VisuallyHidden.Root>
-          <DialogTitle>{paquete.nombre}</DialogTitle>
-        </VisuallyHidden.Root>
-        
-        <GaleriaPaquete paquete={paquete} />
+        {/* ── Header fijo ─────────────────────────────────────────────── */}
+        <div className="flex items-start gap-3 px-5 pt-5 pb-4 border-b border-gray-100 shrink-0">
+          <div className="flex-1 min-w-0">
+            {paquete.badge && (
+              <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 mb-2">
+                {paquete.badge}
+              </span>
+            )}
+            <DialogTitle className="text-lg sm:text-xl font-black text-gray-900 leading-tight">
+              {paquete.nombre}
+            </DialogTitle>
+            <p className="text-sm text-gray-500 mt-0.5 leading-snug line-clamp-2">
+              {paquete.descripcionCorta}
+            </p>
 
-        <div className="p-4 sm:p-6 space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 border-b border-gray-50 pb-4">
-            <div className="space-y-1">
-              <h3 className="text-xl font-black text-gray-900 tracking-tight leading-snug">{paquete.nombre}</h3>
-              <p className="text-sm text-gray-500 leading-normal">{paquete.descripcionCorta}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              {paquete.limitepersonas && (
+                <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                  <Users className="h-3 w-3 shrink-0" />
+                  Hasta {paquete.limitepersonas} personas
+                </span>
+              )}
+              {paquete.duracionMinutos && (
+                <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                  <Clock className="h-3 w-3 shrink-0" />
+                  {paquete.duracionMinutos >= 60
+                    ? `${Math.floor(paquete.duracionMinutos / 60)}h${paquete.duracionMinutos % 60 ? ` ${paquete.duracionMinutos % 60}min` : ''}`
+                    : `${paquete.duracionMinutos} min`}
+                </span>
+              )}
             </div>
-            <span className="text-brand-azul font-black text-2xl sm:text-xl shrink-0">
+          </div>
+
+          <div className="shrink-0 text-right">
+            <p className="text-[10px] text-gray-400 font-medium leading-none">desde</p>
+            <p className="text-2xl font-black text-brand-rosa leading-tight">
               {formatCurrency(paquete.precio)}
-            </span>
+            </p>
+            {paquete.color && (
+              <div
+                className="h-1 w-full rounded-full mt-1.5"
+                style={{ backgroundColor: paquete.color }}
+              />
+            )}
           </div>
 
-          {paquete.beneficios && paquete.beneficios.length > 0 && (
-            <div className="space-y-3 bg-gray-50/50 p-3 sm:p-4 rounded-xl border border-gray-100">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">¿Qué incluye el paquete?</p>
-              <ul className="grid grid-cols-1 gap-2.5">
-                {paquete.beneficios.map((b, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 leading-snug">
-                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
-                      <Check className="h-3 w-3 text-green-600 font-bold" />
-                    </div>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <DialogClose
+            className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors -mt-0.5"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Cerrar</span>
+          </DialogClose>
+        </div>
 
-          {paquete.descripcionLarga && (
-            <div className="space-y-1">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Detalles adicionales</p>
-              <p className="text-sm text-gray-600 leading-relaxed font-normal">{paquete.descripcionLarga}</p>
-            </div>
-          )}
+        {/* ── Contenido scrollable ────────────────────────────────────── */}
+        <div className="flex-1 overflow-y-auto">
+          <GaleriaPaquete paquete={paquete} />
 
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={() => { onElegir(paquete.id); onClose() }}
-              className="w-full py-3.5 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl font-bold text-sm transition-all active:scale-[0.98] shadow-md shadow-brand-rosa/15"
-            >
-              Elegir este paquete
-            </button>
+          <div className="p-5 space-y-5">
+            {paquete.beneficios && paquete.beneficios.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  ¿Qué incluye?
+                </p>
+                <ul className="grid grid-cols-1 gap-2">
+                  {paquete.beneficios.map((b, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 leading-snug">
+                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="h-3 w-3 text-green-600" />
+                      </div>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {paquete.descripcionLarga && (
+              <div className="space-y-1.5 pt-1 border-t border-gray-100">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  Detalles adicionales
+                </p>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {paquete.descripcionLarga}
+                </p>
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* ── Footer fijo ─────────────────────────────────────────────── */}
+        <div className="px-5 py-4 border-t border-gray-100 shrink-0 bg-white">
+          <button
+            type="button"
+            onClick={() => { onElegir(paquete.id); onClose() }}
+            className="w-full py-3.5 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl font-bold text-sm transition-all active:scale-[0.98] shadow-sm shadow-brand-rosa/20"
+          >
+            Elegir este paquete
+          </button>
         </div>
       </DialogContent>
     </Dialog>

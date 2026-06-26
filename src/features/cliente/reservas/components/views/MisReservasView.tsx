@@ -68,7 +68,7 @@ export function MisReservasView() {
           <p className="text-sm text-gray-500">Tus tickets de acceso a Kiki y Lala</p>
         </div>
         <Link
-          href="/reservar"
+          href="/cliente/reservar"
           className="shrink-0 flex items-center gap-1.5 px-3 sm:px-4 py-2.5 bg-brand-azul text-white rounded-xl text-sm font-bold hover:bg-brand-azul/90 transition-colors"
         >
           <Plus className="h-4 w-4" />

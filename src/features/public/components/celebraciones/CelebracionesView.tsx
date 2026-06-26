@@ -189,7 +189,7 @@ export function CelebracionesView() {
                           asChild
                           className="w-full bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full font-bold shadow-sm"
                         >
-                          <Link href="/celebraciones/solicitar">
+                          <Link href="/cliente/celebraciones/solicitar">
                             Solicitar este paquete
                           </Link>
                         </Button>
@@ -272,7 +272,7 @@ export function CelebracionesView() {
               size="lg"
               className="bg-white text-brand-rosa hover:bg-white/90 rounded-full font-bold px-10 gap-2"
             >
-              <Link href="/celebraciones/solicitar">
+              <Link href="/cliente/celebraciones/solicitar">
                 <PartyPopper className="h-5 w-5" />
                 Solicitar información
               </Link>
