@@ -14,7 +14,7 @@ export function EmptyReservas() {
         </p>
       </div>
       <Link
-        href="/reservar"
+        href="/cliente/reservar"
         className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-azul text-white rounded-xl text-sm font-bold hover:bg-brand-azul/90 transition-colors"
       >
         <Ticket className="h-4 w-4" />

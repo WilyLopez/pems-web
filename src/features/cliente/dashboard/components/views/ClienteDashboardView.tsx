@@ -139,18 +139,21 @@ export function ClienteDashboardView() {
                 label="Próximas visitas"
                 icon={Ticket}
                 color="bg-brand-azul/10 text-brand-azul"
+                href="/cliente/mis-reservas"
               />
               <StatCard
                 valor={eventosSolicitados}
                 label="Eventos solicitados"
                 icon={PartyPopper}
                 color="bg-brand-rosa/10 text-brand-rosa"
+                href="/cliente/mis-eventos"
               />
               <StatCard
                 valor={totalPendiente > 0 ? formatCurrency(totalPendiente) : 'S/ 0'}
                 label="Por pagar"
                 icon={Wallet}
                 color="bg-amber-100 text-amber-600"
+                href="/cliente/mis-reservas"
               />
               <StatCard
                 valor={
@@ -161,6 +164,7 @@ export function ClienteDashboardView() {
                 label="Próxima visita"
                 icon={CalendarDays}
                 color="bg-green-100 text-green-600"
+                href="/cliente/mis-reservas"
               />
             </div>
           )}
@@ -251,13 +255,13 @@ export function ClienteDashboardView() {
                 <h3 className="font-bold text-gray-900 mb-3">Accesos rápidos</h3>
                 <div className="space-y-1">
                   <AccesoRapido
-                    href="/reservar"
+                    href="/cliente/reservar"
                     icon={Ticket}
                     label="Reservar visita"
                     color="bg-brand-azul/10 text-brand-azul"
                   />
                   <AccesoRapido
-                    href="/celebraciones/solicitar"
+                    href="/cliente/celebraciones/solicitar"
                     icon={PartyPopper}
                     label="Solicitar evento"
                     color="bg-brand-rosa/10 text-brand-rosa"

@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, ExternalLink, Users, Clock } from 'lucide-react'
+import { Check, Eye, Users, Clock } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
 import { PaqueteEvento } from '@/types/comercial.types'
 
@@ -14,89 +14,96 @@ interface Props {
 export function PaqueteCard({ paquete, seleccionado, onSeleccionar, onVerDetalle }: Props) {
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={seleccionado}
+      onClick={onSeleccionar}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSeleccionar() } }}
       className={cn(
-        'relative rounded-2xl border-2 p-5 flex flex-col gap-3 transition-all cursor-pointer',
+        'relative rounded-2xl border-2 flex flex-col gap-3 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2',
         seleccionado
-          ? 'border-brand-rosa bg-brand-rosa/5 ring-1 ring-brand-rosa'
+          ? 'border-brand-rosa bg-brand-rosa/5 ring-2 ring-brand-rosa/20'
           : 'border-gray-200 hover:border-brand-rosa/40 bg-white'
       )}
-      onClick={onSeleccionar}
     >
-      {/* Color strip */}
       {paquete.color && (
         <div
-          className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
+          className="absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl"
           style={{ backgroundColor: paquete.color }}
         />
       )}
 
-      {seleccionado && (
-        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-brand-rosa flex items-center justify-center">
-          <Check className="h-3.5 w-3.5 text-white" />
+      <div className={cn('flex flex-col gap-3 p-5', paquete.color && 'pt-6')}>
+        {seleccionado && (
+          <div className="absolute top-3.5 right-3.5 w-6 h-6 rounded-full bg-brand-rosa flex items-center justify-center shadow-sm">
+            <Check className="h-3.5 w-3.5 text-white" />
+          </div>
+        )}
+
+        {paquete.badge && (
+          <span className="self-start text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+            {paquete.badge}
+          </span>
+        )}
+
+        <div>
+          <p className="font-black text-gray-900 pr-8">{paquete.nombre}</p>
+          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{paquete.descripcionCorta}</p>
         </div>
-      )}
 
-      {paquete.badge && (
-        <span className="self-start text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-amarillo/20 text-amber-700">
-          {paquete.badge}
-        </span>
-      )}
+        {(paquete.limitepersonas || paquete.duracionMinutos) && (
+          <div className="flex flex-wrap gap-2">
+            {paquete.limitepersonas && (
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                <Users className="h-3 w-3 shrink-0" />
+                Hasta {paquete.limitepersonas} personas
+              </span>
+            )}
+            {paquete.duracionMinutos && (
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                <Clock className="h-3 w-3 shrink-0" />
+                {paquete.duracionMinutos >= 60
+                  ? `${Math.floor(paquete.duracionMinutos / 60)}h${paquete.duracionMinutos % 60 ? ` ${paquete.duracionMinutos % 60}min` : ''}`
+                  : `${paquete.duracionMinutos} min`}
+              </span>
+            )}
+          </div>
+        )}
 
-      <div>
-        <p className="font-black text-gray-900">{paquete.nombre}</p>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{paquete.descripcionCorta}</p>
-      </div>
+        {paquete.beneficios && paquete.beneficios.length > 0 && (
+          <ul className="space-y-1.5">
+            {paquete.beneficios.slice(0, 3).map((b, i) => (
+              <li key={i} className="flex items-start gap-2 text-xs text-gray-600 leading-relaxed">
+                <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="h-2.5 w-2.5 text-green-600" />
+                </div>
+                {b}
+              </li>
+            ))}
+            {(paquete.beneficios?.length ?? 0) > 3 && (
+              <li className="text-xs text-gray-400 pl-6">
+                +{paquete.beneficios.length - 3} beneficios más incluidos
+              </li>
+            )}
+          </ul>
+        )}
 
-      {/* Capacity & duration chips */}
-      {(paquete.limitepersonas || paquete.duracionMinutos) && (
-        <div className="flex flex-wrap gap-2">
-          {paquete.limitepersonas && (
-            <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-              <Users className="h-3 w-3" />
-              Hasta {paquete.limitepersonas} personas
-            </span>
-          )}
-          {paquete.duracionMinutos && (
-            <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-              <Clock className="h-3 w-3" />
-              {paquete.duracionMinutos >= 60
-                ? `${Math.floor(paquete.duracionMinutos / 60)}h${paquete.duracionMinutos % 60 ? ` ${paquete.duracionMinutos % 60}min` : ''}`
-                : `${paquete.duracionMinutos} min`}
-            </span>
-          )}
+        <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
+          <div>
+            <p className="text-[10px] text-gray-400 font-medium leading-none mb-0.5">desde</p>
+            <p className="text-lg font-black text-gray-900">
+              {formatCurrency(paquete.precio)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onVerDetalle() }}
+            className="flex items-center gap-1.5 text-xs text-brand-azul font-semibold hover:text-brand-azul/80 transition-colors p-2 -mr-1 rounded-lg hover:bg-brand-azul/5 min-h-[44px] min-w-[44px] justify-center"
+          >
+            <Eye className="h-4 w-4" />
+            <span className="hidden sm:inline">Ver detalle</span>
+          </button>
         </div>
-      )}
-
-      {paquete.beneficios && paquete.beneficios.length > 0 && (
-        <ul className="space-y-1">
-          {paquete.beneficios.slice(0, 3).map((b, i) => (
-            <li key={i} className="flex items-center gap-1.5 text-xs text-gray-600">
-              <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                <Check className="h-2.5 w-2.5 text-green-600" />
-              </div>
-              {b}
-            </li>
-          ))}
-          {(paquete.beneficios?.length ?? 0) > 3 && (
-            <li className="text-xs text-gray-400 pl-5.5">
-              +{paquete.beneficios.length - 3} más incluidos
-            </li>
-          )}
-        </ul>
-      )}
-
-      <div className="mt-auto flex items-center justify-between pt-2 border-t border-gray-100">
-        <p className="text-lg font-black" style={{ color: paquete.color ?? '#1e3a5f' }}>
-          {formatCurrency(paquete.precio)}
-        </p>
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); onVerDetalle() }}
-          className="flex items-center gap-1 text-xs text-brand-azul font-semibold hover:underline"
-        >
-          Ver detalle
-          <ExternalLink className="h-3 w-3" />
-        </button>
       </div>
     </div>
   )

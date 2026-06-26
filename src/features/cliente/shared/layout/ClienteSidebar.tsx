@@ -23,8 +23,6 @@ import { cn, getInitials, fileUrl } from '@/lib/utils'
 import { clienteService } from '@/services/cliente.service'
 import { clienteKeys } from '@/features/cliente/shared/queryKeys'
 
-const WHATSAPP_URL = 'https://wa.me/51987654321'
-
 const mainNav = [
   { href: '/cliente',              label: 'Inicio',       icon: LayoutDashboard, exact: true },
   { href: '/cliente/mis-reservas', label: 'Mis reservas', icon: CalendarDays },

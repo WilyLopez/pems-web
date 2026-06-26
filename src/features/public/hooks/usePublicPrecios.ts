@@ -9,7 +9,7 @@ export interface PrecioPublicoResponse {
   precio: number
 }
 
-export function usePublicPrecios(idSede = 1) {
+export function usePublicPrecios(idSede: number) {
   return useQuery({
     queryKey: [...PUBLIC_QUERY_KEYS.precios, idSede],
     queryFn: async () => {
@@ -17,5 +17,6 @@ export function usePublicPrecios(idSede = 1) {
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,
+    enabled: !!idSede,
   })
 }

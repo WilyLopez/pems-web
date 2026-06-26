@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { Separator } from '@/components/ui/Separator'
 import { formatDate, formatCurrency } from '@/lib/utils'
+import { formatTipoEvento } from '@/features/cliente/shared/constants'
 
 function PageSkeleton() {
   return (
@@ -81,7 +82,7 @@ export function DetalleEventoView() {
 
         <div className="flex flex-wrap items-start gap-3">
           <div>
-            <h1 className="text-2xl font-black text-gray-900">{evento.tipoEvento}</h1>
+            <h1 className="text-2xl font-black text-gray-900">{formatTipoEvento(evento.tipoEvento)}</h1>
             <p className="text-sm text-gray-400 mt-0.5">{formatDate(evento.fechaEvento)}</p>
           </div>
           <StatusBadge status={evento.estado} />

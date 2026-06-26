@@ -613,7 +613,7 @@ export function PublicHomeView() {
                   asChild
                   className="bg-brand-rosa hover:bg-brand-rosa/90 text-white font-bold rounded-full px-8 h-12 text-base gap-2"
                 >
-                  <Link href="/reservar">
+                  <Link href="/cliente/reservar">
                     <Ticket className="h-5 w-5" />
                     Reservar ahora
                   </Link>
@@ -724,7 +724,7 @@ export function PublicHomeView() {
               asChild
               className="bg-brand-rosa hover:bg-brand-rosa/90 text-white font-bold rounded-full px-10 h-12 text-base gap-2"
             >
-              <Link href="/reservar">
+              <Link href="/cliente/reservar">
                 <Ticket className="h-5 w-5" />
                 Reservar ahora
               </Link>
