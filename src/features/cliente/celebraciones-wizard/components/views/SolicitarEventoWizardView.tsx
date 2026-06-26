@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useMemo, useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { addDays, format } from 'date-fns'
 import {
@@ -12,6 +12,7 @@ import {
   Phone,
   MessageCircle,
   Check,
+  CheckCircle2,
   Info,
   Calculator,
   PartyPopper,
@@ -23,12 +24,12 @@ import {
   Briefcase,
   Sparkles,
   AlertTriangle,
-  Banknote,
 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
 import { useSolicitarEventoWizard } from '../../hooks/useSolicitarEventoWizard'
+import { useSedesPublicas } from '@/features/public/hooks/useSedesPublicas'
 import { useWizardTimer } from '../../hooks/useWizardTimer'
 import { usePaquetesPublico, useTiposEventoPublico } from '@/hooks/useComercial'
 import { useExtrasPaquete, useTurnos, useServiciosCotizacion } from '@/hooks/useEventos'
@@ -50,9 +51,7 @@ import { WizardWhatsAppButton } from '../ui/WizardWhatsAppButton'
 import { SuccessWizardView } from './SuccessWizardView'
 import { Camino } from '../../../shared/types'
 
-const ANTICIPACION_MIN = 15
-const RANGO_DIAS        = 90
-const WIZARD_DURATION   = 600 // 10 minutes
+const WIZARD_DURATION = 600
 
 // ─── Icons ────────────────────────────────────────────────────────────────
 
@@ -70,11 +69,6 @@ function renderIconoTipoEvento(iconoName: string | undefined, className?: string
   }
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────
-
-function fechaMin() { return format(addDays(new Date(), ANTICIPACION_MIN), 'yyyy-MM-dd') }
-function fechaMax() { return format(addDays(new Date(), RANGO_DIAS), 'yyyy-MM-dd') }
-
 // ─── Sub-components ───────────────────────────────────────────────────────
 
 function LoginGuard() {
@@ -91,10 +85,10 @@ function LoginGuard() {
       </div>
       <div className="flex flex-col gap-2 w-full">
         <Button asChild className="bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full">
-          <Link href="/auth/login?callbackUrl=/celebraciones/solicitar">Iniciar sesión</Link>
+          <Link href="/auth/login?callbackUrl=/cliente/celebraciones/solicitar">Iniciar sesión</Link>
         </Button>
         <Button asChild variant="outline" className="rounded-full">
-          <Link href="/auth/registro?callbackUrl=/celebraciones/solicitar">Crear cuenta</Link>
+          <Link href="/auth/registro?callbackUrl=/cliente/celebraciones/solicitar">Crear cuenta</Link>
         </Button>
       </div>
     </div>
@@ -158,12 +152,26 @@ function TimerExpiredBanner({ onRestart }: { onRestart: () => void }) {
 
 export function SolicitarEventoWizardView() {
   const router = useRouter()
-  const { idSede: idSedeAuth, idUsuario, clientePerfilId, isAuthenticated } = useAuth()
-  const idSede = idSedeAuth ?? 1
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const { idUsuario, clientePerfilId, isAuthenticated } = useAuth()
+  const { idSedeUnica, isLoading: sedesLoading } = useSedesPublicas()
+  const idSede = idSedeUnica ?? 0
 
   const { data: configPublica } = useConfiguracionCalendarioPublica(idSede)
-  const edadMin = configPublica?.edadMinCumple ?? 0
-  const edadMax = configPublica?.edadMaxCumple ?? 17
+  const edadMin        = configPublica?.edadMinCumple        ?? 0
+  const edadMax        = configPublica?.edadMaxCumple        ?? 17
+  const anticipacionMin = configPublica?.diasMinEventoPrivado ?? 15
+  const rangoDias       = configPublica?.diasMaxEventoPrivado ?? 90
+
+  const fechaMin = useMemo(
+    () => format(addDays(new Date(), anticipacionMin), 'yyyy-MM-dd'),
+    [anticipacionMin]
+  )
+  const fechaMax = useMemo(
+    () => format(addDays(new Date(), rangoDias), 'yyyy-MM-dd'),
+    [rangoDias]
+  )
 
   const wizard = useSolicitarEventoWizard(clientePerfilId ?? idUsuario, idSede, isAuthenticated, edadMin, edadMax)
   const {
@@ -191,9 +199,16 @@ export function SolicitarEventoWizardView() {
     resetWizard,
   } = wizard
 
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('paso', String(paso))
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [paso])
+
   // ─── Timer ──────────────────────────────────────────────────────────────
 
   const [timerExpired, setTimerExpired] = useState(false)
+  const prevPasoRef = useRef<1 | 2 | 3 | 4>(1)
 
   const {
     secondsLeft,
@@ -206,40 +221,47 @@ export function SolicitarEventoWizardView() {
   } = useWizardTimer({
     durationSeconds: WIZARD_DURATION,
     sessionKey: 'evento_wizard_timer',
+    startPaused: true,
     onExpire: () => setTimerExpired(true),
   })
 
   useEffect(() => {
+    const prev = prevPasoRef.current
+    prevPasoRef.current = paso
+
+    if (paso === 2 && prev === 1) {
+      restartTimer()
+    } else if (paso === 1) {
+      pauseTimer()
+    } else {
+      resumeTimer()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paso])
+
+  useEffect(() => {
     if (paqueteDetalle) pauseTimer()
-    else resumeTimer()
+    else if (paso > 1) resumeTimer()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paqueteDetalle])
 
-  // Toast warnings at 3 min and 1 min
   useEffect(() => {
     if (secondsLeft === 180) {
-      toast.warning('⏳ Te quedan 3 minutos para completar tu solicitud', { duration: 8000 })
+      toast.warning('Te quedan 3 minutos para completar tu solicitud', { duration: 8000 })
     }
     if (secondsLeft === 60) {
-      toast.error('🚨 ¡Solo queda 1 minuto! Completa tu solicitud pronto.', { duration: 15000 })
+      toast.error('Solo queda 1 minuto. Completa tu solicitud pronto.', { duration: 15000 })
     }
   }, [secondsLeft])
 
   // ─── Data ────────────────────────────────────────────────────────────────
 
-  const { data: paquetesAll = [] } = usePaquetesPublico()
+  const { data: paquetesAll = [], isLoading: isLoadingPaquetes } = usePaquetesPublico()
   const { data: tiposEvento = [], isLoading: isLoadingTipos } = useTiposEventoPublico()
   const { data: extras = [] } = useExtrasPaquete(idPaquete)
-  const { data: turnosApi = [] } = useTurnos(idSede)
-  const turnos = useMemo(() => {
-    if (turnosApi && turnosApi.length > 0) return turnosApi
-    return [
-      { id: 1, codigo: 'T1', nombre: 'Turno mañana', horaInicio: '10:00', horaFin: '14:00' },
-      { id: 2, codigo: 'T2', nombre: 'Turno tarde', horaInicio: '16:00', horaFin: '20:00' },
-    ]
-  }, [turnosApi])
+  const { data: turnos = [], isError: isTurnosError, isLoading: isTurnosLoading } = useTurnos(idSede)
   const { data: servicios = [] } = useServiciosCotizacion()
-  const { data: disponibilidades } = useDisponibilidadRango(idSede, fechaMin(), fechaMax())
+  const { data: disponibilidades } = useDisponibilidadRango(idSede, fechaMin, fechaMax)
 
   const tipoEventoSeleccionado = useMemo(
     () => tiposEvento.find((t) => t.codigo === tipoEvento) ?? null,
@@ -280,7 +302,13 @@ export function SolicitarEventoWizardView() {
     [serviciosCotizacion, servicios]
   )
 
-  // Warn if invitados exceeds package limit
+  useEffect(() => {
+    if (tipoEvento && !isLoadingPaquetes && paquetesFiltrados.length === 0 && camino !== 'cotizacion') {
+      setCamino('cotizacion')
+      setIdPaquete(null)
+    }
+  }, [tipoEvento, paquetesFiltrados.length, isLoadingPaquetes])
+
   const limitePersonas = paqueteSeleccionado?.limitepersonas ?? null
   const invitadosExcedeLimite = limitePersonas && invitados && invitados > limitePersonas
 
@@ -291,7 +319,7 @@ export function SolicitarEventoWizardView() {
     const dias = Math.floor(
       (new Date(valor).getTime() - new Date().setHours(0, 0, 0, 0)) / 86400000
     )
-    if (dias < ANTICIPACION_MIN) {
+    if (dias < anticipacionMin) {
       setModalAnticipacion(true)
       return
     }
@@ -308,6 +336,8 @@ export function SolicitarEventoWizardView() {
       </div>
     )
   }
+
+  if (sedesLoading) return null
 
   if (timerExpired && !eventoCreado) {
     return (
@@ -346,33 +376,33 @@ export function SolicitarEventoWizardView() {
         timerDisplay={timerDisplay}
       />
 
-      {/* Critical timer banner */}
       {timerPhase === 'critical' && (
         <div className="bg-red-600 text-white text-xs text-center py-1.5 px-4 font-semibold animate-pulse">
-          ⚠️ Tu sesión expira en {timerDisplay} — completa la solicitud pronto
+          Tu sesión expira en {timerDisplay} — completa la solicitud pronto
         </div>
       )}
 
       <div className="flex-1 max-w-6xl mx-auto w-full px-4 py-6 sm:py-8 pb-24 lg:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+          <div className={cn('space-y-6', paso === 4 ? 'lg:col-span-3' : 'lg:col-span-2')}>
 
             {/* ─── PASO 1 ──────────────────────────────────────────────── */}
             {paso === 1 && (
-              <div className="space-y-8 bg-white p-5 sm:p-6 rounded-2xl border border-gray-100">
+              <div className="space-y-6 bg-white p-5 sm:p-6 rounded-2xl border border-gray-100">
                 <div>
                   <Badge className="bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20 mb-2">
                     Paso 1 de 4
                   </Badge>
                   <h2 className="text-2xl sm:text-3xl font-black text-gray-900">¿Qué celebramos?</h2>
-                  <p className="text-sm text-gray-500 mt-1">Cuéntanos el tipo de evento que tienes en mente.</p>
-                  <div className="flex flex-wrap gap-2.5 mt-4">
+                  <p className="text-sm text-gray-500 mt-1">Elige el tipo de evento para ver las opciones disponibles.</p>
+
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 mt-4">
                     {isLoadingTipos ? (
                       Array.from({ length: 4 }).map((_, idx) => (
-                        <div key={idx} className="h-11 w-28 bg-gray-100 rounded-xl animate-pulse" />
+                        <div key={idx} className="h-11 bg-gray-100 rounded-xl animate-pulse" />
                       ))
                     ) : tiposEvento.length === 0 ? (
-                      <p className="text-sm text-gray-400">No hay tipos de eventos disponibles en este momento.</p>
+                      <p className="text-sm text-gray-400 col-span-2">No hay tipos de eventos disponibles en este momento.</p>
                     ) : (
                       tiposEvento.map((t) => (
                         <button
@@ -380,14 +410,14 @@ export function SolicitarEventoWizardView() {
                           type="button"
                           onClick={() => { setTipoEvento(t.codigo); setCamino(null); setIdPaquete(null) }}
                           className={cn(
-                            'px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all flex items-center gap-2',
+                            'px-4 py-3 sm:py-2.5 rounded-xl text-sm font-semibold border-2 transition-all flex items-center gap-2 justify-center sm:justify-start min-h-[44px]',
                             tipoEvento === t.codigo
                               ? 'border-brand-rosa bg-brand-rosa/10 text-brand-rosa'
-                              : 'border-gray-200 text-gray-600 hover:border-brand-rosa/40'
+                              : 'border-gray-200 text-gray-600 hover:border-brand-rosa/40 bg-white'
                           )}
                         >
                           {renderIconoTipoEvento(t.icono, 'h-4 w-4 shrink-0')}
-                          <span>{t.nombre}</span>
+                          <span className="leading-tight">{t.nombre}</span>
                         </button>
                       ))
                     )}
@@ -395,61 +425,93 @@ export function SolicitarEventoWizardView() {
                 </div>
 
                 {tipoEvento && (
-                  <div>
-                    <h3 className="text-lg font-black text-gray-900">¿Cómo quieres organizarlo?</h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Elige un paquete o pídenos una cotización a medida.
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                      {paquetesFiltrados.map((paq) => (
-                        <PaqueteCard
-                          key={paq.id}
-                          paquete={paq}
-                          seleccionado={idPaquete === paq.id && camino === 'paquete'}
-                          onSeleccionar={() => { setCamino('paquete'); setIdPaquete(paq.id) }}
-                          onVerDetalle={() => setPaqueteDetalle(paq)}
-                        />
-                      ))}
-
-                      {/* Always visible: custom quotation */}
-                      <button
-                        type="button"
-                        onClick={() => { setCamino('cotizacion'); setIdPaquete(null) }}
-                        className={cn(
-                          'p-5 rounded-2xl border-2 text-left transition-all flex flex-col gap-2 bg-white',
-                          camino === 'cotizacion'
-                            ? 'border-brand-azul bg-brand-azul/5'
-                            : 'border-dashed border-gray-300 hover:border-brand-azul/40'
-                        )}
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-brand-azul/10 flex items-center justify-center">
-                          <MessageCircle className="h-5 w-5 text-brand-azul" />
-                        </div>
-                        <p className="font-black text-gray-900">Cotización personalizada</p>
-                        <p className="text-xs text-gray-500">
-                          Cuéntanos qué imaginas y te armamos una propuesta a medida.
-                        </p>
-                      </button>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-black text-gray-900">¿Cómo quieres organizarlo?</h3>
+                      <p className="text-sm text-gray-500 mt-0.5">
+                        Elige un paquete o pídenos una cotización a tu medida.
+                      </p>
                     </div>
 
-                    {paquetesFiltrados.length === 0 && (
-                      <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl mt-4">
-                        <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
-                        <p className="text-xs text-blue-800">
-                          No tenemos paquetes prediseñados para este tipo de evento, pero puedes solicitar una cotización personalizada.
-                        </p>
+                    {isLoadingPaquetes ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="h-56 bg-gray-100 rounded-2xl animate-pulse" />
+                        ))}
                       </div>
+                    ) : (
+                      <>
+                        {paquetesFiltrados.length === 0 && (
+                          <div className="flex items-start gap-2.5 p-3.5 bg-blue-50 border border-blue-200 rounded-xl">
+                            <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                            <p className="text-xs text-blue-800 leading-relaxed">
+                              No hay paquetes prediseñados para este tipo de evento. Hemos seleccionado la cotización personalizada para ti.
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {paquetesFiltrados.map((paq) => (
+                            <PaqueteCard
+                              key={paq.id}
+                              paquete={paq}
+                              seleccionado={idPaquete === paq.id && camino === 'paquete'}
+                              onSeleccionar={() => { setCamino('paquete'); setIdPaquete(paq.id) }}
+                              onVerDetalle={() => setPaqueteDetalle(paq)}
+                            />
+                          ))}
+
+                          <button
+                            type="button"
+                            onClick={() => { setCamino('cotizacion'); setIdPaquete(null) }}
+                            className={cn(
+                              'p-5 rounded-2xl border-2 text-left transition-all flex flex-col gap-3 bg-white min-h-[160px] sm:min-h-0',
+                              camino === 'cotizacion'
+                                ? 'border-brand-azul bg-brand-azul/5 ring-2 ring-brand-azul/20'
+                                : 'border-dashed border-gray-300 hover:border-brand-azul/40'
+                            )}
+                          >
+                            <div className="w-10 h-10 rounded-xl bg-brand-azul/10 flex items-center justify-center shrink-0">
+                              <MessageCircle className="h-5 w-5 text-brand-azul" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-black text-gray-900">Cotización personalizada</p>
+                              <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                                Cuéntanos qué imaginas y te armamos una propuesta a medida.
+                              </p>
+                            </div>
+                            {camino === 'cotizacion' && (
+                              <div className="flex items-center gap-1.5 text-xs text-brand-azul font-semibold">
+                                <Check className="h-3.5 w-3.5" />
+                                Seleccionada
+                              </div>
+                            )}
+                          </button>
+                        </div>
+                      </>
                     )}
                   </div>
                 )}
 
-                <Button
-                  className="w-full bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl gap-2 h-12"
-                  disabled={!canAdvance1}
-                  onClick={() => setPaso(2)}
-                >
-                  Continuar <ChevronRight className="h-4 w-4" />
-                </Button>
+                <div className="space-y-2 pt-2">
+                  {!tipoEvento && (
+                    <p className="text-xs text-gray-400 text-center">
+                      Elige un tipo de evento para continuar
+                    </p>
+                  )}
+                  {tipoEvento && !camino && (
+                    <p className="text-xs text-gray-400 text-center">
+                      Elige un paquete o la cotización personalizada para continuar
+                    </p>
+                  )}
+                  <Button
+                    className="w-full bg-brand-rosa hover:bg-brand-rosa/90 disabled:opacity-40 text-white rounded-xl gap-2 h-12"
+                    disabled={!canAdvance1}
+                    onClick={() => setPaso(2)}
+                  >
+                    Continuar <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -466,64 +528,93 @@ export function SolicitarEventoWizardView() {
                   </p>
                 </div>
 
-                {/* Package info summary */}
                 {paqueteSeleccionado && (
-                  <div className="bg-gray-50 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 border border-gray-100">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div
-                        className="w-1.5 h-10 rounded-full shrink-0"
-                        style={{ backgroundColor: paqueteSeleccionado.color ?? '#6366f1' }}
-                      />
-                      <div className="min-w-0">
-                        <p className="font-bold text-gray-900 text-sm truncate">{paqueteSeleccionado.nombre}</p>
-                        <p className="text-xs text-gray-500 truncate">{paqueteSeleccionado.descripcionCorta}</p>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div className="flex items-start gap-3">
+                      {paqueteSeleccionado.color && (
+                        <div
+                          className="w-1 h-12 rounded-full shrink-0 mt-0.5"
+                          style={{ backgroundColor: paqueteSeleccionado.color }}
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-gray-900 text-sm line-clamp-1">{paqueteSeleccionado.nombre}</p>
+                        <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">{paqueteSeleccionado.descripcionCorta}</p>
                         {paqueteSeleccionado.limitepersonas && (
-                          <p className="text-xs text-amber-600 font-medium mt-0.5">
+                          <p className="text-xs text-amber-600 font-medium mt-1">
                             Capacidad máxima: {paqueteSeleccionado.limitepersonas} personas
                           </p>
                         )}
                       </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-[10px] text-gray-400 leading-none">desde</p>
+                        <p className="font-black text-gray-900 text-base leading-tight">
+                          {formatCurrency(paqueteSeleccionado.precio)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex sm:flex-col sm:items-end justify-between items-center border-t sm:border-t-0 pt-2 sm:pt-0 mt-1 sm:mt-0 w-full sm:w-auto border-gray-200/60">
-                      <span className="sm:hidden text-xs text-gray-400 font-normal">Precio base:</span>
-                      <p className="font-black text-brand-azul text-base">
-                        {formatCurrency(paqueteSeleccionado.precio)}
-                      </p>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPaso(1)}
+                      className="mt-3 text-xs text-brand-azul font-semibold hover:underline"
+                    >
+                      Cambiar paquete
+                    </button>
                   </div>
                 )}
 
+                <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                  <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-800 leading-relaxed">
+                    El precio final incluirá los extras que elijas. Te contactaremos en <strong>24–48 horas</strong> con la cotización completa.
+                  </p>
+                </div>
+
                 {extras.length > 0 && (
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold">Extras disponibles</Label>
+                    <div>
+                      <Label className="text-sm font-semibold">Extras disponibles</Label>
+                      <p className="text-xs text-gray-400 mt-0.5">El precio de cada extra se confirmará en la cotización.</p>
+                    </div>
                     <div className="space-y-2">
                       {extras.map((ex) => {
                         const marcado = extrasSeleccionados.includes(ex.id)
                         return (
-                          <label
+                          <button
                             key={ex.id}
-                            className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:border-brand-azul/30 cursor-pointer transition-all bg-white"
+                            type="button"
+                            onClick={() => toggleExtra(ex.id)}
+                            className={cn(
+                              'w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all',
+                              marcado
+                                ? 'border-brand-rosa bg-brand-rosa/5'
+                                : 'border-gray-200 hover:border-brand-rosa/30 bg-white'
+                            )}
                           >
-                            <input
-                              type="checkbox"
-                              checked={marcado}
-                              onChange={() => toggleExtra(ex.id)}
-                              className="w-5 h-5 rounded border-gray-300 text-brand-rosa focus:ring-brand-rosa shrink-0 mt-0.5"
-                            />
-                            <div>
+                            <div
+                              className={cn(
+                                'w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0',
+                                marcado ? 'bg-brand-rosa border-brand-rosa' : 'border-gray-300'
+                              )}
+                            >
+                              {marcado && <Check className="h-3 w-3 text-white" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-gray-900">{ex.nombre}</p>
                               {ex.descripcion && (
-                                <p className="text-xs text-gray-500">{ex.descripcion}</p>
+                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{ex.descripcion}</p>
                               )}
                             </div>
-                          </label>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide shrink-0">
+                              A cotizar
+                            </span>
+                          </button>
                         )
                       })}
                     </div>
                   </div>
                 )}
 
-                {/* Free text extras */}
                 <div className="space-y-1.5">
                   <Label className="text-sm font-semibold">
                     ¿Algo más en mente?{' '}
@@ -536,33 +627,32 @@ export function SolicitarEventoWizardView() {
                     rows={3}
                     maxLength={500}
                     className={cn(
-                      'w-full text-sm border rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-brand-rosa bg-white',
+                      'w-full text-sm border rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-brand-rosa bg-white min-h-[80px]',
                       validationErrors.otrasIdeas ? 'border-red-400' : 'border-gray-200'
                     )}
                   />
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-start justify-between gap-2 text-xs">
                     <FieldError message={validationErrors.otrasIdeas} />
-                    <span className={cn('text-gray-400 ml-auto', otrasIdeas.length > 450 && 'text-amber-600 font-semibold')}>
+                    <span className={cn('text-gray-400 shrink-0 ml-auto', otrasIdeas.length > 450 && 'text-amber-600 font-semibold')}>
                       {otrasIdeas.length}/500
                     </span>
                   </div>
                 </div>
 
-                {/* Client budget */}
                 <div className="space-y-1.5">
                   <Label htmlFor="presupuesto-paq" className="text-sm font-semibold">
                     ¿Cuál es tu presupuesto aproximado?{' '}
                     <span className="text-gray-400 font-normal">(opcional)</span>
                   </Label>
                   <p className="text-xs text-gray-400">
-                    Este dato nos ayuda a preparar una propuesta ajustada a tus posibilidades.
+                    Nos ayuda a preparar una propuesta ajustada a tus posibilidades.
                   </p>
                   <div className="relative">
-                    <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500 select-none">S/</span>
                     <Input
                       id="presupuesto-paq"
                       type="number"
-                      placeholder="0"
+                      placeholder="Ej: 1500"
                       min={1}
                       max={50000}
                       value={presupuestoCliente ?? ''}
@@ -573,24 +663,24 @@ export function SolicitarEventoWizardView() {
                   <FieldError message={validationErrors.presupuestoCliente} />
                 </div>
 
-                <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                  <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
-                  <p className="text-xs text-blue-800">
-                    El precio final incluirá los extras que elijas. Te enviaremos la cotización completa en 24–48 horas.
-                  </p>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setPaso(1)}>
-                    Atrás
-                  </Button>
-                  <Button
-                    className="flex-1 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl gap-2"
-                    disabled={!canAdvance2}
-                    onClick={() => setPaso(3)}
-                  >
-                    Continuar <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="space-y-2 pt-1">
+                  {!canAdvance2 && Object.keys(validationErrors).length > 0 && (
+                    <p className="text-xs text-red-500 text-center">
+                      Corrige los errores para continuar
+                    </p>
+                  )}
+                  <div className="flex gap-3">
+                    <Button variant="outline" className="flex-1 rounded-xl h-12" onClick={() => setPaso(1)}>
+                      Atrás
+                    </Button>
+                    <Button
+                      className="flex-1 bg-brand-rosa hover:bg-brand-rosa/90 disabled:opacity-40 text-white rounded-xl gap-2 h-12"
+                      disabled={!canAdvance2}
+                      onClick={() => setPaso(3)}
+                    >
+                      Continuar <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -608,7 +698,13 @@ export function SolicitarEventoWizardView() {
                   </p>
                 </div>
 
-                {/* Description */}
+                <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                  <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-800 leading-relaxed">
+                    Prepararemos una propuesta personalizada y te contactaremos en <strong>24–48 horas</strong>.
+                  </p>
+                </div>
+
                 <div className="space-y-1.5">
                   <Label className="text-sm font-semibold">
                     Describe tu evento <span className="text-destructive">*</span>
@@ -620,22 +716,24 @@ export function SolicitarEventoWizardView() {
                     rows={4}
                     maxLength={1000}
                     className={cn(
-                      'w-full text-sm border rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-brand-rosa bg-white',
+                      'w-full text-sm border rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-brand-rosa bg-white min-h-[80px] sm:min-h-[100px]',
                       validationErrors.descripcion ? 'border-red-400' : 'border-gray-200'
                     )}
                   />
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs">
                     <FieldError message={validationErrors.descripcion} />
                     {!validationErrors.descripcion && descripcion.length >= 30 && (
-                      <span className="text-green-600 font-medium">✓ Descripción completa</span>
+                      <span className="flex items-center gap-1 text-green-600 font-medium">
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                        Descripción completa
+                      </span>
                     )}
-                    <span className={cn('text-gray-400 ml-auto', descripcion.length > 950 && 'text-amber-600 font-semibold')}>
+                    <span className={cn('text-gray-400 ml-auto shrink-0', descripcion.length > 950 && 'text-amber-600 font-semibold')}>
                       {descripcion.length}/1000
                     </span>
                   </div>
                 </div>
 
-                {/* Services */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold">¿Qué servicios te gustaría incluir?</Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -653,13 +751,15 @@ export function SolicitarEventoWizardView() {
                               : 'border-gray-200 hover:border-brand-azul/30'
                           )}
                         >
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">{servicio.nombre}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-gray-900 line-clamp-2">{servicio.nombre}</p>
                             {servicio.descripcion && (
-                              <p className="text-xs text-gray-400 truncate">{servicio.descripcion}</p>
+                              <p className="text-xs text-gray-400 line-clamp-2 mt-0.5">{servicio.descripcion}</p>
                             )}
-                            <p className="text-xs text-gray-400">
-                              desde {formatCurrency(servicio.precioReferencial)}
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {servicio.precioReferencial
+                                ? `desde ${formatCurrency(servicio.precioReferencial)}`
+                                : 'A consultar'}
                             </p>
                           </div>
                           <div
@@ -676,7 +776,6 @@ export function SolicitarEventoWizardView() {
                   </div>
                 </div>
 
-                {/* Estimated budget (sum of services) */}
                 {presupuestoEstimado > 0 && (
                   <div className="bg-brand-azul/5 border border-brand-azul/20 rounded-2xl p-4">
                     <div className="flex items-center justify-between">
@@ -696,42 +795,20 @@ export function SolicitarEventoWizardView() {
                   </div>
                 )}
 
-                {/* Number of guests */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="invitados-coti" className="text-sm font-semibold">
-                    Número aproximado de invitados <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="invitados-coti"
-                      type="number"
-                      value={invitados ?? ''}
-                      onChange={(e) => setInvitados(e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="20"
-                      min={1}
-                      max={500}
-                      className={cn('h-11 rounded-xl pl-9', validationErrors.invitados && 'border-red-400')}
-                    />
-                  </div>
-                  <FieldError message={validationErrors.invitados} />
-                </div>
-
-                {/* Client's own budget */}
                 <div className="space-y-1.5">
                   <Label htmlFor="presupuesto-coti" className="text-sm font-semibold">
                     ¿Cuál es tu presupuesto aproximado?{' '}
                     <span className="text-gray-400 font-normal">(opcional)</span>
                   </Label>
                   <p className="text-xs text-gray-400">
-                    Este dato nos ayuda a preparar una propuesta ajustada a tus posibilidades.
+                    Nos ayuda a preparar una propuesta ajustada a tus posibilidades.
                   </p>
                   <div className="relative">
-                    <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500 select-none">S/</span>
                     <Input
                       id="presupuesto-coti"
                       type="number"
-                      placeholder="0"
+                      placeholder="Ej: 1500"
                       min={1}
                       max={50000}
                       value={presupuestoCliente ?? ''}
@@ -742,17 +819,24 @@ export function SolicitarEventoWizardView() {
                   <FieldError message={validationErrors.presupuestoCliente} />
                 </div>
 
-                <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setPaso(1)}>
-                    Atrás
-                  </Button>
-                  <Button
-                    className="flex-1 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl gap-2"
-                    disabled={!canAdvance2}
-                    onClick={() => setPaso(3)}
-                  >
-                    Continuar <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="space-y-2 pt-1">
+                  {!canAdvance2 && descripcion.length < 30 && (
+                    <p className="text-xs text-gray-500 text-center">
+                      Escribe al menos 30 caracteres para continuar
+                    </p>
+                  )}
+                  <div className="flex gap-3">
+                    <Button variant="outline" className="flex-1 rounded-xl h-12" onClick={() => setPaso(1)}>
+                      Atrás
+                    </Button>
+                    <Button
+                      className="flex-1 bg-brand-rosa hover:bg-brand-rosa/90 disabled:opacity-40 text-white rounded-xl gap-2 h-12"
+                      disabled={!canAdvance2}
+                      onClick={() => setPaso(3)}
+                    >
+                      Continuar <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -772,15 +856,15 @@ export function SolicitarEventoWizardView() {
                 <div className="space-y-1.5">
                   <Label htmlFor="fecha" className="text-sm font-semibold">Fecha del evento <span className="text-destructive">*</span></Label>
                   <p className="text-xs text-gray-400">
-                    La reserva debe realizarse con al menos {ANTICIPACION_MIN} días de anticipación.
+                    La reserva debe realizarse con al menos {anticipacionMin} días de anticipación.
                   </p>
                   <div className="relative">
                     <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       id="fecha"
                       type="date"
-                      min={fechaMin()}
-                      max={fechaMax()}
+                      min={fechaMin}
+                      max={fechaMax}
                       value={fechaSel ?? ''}
                       onChange={(e) => intentarSeleccionarFecha(e.target.value)}
                       className="h-11 rounded-xl pl-9"
@@ -795,14 +879,34 @@ export function SolicitarEventoWizardView() {
                 {fechaSel && !fechasOcupadas.has(fechaSel) && (
                   <div className="space-y-2">
                     <Label className="text-sm font-semibold">Turno preferido <span className="text-destructive">*</span></Label>
+                    {isTurnosError && (
+                      <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+                        <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-xs text-red-800">
+                          No se pudieron cargar los turnos disponibles. Por favor recarga la página.
+                        </p>
+                      </div>
+                    )}
+                    {isTurnosLoading && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {[0, 1].map((i) => (
+                          <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
+                        ))}
+                      </div>
+                    )}
+                    {!isTurnosError && !isTurnosLoading && turnos.length === 0 && (
+                      <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                        <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                        <p className="text-xs text-amber-800">No hay turnos configurados para esta sede.</p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-2">
                       {turnos.map((turno) => {
-                        const disponible =
-                          turno.codigo === 'T1'
-                            ? (disponibilidadDia?.turnoT1Disponible ?? true)
-                            : turno.codigo === 'T2'
-                            ? (disponibilidadDia?.turnoT2Disponible ?? true)
-                            : true
+                        const DISPONIBILIDAD_POR_CODIGO: Record<string, boolean | undefined> = {
+                          T1: disponibilidadDia?.turnoT1Disponible,
+                          T2: disponibilidadDia?.turnoT2Disponible,
+                        }
+                        const disponible = DISPONIBILIDAD_POR_CODIGO[turno.codigo] ?? true
                         const seleccionado = idTurno === turno.id
                         return (
                           <button
@@ -852,9 +956,6 @@ export function SolicitarEventoWizardView() {
                         maxLength={60}
                       />
                       <FieldError message={validationErrors.nombreNino} />
-                      {!validationErrors.nombreNino && !nombreNino && (
-                        <FieldError message="El nombre del niño es obligatorio para cumpleaños" />
-                      )}
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="edadCumple" className="text-sm font-semibold">
@@ -871,7 +972,7 @@ export function SolicitarEventoWizardView() {
                         className={cn('h-11 rounded-xl', validationErrors.edadCumple && 'border-red-400')}
                       />
                       <FieldError message={validationErrors.edadCumple} />
-                      {edadCumple !== null && edadCumple >= Math.max(edadMin, edadMax - 5) && !validationErrors.edadCumple && (
+                      {edadCumple !== null && edadCumple >= Math.max(10, edadMax - 5) && !validationErrors.edadCumple && (
                         <FieldWarning message="Este paquete está pensado para niños. ¿Es correcto?" />
                       )}
                     </div>
@@ -902,6 +1003,14 @@ export function SolicitarEventoWizardView() {
                       <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                       <p className="text-xs text-amber-800">
                         El paquete seleccionado tiene un límite de {limitePersonas} personas. Si tienes más invitados, considera solicitar una cotización personalizada.
+                      </p>
+                    </div>
+                  )}
+                  {camino === 'cotizacion' && invitados !== null && invitados > 500 && (
+                    <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl mt-1">
+                      <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                      <p className="text-xs text-amber-800">
+                        Es un número grande de invitados. El equipo evaluará la disponibilidad y te lo confirmará en la cotización.
                       </p>
                     </div>
                   )}
@@ -944,7 +1053,7 @@ export function SolicitarEventoWizardView() {
 
             {/* ─── PASO 4 — Resumen ────────────────────────────────────── */}
             {paso === 4 && (
-              <div className="space-y-5 bg-white p-5 sm:p-6 rounded-2xl border border-gray-100">
+              <div className="space-y-5 bg-white p-5 sm:p-6 rounded-2xl border border-gray-100 lg:max-w-2xl lg:mx-auto">
                 <div>
                   <Badge className="bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20 mb-2">
                     Paso 4 de 4
@@ -1016,15 +1125,14 @@ export function SolicitarEventoWizardView() {
                   )}
                 </div>
 
-                {/* Time warning on step 4 */}
                 {timerPhase !== 'safe' && (
                   <div className={cn(
                     'flex items-start gap-2 p-3 rounded-xl border',
                     timerPhase === 'critical' ? 'bg-red-50 border-red-300' : 'bg-amber-50 border-amber-200'
                   )}>
-                    <AlertTriangle className={cn('h-4 w-4 shrink-0 mt-0.5', timerPhase === 'critical' ? 'text-red-600' : 'text-amber-600')} />
+                    <Clock className={cn('h-4 w-4 shrink-0 mt-0.5', timerPhase === 'critical' ? 'text-red-600' : 'text-amber-600')} />
                     <p className={cn('text-xs font-semibold', timerPhase === 'critical' ? 'text-red-800' : 'text-amber-800')}>
-                      ⏳ Tu sesión expira en {timerDisplay}. ¡Envía ahora antes de que se cancele!
+                      Tu sesión expira en {timerDisplay}. Envía tu solicitud antes de que se cancele.
                     </p>
                   </div>
                 )}
@@ -1063,7 +1171,7 @@ export function SolicitarEventoWizardView() {
           </div>
 
           {/* Desktop sidebar */}
-          <div className="hidden lg:block">
+          <div className={cn('hidden', paso !== 4 && 'lg:block')}>
             <ResumenEnVivo
               tipoEvento={tipoEvento}
               tipoEventoLabel={tipoEventoLabel}
@@ -1086,20 +1194,22 @@ export function SolicitarEventoWizardView() {
       </div>
 
       {/* Mobile sticky resume */}
-      <ResumenMovilExpandible
-        tipoEvento={tipoEvento}
-        tipoEventoLabel={tipoEventoLabel}
-        camino={camino}
-        paquete={paqueteSeleccionado}
-        extras={extras}
-        extrasSeleccionados={extrasSeleccionados}
-        serviciosCotizacion={serviciosCotizacion}
-        servicios={servicios}
-        presupuestoEstimado={presupuestoEstimado}
-        presupuestoCliente={presupuestoCliente}
-        fecha={fechaSel}
-        turno={turnoSeleccionado}
-      />
+      {paso !== 4 && (
+        <ResumenMovilExpandible
+          tipoEvento={tipoEvento}
+          tipoEventoLabel={tipoEventoLabel}
+          camino={camino}
+          paquete={paqueteSeleccionado}
+          extras={extras}
+          extrasSeleccionados={extrasSeleccionados}
+          serviciosCotizacion={serviciosCotizacion}
+          servicios={servicios}
+          presupuestoEstimado={presupuestoEstimado}
+          presupuestoCliente={presupuestoCliente}
+          fecha={fechaSel}
+          turno={turnoSeleccionado}
+        />
+      )}
 
       {/* Package detail modal */}
       <PaqueteDetalleModal
@@ -1113,7 +1223,7 @@ export function SolicitarEventoWizardView() {
       <ModalAnticipacionEvento
         open={modalAnticipacion}
         onClose={() => setModalAnticipacion(false)}
-        diasMinimos={ANTICIPACION_MIN}
+        diasMinimos={anticipacionMin}
       />
 
       {/* Floating WhatsApp button */}

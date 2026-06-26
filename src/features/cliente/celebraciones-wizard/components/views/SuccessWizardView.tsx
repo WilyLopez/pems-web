@@ -5,8 +5,16 @@ import { Separator } from '@/components/ui/Separator'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { useWhatsAppUrl } from '@/hooks/useConfigPublica'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 import { EventoPrivado } from '../../../shared/types'
+import { formatTipoEvento } from '../../../shared/constants'
+
+const ESTADO_CONFIG: Record<string, { label: string; className: string }> = {
+  SOLICITADA: { label: 'Solicitada', className: 'bg-amber-100 text-amber-800 border-amber-200' },
+  CONFIRMADA: { label: 'Confirmada', className: 'bg-green-100 text-green-800 border-green-200' },
+  COMPLETADA: { label: 'Completada', className: 'bg-blue-100 text-blue-800 border-blue-200'   },
+  CANCELADA:  { label: 'Cancelada',  className: 'bg-red-100 text-red-800 border-red-200'      },
+}
 
 interface SuccessViewProps {
   evento: EventoPrivado
@@ -14,6 +22,8 @@ interface SuccessViewProps {
 
 export function SuccessWizardView({ evento }: SuccessViewProps) {
   const whatsappUrl = useWhatsAppUrl('Hola, acabo de solicitar un evento y quiero confirmar los detalles')
+  const tipoLabel = formatTipoEvento(evento.tipoEvento)
+  const estadoConfig = ESTADO_CONFIG[evento.estado] ?? { label: evento.estado, className: 'bg-gray-100 text-gray-700 border-gray-200' }
 
   return (
     <div className="flex flex-col items-center text-center py-16 space-y-6 max-w-md mx-auto">
@@ -39,11 +49,11 @@ export function SuccessWizardView({ evento }: SuccessViewProps) {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Tipo</span>
-            <span>{evento.tipoEvento}</span>
+            <span>{tipoLabel}</span>
           </div>
           <Separator />
-          <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
-            {evento.estado}
+          <Badge variant="secondary" className={`${estadoConfig.className} text-xs`}>
+            {estadoConfig.label}
           </Badge>
         </CardContent>
       </Card>

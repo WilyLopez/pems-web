@@ -45,17 +45,13 @@ export function NuevoEventoView() {
   const router       = useRouter()
   const { idSede }   = useAuth()
 
-  if (!idSede) {
-    return <ErrorState message="No tienes sede asignada. Contacta al administrador." />
-  }
-
-  const { data: config }  = useConfiguracionCalendario(idSede)
-  const { data: turnos, isLoading: loadingTurnos } = useTurnos(idSede)
+  const { data: config }  = useConfiguracionCalendario(idSede ?? 0)
+  const { data: turnos, isLoading: loadingTurnos } = useTurnos(idSede ?? 0)
 
   const diasMin = config?.diasMinEventoPrivado ?? 15
   const diasMax = config?.diasMaxEventoPrivado ?? 365
 
-  const fechaParam  = searchParams.get('fecha')
+  const fechaParam   = searchParams.get('fecha')
   const idTurnoParam = searchParams.get('idTurno')
 
   const [currentDate, setCurrentDate] = useState(() => {
@@ -73,7 +69,11 @@ export function NuevoEventoView() {
   const inicio = format(startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 }), 'yyyy-MM-dd')
   const fin    = format(endOfWeek(endOfMonth(currentDate),   { weekStartsOn: 0 }), 'yyyy-MM-dd')
 
-  const { data: disponibilidades, isLoading: loadingDisp } = useDisponibilidadRango(idSede, inicio, fin)
+  const { data: disponibilidades, isLoading: loadingDisp } = useDisponibilidadRango(idSede ?? 0, inicio, fin)
+
+  if (!idSede) {
+    return <ErrorState message="No tienes sede asignada. Contacta al administrador." />
+  }
 
   const days        = eachDayOfInterval({ start: startOfMonth(currentDate), end: endOfMonth(currentDate) })
   const startOffset = getDay(startOfMonth(currentDate))
@@ -110,16 +110,16 @@ export function NuevoEventoView() {
       />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-black text-gray-900 capitalize text-base">
+            <h2 className="font-black text-gray-900 dark:text-gray-100 capitalize text-base">
               {format(currentDate, 'MMMM yyyy', { locale: es })}
             </h2>
             <div className="flex gap-1">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 rounded-xl"
+                className="h-8 w-8 rounded-xl dark:border-gray-700 dark:text-gray-300"
                 onClick={() => setCurrentDate(subMonths(currentDate, 1))}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -127,7 +127,7 @@ export function NuevoEventoView() {
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 rounded-xl"
+                className="h-8 w-8 rounded-xl dark:border-gray-700 dark:text-gray-300"
                 onClick={() => setCurrentDate(addMonths(currentDate, 1))}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -136,7 +136,7 @@ export function NuevoEventoView() {
           </div>
 
           {config && (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 dark:text-gray-500">
               Disponible desde {format(addDays(new Date(), diasMin), "d 'de' MMMM", { locale: es })} hasta{' '}
               {format(addDays(new Date(), diasMax), "d 'de' MMMM yyyy", { locale: es })}.
             </p>
@@ -144,7 +144,7 @@ export function NuevoEventoView() {
 
           <div className="grid grid-cols-7 gap-px mb-1">
             {DAYS_HEADER.map((d) => (
-              <div key={d} className="text-center text-[11px] font-bold uppercase tracking-wider text-gray-400 py-1">
+              <div key={d} className="text-center text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 py-1">
                 {d}
               </div>
             ))}
@@ -159,13 +159,13 @@ export function NuevoEventoView() {
           ) : (
             <div className="grid grid-cols-7 gap-1">
               {Array.from({ length: startOffset }).map((_, i) => (
-                <div key={`e-${i}`} className="h-12 rounded-xl bg-gray-50/40" />
+                <div key={`e-${i}`} className="h-12 rounded-xl bg-gray-50/40 dark:bg-gray-800/40" />
               ))}
               {days.map((day) => {
-                const habilitado  = esFechaHabilitada(day)
-                const f           = format(day, 'yyyy-MM-dd')
+                const habilitado   = esFechaHabilitada(day)
+                const f            = format(day, 'yyyy-MM-dd')
                 const seleccionado = fechaSel === f
-                const hoy         = isToday(day)
+                const hoy          = isToday(day)
 
                 return (
                   <button
@@ -177,9 +177,9 @@ export function NuevoEventoView() {
                       seleccionado
                         ? 'bg-brand-rosa text-white border-brand-rosa'
                         : habilitado
-                        ? 'border-gray-200 hover:border-brand-rosa/50 hover:bg-brand-rosa/5 text-gray-800'
-                        : 'border-transparent bg-gray-50/60 text-gray-300 cursor-not-allowed',
-                      hoy && !seleccionado && habilitado && 'border-brand-azul/40'
+                        ? 'border-gray-200 hover:border-brand-rosa/50 hover:bg-brand-rosa/5 text-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:border-brand-rosa/50 dark:hover:bg-brand-rosa/10'
+                        : 'border-transparent bg-gray-50/60 text-gray-300 cursor-not-allowed dark:bg-gray-800/60 dark:text-gray-600',
+                      hoy && !seleccionado && habilitado && 'border-brand-azul/40 dark:border-brand-azul/50'
                     )}
                   >
                     {day.getDate()}
@@ -192,16 +192,16 @@ export function NuevoEventoView() {
 
         <div className="space-y-4">
           {fechaSel && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Fecha seleccionada</p>
-                <p className="font-black text-gray-900 capitalize mt-1">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Fecha seleccionada</p>
+                <p className="font-black text-gray-900 dark:text-gray-100 capitalize mt-1">
                   {format(parseISO(fechaSel), "EEEE d 'de' MMMM yyyy", { locale: es })}
                 </p>
               </div>
 
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-2">Selecciona el turno</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Selecciona el turno</p>
                 {loadingTurnos ? (
                   <div className="space-y-2">
                     <Skeleton className="h-16 rounded-2xl" />
@@ -230,9 +230,9 @@ export function NuevoEventoView() {
           )}
 
           {!fechaSel && (
-            <div className="bg-gray-50 rounded-2xl border border-gray-100 p-5 flex flex-col items-center justify-center gap-2 min-h-[160px]">
-              <PartyPopper className="h-8 w-8 text-gray-300" />
-              <p className="text-sm text-gray-400 text-center">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 flex flex-col items-center justify-center gap-2 min-h-[160px]">
+              <PartyPopper className="h-8 w-8 text-gray-300 dark:text-gray-600" />
+              <p className="text-sm text-gray-400 dark:text-gray-500 text-center">
                 Selecciona una fecha en el calendario para ver los turnos disponibles.
               </p>
             </div>

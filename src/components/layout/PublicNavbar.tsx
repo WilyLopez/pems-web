@@ -209,7 +209,7 @@ export function PublicNavbar() {
             asChild
             className="bg-brand-rosa hover:bg-brand-rosa/90 text-white font-bold px-5 rounded-full gap-1.5 shadow-sm"
           >
-            <Link href="/reservar">
+            <Link href="/cliente/reservar">
               <Ticket className="h-4 w-4" />
               Reservar
             </Link>
@@ -327,7 +327,7 @@ export function PublicNavbar() {
                 asChild
                 className="bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full font-bold"
               >
-                <Link href="/reservar" onClick={() => setMobileOpen(false)}>
+                <Link href="/cliente/reservar" onClick={() => setMobileOpen(false)}>
                   <Ticket className="mr-2 h-4 w-4" />
                   Reservar
                 </Link>

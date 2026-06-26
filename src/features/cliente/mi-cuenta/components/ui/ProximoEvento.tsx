@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { CalendarDays, ArrowRight, ChevronRight, PartyPopper, Ticket } from 'lucide-react'
 import { startOfDay, parseISO, isFuture, differenceInDays } from 'date-fns'
 import { Reserva, EventoPrivado } from '../../../shared/types'
+import { formatTipoEvento } from '../../../shared/constants'
 import { formatDate } from '@/lib/utils'
 
 interface ProximoEventoProps {
@@ -48,7 +49,7 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
           <p className="text-xs text-gray-500 mt-0.5">Actualmente no tienes eventos programados.</p>
         </div>
         <Link
-          href="/reservar"
+          href="/cliente/reservar"
           className="ml-auto shrink-0 flex items-center gap-1 text-xs font-semibold text-brand-azul hover:underline"
         >
           Reservar <ArrowRight className="h-3 w-3" />
@@ -70,7 +71,7 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
               <p className="text-[10px] font-bold uppercase tracking-wider text-brand-rosa mb-0.5">
                 Próximo evento privado
               </p>
-              <p className="text-base font-black text-gray-900">{proximoEvento.tipoEvento}</p>
+              <p className="text-base font-black text-gray-900">{formatTipoEvento(proximoEvento.tipoEvento)}</p>
               <p className="text-sm text-gray-500 mt-0.5">
                 {formatDate(proximoEvento.fechaEvento, "EEEE d 'de' MMMM")}
                 {dias === 0 ? ' · ¡Hoy!' : dias === 1 ? ' · Mañana' : ` · en ${dias} días`}

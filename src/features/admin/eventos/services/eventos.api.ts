@@ -31,7 +31,21 @@ export interface KpisEventos {
   conSaldoPendiente: number
 }
 
+export interface ListarEventosParams {
+  page?: number
+  size?: number
+  estado?: string
+}
+
 export const eventosApi = {
+  listar: async (params: ListarEventosParams): Promise<PagedResponse<EventoPrivado>> => {
+    const { data } = await api.get<ApiResponse<PagedResponse<EventoPrivado>>>(
+      '/eventos-privados',
+      { params }
+    )
+    return data.data
+  },
+
   buscarAdmin: async (params: BuscarEventosParams): Promise<PagedResponse<EventoPrivado>> => {
     const { data } = await api.get<ApiResponse<PagedResponse<EventoPrivado>>>(
       '/eventos-privados/admin',

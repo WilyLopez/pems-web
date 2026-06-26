@@ -4,6 +4,7 @@ import { parseISO, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Reserva, EventoPrivado } from '../../../shared/types'
 import { SectionCard } from '../../../shared/components/SectionCard'
+import { formatTipoEvento } from '../../../shared/constants'
 import { cn, formatDate } from '@/lib/utils'
 
 interface ActividadRecienteProps {
@@ -62,7 +63,7 @@ function buildTimeline(reservas: Reserva[], eventos: EventoPrivado[]): TimelineI
       return {
         id: `e-${e.id}`,
         titulo: c.titulo,
-        subtitulo: `${e.tipoEvento} · ${formatDate(e.fechaEvento)}`,
+        subtitulo: `${formatTipoEvento(e.tipoEvento)} · ${formatDate(e.fechaEvento)}`,
         fecha: e.fechaCreacion,
         iconColor: c.iconColor,
         bgColor: c.bgColor,

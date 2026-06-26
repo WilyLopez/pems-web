@@ -71,6 +71,8 @@ export interface EventoPrivado {
   fechaEvento: string
   tipoEvento: string
   contactoAdicional?: string
+  origenContacto?: string
+  motivoCancelacion?: string
   aforoDeclarado?: number
   precioTotalContrato?: number
   montoAdelanto?: number
@@ -90,7 +92,7 @@ export interface EventoPrivado {
   horaFinReal?: string
   checklist?: ChecklistItem[]
   extras?: EventoExtra[]
-  fechaCreacion: string
+  fechaCreacion?: string
   modalidadPago?: ModalidadPago
   fechaLimitePago?: string
   cuotas?: EventoCuota[]
@@ -120,6 +122,7 @@ export interface SolicitarEventoPayload {
   observaciones?: string
   descripcionPersonalizada?: string
   presupuestoEstimado?: number
+  origenContacto?: string
   idsServiciosCotizacion?: number[]
   esCotizacionPersonalizada?: boolean
 }

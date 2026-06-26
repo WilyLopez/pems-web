@@ -4,6 +4,7 @@ import { EventoPrivado } from '@/features/cliente/shared/types'
 import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
 import { Badge } from '@/components/ui/Badge'
 import { cn, formatDate, formatCurrency } from '@/lib/utils'
+import { formatTipoEvento } from '@/features/cliente/shared/constants'
 import { differenceInDays, parseISO, startOfDay } from 'date-fns'
 
 export function EventoCard({ evento }: { evento: EventoPrivado }) {
@@ -25,7 +26,7 @@ export function EventoCard({ evento }: { evento: EventoPrivado }) {
               <PartyPopper className="h-5 w-5 text-brand-rosa" />
             </div>
             <div className="min-w-0">
-              <p className="font-bold text-gray-900 truncate">{evento.tipoEvento}</p>
+              <p className="font-bold text-gray-900 truncate">{formatTipoEvento(evento.tipoEvento)}</p>
               <EstadoBadge estado={evento.estado} compact />
             </div>
           </div>

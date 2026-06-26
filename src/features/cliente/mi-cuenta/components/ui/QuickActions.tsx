@@ -4,8 +4,8 @@ import { cn } from '@/lib/utils'
 
 export function QuickActions() {
   const links = [
-    { href: '/reservar',         icon: Ticket,      label: 'Crear reserva',   color: 'bg-brand-azul/10 text-brand-azul' },
-    { href: '/celebraciones/solicitar', icon: PartyPopper,  label: 'Solicitar evento', color: 'bg-brand-rosa/10 text-brand-rosa' },
+    { href: '/cliente/reservar',         icon: Ticket,      label: 'Crear reserva',   color: 'bg-brand-azul/10 text-brand-azul' },
+    { href: '/cliente/celebraciones/solicitar', icon: PartyPopper,  label: 'Solicitar evento', color: 'bg-brand-rosa/10 text-brand-rosa' },
     { href: '/cliente/mis-eventos',  icon: CalendarDays, label: 'Mis eventos',   color: 'bg-purple-100 text-purple-600' },
     { href: '/cliente/mis-reservas', icon: History,      label: 'Historial',     color: 'bg-gray-100 text-gray-600' },
   ]

@@ -8,4 +8,5 @@ export const PUBLIC_QUERY_KEYS = {
   precios: ['public-precios'] as const,
   paquetes: ['public-paquetes'] as const,
   novedades: ['public-novedades'] as const,
+  sedes: ['public-sedes'] as const,
 } as const
