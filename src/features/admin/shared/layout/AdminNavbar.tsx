@@ -201,6 +201,7 @@ const NotificacionesMenu = memo(function NotificacionesMenu() {
     fetchNotificaciones,
     marcarLeida,
     marcarTodasLeidas,
+    setPanelAbierto,
   } = useNotificacionesStore()
 
   return (
@@ -314,12 +315,12 @@ const NotificacionesMenu = memo(function NotificacionesMenu() {
         </div>
 
         <div className="p-2 border-t border-gray-100">
-          <Link
-            href="/admin/notificaciones"
+          <button
+            onClick={() => setPanelAbierto(true)}
             className="block w-full text-center text-xs text-brand-azul font-semibold py-2 rounded-xl hover:bg-brand-azul/8 transition-colors"
           >
             Ver todas las notificaciones
-          </Link>
+          </button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

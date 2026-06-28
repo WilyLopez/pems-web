@@ -3,6 +3,8 @@ import {
   nombreField,
   correoField,
   telefonoField,
+  telefonoOpcionalField,
+  dniField,
   dniOpcionalField,
   contrasenaSeguraField,
 } from '@/lib/validations/campos'
@@ -35,6 +37,17 @@ export const registroSchema = z
   })
 
 export type RegistroFormValues = z.infer<typeof registroSchema>
+
+export const completarPerfilSchema = z.object({
+  nombres: nombreField,
+  dni: dniField,
+  telefono: telefonoOpcionalField,
+  aceptaTerminos: z
+    .boolean()
+    .refine((v) => v === true, 'Debes aceptar los Términos y Condiciones'),
+})
+
+export type CompletarPerfilFormValues = z.infer<typeof completarPerfilSchema>
 
 export const recuperarSchema = z.object({
   email: z

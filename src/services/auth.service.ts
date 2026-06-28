@@ -26,6 +26,22 @@ export const authService = {
     return data.data
   },
 
+  completarPerfil: async (payload: {
+    nombres: string
+    apellidoPaterno?: string
+    apellidoMaterno?: string
+    tipoDocumento: string
+    numeroDocumento: string
+    telefono?: string
+    aceptaComunicaciones: boolean
+  }): Promise<Cliente> => {
+    const { data } = await api.post<ApiResponse<Cliente>>(
+      '/clientes/me/completar',
+      payload
+    )
+    return data.data
+  },
+
   recuperarPassword: async (email: string): Promise<void> => {
     await api.post('/auth/recuperar-password', { email })
   },
