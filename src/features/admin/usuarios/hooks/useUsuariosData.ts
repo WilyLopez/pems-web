@@ -1,6 +1,12 @@
+'use client'
+
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { usuariosApi, CrearUsuarioPayload, ActualizarUsuarioPayload } from '../services/usuarios.api'
+import { getEstadoAdmin } from '../types'
+import { useUsuariosNav } from './useUsuariosNav'
+import { PAGE_SIZE, REFETCH_INTERVAL, STALE_TIME } from '../constants'
 
 export const USUARIOS_KEYS = {
   LIST: 'admin-usuarios-list',
@@ -10,7 +16,52 @@ export function useUsuariosList() {
   return useQuery({
     queryKey: [USUARIOS_KEYS.LIST],
     queryFn: () => usuariosApi.listar(),
+    refetchInterval: REFETCH_INTERVAL,
+    refetchOnWindowFocus: true,
+    staleTime: STALE_TIME,
   })
+}
+
+export function useUsuariosFiltrados() {
+  const {
+    data: todos = [],
+    isLoading,
+    isError,
+    refetch,
+    dataUpdatedAt,
+    isRefetching,
+  } = useUsuariosList()
+  const { search, rol, estado, page } = useUsuariosNav()
+
+  const filtrados = useMemo(() => {
+    return todos.filter((u) => {
+      const matchSearch =
+        !search ||
+        u.nombre.toLowerCase().includes(search.toLowerCase()) ||
+        u.correo.toLowerCase().includes(search.toLowerCase())
+      const matchRol = rol === 'TODOS' || u.rol === rol
+      const matchEstado = estado === 'TODOS' || getEstadoAdmin(u) === estado
+      return matchSearch && matchRol && matchEstado
+    })
+  }, [todos, search, rol, estado])
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / PAGE_SIZE))
+  const pageActual = Math.min(page, totalPaginas)
+  const paginados = filtrados.slice((pageActual - 1) * PAGE_SIZE, pageActual * PAGE_SIZE)
+
+  return {
+    todos,
+    paginados,
+    totalFiltrados: filtrados.length,
+    totalGeneral: todos.length,
+    totalPaginas,
+    pageActual,
+    isLoading,
+    isError,
+    refetch,
+    dataUpdatedAt,
+    isRefetching,
+  }
 }
 
 export function useMutacionesUsuario() {
@@ -26,8 +77,6 @@ export function useMutacionesUsuario() {
     onSuccess: () => {
       invalidarLista()
     },
-    onError: (err: { message?: string }) =>
-      toast.error(err?.message ?? 'No se pudo crear el usuario.'),
   })
 
   const actualizarUsuario = useMutation({
@@ -53,8 +102,7 @@ export function useMutacionesUsuario() {
 
   const resetPassword = useMutation({
     mutationFn: (id: number) => usuariosApi.resetPassword(id),
-    onSuccess: () =>
-      toast.success('Se envió el email de recuperación de contraseña.'),
+    onSuccess: () => toast.success('Se envió el email de recuperación de contraseña.'),
     onError: () => toast.error('No se pudo enviar el email de recuperación.'),
   })
 
@@ -76,6 +124,15 @@ export function useMutacionesUsuario() {
     onError: () => toast.error('No se pudo desactivar el usuario.'),
   })
 
+  const desbloquearUsuario = useMutation({
+    mutationFn: (id: number) => usuariosApi.desbloquear(id),
+    onSuccess: () => {
+      toast.success('Usuario desbloqueado.')
+      invalidarLista()
+    },
+    onError: () => toast.error('No se pudo desbloquear el usuario.'),
+  })
+
   return {
     crearUsuario,
     actualizarUsuario,
@@ -83,5 +140,6 @@ export function useMutacionesUsuario() {
     resetPassword,
     activarUsuario,
     desactivarUsuario,
+    desbloquearUsuario,
   }
 }

@@ -9,6 +9,7 @@ export interface UsuarioAdmin {
   correo: string
   rol: RolAdmin
   telefono?: string
+  usuarioId?: string
   fotoPerfilUrl?: string
   activo: boolean
   debeCambiarContrasena: boolean

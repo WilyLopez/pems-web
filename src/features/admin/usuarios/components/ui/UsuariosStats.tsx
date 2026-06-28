@@ -35,7 +35,9 @@ export function UsuariosStats({ usuarios }: Props) {
   const total = usuarios.length
   const activos = usuarios.filter((u) => getEstadoAdmin(u) === 'ACTIVO').length
   const inactivos = usuarios.filter((u) => getEstadoAdmin(u) !== 'ACTIVO').length
-  const admins = usuarios.filter((u) => u.rol === 'ADMIN').length
+  const admins = usuarios.filter(
+    (u) => u.rol === 'ADMIN' || u.rol === 'SUPERADMIN'
+  ).length
   const cajeros = usuarios.filter((u) => u.rol === 'CAJERO').length
 
   return (
@@ -43,7 +45,7 @@ export function UsuariosStats({ usuarios }: Props) {
       <StatCard label="Total usuarios" value={total} icon={Users} color="bg-gray-100 text-gray-600" />
       <StatCard label="Activos" value={activos} icon={UserCheck} color="bg-green-100 text-green-600" />
       <StatCard label="Inactivos/Bloq." value={inactivos} icon={UserX} color="bg-red-100 text-red-600" />
-      <StatCard label="Administradores" value={admins} icon={Shield} color="bg-purple-100 text-purple-600" />
+      <StatCard label="Admins + SA" value={admins} icon={Shield} color="bg-purple-100 text-purple-600" />
       <StatCard label="Cajeros" value={cajeros} icon={ShieldCheck} color="bg-blue-100 text-blue-600" />
     </div>
   )

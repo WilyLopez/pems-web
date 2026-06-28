@@ -1,11 +1,11 @@
 'use client'
 
-import { useMemo } from 'react'
 import {
   AlertTriangle,
   Clock,
   Eye,
   KeyRound,
+  LockOpen,
   Mail,
   MoreHorizontal,
   Pencil,
@@ -17,9 +17,12 @@ import {
   UserX,
 } from 'lucide-react'
 import Link from 'next/link'
+import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { UsuarioAdmin, getEstadoAdmin } from '../../types'
 import { RolBadge } from '../ui/RolBadge'
 import { EstadoBadge } from '../ui/EstadoBadge'
+import { PaginacionUsuarios } from '../ui/PaginacionUsuarios'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -45,7 +48,12 @@ import { useUsuariosNav } from '../../hooks/useUsuariosNav'
 import { cn } from '@/lib/utils'
 
 interface Props {
-  usuarios: UsuarioAdmin[]
+  paginados: UsuarioAdmin[]
+  totalFiltrados: number
+  totalGeneral: number
+  totalPaginas: number
+  pageActual: number
+  onPageChange: (page: number) => void
   isLoading: boolean
   isError: boolean
   onRetry: () => void
@@ -54,7 +62,27 @@ interface Props {
 }
 
 function initials(nombre: string) {
-  return nombre.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase()
+  return nombre
+    .split(' ')
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+}
+
+function mensajeVacio(
+  search: string,
+  rol: string,
+  estado: string,
+  totalGeneral: number
+): string {
+  if (totalGeneral === 0) return 'No hay usuarios registrados.'
+  if (search && rol !== 'TODOS')
+    return `No hay usuarios con rol ${rol} que coincidan con "${search}".`
+  if (search) return `No se encontraron usuarios con "${search}".`
+  if (rol !== 'TODOS') return `No hay usuarios con rol ${rol}.`
+  if (estado !== 'TODOS') return `No hay usuarios en estado ${estado}.`
+  return 'No se encontraron usuarios con los filtros aplicados.'
 }
 
 interface UsuarioRowProps {
@@ -65,10 +93,9 @@ interface UsuarioRowProps {
 
 function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
   const { openModal } = useUsuariosNav()
-  const { activarUsuario, desactivarUsuario } = useMutacionesUsuario()
+  const { activarUsuario } = useMutacionesUsuario()
 
   const estado = getEstadoAdmin(usuario)
-  const isPending = activarUsuario.isPending || desactivarUsuario.isPending
   const isSelf = currentUserId === usuario.id
   const isSuperadminRow = usuario.rol === 'SUPERADMIN'
   const canToggle = !isSelf && (!isSuperadminRow || isSuperAdmin)
@@ -112,6 +139,15 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
               <Clock className="h-3 w-3" /> {formatDateTime(usuario.ultimoAcceso)}
             </span>
           )}
+          {estado === 'BLOQUEADO' && usuario.bloqueadoHasta && (
+            <span className="font-medium text-red-500">
+              Desbloq.{' '}
+              {formatDistanceToNow(new Date(usuario.bloqueadoHasta), {
+                addSuffix: true,
+                locale: es,
+              })}
+            </span>
+          )}
           {usuario.sedeNombre && (
             <span className="text-gray-400">{usuario.sedeNombre}</span>
           )}
@@ -124,8 +160,7 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
             <Button
               variant="outline"
               size="sm"
-              disabled={isPending}
-              onClick={() => desactivarUsuario.mutate(usuario.id)}
+              onClick={() => openModal('desactivar', usuario.id)}
               className="text-xs text-red-600 border-red-200 hover:bg-red-50"
             >
               <UserX className="mr-1.5 h-3.5 w-3.5" />
@@ -135,7 +170,7 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
             <Button
               variant="outline"
               size="sm"
-              disabled={isPending}
+              disabled={activarUsuario.isPending}
               onClick={() => activarUsuario.mutate(usuario.id)}
               className="text-xs text-green-600 border-green-200 hover:bg-green-50"
             >
@@ -169,8 +204,22 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
                 <ShieldAlert className="mr-2 h-4 w-4" /> Cambiar rol
               </DropdownMenuItem>
             )}
+            {estado === 'BLOQUEADO' && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => openModal('desbloquear', usuario.id)}
+                  className="text-blue-600 focus:text-blue-600"
+                >
+                  <LockOpen className="mr-2 h-4 w-4" /> Desbloquear cuenta
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => openModal('reset', usuario.id)} className="text-amber-600 focus:text-amber-600">
+            <DropdownMenuItem
+              onClick={() => openModal('reset', usuario.id)}
+              className="text-amber-600 focus:text-amber-600"
+            >
               <KeyRound className="mr-2 h-4 w-4" /> Restablecer contraseña
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -180,21 +229,20 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
   )
 }
 
-export function UsuariosTable({ usuarios, isLoading, isError, onRetry, currentUserId, isSuperAdmin }: Props) {
+export function UsuariosTable({
+  paginados,
+  totalFiltrados,
+  totalGeneral,
+  totalPaginas,
+  pageActual,
+  onPageChange,
+  isLoading,
+  isError,
+  onRetry,
+  currentUserId,
+  isSuperAdmin,
+}: Props) {
   const { search, rol, estado, setSearch, setRol, setEstado } = useUsuariosNav()
-
-  const filtered = useMemo(() => {
-    return usuarios.filter((u) => {
-      const matchSearch =
-        !search ||
-        u.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        u.correo.toLowerCase().includes(search.toLowerCase())
-      const matchRol = rol === 'TODOS' || u.rol === rol
-      const currentEstado = getEstadoAdmin(u)
-      const matchEstado = estado === 'TODOS' || currentEstado === estado
-      return matchSearch && matchRol && matchEstado
-    })
-  }, [usuarios, search, rol, estado])
 
   if (isError) return <ErrorState onRetry={onRetry} />
 
@@ -244,17 +292,15 @@ export function UsuariosTable({ usuarios, isLoading, isError, onRetry, currentUs
         </Select>
       </div>
 
-      {filtered.length === 0 ? (
+      {paginados.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 py-14 text-center">
           <p className="text-sm text-muted-foreground">
-            {usuarios.length === 0
-              ? 'No hay usuarios registrados.'
-              : 'No se encontraron usuarios con los filtros aplicados.'}
+            {mensajeVacio(search, rol, estado, totalGeneral)}
           </p>
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((u) => (
+          {paginados.map((u) => (
             <UsuarioRow
               key={u.id}
               usuario={u}
@@ -262,9 +308,16 @@ export function UsuariosTable({ usuarios, isLoading, isError, onRetry, currentUs
               isSuperAdmin={isSuperAdmin}
             />
           ))}
-          <p className="text-right text-xs text-muted-foreground">
-            {filtered.length} de {usuarios.length} usuario{usuarios.length !== 1 ? 's' : ''}
-          </p>
+          <div className="flex items-center justify-between pt-1">
+            <p className="text-xs text-muted-foreground">
+              {totalFiltrados} de {totalGeneral} usuario{totalGeneral !== 1 ? 's' : ''}
+            </p>
+            <PaginacionUsuarios
+              pageActual={pageActual}
+              totalPaginas={totalPaginas}
+              onPageChange={onPageChange}
+            />
+          </div>
         </div>
       )}
     </>

@@ -55,4 +55,8 @@ export const usuariosApi = {
   desactivar: async (id: number): Promise<void> => {
     await api.patch(`/usuarios-admin/${id}/desactivar`)
   },
+
+  desbloquear: async (id: number): Promise<void> => {
+    await api.patch(`/usuarios-admin/${id}/desbloquear`)
+  },
 }
