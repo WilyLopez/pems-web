@@ -10,6 +10,8 @@ import { useDashboardOperativo } from '../hooks/useDashboardOperativo'
 import { saludoSegunHora } from '../utils/kpi-helpers'
 import { KpisDelDia } from '../components/KpisDelDia'
 import { AccionesPendientes } from '../components/AccionesPendientes'
+import { OcupacionRadial } from '../components/OcupacionRadial'
+import { ComposicionReservas } from '../components/ComposicionReservas'
 import { AgendaDelDia } from '../components/AgendaDelDia'
 import { DisponibilidadSemana } from '../components/DisponibilidadSemana'
 import { TendenciaReservas } from '../components/TendenciaReservas'
@@ -93,6 +95,10 @@ export function DashboardOperativoView() {
         <>
           <KpisDelDia data={data} />
           <AccionesPendientes data={data} />
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
+            <OcupacionRadial data={data} />
+            <ComposicionReservas data={data} />
+          </div>
           <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
             <AgendaDelDia data={data} />
             <DisponibilidadSemana data={data.disponibilidadSemana} />
