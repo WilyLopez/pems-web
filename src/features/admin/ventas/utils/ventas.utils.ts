@@ -29,14 +29,16 @@ export function calcularResumenPagos(
   efectivoRecibido: number = 0,
   total: number = 0
 ): ResumenPagosCalculado {
-  const sumaPagos = pagos.reduce((s, p) => s + (p.monto || 0), 0)
+
+  const sumaPagos = pagos.reduce((s, p) => s + (Number(p.monto) || 0), 0)
   const efectivoAplicado = pagos
     .filter((p) => p.medioPago === 'EFECTIVO')
-    .reduce((s, p) => s + (p.monto || 0), 0)
+    .reduce((s, p) => s + (Number(p.monto) || 0), 0)
 
-  const vuelto = Math.max(0, efectivoRecibido - efectivoAplicado)
-  const saldo = Math.max(0, total - sumaPagos)
-  const montosCoinciden = total === 0 || Math.abs(sumaPagos - total) <= 0.01
+  const totalNum = Number(total) || 0
+  const vuelto = Math.max(0, (Number(efectivoRecibido) || 0) - efectivoAplicado)
+  const saldo = Math.max(0, totalNum - sumaPagos)
+  const montosCoinciden = totalNum === 0 || Math.abs(sumaPagos - totalNum) <= 0.01
 
   return { sumaPagos, efectivoAplicado, vuelto, saldo, montosCoinciden }
 }

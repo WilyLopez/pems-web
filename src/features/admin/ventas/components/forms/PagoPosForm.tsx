@@ -96,6 +96,15 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
       <div className="space-y-2">
         {fields.map((field, i) => {
           const errorMonto = errors?.pagos?.[i]?.monto?.message
+          
+          const montoOtrasLineas = (pagos || []).reduce(
+            (s, p, idx) => (idx === i ? s : s + (p.monto || 0)),
+            0
+          )
+          const saldoLinea = Math.max(
+            0,
+            Math.round((total - montoOtrasLineas) * 100) / 100
+          )
           return (
             <div key={field.id} className="space-y-1">
               <div className="flex gap-2">
@@ -121,18 +130,30 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                   control={control}
                   name={`pagos.${i}.monto`}
                   render={({ field: f }) => (
-                    <Input
-                      type="number"
-                      placeholder="0.00"
-                      value={f.value || ''}
-                      onChange={(e) =>
-                        f.onChange(parseFloat(e.target.value) || 0)
-                      }
-                      className={cn(
-                        'h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-                        errorMonto && 'border-red-400 dark:border-red-600'
+                    <div className="relative flex-1">
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        value={f.value || ''}
+                        onChange={(e) =>
+                          f.onChange(parseFloat(e.target.value) || 0)
+                        }
+                        className={cn(
+                          'h-8 text-xs w-full pr-14 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+                          errorMonto && 'border-red-400 dark:border-red-600'
+                        )}
+                      />
+                      {saldoLinea > 0 && f.value !== saldoLinea && (
+                        <button
+                          type="button"
+                          onClick={() => f.onChange(saldoLinea)}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md border border-brand-azul/40 text-[9px] font-bold text-brand-azul hover:bg-brand-azul/5 dark:hover:bg-brand-azul/10 transition-colors"
+                          title={`Cobrar el saldo pendiente (S/${saldoLinea.toFixed(2)}) con este medio`}
+                        >
+                          Exacto
+                        </button>
                       )}
-                    />
+                    </div>
                   )}
                 />
                 {fields.length > 1 && (

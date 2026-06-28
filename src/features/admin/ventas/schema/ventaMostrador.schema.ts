@@ -5,7 +5,6 @@ import {
   TELEFONO_CELULAR_REGEX as TELEFONO_PERU_REGEX,
   nombreField,
   dniField,
-  montoCoerceField,
 } from '@/lib/validations/campos'
 import { format } from 'date-fns'
 
@@ -19,9 +18,17 @@ export const METODOS_PAGO = [
   'TRANSFERENCIA',
 ] as const
 
+// El monto de una línea puede ser 0 (línea placeholder mientras el cajero
+// elige el medio de pago). La regla real —que la suma de pagos cuadre con el
+// total— se valida en el componente (montosCoinciden) y en el backend. Aquí solo
+// se impide un monto negativo o con más de 2 decimales.
 export const pagoLineaSchema = z.object({
   medioPago: z.enum(METODOS_PAGO),
-  monto: montoCoerceField,
+  monto: z.coerce
+    .number({ error: 'Ingresa un monto válido' })
+    .min(0, 'El monto no puede ser negativo')
+    .max(99999.99, 'El monto excede el límite permitido')
+    .refine((v) => Number(v.toFixed(2)) === v, 'Máximo 2 decimales'),
   referencia: z.string().trim().optional(),
 })
 

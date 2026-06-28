@@ -5,7 +5,7 @@ import { format, addDays, isToday, parseISO } from 'date-fns'
 import { toast } from 'sonner'
 import { Controller, useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, Ticket, CreditCard, AlertCircle, User } from 'lucide-react'
+import { Loader2, CreditCard, AlertCircle, User } from 'lucide-react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import { useAuth } from '@/hooks/useAuth'
@@ -56,6 +56,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/AlertDialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/Dialog'
 
 import { ClienteBusqueda } from '../forms/ClienteBusqueda'
 import { RegistroNinos } from '../forms/RegistroNinos'
@@ -65,16 +72,20 @@ import { formatCurrency, cn } from '@/lib/utils'
 
 interface VentaMostradorViewProps {
   onClose?: () => void
+  desdeCaja?: boolean
 }
 
-export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
+export const VentaMostradorView = ({
+  onClose,
+  desdeCaja,
+}: VentaMostradorViewProps) => {
   const { idSede } = useAuth()
   const { edadMin, edadMax } = useConfiguracionVenta()
   const { data: confCal } = useConfiguracionCalendario(idSede ?? null)
   const diasMaxFecha = confCal?.diasMaxReservaPublica ?? 14
 
-  const [paso, setPaso] = useState<1 | 2>(1)
   const [cliente, setCliente] = useState<Cliente | null>(null)
+  const [showClienteModal, setShowClienteModal] = useState(false)
   const [ventaExitosa, setVentaExitosa] =
     useState<VentaMostradorResponse | null>(null)
   const [confirmandoVueltoAlto, setConfirmandoVueltoAlto] = useState(false)
@@ -90,7 +101,6 @@ export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
   React.useEffect(() => {
     if (fetchedCliente) {
       setCliente(fetchedCliente as any)
-      setPaso(2)
       const params = new URLSearchParams(searchParams.toString())
       params.delete('clienteId')
       router.replace(`${pathname}?${params.toString()}`, { scroll: false })
@@ -223,7 +233,8 @@ export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
         telefonoAcompanante: formData.acompanante.telefono,
         ninos: formData.ninos,
         idPromocion: formData.idPromocion ?? undefined,
-        pagos: total > 0 ? formData.pagos : [],
+
+        pagos: total > 0 ? formData.pagos.filter((p) => p.monto > 0) : [],
         efectivoRecibido: formData.pagos.some((p) => p.medioPago === 'EFECTIVO')
           ? formData.efectivoRecibido
           : undefined,
@@ -241,7 +252,6 @@ export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
         actaFirmada: false,
       })
       setCliente(null)
-      setPaso(1)
     } catch (err: any) {
       toast.error(err?.response?.data?.mensaje ?? 'Error al registrar venta')
     }
@@ -268,75 +278,13 @@ export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
   const resetVenta = () => {
     setVentaExitosa(null)
     setCliente(null)
-    setPaso(1)
     reset()
   }
 
-  const STEPS = [
-    { n: 1, label: 'Cliente' },
-    { n: 2, label: 'Detalle' },
-    { n: 3, label: 'Pago' },
-  ]
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {/* ── PASO 1: selección de cliente (centrado, sin sidebar) ── */}
-      {paso === 1 && (
-        <div className="flex flex-col items-center gap-8 py-6">
-          <div className="flex items-center gap-3">
-            {STEPS.map((s, i) => (
-              <React.Fragment key={s.n}>
-                {i > 0 && (
-                  <div className="h-px w-10 bg-gray-200 dark:bg-gray-700" />
-                )}
-                <div className="flex items-center gap-1.5">
-                  <div
-                    className={cn(
-                      'h-6 w-6 rounded-full text-[10px] font-black flex items-center justify-center',
-                      s.n === 1
-                        ? 'bg-brand-azul text-white'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
-                    )}
-                  >
-                    {s.n}
-                  </div>
-                  <span
-                    className={cn(
-                      'text-[10px] font-bold',
-                      s.n === 1
-                        ? 'text-brand-azul'
-                        : 'text-gray-400 dark:text-gray-500'
-                    )}
-                  >
-                    {s.label}
-                  </span>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
-
-          <div className="w-full max-w-sm space-y-6">
-            <div className="text-center space-y-1.5">
-              <h3 className="text-base font-black text-gray-800 dark:text-gray-100">
-                ¿El cliente tiene cuenta?
-              </h3>
-              <p className="text-xs text-gray-400 dark:text-gray-500 leading-relaxed">
-                Busca su perfil para cargar sus datos automáticamente,
-                <br />o continúa como visitante.
-              </p>
-            </div>
-            <ClienteBusqueda
-              onClienteSelect={(c) => {
-                setCliente(c)
-                setPaso(2)
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* ── PASO 2: formulario completo con sidebar ── */}
-      {paso === 2 && (
+      {/* Venta en una sola pantalla: el cliente se elige en línea (modal). */}
+      {(
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
           {/* Columna izquierda */}
           <div className="order-last lg:order-first space-y-6">
@@ -365,16 +313,22 @@ export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
                               {cliente.correo || 'Sin correo'}
                             </p>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCliente(null)
-                              setPaso(1)
-                            }}
-                            className="text-[10px] text-brand-azul hover:underline shrink-0 ml-3"
-                          >
-                            Cambiar
-                          </button>
+                          <div className="flex items-center gap-3 shrink-0 ml-3">
+                            <button
+                              type="button"
+                              onClick={() => setShowClienteModal(true)}
+                              className="text-[10px] text-brand-azul hover:underline"
+                            >
+                              Cambiar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCliente(null)}
+                              className="text-[10px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                            >
+                              Quitar
+                            </button>
+                          </div>
                         </>
                       ) : (
                         <>
@@ -386,10 +340,10 @@ export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
                           </div>
                           <button
                             type="button"
-                            onClick={() => setPaso(1)}
-                            className="text-[10px] text-brand-azul hover:underline"
+                            onClick={() => setShowClienteModal(true)}
+                            className="text-[10px] text-brand-azul hover:underline font-bold"
                           >
-                            Cambiar
+                            Buscar cliente
                           </button>
                         </>
                       )}
@@ -785,6 +739,7 @@ export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
               promocionNombre={promocionActual?.nombre}
               efectivoRecibido={efectivoRecibido}
               efectivoAplicado={efectivoAplicado}
+              pagoCompleto={montosCoinciden}
             />
           </div>
         </div>
@@ -818,11 +773,43 @@ export const VentaMostradorView = ({ onClose }: VentaMostradorViewProps) => {
         </AlertDialogContent>
       </AlertDialog>
 
+      <Dialog open={showClienteModal} onOpenChange={setShowClienteModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Buscar cliente</DialogTitle>
+            <DialogDescription>
+              Carga los datos de un cliente registrado, o continúa como
+              visitante.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <ClienteBusqueda
+              onClienteSelect={(c) => {
+                setCliente(c)
+                setShowClienteModal(false)
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setCliente(null)
+                setShowClienteModal(false)
+              }}
+              className="w-full text-center text-xs font-bold text-gray-500 hover:text-brand-azul py-2"
+            >
+              Continuar como invitado
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <VentaExitosaModal
         open={!!ventaExitosa}
         onClose={resetVenta}
         venta={ventaExitosa}
         defaultCorreo={cliente?.correo ?? ''}
+        desdeCaja={desdeCaja}
+        onVolverCaja={() => router.push('/admin/finanzas/caja')}
       />
     </form>
   )

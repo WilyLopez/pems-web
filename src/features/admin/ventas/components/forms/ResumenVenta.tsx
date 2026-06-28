@@ -30,6 +30,8 @@ interface ResumenVentaProps {
   promocionNombre?: string
   efectivoRecibido?: number
   efectivoAplicado?: number
+  /** Mismo criterio que habilita el botón Cobrar (montosCoinciden). */
+  pagoCompleto?: boolean
 }
 
 export const ResumenVenta = ({
@@ -48,7 +50,10 @@ export const ResumenVenta = ({
   promocionNombre,
   efectivoRecibido,
   efectivoAplicado = 0,
+  pagoCompleto,
 }: ResumenVentaProps) => {
+
+  const completo = pagoCompleto ?? sumaPagos - total >= -0.01
   return (
     <Card className="border-brand-azul/20 dark:border-brand-azul/30 bg-brand-azul/5 dark:bg-brand-azul/10 shadow-none lg:sticky lg:top-20 transition-all duration-300">
       <CardContent className="p-5 space-y-4">
@@ -262,7 +267,7 @@ export const ResumenVenta = ({
               <span className="text-[9px] font-black uppercase text-gray-400 dark:text-gray-500">
                 Estado de pago
               </span>
-              {sumaPagos >= total ? (
+              {completo ? (
                 <span className="inline-flex items-center gap-1 text-[9px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 uppercase">
                   <CheckCircle2 className="h-2.5 w-2.5" /> Pago Completo
                 </span>
