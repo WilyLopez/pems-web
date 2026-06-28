@@ -10,12 +10,11 @@ export interface ConfiguracionSistema {
 export interface Sede {
   id: number
   nombre: string
-  direccion: string
   ciudad: string
   departamento: string
-  telefono: string | null
-  correo: string | null
   ruc: string | null
+  latitud: number | null
+  longitud: number | null
   activo: boolean
   fechaCreacion: string
 }

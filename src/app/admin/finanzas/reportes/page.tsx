@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Download } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -12,18 +13,21 @@ import {
   DesgloseTiposEgreso,
   GraficaLineaDiaria,
   MetricasReservasSection,
-} from '@/features/admin/finance'
+} from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Button } from '@/components/ui/Button'
 import { formatCurrency, exportarCSV } from '@/lib/utils'
+import { MESES } from '@/lib/finance-constants'
 
-const MESES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-]
+const hoy = new Date()
+const DEFAULT_TAB = 'mensual'
+const DEFAULT_ANIO = hoy.getFullYear()
+const DEFAULT_MES = hoy.getMonth() + 1
+const DEFAULT_DESDE = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-01`
+const DEFAULT_HASTA = hoy.toISOString().split('T')[0]
 
 function PeriodoSelector({
   anio,
@@ -61,17 +65,23 @@ function PeriodoSelector({
   )
 }
 
-function ResumenMensualTab() {
+function ResumenMensualTab({
+  anio,
+  mes,
+  onAnio,
+  onMes,
+}: {
+  anio: number
+  mes: number
+  onAnio: (v: number) => void
+  onMes: (v: number) => void
+}) {
   const { idSede } = useAuth()
-  const hoy = new Date()
-  const [anio, setAnio] = useState(hoy.getFullYear())
-  const [mes, setMes] = useState(hoy.getMonth() + 1)
-
   const { data: resumen, isLoading } = useResumenMensual(idSede ?? undefined, anio, mes)
 
   return (
     <div className="space-y-6">
-      <PeriodoSelector anio={anio} mes={mes} onAnio={setAnio} onMes={setMes} />
+      <PeriodoSelector anio={anio} mes={mes} onAnio={onAnio} onMes={onMes} />
 
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -94,24 +104,30 @@ function ResumenMensualTab() {
   )
 }
 
-function ResumenDiarioTab() {
+function ResumenDiarioTab({
+  desde,
+  hasta,
+  onDesde,
+  onHasta,
+}: {
+  desde: string
+  hasta: string
+  onDesde: (v: string) => void
+  onHasta: (v: string) => void
+}) {
   const { idSede } = useAuth()
-  const hoy = new Date()
-  const fmt = (d: Date) => d.toISOString().split('T')[0]
-  const [inicio, setInicio] = useState(fmt(new Date(hoy.getFullYear(), hoy.getMonth(), 1)))
-  const [fin, setFin] = useState(fmt(hoy))
 
-  const debouncedInicio = useDebounce(inicio, 500)
-  const debouncedFin = useDebounce(fin, 500)
+  const debouncedDesde = useDebounce(desde, 500)
+  const debouncedHasta = useDebounce(hasta, 500)
 
   const { data: dias = [], isLoading } = useResumenDiario(
     idSede ?? null,
-    debouncedInicio || null,
-    debouncedFin || null,
+    debouncedDesde || null,
+    debouncedHasta || null,
   )
 
   const handleExportar = () => {
-    exportarCSV(`reporte-diario-${debouncedInicio}-${debouncedFin}.csv`, dias.map((d) => ({
+    exportarCSV(`reporte-diario-${debouncedDesde}-${debouncedHasta}.csv`, dias.map((d) => ({
       Fecha: d.fecha,
       'Ingresos reservas': d.ingresoReservas,
       'Gastos operativos': d.gastoOperativo,
@@ -127,11 +143,11 @@ function ResumenDiarioTab() {
         <div className="flex items-center gap-3 flex-wrap">
           <div className="space-y-1">
             <Label className="text-xs">Desde</Label>
-            <Input type="date" value={inicio} onChange={(e) => setInicio(e.target.value)} className="h-9 w-40" />
+            <Input type="date" value={desde} onChange={(e) => onDesde(e.target.value)} className="h-9 w-40" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Hasta</Label>
-            <Input type="date" value={fin} onChange={(e) => setFin(e.target.value)} className="h-9 w-40" />
+            <Input type="date" value={hasta} onChange={(e) => onHasta(e.target.value)} className="h-9 w-40" />
           </div>
         </div>
         {dias.length > 0 && (
@@ -207,17 +223,23 @@ function ResumenDiarioTab() {
   )
 }
 
-function MetricasReservasTab() {
+function MetricasReservasTab({
+  anio,
+  mes,
+  onAnio,
+  onMes,
+}: {
+  anio: number
+  mes: number
+  onAnio: (v: number) => void
+  onMes: (v: number) => void
+}) {
   const { idSede } = useAuth()
-  const hoy = new Date()
-  const [anio, setAnio] = useState(hoy.getFullYear())
-  const [mes, setMes] = useState(hoy.getMonth() + 1)
-
   const { data: metricas, isLoading } = useMetricasReservas(idSede ?? undefined, anio, mes)
 
   return (
     <div className="space-y-6">
-      <PeriodoSelector anio={anio} mes={mes} onAnio={setAnio} onMes={setMes} />
+      <PeriodoSelector anio={anio} mes={mes} onAnio={onAnio} onMes={onMes} />
 
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -235,6 +257,36 @@ function MetricasReservasTab() {
 }
 
 export default function ReportesPage() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const tab = searchParams.get('tab') ?? DEFAULT_TAB
+  const anio = Number(searchParams.get('anio')) || DEFAULT_ANIO
+  const mes = Number(searchParams.get('mes')) || DEFAULT_MES
+  const desde = searchParams.get('desde') ?? DEFAULT_DESDE
+  const hasta = searchParams.get('hasta') ?? DEFAULT_HASTA
+
+  const setParam = useCallback((key: string, value: string) => {
+    const params = new URLSearchParams(searchParams)
+    if (value) params.set(key, value)
+    else params.delete(key)
+    router.push(`${pathname}?${params}`)
+  }, [searchParams, router, pathname])
+
+  const setTab = useCallback((value: string) => {
+    const params = new URLSearchParams(searchParams)
+    params.set('tab', value)
+    router.push(`${pathname}?${params}`)
+  }, [searchParams, router, pathname])
+
+  const setPeriodo = useCallback((newAnio: number, newMes: number) => {
+    const params = new URLSearchParams(searchParams)
+    params.set('anio', String(newAnio))
+    params.set('mes', String(newMes))
+    router.push(`${pathname}?${params}`)
+  }, [searchParams, router, pathname])
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -242,7 +294,7 @@ export default function ReportesPage() {
         description="Analisis de ingresos, egresos y utilidades"
       />
 
-      <Tabs defaultValue="mensual">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="mensual">Resumen mensual</TabsTrigger>
           <TabsTrigger value="diario">Resumen diario</TabsTrigger>
@@ -250,15 +302,30 @@ export default function ReportesPage() {
         </TabsList>
 
         <TabsContent value="mensual">
-          <ResumenMensualTab />
+          <ResumenMensualTab
+            anio={anio}
+            mes={mes}
+            onAnio={(v) => setPeriodo(v, mes)}
+            onMes={(v) => setPeriodo(anio, v)}
+          />
         </TabsContent>
 
         <TabsContent value="diario">
-          <ResumenDiarioTab />
+          <ResumenDiarioTab
+            desde={desde}
+            hasta={hasta}
+            onDesde={(v) => setParam('desde', v)}
+            onHasta={(v) => setParam('hasta', v)}
+          />
         </TabsContent>
 
         <TabsContent value="metricas">
-          <MetricasReservasTab />
+          <MetricasReservasTab
+            anio={anio}
+            mes={mes}
+            onAnio={(v) => setPeriodo(v, mes)}
+            onMes={(v) => setPeriodo(anio, v)}
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -13,6 +13,7 @@ try {
 }
 
 const nextConfig = {
+  transpilePackages: ['mapbox-gl'],
   async rewrites() {
     return [
       {

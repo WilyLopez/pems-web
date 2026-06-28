@@ -12,14 +12,14 @@ import {
   Landmark,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { useDashboardFinanciero } from '@/features/admin/finance'
+import { useDashboardFinanciero } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 const MESES = [
-  'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre',
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ]
 
 function KpiCard({
@@ -59,7 +59,7 @@ export default function FinanzasDashboardPage() {
   const { idSede } = useAuth()
   const hoy = new Date()
   const [anio, setAnio] = useState(hoy.getFullYear())
-  const [mes, setMes]   = useState(hoy.getMonth() + 1)
+  const [mes, setMes] = useState(hoy.getMonth() + 1)
 
   const { data: dash, isLoading } = useDashboardFinanciero(idSede ?? undefined, anio, mes)
 
@@ -151,9 +151,9 @@ export default function FinanzasDashboardPage() {
               </h3>
               <ul className="space-y-2">
                 {[
-                  { label: 'Reservas públicas', value: dash.ingresoReservas,  color: 'bg-emerald-500' },
-                  { label: 'Adelantos eventos',  value: dash.ingresoAdelantos, color: 'bg-brand-azul' },
-                  { label: 'Ingresos manuales',  value: dash.ingresoManual,    color: 'bg-brand-amarillo' },
+                  { label: 'Reservas públicas', value: dash.ingresoReservas, color: 'bg-emerald-500' },
+                  { label: 'Adelantos eventos', value: dash.ingresoAdelantos, color: 'bg-brand-azul' },
+                  { label: 'Ingresos manuales', value: dash.ingresoManual, color: 'bg-brand-amarillo' },
                 ].map(({ label, value, color }) => {
                   const pct = dash.totalIngresos > 0
                     ? Math.round((value / dash.totalIngresos) * 100)
@@ -180,9 +180,9 @@ export default function FinanzasDashboardPage() {
               </h3>
               <ul className="space-y-2">
                 {[
-                  { label: 'Fijo',      value: dash.egresoFijo,      color: 'bg-red-500' },
-                  { label: 'Variable',  value: dash.egresoVariable,  color: 'bg-orange-400' },
-                  { label: 'Eventual',  value: dash.egresoEventual,  color: 'bg-yellow-400' },
+                  { label: 'Fijo', value: dash.egresoFijo, color: 'bg-red-500' },
+                  { label: 'Variable', value: dash.egresoVariable, color: 'bg-orange-400' },
+                  { label: 'Eventual', value: dash.egresoEventual, color: 'bg-yellow-400' },
                 ].map(({ label, value, color }) => {
                   const pct = dash.totalEgresos > 0
                     ? Math.round((value / dash.totalEgresos) * 100)

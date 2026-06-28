@@ -4,22 +4,23 @@ import { Activity, ExternalLink } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '@/services/api'
 import { ApiResponse, PagedResponse } from '@/types/api.types'
-import { LogAuditoria } from '@/types/auditoria.types'
-import { AccionBadge } from '@/components/admin/auditoria/AccionBadge'
+import { LogAuditoria } from '@/features/admin/auditoria/types'
+import { AccionBadge } from '@/features/admin/auditoria/components/AccionBadge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { formatDateTime } from '@/lib/utils'
 import Link from 'next/link'
 
-export function ActividadReciente({ idAdmin }: { idAdmin: number }) {
+export function ActividadReciente({ idAdmin }: { idAdmin?: string }) {
   const { data, isLoading } = useQuery({
     queryKey: ['actividad-perfil', idAdmin],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<PagedResponse<LogAuditoria>>>(
         `/auditoria/usuarios/${idAdmin}`,
-        { params: { pagina: 0, tamaño: 8 } }
+        { params: { pagina: 0, tamano: 8 } }
       )
       return data.data.content
     },
+    enabled: !!idAdmin,
   })
 
   return (

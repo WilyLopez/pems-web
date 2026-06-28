@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { useTiposIngreso, useTipoIngresoMutations, tipoIngresoSchema } from '@/features/admin/finance'
+import { useTiposIngreso, useTipoIngresoMutations } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -18,30 +18,69 @@ import {
 } from '@/components/ui/Dialog'
 import { cn } from '@/lib/utils'
 
-type FormValues = z.infer<typeof tipoIngresoSchema>
+const crearSchema = z.object({
+  nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  descripcion: z.string().optional(),
+})
+type FormValues = z.infer<typeof crearSchema>
+
+function generarCodigo(nombre: string): string {
+  return nombre
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9\s]/g, '')
+    .trim()
+    .replace(/\s+/g, '_')
+}
 
 export default function TiposIngresoPage() {
   const [openModal, setModal] = useState(false)
+  const [confirmCodigo, setConfirmCodigo] = useState<string | null>(null)
 
-  const { data: tipos = [], isLoading }  = useTiposIngreso()
-  const { crear, desactivar }            = useTipoIngresoMutations()
+  const { data: tipos = [], isLoading } = useTiposIngreso()
+  const { crear, desactivar } = useTipoIngresoMutations()
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(tipoIngresoSchema),
+    resolver: zodResolver(crearSchema),
+    defaultValues: { nombre: '', descripcion: '' },
   })
 
+  const activos = tipos.filter((t) => t.activo).length
+  const inactivos = tipos.length - activos
+
   function onSubmit(values: FormValues) {
-    crear.mutate(values, { onSuccess: () => { reset(); setModal(false) } })
+    crear.mutate(
+      { codigo: generarCodigo(values.nombre), nombre: values.nombre, descripcion: values.descripcion },
+      { onSuccess: () => { reset(); setModal(false) } }
+    )
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <PageHeader title="Tipos de ingreso" description="Categorías utilizadas para clasificar los ingresos de la sede" />
-        <Button size="sm" onClick={() => setModal(true)} className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white">
+        <PageHeader
+          title="Tipos de ingreso"
+          description="Categorías utilizadas para clasificar los ingresos de la sede"
+        />
+        <Button
+          size="sm"
+          onClick={() => setModal(true)}
+          className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
+        >
           <Plus className="h-4 w-4" />
           Nuevo tipo
         </Button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          {activos} activos
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">
+          {inactivos} inactivos
+        </span>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -49,9 +88,7 @@ export default function TiposIngresoPage() {
           <table className="w-full text-sm">
             <thead className="border-b bg-gray-50">
               <tr className="text-left text-xs text-gray-500 uppercase tracking-wide">
-                <th className="px-4 py-3 font-semibold">Código</th>
                 <th className="px-4 py-3 font-semibold">Nombre</th>
-                <th className="px-4 py-3 font-semibold">Descripción</th>
                 <th className="px-4 py-3 font-semibold">Estado</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -59,21 +96,24 @@ export default function TiposIngresoPage() {
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 5 }).map((_, j) => (
-                    <td key={j} className="px-4 py-3"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td>
+                  <tr key={i}>{Array.from({ length: 3 }).map((_, j) => (
+                    <td key={j} className="px-4 py-3">
+                      <div className="h-4 bg-gray-100 rounded animate-pulse" />
+                    </td>
                   ))}</tr>
                 ))
               ) : tipos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-10 text-center text-sm text-gray-400">
+                  <td colSpan={3} className="py-10 text-center text-sm text-gray-400">
                     Sin tipos de ingreso registrados.
                   </td>
                 </tr>
               ) : tipos.map((t) => (
-                <tr key={t.codigo} className={cn('hover:bg-gray-50 transition-colors', !t.activo && 'opacity-50')}>
-                  <td className="px-4 py-3 font-mono text-xs text-gray-600">{t.codigo}</td>
+                <tr
+                  key={t.codigo}
+                  className={cn('hover:bg-gray-50 transition-colors', !t.activo && 'opacity-50')}
+                >
                   <td className="px-4 py-3 font-medium text-gray-900">{t.nombre}</td>
-                  <td className="px-4 py-3 text-gray-500 max-w-[260px] truncate">{t.descripcion ?? '—'}</td>
                   <td className="px-4 py-3">
                     <span className={cn(
                       'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
@@ -83,14 +123,14 @@ export default function TiposIngresoPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {t.activo && (
+                    {t.activo && !t.esSistema && (
                       <button
                         type="button"
-                        onClick={() => desactivar.mutate(t.codigo)}
-                        disabled={desactivar.isPending}
-                        className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                        onClick={() => setConfirmCodigo(t.codigo)}
+                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        title="Desactivar"
                       >
-                        Desactivar
+                        <X className="h-4 w-4" />
                       </button>
                     )}
                   </td>
@@ -102,32 +142,68 @@ export default function TiposIngresoPage() {
       </div>
 
       <Dialog open={openModal} onOpenChange={setModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Nuevo tipo de ingreso</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-            <div className="space-y-1">
-              <Label>Código</Label>
-              <Input {...register('codigo')} placeholder="Ej. VENTA_MERCHANDISING" className="font-mono" />
-              {errors.codigo && <p className="text-xs text-red-500">{errors.codigo.message}</p>}
-            </div>
-            <div className="space-y-1">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
+            <div className="space-y-1.5">
               <Label>Nombre</Label>
-              <Input {...register('nombre')} placeholder="Ej. Venta de merchandising" />
-              {errors.nombre && <p className="text-xs text-red-500">{errors.nombre.message}</p>}
+              <Input
+                {...register('nombre')}
+                placeholder="Ej: Venta de merchandising"
+                autoFocus
+              />
+              {errors.nombre && (
+                <p className="text-xs text-red-500">{errors.nombre.message}</p>
+              )}
             </div>
-            <div className="space-y-1">
-              <Label>Descripción (opcional)</Label>
+            <div className="space-y-1.5">
+              <Label>Descripción <span className="text-gray-400 font-normal">(opcional)</span></Label>
               <Input {...register('descripcion')} placeholder="Descripción breve…" />
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button type="button" variant="outline" size="sm" onClick={() => setModal(false)}>Cancelar</Button>
-              <Button type="submit" size="sm" disabled={crear.isPending} className="bg-brand-azul hover:bg-brand-azul/90 text-white">
-                Crear
+              <Button type="button" variant="outline" size="sm" onClick={() => { reset(); setModal(false) }}>
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={crear.isPending}
+                className="bg-brand-azul hover:bg-brand-azul/90 text-white"
+              >
+                {crear.isPending ? 'Creando…' : 'Crear'}
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmCodigo !== null} onOpenChange={() => setConfirmCodigo(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Desactivar tipo de ingreso</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 py-2">
+            Los ingresos existentes no se verán afectados. No podrás registrar nuevos ingresos con este tipo.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setConfirmCodigo(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={desactivar.isPending}
+              onClick={() => {
+                if (confirmCodigo) {
+                  desactivar.mutate(confirmCodigo, { onSuccess: () => setConfirmCodigo(null) })
+                }
+              }}
+            >
+              {desactivar.isPending ? 'Desactivando…' : 'Desactivar'}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

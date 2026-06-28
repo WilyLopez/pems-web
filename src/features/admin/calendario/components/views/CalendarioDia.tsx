@@ -21,7 +21,7 @@ import Link from 'next/link'
 
 import { useResumenDia, useBloquearFechas, useDisponibilidad, useConfiguracionCalendario } from '../../hooks/useCalendarData'
 import { AlertaDia, ResumenTurno, ResumenDia } from '../../types'
-import { GastosOperativosDia } from '@/features/admin/finance'
+import { GastosOperativosDia } from '@/features/admin/finanzas'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -95,10 +95,10 @@ function TurnoSection({
         turno.eventoPrivado
           ? 'border-brand-rosa/30 bg-brand-rosa/5'
           : tieneReservas
-          ? 'border-brand-azul/20 bg-brand-azul/5'
-          : !turno.disponible
-          ? 'border-orange-200 bg-orange-50'
-          : 'border-gray-100 bg-white'
+            ? 'border-brand-azul/20 bg-brand-azul/5'
+            : !turno.disponible
+              ? 'border-orange-200 bg-orange-50'
+              : 'border-gray-100 bg-white'
       )}
     >
       <div className="flex items-center justify-between">
@@ -114,19 +114,19 @@ function TurnoSection({
             turno.eventoPrivado
               ? 'bg-brand-rosa/15 text-brand-rosa'
               : tieneReservas
-              ? 'bg-brand-azul/10 text-brand-azul'
-              : turno.disponible
-              ? 'bg-green-100 text-green-800'
-              : 'bg-orange-100 text-orange-800'
+                ? 'bg-brand-azul/10 text-brand-azul'
+                : turno.disponible
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-orange-100 text-orange-800'
           )}
         >
           {turno.eventoPrivado
             ? 'Evento privado'
             : tieneReservas
-            ? 'Reservas públicas'
-            : turno.disponible
-            ? 'Disponible'
-            : 'Ocupado'}
+              ? 'Reservas públicas'
+              : turno.disponible
+                ? 'Disponible'
+                : 'Ocupado'}
         </Badge>
       </div>
 
@@ -445,8 +445,8 @@ export const CalendarioDia = React.memo(({ fecha, idSede }: CalendarioDiaProps) 
                   variant="outline"
                   className={cn(
                     "rounded-xl gap-1.5 text-xs w-full",
-                    tieneAtencionActiva 
-                      ? "border-gray-200 text-gray-400 cursor-not-allowed" 
+                    tieneAtencionActiva
+                      ? "border-gray-200 text-gray-400 cursor-not-allowed"
                       : "border-red-200 text-red-600 hover:bg-red-50"
                   )}
                   onClick={handleIntentarBloqueo}
