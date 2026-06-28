@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import { ChartCard } from '../../shared/components/ChartCard'
 import { ReservasDia } from '../../shared/types'
+import { statsTendencia } from '../utils/kpi-helpers'
 
 const COLOR_LINEA = '#00AEEF'
 const GRADIENT_ID = 'tendenciaReservasFill'
@@ -20,14 +21,38 @@ interface Props {
   data: ReservasDia[]
 }
 
+function StatPill({ label, valor }: { label: string; valor: number }) {
+  return (
+    <div className="text-right">
+      <p className="text-base font-black tabular-nums text-gray-900 dark:text-gray-100">
+        {valor}
+      </p>
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+        {label}
+      </p>
+    </div>
+  )
+}
+
 export function TendenciaReservas({ data }: Props) {
   const chartData = data.map((d) => ({
     fecha: format(parseISO(d.fecha), 'd MMM', { locale: es }),
     reservas: d.cantidad,
   }))
+  const stats = statsTendencia(data)
 
   return (
-    <ChartCard titulo="Reservas — últimos 30 días" vacio={chartData.length === 0}>
+    <ChartCard
+      titulo="Reservas — últimos 30 días"
+      vacio={chartData.length === 0}
+      accion={
+        <div className="flex items-center gap-4">
+          <StatPill label="Total" valor={stats.total} />
+          <StatPill label="Prom/día" valor={stats.promedio} />
+          <StatPill label="Pico" valor={stats.pico} />
+        </div>
+      }
+    >
       <AreaChart
         data={chartData}
         margin={{ top: 5, right: 10, left: -10, bottom: 5 }}

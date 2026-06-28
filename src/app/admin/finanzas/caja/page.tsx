@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Lock } from 'lucide-react'
+import Link from 'next/link'
+import { Plus, Lock, ShoppingCart, Receipt } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import {
   useCaja,
@@ -62,6 +63,12 @@ export default function CajaPage() {
             onChange={(e) => setFecha(e.target.value)}
             className="h-9 w-40"
           />
+          <Button asChild size="sm" variant="outline" className="gap-1.5">
+            <Link href={`/admin/finanzas/caja/movimientos?fecha=${fecha}`}>
+              <Receipt className="h-4 w-4" />
+              Ver movimientos
+            </Link>
+          </Button>
           {estaAbierta && (
             <Button
               size="sm"
@@ -71,6 +78,18 @@ export default function CajaPage() {
             >
               <Plus className="h-4 w-4" />
               Movimiento
+            </Button>
+          )}
+          {estaAbierta && (
+            <Button
+              asChild
+              size="sm"
+              className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
+            >
+              <Link href="/admin/ventas/nueva?from=caja">
+                <ShoppingCart className="h-4 w-4" />
+                Nueva venta
+              </Link>
             </Button>
           )}
         </div>
