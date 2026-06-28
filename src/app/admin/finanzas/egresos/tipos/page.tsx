@@ -5,7 +5,8 @@ import { Plus, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { useTiposIngreso, useTipoIngresoMutations } from '@/features/admin/finanzas'
+import { useTiposEgreso, useTipoEgresoMutations } from '@/features/admin/finanzas'
+import { CategoriaEgreso } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -16,11 +17,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/Dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select'
 import { cn } from '@/lib/utils'
 
 const crearSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   descripcion: z.string().optional(),
+  categoria: z.enum(['RECURRENTE_FIJO', 'RECURRENTE_VARIABLE', 'EVENTUAL']),
 })
 type FormValues = z.infer<typeof crearSchema>
 
@@ -34,16 +43,28 @@ function generarCodigo(nombre: string): string {
     .replace(/\s+/g, '_')
 }
 
-export default function TiposIngresoPage() {
+const categoriaBadge: Record<CategoriaEgreso, string> = {
+  RECURRENTE_FIJO:      'bg-blue-100 text-blue-700',
+  RECURRENTE_VARIABLE:  'bg-yellow-100 text-yellow-700',
+  EVENTUAL:             'bg-gray-100 text-gray-600',
+}
+
+const categoriaLabel: Record<CategoriaEgreso, string> = {
+  RECURRENTE_FIJO:      'Fijo',
+  RECURRENTE_VARIABLE:  'Variable',
+  EVENTUAL:             'Eventual',
+}
+
+export default function TiposEgresoPage() {
   const [openModal, setModal] = useState(false)
   const [confirmCodigo, setConfirmCodigo] = useState<string | null>(null)
 
-  const { data: tipos = [], isLoading } = useTiposIngreso()
-  const { crear, desactivar } = useTipoIngresoMutations()
+  const { data: tipos = [], isLoading } = useTiposEgreso()
+  const { crear, desactivar } = useTipoEgresoMutations()
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(crearSchema),
-    defaultValues: { nombre: '', descripcion: '' },
+    defaultValues: { nombre: '', descripcion: '', categoria: 'EVENTUAL' },
   })
 
   const activos = tipos.filter((t) => t.activo).length
@@ -51,7 +72,7 @@ export default function TiposIngresoPage() {
 
   function onSubmit(values: FormValues) {
     crear.mutate(
-      { codigo: generarCodigo(values.nombre), nombre: values.nombre, descripcion: values.descripcion },
+      { codigo: generarCodigo(values.nombre), nombre: values.nombre, descripcion: values.descripcion, categoria: values.categoria },
       { onSuccess: () => { reset(); setModal(false) } }
     )
   }
@@ -60,8 +81,8 @@ export default function TiposIngresoPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <PageHeader
-          title="Tipos de ingreso"
-          description="Categorías utilizadas para clasificar los ingresos de la sede"
+          title="Tipos de egreso"
+          description="Categorías utilizadas para clasificar los egresos de la sede"
         />
         <Button
           size="sm"
@@ -89,6 +110,7 @@ export default function TiposIngresoPage() {
             <thead className="border-b bg-gray-50">
               <tr className="text-left text-xs text-gray-500 uppercase tracking-wide">
                 <th className="px-4 py-3 font-semibold">Nombre</th>
+                <th className="px-4 py-3 font-semibold">Categoría</th>
                 <th className="px-4 py-3 font-semibold">Estado</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -96,7 +118,7 @@ export default function TiposIngresoPage() {
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 3 }).map((_, j) => (
+                  <tr key={i}>{Array.from({ length: 4 }).map((_, j) => (
                     <td key={j} className="px-4 py-3">
                       <div className="h-4 bg-gray-100 rounded animate-pulse" />
                     </td>
@@ -104,8 +126,8 @@ export default function TiposIngresoPage() {
                 ))
               ) : tipos.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-10 text-center text-sm text-gray-400">
-                    Sin tipos de ingreso registrados.
+                  <td colSpan={4} className="py-10 text-center text-sm text-gray-400">
+                    Sin tipos de egreso registrados.
                   </td>
                 </tr>
               ) : tipos.map((t) => (
@@ -114,6 +136,14 @@ export default function TiposIngresoPage() {
                   className={cn('hover:bg-gray-50 transition-colors', !t.activo && 'opacity-50')}
                 >
                   <td className="px-4 py-3 font-medium text-gray-900">{t.nombre}</td>
+                  <td className="px-4 py-3">
+                    <span className={cn(
+                      'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
+                      categoriaBadge[t.categoria]
+                    )}>
+                      {categoriaLabel[t.categoria]}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <span className={cn(
                       'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
@@ -144,19 +174,35 @@ export default function TiposIngresoPage() {
       <Dialog open={openModal} onOpenChange={setModal}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Nuevo tipo de ingreso</DialogTitle>
+            <DialogTitle>Nuevo tipo de egreso</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
             <div className="space-y-1.5">
               <Label>Nombre</Label>
               <Input
                 {...register('nombre')}
-                placeholder="Ej: Venta de merchandising"
+                placeholder="Ej: Agua y luz"
                 autoFocus
               />
               {errors.nombre && (
                 <p className="text-xs text-red-500">{errors.nombre.message}</p>
               )}
+            </div>
+            <div className="space-y-1.5">
+              <Label>Categoría</Label>
+              <Select
+                defaultValue="EVENTUAL"
+                onValueChange={(v) => setValue('categoria', v as CategoriaEgreso)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="RECURRENTE_FIJO">Recurrente fijo</SelectItem>
+                  <SelectItem value="RECURRENTE_VARIABLE">Recurrente variable</SelectItem>
+                  <SelectItem value="EVENTUAL">Eventual</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label>Descripción <span className="text-gray-400 font-normal">(opcional)</span></Label>
@@ -182,10 +228,10 @@ export default function TiposIngresoPage() {
       <Dialog open={confirmCodigo !== null} onOpenChange={() => setConfirmCodigo(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Desactivar tipo de ingreso</DialogTitle>
+            <DialogTitle>Desactivar tipo de egreso</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600 py-2">
-            Los ingresos existentes no se verán afectados. No podrás registrar nuevos ingresos con este tipo.
+            Los egresos existentes no se verán afectados. No podrás registrar nuevos egresos con este tipo.
           </p>
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => setConfirmCodigo(null)}>

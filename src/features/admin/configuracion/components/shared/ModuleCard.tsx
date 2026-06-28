@@ -47,23 +47,23 @@ export function ModuleCard({
     : setLocalModal
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-4">
+    <div className="bg-card rounded-2xl border border-border p-5 flex flex-col gap-4">
       <div className="flex items-start gap-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-          <p className="text-xs text-gray-500 mt-0.5 leading-snug">{description}</p>
+          <h3 className="text-sm font-semibold text-card-foreground">{title}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{description}</p>
         </div>
       </div>
 
       {summary && summary.length > 0 && (
-        <ul className="space-y-1.5 border-t border-gray-50 pt-3">
+        <ul className="space-y-1.5 border-t border-border pt-3">
           {summary.map(({ label, value }) => (
             <li key={label} className="flex items-center justify-between gap-2">
-              <span className="text-xs text-gray-500 truncate">{label}</span>
-              <span className="text-xs font-semibold text-gray-800 shrink-0">{value}</span>
+              <span className="text-xs text-muted-foreground truncate">{label}</span>
+              <span className="text-xs font-semibold text-foreground shrink-0">{value}</span>
             </li>
           ))}
         </ul>

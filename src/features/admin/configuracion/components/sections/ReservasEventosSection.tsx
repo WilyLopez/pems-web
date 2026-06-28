@@ -75,13 +75,13 @@ function ReservasEventosForm({ config, idSede }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="border-t border-gray-100 pt-1">
+      <div className="border-t border-border pt-1">
         <div className="flex items-center gap-2 mb-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50">
             <CalendarCheck className="h-4 w-4 text-green-600" />
           </div>
           <div>
-            <p className="font-semibold text-gray-900">Reservas públicas</p>
+            <p className="font-semibold text-card-foreground">Reservas públicas</p>
             <p className="text-xs text-muted-foreground">Ventana de tiempo para reservas del portal web</p>
           </div>
         </div>
@@ -116,13 +116,13 @@ function ReservasEventosForm({ config, idSede }: Props) {
         </div>
       </div>
 
-      <div className="border-t border-gray-100 pt-4">
+      <div className="border-t border-border pt-4">
         <div className="flex items-center gap-2 mb-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50">
             <CalendarRange className="h-4 w-4 text-violet-600" />
           </div>
           <div>
-            <p className="font-semibold text-gray-900">Eventos privados</p>
+            <p className="font-semibold text-card-foreground">Eventos privados</p>
             <p className="text-xs text-muted-foreground">Ventana para contratar cumpleaños y eventos corporativos</p>
           </div>
         </div>
@@ -148,13 +148,13 @@ function ReservasEventosForm({ config, idSede }: Props) {
         </div>
       </div>
 
-      <div className="border-t border-gray-100 pt-4">
+      <div className="border-t border-border pt-4">
         <div className="flex items-center gap-2 mb-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-50">
             <Cake className="h-4 w-4 text-pink-600" />
           </div>
           <div>
-            <p className="font-semibold text-gray-900">Edades — Cumpleaños</p>
+            <p className="font-semibold text-card-foreground">Edades — Cumpleaños</p>
             <p className="text-xs text-muted-foreground">Rango de edad aceptado para el cumpleañero</p>
           </div>
         </div>

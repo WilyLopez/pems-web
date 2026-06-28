@@ -1,6 +1,6 @@
 'use client'
 
-import { ArqueoCaja } from '@/features/admin/finance'
+import { ArqueoCaja } from '@/features/admin/finanzas'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { ClipboardCheck } from 'lucide-react'

@@ -59,9 +59,9 @@ function SeguridadForm({ configs }: { configs: ConfiguracionSistema[] }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="flex items-center gap-2">
-        <div className="h-px flex-1 bg-gray-100" />
-        <span className="text-xs font-medium text-gray-400 uppercase tracking-wide shrink-0">Control de acceso</span>
-        <div className="h-px flex-1 bg-gray-100" />
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide shrink-0">Control de acceso</span>
+        <div className="h-px flex-1 bg-border" />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -87,9 +87,9 @@ function SeguridadForm({ configs }: { configs: ConfiguracionSistema[] }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="h-px flex-1 bg-gray-100" />
-        <span className="text-xs font-medium text-gray-400 uppercase tracking-wide shrink-0">Sesiones</span>
-        <div className="h-px flex-1 bg-gray-100" />
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide shrink-0">Sesiones</span>
+        <div className="h-px flex-1 bg-border" />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">

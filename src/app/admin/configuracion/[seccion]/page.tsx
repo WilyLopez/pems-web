@@ -16,7 +16,7 @@ function PageSkeleton() {
   )
 }
 
-export default function ConfiguracionPage() {
+export default function ConfiguracionSeccionPage() {
   return (
     <Suspense fallback={<PageSkeleton />}>
       <ConfiguracionView />

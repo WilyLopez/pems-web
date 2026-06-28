@@ -51,6 +51,21 @@ const schema = z.object({
 }).refine(
   d => d.horaApertura < d.horaCierre,
   { message: 'La apertura debe ser antes del cierre', path: ['horaCierre'] }
+).refine(
+  d => d.turnoT1Inicio < d.turnoT1Fin,
+  { message: 'El fin del turno 1 debe ser posterior al inicio', path: ['turnoT1Fin'] }
+).refine(
+  d => d.turnoT2Inicio < d.turnoT2Fin,
+  { message: 'El fin del turno 2 debe ser posterior al inicio', path: ['turnoT2Fin'] }
+).refine(
+  d => d.turnoT1Fin <= d.turnoT2Inicio,
+  { message: 'El turno 2 debe iniciar al terminar el turno 1 o después', path: ['turnoT2Inicio'] }
+).refine(
+  d => d.turnoT1Inicio >= d.horaApertura,
+  { message: 'El turno 1 no puede iniciar antes de la apertura', path: ['turnoT1Inicio'] }
+).refine(
+  d => d.turnoT2Fin <= d.horaCierre,
+  { message: 'El turno 2 no puede terminar después del cierre', path: ['turnoT2Fin'] }
 )
 
 type FormValues = z.infer<typeof schema>
@@ -108,7 +123,7 @@ function OperacionForm({ config, idSede }: Props) {
           <Clock className="h-4 w-4 text-brand-azul" />
         </div>
         <div>
-          <p className="font-semibold text-gray-900">Horarios del local</p>
+          <p className="font-semibold text-card-foreground">Horarios del local</p>
           <p className="text-xs text-muted-foreground">Apertura y cierre en formato 24 h</p>
         </div>
       </div>
@@ -131,13 +146,13 @@ function OperacionForm({ config, idSede }: Props) {
         </div>
       </div>
 
-      <div className="border-t border-gray-100 pt-4">
+      <div className="border-t border-border pt-4">
         <div className="flex items-center gap-2 mb-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-azul/10">
             <CalendarDays className="h-4 w-4 text-brand-azul" />
           </div>
           <div>
-            <p className="font-semibold text-gray-900">Días de operación</p>
+            <p className="font-semibold text-card-foreground">Días de operación</p>
             <p className="text-xs text-muted-foreground">Días en que el local abre al público</p>
           </div>
         </div>
@@ -163,7 +178,7 @@ function OperacionForm({ config, idSede }: Props) {
                       className={`h-8 w-8 rounded-full text-xs font-semibold transition-colors ${
                         selected.has(key)
                           ? 'bg-brand-azul text-white'
-                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/70'
                       }`}
                     >
                       {label}
@@ -179,8 +194,8 @@ function OperacionForm({ config, idSede }: Props) {
         />
       </div>
 
-      <div className="border-t border-gray-100 pt-4">
-        <p className="text-sm font-medium text-gray-700 mb-3">Turnos de atención</p>
+      <div className="border-t border-border pt-4">
+        <p className="text-sm font-medium text-card-foreground mb-3">Turnos de atención</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="turnoT1Inicio">Inicio turno 1</Label>

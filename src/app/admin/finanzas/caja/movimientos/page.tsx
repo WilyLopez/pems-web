@@ -2,15 +2,15 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { useCaja, useMovimientosCaja } from '@/features/admin/finance'
+import { useCaja, useMovimientosCaja } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Input } from '@/components/ui/Input'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 export default function MovimientosCajaPage() {
-  const { idSede }             = useAuth()
-  const [fecha, setFecha]      = useState(new Date().toISOString().slice(0, 10))
+  const { idSede } = useAuth()
+  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10))
 
   const { data: caja, isLoading: loadingCaja } = useCaja(idSede ?? undefined, fecha)
   const { data: movimientos = [], isLoading: loadingMov } = useMovimientosCaja(caja?.id)
@@ -18,7 +18,7 @@ export default function MovimientosCajaPage() {
   const isLoading = loadingCaja || loadingMov
 
   const totalIngresos = movimientos.filter((m) => m.tipo === 'INGRESO').reduce((s, m) => s + m.monto, 0)
-  const totalEgresos  = movimientos.filter((m) => m.tipo === 'EGRESO').reduce((s, m) => s + m.monto, 0)
+  const totalEgresos = movimientos.filter((m) => m.tipo === 'EGRESO').reduce((s, m) => s + m.monto, 0)
 
   return (
     <div className="space-y-6">

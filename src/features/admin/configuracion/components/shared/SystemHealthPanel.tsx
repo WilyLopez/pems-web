@@ -72,7 +72,7 @@ export function SystemHealthPanel({ idSede, configs }: SystemHealthPanelProps) {
 
   if (alerts.length === 0) {
     return (
-      <div className="flex items-center gap-2.5 rounded-xl bg-green-50 border border-green-100 px-4 py-2.5 text-sm text-green-700">
+      <div className="flex items-center gap-2.5 rounded-xl bg-green-50 border border-green-100 dark:bg-green-950/30 dark:border-green-900 px-4 py-2.5 text-sm text-green-700 dark:text-green-400">
         <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
         Sistema operando normalmente. No hay advertencias activas.
       </div>

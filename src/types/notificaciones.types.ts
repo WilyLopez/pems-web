@@ -1,0 +1,113 @@
+export type TipoNotificacionBD =
+  | 'LOGIN_IP_NUEVA'
+  | 'RESERVA_NUEVA'
+  | 'RESERVA_CANCELADA_CLIENTE'
+  | 'RESERVA_PAGO_VERIFICADO'
+  | 'RESERVA_PAGO_RECHAZADO'
+  | 'AFORO_AGOTADO'
+  | 'EVENTO_PRESUPUESTO_SOLICITADO'
+  | 'EVENTO_ADELANTO_RECIBIDO'
+  | 'EVENTO_SALDO_RECIBIDO'
+  | 'EVENTO_CANCELADO_CLIENTE'
+  | 'EVENTO_CHECKLIST_INCOMPLETO'
+  | 'CONTRATO_FIRMADO'
+  | 'CONTRATO_VENCIDO_SIN_FIRMA'
+  | 'CAJA_CIERRE_DISCREPANCIA'
+  | 'VENTA_MONTO_ALTO'
+  | 'EGRESO_MONTO_ALTO'
+  | 'RESUMEN_DIARIO_CAJA'
+  | 'NOVEDAD_PUBLICADA'
+  | 'BANNER_EXPIRADO'
+  | 'PROMOCION_NUEVA_ACTIVA'
+  | 'REPORTE_EXPORTACION_LISTA'
+  | 'CLIENTE_NUEVO_REGISTRADO'
+  | 'CLIENTE_SIN_ACTIVIDAD'
+  | 'ADMIN_CUENTA_BLOQUEADA'
+  | 'ERROR_ENVIO_EMAIL'
+  | 'RESERVA_EN_CAJA_HOY'
+  | 'VENTA_ANULADA'
+  | 'DESCUENTO_REQUIERE_APROBACION'
+  | 'TURNO_POR_INICIAR'
+  | 'RESERVA_MODIFICADA'
+  | 'PAGO_CONFIRMADO'
+  | 'PAGO_RECHAZADO'
+  | 'TICKET_DISPONIBLE'
+  | 'EVENTO_CONTRATO_LISTO'
+  | 'EVENTO_PRESUPUESTO_ENVIADO'
+  | 'EVENTO_CANCELADO_ADMIN'
+  | 'EVENTO_RECORDATORIO_3DIAS'
+  | 'PAGO_ADELANTO_CONFIRMADO'
+  | 'DOCUMENTO_LISTO'
+  | 'PUNTOS_ACUMULADOS'
+  | 'PUNTOS_POR_VENCER'
+  | 'PROMOCION_EXCLUSIVA'
+  | 'PASSWORD_CAMBIADO'
+  | 'RESENA_RESPONDIDA'
+
+export type TipoVisual = 'reserva' | 'evento' | 'pago' | 'contrato' | 'caja' | 'sistema'
+
+export const TIPO_VISUAL_MAP: Record<TipoNotificacionBD, TipoVisual> = {
+  LOGIN_IP_NUEVA:                'sistema',
+  RESERVA_NUEVA:                 'reserva',
+  RESERVA_CANCELADA_CLIENTE:     'reserva',
+  RESERVA_PAGO_VERIFICADO:       'pago',
+  RESERVA_PAGO_RECHAZADO:        'pago',
+  AFORO_AGOTADO:                 'reserva',
+  EVENTO_PRESUPUESTO_SOLICITADO: 'evento',
+  EVENTO_ADELANTO_RECIBIDO:      'pago',
+  EVENTO_SALDO_RECIBIDO:         'pago',
+  EVENTO_CANCELADO_CLIENTE:      'evento',
+  EVENTO_CHECKLIST_INCOMPLETO:   'evento',
+  CONTRATO_FIRMADO:              'contrato',
+  CONTRATO_VENCIDO_SIN_FIRMA:    'contrato',
+  CAJA_CIERRE_DISCREPANCIA:      'caja',
+  VENTA_MONTO_ALTO:              'caja',
+  EGRESO_MONTO_ALTO:             'caja',
+  RESUMEN_DIARIO_CAJA:           'caja',
+  NOVEDAD_PUBLICADA:             'sistema',
+  BANNER_EXPIRADO:               'sistema',
+  PROMOCION_NUEVA_ACTIVA:        'sistema',
+  REPORTE_EXPORTACION_LISTA:     'sistema',
+  CLIENTE_NUEVO_REGISTRADO:      'sistema',
+  CLIENTE_SIN_ACTIVIDAD:         'sistema',
+  ADMIN_CUENTA_BLOQUEADA:        'sistema',
+  ERROR_ENVIO_EMAIL:             'sistema',
+  RESERVA_EN_CAJA_HOY:           'caja',
+  VENTA_ANULADA:                 'caja',
+  DESCUENTO_REQUIERE_APROBACION: 'caja',
+  TURNO_POR_INICIAR:             'caja',
+  RESERVA_MODIFICADA:            'reserva',
+  PAGO_CONFIRMADO:               'pago',
+  PAGO_RECHAZADO:                'pago',
+  TICKET_DISPONIBLE:             'reserva',
+  EVENTO_CONTRATO_LISTO:         'contrato',
+  EVENTO_PRESUPUESTO_ENVIADO:    'evento',
+  EVENTO_CANCELADO_ADMIN:        'evento',
+  EVENTO_RECORDATORIO_3DIAS:     'evento',
+  PAGO_ADELANTO_CONFIRMADO:      'pago',
+  DOCUMENTO_LISTO:               'sistema',
+  PUNTOS_ACUMULADOS:             'sistema',
+  PUNTOS_POR_VENCER:             'sistema',
+  PROMOCION_EXCLUSIVA:           'sistema',
+  PASSWORD_CAMBIADO:             'sistema',
+  RESENA_RESPONDIDA:             'sistema',
+}
+
+export interface NotificacionDTO {
+  id: number
+  tipoCodigo: TipoNotificacionBD
+  titulo: string
+  mensaje: string
+  prioridad: 'BAJA' | 'NORMAL' | 'ALTA' | 'CRITICA'
+  urlAccion: string | null
+  leida: boolean
+  leidaAt: string | null
+  expiraAt: string | null
+  createdAt: string
+  entidadTipo: string | null
+  entidadId: number | null
+}
+
+export interface ConteoNoLeidasDTO {
+  count: number
+}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { Label } from '@/components/ui/Label'
 import { Textarea } from '@/components/ui/Textarea'
 import { Switch } from '@/components/ui/Switch'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { cn } from '@/lib/utils'
 import {
   Select,
@@ -43,7 +44,9 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
   const actualizarGlobal  = useActualizarConfiguracion()
   const m = toConfigMap(configs)
 
-  const { control, register, handleSubmit, watch, reset, formState: { isDirty } } = useForm<FormValues>({
+  const [pendingActivar, setPendingActivar] = useState(false)
+
+  const { control, register, handleSubmit, watch, reset, setValue, formState: { isDirty } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       mantenimientoActivo:  false,
@@ -80,11 +83,11 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pt-2">
       <div className={cn(
         'flex items-start gap-3 p-4 rounded-xl border',
-        activo ? 'border-amber-200 bg-amber-50' : 'border-gray-100 bg-gray-50/50'
+        activo ? 'border-amber-200 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800' : 'border-border bg-muted/40'
       )}>
         <AlertTriangle className={cn('h-4 w-4 shrink-0 mt-0.5', activo ? 'text-amber-500' : 'text-gray-400')} />
         <div>
-          <p className={cn('text-sm font-medium', activo ? 'text-amber-800' : 'text-gray-700')}>
+          <p className={cn('text-sm font-medium', activo ? 'text-amber-800 dark:text-amber-300' : 'text-card-foreground')}>
             Modo mantenimiento
           </p>
           <p className={cn('text-xs mt-0.5', activo ? 'text-amber-700' : 'text-muted-foreground')}>
@@ -99,7 +102,13 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
           render={({ field }) => (
             <Switch
               checked={field.value}
-              onCheckedChange={field.onChange}
+              onCheckedChange={(checked) => {
+                if (checked && !field.value) {
+                  setPendingActivar(true)
+                } else {
+                  field.onChange(checked)
+                }
+              }}
               className={field.value ? 'data-[state=checked]:bg-amber-500 ml-auto' : 'ml-auto'}
             />
           )}
@@ -122,7 +131,7 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
         </div>
       )}
 
-      <div className="border-t border-gray-100 pt-4">
+      <div className="border-t border-border pt-4">
         <div className="max-w-sm space-y-1.5">
           <Label htmlFor="SUNAT_PROVEEDOR">Proveedor de servicios electrónicos (SUNAT)</Label>
           <Controller
@@ -155,6 +164,16 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
           }
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={pendingActivar}
+        onOpenChange={(v) => !v && setPendingActivar(false)}
+        title="Activar modo mantenimiento"
+        description="El sitio quedará inaccesible para los visitantes hasta que desactives este modo manualmente. ¿Deseas continuar?"
+        confirmLabel="Activar mantenimiento"
+        destructive
+        onConfirm={() => { setValue('mantenimientoActivo', true, { shouldDirty: true }); setPendingActivar(false) }}
+      />
     </form>
   )
 }

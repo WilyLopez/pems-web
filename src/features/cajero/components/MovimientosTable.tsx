@@ -1,11 +1,19 @@
 'use client'
 
-import { MovimientoCaja } from '@/features/admin/finance'
+import { CategoriaRetiro, MovimientoCaja } from '@/features/admin/finanzas'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 interface Props {
   movimientos: MovimientoCaja[]
+}
+
+const CATEGORIA_LABEL: Record<CategoriaRetiro, string> = {
+  SERVICIOS:   'Servicios',
+  PROVEEDORES: 'Proveedores',
+  PERSONAL:    'Personal',
+  OPERATIVO:   'Operativo',
+  OTRO:        'Otro',
 }
 
 function formatHora(iso: string) {
@@ -27,6 +35,7 @@ export function MovimientosTable({ movimientos }: Props) {
             <th className="px-4 py-3 font-semibold">Hora</th>
             <th className="px-4 py-3 font-semibold">Tipo</th>
             <th className="px-4 py-3 font-semibold">Concepto</th>
+            <th className="px-4 py-3 font-semibold">Categoría</th>
             <th className="px-4 py-3 font-semibold">Medio de pago</th>
             <th className="px-4 py-3 font-semibold">Origen</th>
             <th className="px-4 py-3 font-semibold text-right">Monto</th>
@@ -49,6 +58,15 @@ export function MovimientosTable({ movimientos }: Props) {
                 </span>
               </td>
               <td className="px-4 py-3 text-gray-800">{m.concepto}</td>
+              <td className="px-4 py-3">
+                {m.categoriaRetiro ? (
+                  <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700">
+                    {CATEGORIA_LABEL[m.categoriaRetiro]}
+                  </span>
+                ) : (
+                  <span className="text-gray-300">—</span>
+                )}
+              </td>
               <td className="px-4 py-3 text-gray-500">{m.medioPago ?? '—'}</td>
               <td className="px-4 py-3">
                 <span className={cn(
@@ -71,7 +89,7 @@ export function MovimientosTable({ movimientos }: Props) {
         </tbody>
         <tfoot className="border-t-2 bg-gray-50">
           <tr>
-            <td colSpan={5} className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            <td colSpan={6} className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
               Balance neto
             </td>
             <td className="px-4 py-3 text-right text-sm font-black tabular-nums">

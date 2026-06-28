@@ -3,7 +3,7 @@
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { arqueoSchema, useArqueoMutations, AperturaCaja } from '@/features/admin/finance'
+import { arqueoSchema, useArqueoMutations, AperturaCaja } from '@/features/admin/finanzas'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'

@@ -1,7 +1,7 @@
 'use client'
 
 import { TrendingUp, TrendingDown, Clock, CheckCircle2, Lock } from 'lucide-react'
-import { AperturaCaja } from '@/features/admin/finance'
+import { AperturaCaja } from '@/features/admin/finanzas'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 

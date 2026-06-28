@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, useParams } from 'next/navigation'
 
 export type SeccionConfig =
   | 'operacion'
@@ -16,43 +16,37 @@ export interface SeccionNavProps {
 }
 
 export const SECCION_LABELS: Record<SeccionConfig, string> = {
-  operacion:         'Horarios de operación',
+  operacion:          'Horarios de operación',
   'reservas-eventos': 'Reservas y eventos',
-  sede:              'Datos de la sede',
-  seguridad:         'Seguridad de acceso',
-  sistema:           'Sistema e integraciones',
+  sede:               'Datos de la sede',
+  seguridad:          'Seguridad de acceso',
+  sistema:            'Sistema e integraciones',
 }
 
 export function useConfiguracionNav() {
   const router       = useRouter()
-  const pathname     = usePathname()
   const searchParams = useSearchParams()
+  const params       = useParams<{ seccion?: string }>()
 
-  const seccion = searchParams.get('s') as SeccionConfig | null
-  const modal   = searchParams.get('m') as 'view' | 'edit' | null
-
-  const update = useCallback(
-    (updates: Record<string, string | null>) => {
-      const params = new URLSearchParams(searchParams.toString())
-      Object.entries(updates).forEach(([k, v]) => {
-        if (v) params.set(k, v)
-        else params.delete(k)
-      })
-      router.push(`${pathname}?${params.toString()}`, { scroll: false })
-    },
-    [pathname, router, searchParams],
-  )
+  const seccion = (params.seccion ?? null) as SeccionConfig | null
+  const modal   = (searchParams.get('m') ?? null) as 'view' | 'edit' | null
 
   const abrirSeccion = useCallback(
-    (s: SeccionConfig, m: 'view' | 'edit' = 'view') => update({ s, m }),
-    [update],
+    (s: SeccionConfig, m: 'view' | 'edit' = 'view') => {
+      const query = m === 'edit' ? '?m=edit' : ''
+      router.push(`/admin/configuracion/${s}${query}`, { scroll: false })
+    },
+    [router],
   )
 
-  const cerrar = useCallback(() => update({ s: null, m: null }), [update])
+  const cerrar = useCallback(
+    () => router.push('/admin/configuracion', { scroll: false }),
+    [router],
+  )
 
   const navPropsFor = useCallback(
     (key: SeccionConfig): SeccionNavProps => ({
-      forceModal:   seccion === key ? modal : null,
+      forceModal:   seccion === key ? (modal ?? 'view') : null,
       onOpenChange: (m) => (m ? abrirSeccion(key, m) : cerrar()),
     }),
     [seccion, modal, abrirSeccion, cerrar],

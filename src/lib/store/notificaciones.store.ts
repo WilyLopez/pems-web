@@ -1,10 +1,21 @@
 import { create } from 'zustand'
+import {
+  notificacionesAdminService,
+  notificacionesClienteService,
+} from '@/services/notificaciones.service'
+import {
+  NotificacionDTO,
+  TipoVisual,
+  TIPO_VISUAL_MAP,
+} from '@/types/notificaciones.types'
+import { useAuthStore } from './auth.store'
 
-export type TipoNotificacion = 'reserva' | 'evento' | 'pago' | 'contrato' | 'sistema'
+export type { TipoVisual }
+export type TipoNotificacion = TipoVisual
 
 export interface Notificacion {
   id: string
-  tipo: TipoNotificacion
+  tipo: TipoVisual
   titulo: string
   mensaje: string
   fecha: Date
@@ -14,67 +25,96 @@ export interface Notificacion {
 
 interface NotificacionesState {
   notificaciones: Notificacion[]
-  marcarLeida: (id: string) => void
-  marcarTodasLeidas: () => void
-  agregarNotificacion: (n: Omit<Notificacion, 'id' | 'leida' | 'fecha'>) => void
+  noLeidas: number
+  cargando: boolean
+  ultimaActualizacion: number | null
+  fetchNotificaciones: () => Promise<void>
+  fetchCount: () => Promise<void>
+  marcarLeida: (id: string) => Promise<void>
+  marcarTodasLeidas: () => Promise<void>
 }
 
-const SEED: Notificacion[] = [
-  {
-    id: '1',
-    tipo: 'reserva',
-    titulo: 'Reserva confirmada',
-    mensaje: 'Tu reserva para el 15 de junio ha sido confirmada.',
-    fecha: new Date(Date.now() - 1000 * 60 * 30),
-    leida: false,
-    href: '/cliente/mis-reservas',
-  },
-  {
-    id: '2',
-    tipo: 'pago',
-    titulo: 'Pago pendiente en caja',
-    mensaje: 'Tienes una reserva con pago pendiente. Preséntate en caja.',
-    fecha: new Date(Date.now() - 1000 * 60 * 60 * 3),
-    leida: false,
-    href: '/cliente/mis-reservas',
-  },
-  {
-    id: '3',
-    tipo: 'evento',
-    titulo: 'Evento próximo',
-    mensaje: 'Tu evento privado es en 2 días. Coordina los últimos detalles.',
-    fecha: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    leida: true,
-    href: '/cliente/mis-eventos',
-  },
-  {
-    id: '4',
-    tipo: 'sistema',
-    titulo: 'Bienvenido al portal',
-    mensaje: 'Explora todas las funciones de tu área personal.',
-    fecha: new Date(Date.now() - 1000 * 60 * 60 * 48),
-    leida: true,
-    href: '/cliente',
-  },
-]
+function getApi() {
+  const { tipoPerfil } = useAuthStore.getState()
+  return tipoPerfil === 'CLIENTE'
+    ? notificacionesClienteService
+    : notificacionesAdminService
+}
 
-export const useNotificacionesStore = create<NotificacionesState>((set) => ({
-  notificaciones: SEED,
-  marcarLeida: (id) =>
+function toNotificacion(dto: NotificacionDTO): Notificacion {
+  return {
+    id: String(dto.id),
+    tipo: TIPO_VISUAL_MAP[dto.tipoCodigo] ?? 'sistema',
+    titulo: dto.titulo,
+    mensaje: dto.mensaje,
+    fecha: new Date(dto.createdAt),
+    leida: dto.leida,
+    href: dto.urlAccion ?? undefined,
+  }
+}
+
+export const useNotificacionesStore = create<NotificacionesState>((set, get) => ({
+  notificaciones: [],
+  noLeidas: 0,
+  cargando: false,
+  ultimaActualizacion: null,
+
+  fetchNotificaciones: async () => {
+    set({ cargando: true })
+    try {
+      const page = await getApi().feed({ size: 30 })
+      const notifs = page.content.map(toNotificacion)
+      set({
+        notificaciones: notifs,
+        noLeidas: notifs.filter((n) => !n.leida).length,
+        ultimaActualizacion: Date.now(),
+      })
+    } catch {
+      // silent — no interrumpir la UI si no hay sesion activa
+    } finally {
+      set({ cargando: false })
+    }
+  },
+
+  fetchCount: async () => {
+    try {
+      const count = await getApi().count()
+      set({ noLeidas: count })
+    } catch {
+      // silent
+    }
+  },
+
+  marcarLeida: async (id: string) => {
+    const prevNotifs = get().notificaciones
+    const yaLeida = prevNotifs.find((n) => n.id === id)?.leida ?? true
+
     set((s) => ({
       notificaciones: s.notificaciones.map((n) =>
         n.id === id ? { ...n, leida: true } : n
       ),
-    })),
-  marcarTodasLeidas: () =>
+      noLeidas: Math.max(0, s.noLeidas - (yaLeida ? 0 : 1)),
+    }))
+
+    try {
+      await getApi().marcarLeida(Number(id))
+    } catch {
+      set({ notificaciones: prevNotifs })
+    }
+  },
+
+  marcarTodasLeidas: async () => {
+    const prevNotifs = get().notificaciones
+
     set((s) => ({
       notificaciones: s.notificaciones.map((n) => ({ ...n, leida: true })),
-    })),
-  agregarNotificacion: (data) =>
-    set((s) => ({
-      notificaciones: [
-        { ...data, id: Date.now().toString(), leida: false, fecha: new Date() },
-        ...s.notificaciones,
-      ],
-    })),
+      noLeidas: 0,
+    }))
+
+    try {
+      await getApi().marcarTodasLeidas()
+    } catch {
+      set({ notificaciones: prevNotifs })
+    }
+  },
 }))

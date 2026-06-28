@@ -20,17 +20,14 @@ const MapaPickerDynamic = dynamic(
   () => import('./MapaPicker').then((m) => ({ default: m.MapaPicker })),
   {
     ssr: false,
-    loading: () => <div className="h-[280px] w-full animate-pulse bg-gray-100 rounded-xl" />,
+    loading: () => <div className="h-[280px] w-full animate-pulse bg-muted rounded-xl" />,
   }
 )
 
 const schema = z.object({
   nombre:       z.string().min(2).max(120),
-  direccion:    z.string().min(2).max(300),
   ciudad:       z.string().min(2).max(80),
   departamento: z.string().min(2).max(80),
-  telefono:     z.string().max(20).optional().or(z.literal('')),
-  correo:       z.string().max(120).optional().or(z.literal('')),
   ruc:          z.string().length(11, 'El RUC debe tener 11 dígitos').optional().or(z.literal('')),
   latitud:      z.string().refine(
     v => v === '' || (!isNaN(parseFloat(v)) && parseFloat(v) >= -90  && parseFloat(v) <= 90),
@@ -61,11 +58,8 @@ function SedeForm({ idSede }: { idSede: number }) {
     if (!sede) return
     reset({
       nombre:       sede.nombre,
-      direccion:    sede.direccion,
       ciudad:       sede.ciudad,
       departamento: sede.departamento,
-      telefono:     sede.telefono  ?? '',
-      correo:       sede.correo    ?? '',
       ruc:          sede.ruc       ?? '',
       latitud:      sede.latitud  != null ? String(sede.latitud)  : '',
       longitud:     sede.longitud != null ? String(sede.longitud) : '',
@@ -85,11 +79,8 @@ function SedeForm({ idSede }: { idSede: number }) {
   function onSubmit(values: FormValues) {
     actualizar.mutate({
       nombre:       values.nombre,
-      direccion:    values.direccion,
       ciudad:       values.ciudad,
       departamento: values.departamento,
-      telefono:     values.telefono  || null,
-      correo:       values.correo    || null,
       ruc:          values.ruc       || null,
       latitud:      values.latitud  ? parseFloat(values.latitud)  : null,
       longitud:     values.longitud ? parseFloat(values.longitud) : null,
@@ -105,34 +96,16 @@ function SedeForm({ idSede }: { idSede: number }) {
           {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
         </div>
 
-        <div className="space-y-1.5 sm:col-span-2">
-          <Label htmlFor="direccion">Dirección</Label>
-          <Input id="direccion" placeholder="Av. Ejemplo 123, Miraflores" {...register('direccion')} />
-          {errors.direccion && <p className="text-xs text-destructive">{errors.direccion.message}</p>}
-        </div>
-
         <div className="space-y-1.5">
           <Label htmlFor="ciudad">Ciudad</Label>
-          <Input id="ciudad" placeholder="Lima" {...register('ciudad')} />
+          <Input id="ciudad" placeholder="Chiclayo" {...register('ciudad')} />
           {errors.ciudad && <p className="text-xs text-destructive">{errors.ciudad.message}</p>}
         </div>
 
         <div className="space-y-1.5">
           <Label htmlFor="departamento">Departamento</Label>
-          <Input id="departamento" placeholder="Lima" {...register('departamento')} />
+          <Input id="departamento" placeholder="Lambayeque" {...register('departamento')} />
           {errors.departamento && <p className="text-xs text-destructive">{errors.departamento.message}</p>}
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="telefono">Teléfono</Label>
-          <Input id="telefono" placeholder="01 234 5678" {...register('telefono')} />
-          {errors.telefono && <p className="text-xs text-destructive">{errors.telefono.message}</p>}
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="correo">Correo de contacto</Label>
-          <Input id="correo" type="email" placeholder="contacto@example.com" {...register('correo')} />
-          {errors.correo && <p className="text-xs text-destructive">{errors.correo.message}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -142,14 +115,14 @@ function SedeForm({ idSede }: { idSede: number }) {
         </div>
       </div>
 
-      <div className="border-t border-gray-100 pt-4">
+      <div className="border-t border-border pt-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
               <MapPin className="h-4 w-4 text-blue-600" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Ubicación en el mapa</p>
+              <p className="font-semibold text-card-foreground">Ubicación en el mapa</p>
               <p className="text-xs text-muted-foreground">
                 {latNum != null ? 'Arrastra el pin para ajustar la posición' : 'Haz clic en el mapa para colocar el pin'}
               </p>
@@ -170,7 +143,7 @@ function SedeForm({ idSede }: { idSede: number }) {
             </Button>
           )}
         </div>
-        <div className="overflow-hidden rounded-xl border border-gray-200">
+        <div className="overflow-hidden rounded-xl border border-border">
           <MapaPickerDynamic
             latitud={latNum}
             longitud={lngNum}
@@ -206,18 +179,15 @@ function SedeForm({ idSede }: { idSede: number }) {
 }
 
 function SedeViewContent({ sede }: { sede: Sede | undefined }) {
-  if (!sede) return <p className="text-sm text-gray-400 text-center py-4">Sin datos.</p>
+  if (!sede) return <p className="text-sm text-muted-foreground text-center py-4">Sin datos.</p>
   const coords = sede.latitud != null && sede.longitud != null
     ? `${sede.latitud}, ${sede.longitud}`
     : '—'
   return (
     <ReadOnlyList items={[
       { label: 'Nombre',       value: sede.nombre           },
-      { label: 'Dirección',    value: sede.direccion        },
       { label: 'Ciudad',       value: sede.ciudad           },
       { label: 'Departamento', value: sede.departamento     },
-      { label: 'Teléfono',     value: sede.telefono ?? '—'  },
-      { label: 'Correo',       value: sede.correo   ?? '—'  },
       { label: 'RUC',          value: sede.ruc      ?? '—'  },
       { label: 'Coordenadas',  value: coords                },
     ]} />
@@ -239,7 +209,7 @@ export function SedeSection({ idSede, navProps }: { idSede: number; navProps?: S
       icon={Building2}
       color="bg-blue-50 text-blue-600"
       title="Datos de la sede"
-      description="Nombre, dirección, contacto, RUC y coordenadas del mapa"
+      description="Nombre, ciudad, RUC y coordenadas del mapa"
       summary={summary}
       editSize="sm:max-w-xl"
       viewContent={<SedeViewContent sede={sede} />}

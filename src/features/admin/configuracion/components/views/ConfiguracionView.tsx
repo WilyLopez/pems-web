@@ -18,7 +18,7 @@ function GridSkeleton() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 h-52 animate-pulse" />
+        <div key={i} className="bg-card rounded-2xl border border-border p-5 h-52 animate-pulse" />
       ))}
     </div>
   )
