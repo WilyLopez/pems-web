@@ -82,22 +82,28 @@ export default function ComercialPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {SECCIONES.map(({ href, icon: Icon, titulo, descripcion, color, accent }) => (
-          <Link key={href} href={href} className="group">
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4 hover:shadow-md hover:border-gray-200 transition-all">
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${color} ${accent}`}>
-                <Icon className="h-5 w-5" />
+        {SECCIONES.map(
+          ({ href, icon: Icon, titulo, descripcion, color, accent }) => (
+            <Link key={href} href={href} className="group">
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4 hover:shadow-md hover:border-gray-200 transition-all">
+                <div
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${color} ${accent}`}
+                >
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-gray-900 group-hover:text-brand-azul transition-colors">
+                    {titulo}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-0.5 leading-snug">
+                    {descripcion}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-brand-azul shrink-0 mt-1 transition-colors" />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-bold text-gray-900 group-hover:text-brand-azul transition-colors">
-                  {titulo}
-                </p>
-                <p className="text-sm text-gray-500 mt-0.5 leading-snug">{descripcion}</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-brand-azul shrink-0 mt-1 transition-colors" />
-            </div>
-          </Link>
-        ))}
+            </Link>
+          )
+        )}
       </div>
     </div>
   )

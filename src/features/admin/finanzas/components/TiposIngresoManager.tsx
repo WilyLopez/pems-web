@@ -5,7 +5,10 @@ import { Plus, X, Search } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { useTiposIngreso, useTipoIngresoMutations } from '../hooks/useFinanceData'
+import {
+  useTiposIngreso,
+  useTipoIngresoMutations,
+} from '../hooks/useFinanceData'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -41,13 +44,20 @@ export function TiposIngresoManager() {
   const { data: tipos = [], isLoading } = useTiposIngreso()
   const { crear, desactivar } = useTipoIngresoMutations()
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(crearSchema),
     defaultValues: { nombre: '', descripcion: '' },
   })
 
   const tiposFiltrados = busqueda.trim()
-    ? tipos.filter((t) => t.nombre.toLowerCase().includes(busqueda.toLowerCase()))
+    ? tipos.filter((t) =>
+        t.nombre.toLowerCase().includes(busqueda.toLowerCase())
+      )
     : tipos
 
   const activos = tipos.filter((t) => t.activo).length
@@ -55,8 +65,17 @@ export function TiposIngresoManager() {
 
   function onSubmit(values: FormValues) {
     crear.mutate(
-      { codigo: generarCodigo(values.nombre), nombre: values.nombre, descripcion: values.descripcion },
-      { onSuccess: () => { reset(); setOpenCrear(false) } }
+      {
+        codigo: generarCodigo(values.nombre),
+        nombre: values.nombre,
+        descripcion: values.descripcion,
+      },
+      {
+        onSuccess: () => {
+          reset()
+          setOpenCrear(false)
+        },
+      }
     )
   }
 
@@ -114,8 +133,13 @@ export function TiposIngresoManager() {
               ))
             ) : tiposFiltrados.length === 0 ? (
               <tr>
-                <td colSpan={3} className="py-8 text-center text-sm text-gray-400">
-                  {busqueda ? 'Sin resultados para esa búsqueda.' : 'Sin tipos registrados.'}
+                <td
+                  colSpan={3}
+                  className="py-8 text-center text-sm text-gray-400"
+                >
+                  {busqueda
+                    ? 'Sin resultados para esa búsqueda.'
+                    : 'Sin tipos registrados.'}
                 </td>
               </tr>
             ) : (
@@ -124,17 +148,21 @@ export function TiposIngresoManager() {
                   key={t.codigo}
                   className={cn(
                     'hover:bg-gray-50 transition-colors',
-                    !t.activo && 'opacity-50',
+                    !t.activo && 'opacity-50'
                   )}
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900">{t.nombre}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    {t.nombre}
+                  </td>
                   <td className="px-4 py-3">
-                    <span className={cn(
-                      'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                      t.activo
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-gray-100 text-gray-500',
-                    )}>
+                    <span
+                      className={cn(
+                        'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
+                        t.activo
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-gray-100 text-gray-500'
+                      )}
+                    >
                       {t.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
@@ -175,15 +203,24 @@ export function TiposIngresoManager() {
               )}
             </div>
             <div className="space-y-1.5">
-              <Label>Descripción <span className="text-gray-400 font-normal">(opcional)</span></Label>
-              <Input {...register('descripcion')} placeholder="Descripción breve…" />
+              <Label>
+                Descripción{' '}
+                <span className="text-gray-400 font-normal">(opcional)</span>
+              </Label>
+              <Input
+                {...register('descripcion')}
+                placeholder="Descripción breve…"
+              />
             </div>
             <div className="flex justify-end gap-2 pt-1">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => { reset(); setOpenCrear(false) }}
+                onClick={() => {
+                  reset()
+                  setOpenCrear(false)
+                }}
               >
                 Cancelar
               </Button>
@@ -200,16 +237,24 @@ export function TiposIngresoManager() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={confirmCodigo !== null} onOpenChange={() => setConfirmCodigo(null)}>
+      <Dialog
+        open={confirmCodigo !== null}
+        onOpenChange={() => setConfirmCodigo(null)}
+      >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Desactivar tipo de ingreso</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600 py-2">
-            Los ingresos existentes no se verán afectados. No podrás registrar nuevos ingresos con este tipo.
+            Los ingresos existentes no se verán afectados. No podrás registrar
+            nuevos ingresos con este tipo.
           </p>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => setConfirmCodigo(null)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmCodigo(null)}
+            >
               Cancelar
             </Button>
             <Button

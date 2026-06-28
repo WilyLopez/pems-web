@@ -1,7 +1,11 @@
 import api from './api'
 import { ApiResponse } from '@/types/api.types'
 import { RegistrarClientePayload, Cliente } from '@/types/cliente.types'
-import { LoginPayload, LoginResponse, CambiarPasswordPayload } from '@/types/auth.types'
+import {
+  LoginPayload,
+  LoginResponse,
+  CambiarPasswordPayload,
+} from '@/types/auth.types'
 
 export const authService = {
   login: async (payload: LoginPayload): Promise<LoginResponse> => {

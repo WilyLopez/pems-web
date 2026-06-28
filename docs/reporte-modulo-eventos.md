@@ -19,6 +19,7 @@ src/features/admin/clientes/components/forms/NuevoClienteModal.tsx
 ```
 
 `NuevoClienteModal` ya recibe `{ open, onOpenChange }` y maneja el submit internamente con `useMutacionesCliente`. Lo que falta es:
+
 - Pasar un callback `onSuccess: (cliente: Cliente) => void` para que al crear el cliente nuevo, se auto-seleccione en el formulario de evento.
 
 **Pendiente backend:** `NuevoClienteModal` llama a `clientesApi.registrarAdmin()` → `/clientes/admin`. Este endpoint ya existe.
@@ -30,6 +31,7 @@ src/features/admin/clientes/components/forms/NuevoClienteModal.tsx
 **Problema actual:** `tipoEvento` es un campo de texto libre (`Input`). La BD tiene la tabla `tipo_evento` con una FK obligatoria (`tipo_evento_codigo NOT NULL`) en la tabla `evento`.
 
 **Solución:** Usar `useTiposEventoPublico()` de:
+
 ```
 src/features/admin/comercial/tipos-evento/hooks/useTiposEvento.ts
 ```
@@ -43,6 +45,7 @@ Cambiar el campo a un `Select` que muestre los tipos activos. El payload debe en
 ### 1.3 Nombre del niño es obligatorio
 
 **Cambio en schema Zod:**
+
 ```ts
 // Antes
 nombreNino: z.string().max(80).optional().or(z.literal(''))
@@ -58,6 +61,7 @@ nombreNino: z.string().min(1, 'El nombre del niño es obligatorio').max(80)
 **Problema actual:** El schema tiene `edadCumple: z.number().int().min(0).max(18)` hardcodeado. El sistema es de eventos infantiles, la edad máxima debería venir de `useConfiguracionCalendario(idSede)`.
 
 **Solución:**
+
 - `ConfiguracionCalendario` probablemente ya tiene (o debería tener) un campo `edadMaxNino` o similar.
 - Si no existe, agregar al endpoint de configuración.
 - En el form, leer ese valor y usarlo en la validación dinámica con `.superRefine()` en lugar de `.max()` estático.
@@ -71,6 +75,7 @@ nombreNino: z.string().min(1, 'El nombre del niño es obligatorio').max(80)
 **Base de datos:** La tabla `paquete` tiene `tipo_evento_codigo` (FK a `tipo_evento`). El backend debe exponer este campo.
 
 **Solución:**
+
 1. Cuando el usuario seleccione un `tipoEvento`, filtrar los paquetes cuyo `tipoEventoCodigo === tipoEventoSeleccionado`.
 2. Si `usePaquetesPublico()` no retorna `tipoEventoCodigo` en los ítems, agregarla al DTO del backend.
 3. El filtrado puede hacerse en el frontend: `paquetes?.filter(p => p.tipoEventoCodigo === tipoSeleccionado)`.
@@ -80,6 +85,7 @@ nombreNino: z.string().min(1, 'El nombre del niño es obligatorio').max(80)
 ### 1.6 Resumen del evento al crear
 
 **Propuesta:** Después del `mutate` exitoso (en `onSuccess`), en lugar de navegar inmediatamente a `/admin/eventos/{id}`, mostrar un `Dialog` de resumen con:
+
 - Fecha y turno
 - Nombre del cliente
 - Tipo de evento
@@ -125,6 +131,7 @@ Toggle: "Ingresar en soles / en porcentaje"
 ```
 
 **Backend:** El endpoint de confirmación actualmente recibe `{ precioTotal, montoAdelanto, medioPago }`. Para soportar pago dividido necesita recibir:
+
 ```json
 {
   "precioTotal": 1200,
@@ -135,6 +142,7 @@ Toggle: "Ingresar en soles / en porcentaje"
   ]
 }
 ```
+
 Y el backend debe crear los registros en `venta_pago` correctamente.
 
 ---
@@ -144,6 +152,7 @@ Y el backend debe crear los registros en `venta_pago` correctamente.
 **Problema actual:** La tabla `evento_servicio` de la BD **está completamente sin usar** en el frontend. Esta tabla almacena cada servicio acordado para el evento (DJ, torta, decoración, animador, etc.) con precio individual.
 
 **Tabla DB:**
+
 ```sql
 CREATE TABLE evento_servicio (
     evento_id               BIGINT,
@@ -156,6 +165,7 @@ CREATE TABLE evento_servicio (
 ```
 
 **Lo que falta:**
+
 1. **Backend:** Endpoint para listar/crear/eliminar `evento_servicio` por evento.
 2. **Frontend:** Tab "Servicios" en `EventoDetalleView` donde el admin pueda:
    - Ver los servicios del catálogo (`servicio_cotizacion`) y agregarlos al evento
@@ -191,11 +201,13 @@ Los botones deben generar el link con mensaje pre-cargado (igual al `ConfirmarEv
 **Problema:** `ConfirmDialog` se instancia en múltiples vistas (eventos, contratos, etc.) como componente individual repetido.
 
 **Propuesta:** Crear un provider global:
+
 ```
 src/components/common/ConfirmDialog/ConfirmDialogProvider.tsx
 ```
 
 Con un hook `useConfirmDialog()`:
+
 ```ts
 const { confirm } = useConfirmDialog()
 
@@ -219,17 +231,18 @@ Se monta una sola instancia en el layout admin. Reduce 100+ líneas de JSX repar
 
 **Esperado:** Cuando el admin confirma un evento privado del cliente, el cliente debe ver en su panel (`/cliente/mis-eventos`) un detalle completo con:
 
-| Sección | Contenido |
-|---|---|
-| Estado | Badge "Confirmado" |
-| Fecha y turno | Fecha, hora inicio–fin |
-| Lo que incluye | Lista de servicios/paquete acordado |
-| Niño | Nombre y edad |
-| Pagos | Total, adelanto pagado, saldo pendiente y fecha límite de pago |
-| Contrato | Link para descargar/ver el contrato |
-| Contacto PlayZone | Teléfono/WhatsApp de la sede |
+| Sección           | Contenido                                                      |
+| ----------------- | -------------------------------------------------------------- |
+| Estado            | Badge "Confirmado"                                             |
+| Fecha y turno     | Fecha, hora inicio–fin                                         |
+| Lo que incluye    | Lista de servicios/paquete acordado                            |
+| Niño              | Nombre y edad                                                  |
+| Pagos             | Total, adelanto pagado, saldo pendiente y fecha límite de pago |
+| Contrato          | Link para descargar/ver el contrato                            |
+| Contacto PlayZone | Teléfono/WhatsApp de la sede                                   |
 
 **Componente a crear:**
+
 ```
 src/features/cliente/eventos/components/EventoPrivadoDetalleDialog.tsx
 ```
@@ -246,7 +259,8 @@ Necesita un endpoint en el backend: `GET /clientes/me/eventos-privados/{id}` que
 
 **Valor:** Es el detalle contractual de qué servicios incluye el evento. Sin esto el sistema no documenta formalmente los acuerdos.
 
-**Plan:** 
+**Plan:**
+
 - Backend: `GET/POST/DELETE /eventos-privados/{id}/servicios`
 - Frontend: Tab "Servicios" en `EventoDetalleView` (ver sección 2.3)
 
@@ -284,7 +298,7 @@ Necesita un endpoint en el backend: `GET /clientes/me/eventos-privados/{id}` que
 
 ### 4.5 `venta_pago` — Pagos múltiples por venta
 
-**Estado:** La tabla soporta múltiples medios de pago por `venta`, pero el frontend solo registra un medio. 
+**Estado:** La tabla soporta múltiples medios de pago por `venta`, pero el frontend solo registra un medio.
 
 **Valor:** Permitir al admin registrar "pagó S/ 300 en efectivo + S/ 300 en Yape" para el adelanto o el saldo.
 
@@ -337,18 +351,19 @@ Navega a: `/admin/eventos/{id}/rentabilidad`
 ### 5.3 Relación con BD
 
 Usar la tabla `egreso` existente (ver módulo finance) filtrado por `evento_id`. Si el módulo finance ya tiene `GastosEventoPanel` para este propósito, ampliar esa vista con:
+
 - Filtro por categoría de egreso
 - Comparativa ingreso vs. egreso en gráfica de dona o barra
 - Export a PDF/CSV del resumen de rentabilidad
 
 ### 5.4 Archivos involucrados
 
-| Archivo | Acción |
-|---|---|
-| `app/admin/eventos/[id]/rentabilidad/page.tsx` | Nueva ruta (crear) |
-| `features/admin/eventos/components/views/EventoRentabilidadView.tsx` | Vista principal (crear) |
-| `features/admin/finance/components/GastosEventoPanel.tsx` | Reutilizar/ampliar |
-| `EventoDetalleView.tsx` | Agregar botón cuando estado = CONFIRMADA/COMPLETADA |
+| Archivo                                                              | Acción                                              |
+| -------------------------------------------------------------------- | --------------------------------------------------- |
+| `app/admin/eventos/[id]/rentabilidad/page.tsx`                       | Nueva ruta (crear)                                  |
+| `features/admin/eventos/components/views/EventoRentabilidadView.tsx` | Vista principal (crear)                             |
+| `features/admin/finance/components/GastosEventoPanel.tsx`            | Reutilizar/ampliar                                  |
+| `EventoDetalleView.tsx`                                              | Agregar botón cuando estado = CONFIRMADA/COMPLETADA |
 
 ---
 
@@ -359,6 +374,7 @@ Usar la tabla `egreso` existente (ver módulo finance) filtrado por `evento_id`.
 La tabla `contrato_actividad` existe para contratos. Falta un equivalente para eventos: cada cambio de estado, pago registrado, nota agregada, debería quedar en un log visible en la vista de detalle.
 
 **Tabla sugerida en BD:**
+
 ```sql
 CREATE TABLE evento_actividad (
     id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -373,6 +389,7 @@ CREATE TABLE evento_actividad (
 ### 6.2 Recordatorios automáticos al cliente
 
 Cuando el evento esté a N días de la fecha (configurable: 30, 15, 7, 1 día), enviar notificación automática al cliente recordando:
+
 - Fecha y hora del evento
 - Saldo pendiente de pago
 - Documentos que debe llevar
@@ -400,6 +417,7 @@ La tabla `resena` tiene FK a `evento_id`. Después de que el evento pase a `COMP
 ### 6.7 Métricas de conversión
 
 Dashboard interno que muestre:
+
 - % de eventos SOLICITADOS que llegan a CONFIRMADOS (tasa de conversión)
 - Tiempo promedio entre solicitud y confirmación
 - Ingresos por tipo de evento
@@ -409,42 +427,42 @@ Dashboard interno que muestre:
 
 ## 7. PRIORIZACIÓN SUGERIDA
 
-| Prioridad | Tarea | Impacto | Esfuerzo |
-|---|---|---|---|
-| 🔴 Alta | 1.2 Tipo de evento desde BD | Integridad de datos | Bajo |
-| 🔴 Alta | 1.3 Nombre niño obligatorio | Validación | Muy bajo |
-| 🔴 Alta | 2.3 Tab servicios (evento_servicio) | Funcionalidad core | Alto |
-| 🔴 Alta | 2.4 Botones WhatsApp/correo notorios | UX | Bajo |
-| 🟡 Media | 1.1 Crear cliente desde formulario | UX | Medio |
-| 🟡 Media | 1.4 Edad configurable | Flexibilidad | Bajo |
-| 🟡 Media | 1.5 Paquetes por tipo de evento | UX | Bajo |
-| 🟡 Media | 2.2 Pago dividido en 2 medios | Operativo | Alto |
-| 🟡 Media | 4.2 Estado operativo | Operativo | Medio |
-| 🟡 Media | 4.3 Notas internas | Calidad | Bajo |
-| 🟡 Media | 5. Módulo rentabilidad | Gestión | Alto |
-| 🟡 Media | 3.1 Panel cliente - evento confirmado | UX cliente | Alto |
-| 🟢 Baja | 2.5 ConfirmDialog global | Deuda técnica | Medio |
-| 🟢 Baja | 6.1 Timeline evento | Trazabilidad | Medio |
-| 🟢 Baja | 6.5 Calendario agenda | UX admin | Alto |
-| 🟢 Baja | 6.2 Recordatorios automáticos | Diferenciador | Alto |
+| Prioridad | Tarea                                 | Impacto             | Esfuerzo |
+| --------- | ------------------------------------- | ------------------- | -------- |
+| 🔴 Alta   | 1.2 Tipo de evento desde BD           | Integridad de datos | Bajo     |
+| 🔴 Alta   | 1.3 Nombre niño obligatorio           | Validación          | Muy bajo |
+| 🔴 Alta   | 2.3 Tab servicios (evento_servicio)   | Funcionalidad core  | Alto     |
+| 🔴 Alta   | 2.4 Botones WhatsApp/correo notorios  | UX                  | Bajo     |
+| 🟡 Media  | 1.1 Crear cliente desde formulario    | UX                  | Medio    |
+| 🟡 Media  | 1.4 Edad configurable                 | Flexibilidad        | Bajo     |
+| 🟡 Media  | 1.5 Paquetes por tipo de evento       | UX                  | Bajo     |
+| 🟡 Media  | 2.2 Pago dividido en 2 medios         | Operativo           | Alto     |
+| 🟡 Media  | 4.2 Estado operativo                  | Operativo           | Medio    |
+| 🟡 Media  | 4.3 Notas internas                    | Calidad             | Bajo     |
+| 🟡 Media  | 5. Módulo rentabilidad                | Gestión             | Alto     |
+| 🟡 Media  | 3.1 Panel cliente - evento confirmado | UX cliente          | Alto     |
+| 🟢 Baja   | 2.5 ConfirmDialog global              | Deuda técnica       | Medio    |
+| 🟢 Baja   | 6.1 Timeline evento                   | Trazabilidad        | Medio    |
+| 🟢 Baja   | 6.5 Calendario agenda                 | UX admin            | Alto     |
+| 🟢 Baja   | 6.2 Recordatorios automáticos         | Diferenciador       | Alto     |
 
 ---
 
 ## 8. ESTADO ACTUAL DE IMPLEMENTACIÓN
 
-| Módulo | Estado |
-|---|---|
-| `EventosListView` con filtros + paginación | ✅ Completo |
-| `EventoDetalleView` tabs + checklist + pagos básicos | ✅ Completo |
-| `NuevoEventoView` (picker fecha/turno dinámico) | ✅ Completo |
-| `NuevoEventoForm` (estructura base) | ✅ Completo — pendiente mejoras §1 |
-| `ContratoDetalleView` + `ContratosListView` | ✅ Completo |
-| Fix `[id]/page.tsx` → `useParams()` (Next.js 16) | ✅ Aplicado |
-| Botón "Nuevo evento" en lista | ✅ Aplicado |
-| `evento_servicio` en frontend | ❌ Sin implementar |
-| Pago dividido en 2 medios | ❌ Sin implementar |
-| Panel cliente — evento privado confirmado | ❌ Sin implementar |
-| Módulo de rentabilidad | ❌ Sin implementar |
-| Estado operativo del evento | ❌ Sin implementar |
-| Notas internas del evento | ❌ Sin implementar |
-| Timeline/historial de actividad | ❌ Sin implementar |
+| Módulo                                               | Estado                             |
+| ---------------------------------------------------- | ---------------------------------- |
+| `EventosListView` con filtros + paginación           | ✅ Completo                        |
+| `EventoDetalleView` tabs + checklist + pagos básicos | ✅ Completo                        |
+| `NuevoEventoView` (picker fecha/turno dinámico)      | ✅ Completo                        |
+| `NuevoEventoForm` (estructura base)                  | ✅ Completo — pendiente mejoras §1 |
+| `ContratoDetalleView` + `ContratosListView`          | ✅ Completo                        |
+| Fix `[id]/page.tsx` → `useParams()` (Next.js 16)     | ✅ Aplicado                        |
+| Botón "Nuevo evento" en lista                        | ✅ Aplicado                        |
+| `evento_servicio` en frontend                        | ❌ Sin implementar                 |
+| Pago dividido en 2 medios                            | ❌ Sin implementar                 |
+| Panel cliente — evento privado confirmado            | ❌ Sin implementar                 |
+| Módulo de rentabilidad                               | ❌ Sin implementar                 |
+| Estado operativo del evento                          | ❌ Sin implementar                 |
+| Notas internas del evento                            | ❌ Sin implementar                 |
+| Timeline/historial de actividad                      | ❌ Sin implementar                 |

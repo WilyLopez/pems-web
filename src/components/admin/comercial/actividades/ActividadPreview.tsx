@@ -3,14 +3,20 @@
 import { Activity } from 'lucide-react'
 
 interface Props {
-  nombre:      string
+  nombre: string
   descripcion: string
-  imagenUrl:   string | null
-  esEspecial:  boolean
+  imagenUrl: string | null
+  esEspecial: boolean
   nombreZona?: string
 }
 
-export function ActividadPreview({ nombre, descripcion, imagenUrl, esEspecial, nombreZona }: Props) {
+export function ActividadPreview({
+  nombre,
+  descripcion,
+  imagenUrl,
+  esEspecial,
+  nombreZona,
+}: Props) {
   return (
     <div className="w-full max-w-xs mx-auto">
       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">
@@ -19,7 +25,11 @@ export function ActividadPreview({ nombre, descripcion, imagenUrl, esEspecial, n
       <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-start gap-3 shadow-sm">
         {imagenUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imagenUrl} alt={nombre} className="w-14 h-14 rounded-xl object-cover shrink-0" />
+          <img
+            src={imagenUrl}
+            alt={nombre}
+            className="w-14 h-14 rounded-xl object-cover shrink-0"
+          />
         ) : (
           <div className="w-14 h-14 rounded-xl bg-gray-100 shrink-0 flex items-center justify-center">
             <Activity className="h-6 w-6 text-gray-300" />
@@ -40,7 +50,9 @@ export function ActividadPreview({ nombre, descripcion, imagenUrl, esEspecial, n
             <p className="text-xs text-gray-500 line-clamp-2">{descripcion}</p>
           )}
           {nombreZona && (
-            <p className="text-[11px] text-brand-azul font-semibold">{nombreZona}</p>
+            <p className="text-[11px] text-brand-azul font-semibold">
+              {nombreZona}
+            </p>
           )}
         </div>
       </div>

@@ -42,7 +42,9 @@ export function useMutacionesCliente(clienteId?: number | null) {
       esVip ? clientesApi.quitarVip(id) : clientesApi.hacerVip(id, 10),
     onSuccess: (_, variables) => {
       invalidarTodo()
-      toast.success(variables.esVip ? 'Estado VIP removido.' : 'Cliente promovido a VIP.')
+      toast.success(
+        variables.esVip ? 'Estado VIP removido.' : 'Cliente promovido a VIP.'
+      )
     },
     onError: () => toast.error('No se pudo actualizar el estado VIP.'),
   })

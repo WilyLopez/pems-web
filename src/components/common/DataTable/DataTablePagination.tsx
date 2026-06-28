@@ -50,7 +50,10 @@ export function DataTablePagination({
             <span className="text-xs text-muted-foreground">Por página:</span>
             <Select
               value={String(size)}
-              onValueChange={(v) => { onSizeChange(Number(v)); onPageChange(0) }}
+              onValueChange={(v) => {
+                onSizeChange(Number(v))
+                onPageChange(0)
+              }}
             >
               <SelectTrigger className="h-7 w-16 text-xs rounded-lg">
                 <SelectValue />

@@ -48,30 +48,31 @@ import { formatDate, formatCurrency, cn, exportarCSV } from '@/lib/utils'
 import { ADMIN_ROUTES } from '@/config/routes'
 
 const ESTADOS: { value: EstadoEvento | ''; label: string }[] = [
-  { value: '',           label: 'Todos los estados' },
+  { value: '', label: 'Todos los estados' },
   { value: 'SOLICITADA', label: 'Solicitada' },
   { value: 'CONFIRMADA', label: 'Confirmada' },
   { value: 'COMPLETADA', label: 'Completada' },
-  { value: 'CANCELADA',  label: 'Cancelada' },
+  { value: 'CANCELADA', label: 'Cancelada' },
 ]
 
 const MODALIDADES = [
-  { value: '',           label: 'Toda modalidad' },
+  { value: '', label: 'Toda modalidad' },
   { value: 'AL_CONTADO', label: 'Al contado' },
-  { value: 'CUOTAS',     label: 'En cuotas' },
+  { value: 'CUOTAS', label: 'En cuotas' },
 ]
 
 const TABS_RAPIDOS = [
-  { label: 'Todos',       fechaDesde: '',  fechaHasta: '' },
-  { label: 'Hoy',         key: 'hoy' },
+  { label: 'Todos', fechaDesde: '', fechaHasta: '' },
+  { label: 'Hoy', key: 'hoy' },
   { label: 'Esta semana', key: 'semana' },
-  { label: 'Este mes',    key: 'mes' },
+  { label: 'Este mes', key: 'mes' },
 ]
 
 function getRangoTab(key?: string): { fechaDesde: string; fechaHasta: string } {
   const hoy = new Date()
   const pad = (n: number) => String(n).padStart(2, '0')
-  const fmt = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
   if (key === 'hoy') {
     const s = fmt(hoy)
@@ -101,16 +102,32 @@ interface KpiCardProps {
   hint?: string
 }
 
-function KpiCard({ label, value, icon, iconBg, valueColor, hint }: KpiCardProps) {
+function KpiCard({
+  label,
+  value,
+  icon,
+  iconBg,
+  valueColor,
+  hint,
+}: KpiCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
-      <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center shrink-0', iconBg)}>
+      <div
+        className={cn(
+          'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+          iconBg
+        )}
+      >
         {icon}
       </div>
       <div className="min-w-0">
-        {value === undefined
-          ? <Skeleton className="h-7 w-10 mb-0.5" />
-          : <p className={cn('text-2xl font-black leading-none', valueColor)}>{value}</p>}
+        {value === undefined ? (
+          <Skeleton className="h-7 w-10 mb-0.5" />
+        ) : (
+          <p className={cn('text-2xl font-black leading-none', valueColor)}>
+            {value}
+          </p>
+        )}
         <p className="text-xs text-gray-400 leading-tight mt-0.5">{label}</p>
         {hint && <p className="text-[10px] text-gray-300 mt-0.5">{hint}</p>}
       </div>
@@ -128,24 +145,28 @@ function esUrgente(evento: EventoPrivado): boolean {
 }
 
 export function EventosListView() {
-  const router      = useRouter()
-  const pathname    = usePathname()
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { idSede }  = useAuth()
+  const { idSede } = useAuth()
 
   const getParam = (k: string, def = '') => searchParams.get(k) ?? def
 
-  const [search,       setSearch]       = useState(getParam('search'))
-  const [estado,       setEstado]       = useState<EstadoEvento | ''>(getParam('estado') as EstadoEvento | '')
-  const [fechaDesde,   setFechaDesde]   = useState(getParam('fechaDesde'))
-  const [fechaHasta,   setFechaHasta]   = useState(getParam('fechaHasta'))
-  const [tipoEvento,   setTipoEvento]   = useState(getParam('tipoEvento'))
-  const [modalidadPago,setModalidadPago]= useState(getParam('modalidadPago'))
-  const [page,         setPage]         = useState(Number(getParam('page', '0')))
-  const [size,         setSize]         = useState(Number(getParam('size', '15')))
-  const [sort,         setSort]         = useState(getParam('sort', 'fechaEvento,asc'))
-  const [tabActivo,    setTabActivo]    = useState(getParam('tab', 'todos'))
-  const [eventoConfirmar, setEventoConfirmar] = useState<EventoPrivado | null>(null)
+  const [search, setSearch] = useState(getParam('search'))
+  const [estado, setEstado] = useState<EstadoEvento | ''>(
+    getParam('estado') as EstadoEvento | ''
+  )
+  const [fechaDesde, setFechaDesde] = useState(getParam('fechaDesde'))
+  const [fechaHasta, setFechaHasta] = useState(getParam('fechaHasta'))
+  const [tipoEvento, setTipoEvento] = useState(getParam('tipoEvento'))
+  const [modalidadPago, setModalidadPago] = useState(getParam('modalidadPago'))
+  const [page, setPage] = useState(Number(getParam('page', '0')))
+  const [size, setSize] = useState(Number(getParam('size', '15')))
+  const [sort, setSort] = useState(getParam('sort', 'fechaEvento,asc'))
+  const [tabActivo, setTabActivo] = useState(getParam('tab', 'todos'))
+  const [eventoConfirmar, setEventoConfirmar] = useState<EventoPrivado | null>(
+    null
+  )
 
   const dSearch = useDebounce(search, 350)
 
@@ -158,44 +179,101 @@ export function EventosListView() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
-  function handleSearch(v: string) { setSearch(v); setPage(0); syncUrl({ search: v, page: '0' }) }
-  function handleEstado(v: string) { setEstado(v as EstadoEvento); setPage(0); syncUrl({ estado: v, page: '0' }) }
-  function handleTipo(v: string) { setTipoEvento(v); setPage(0); syncUrl({ tipoEvento: v, page: '0' }) }
-  function handleModalidad(v: string) { setModalidadPago(v); setPage(0); syncUrl({ modalidadPago: v, page: '0' }) }
-  function handleFechaDesde(v: string) { setFechaDesde(v); setPage(0); syncUrl({ fechaDesde: v, page: '0' }) }
-  function handleFechaHasta(v: string) { setFechaHasta(v); setPage(0); syncUrl({ fechaHasta: v, page: '0' }) }
-  function handlePage(p: number) { setPage(p); syncUrl({ page: String(p) }) }
-  function handleSize(s: number) { setSize(s); setPage(0); syncUrl({ size: String(s), page: '0' }) }
-  function handleSort(s: string) { setSort(s); setPage(0); syncUrl({ sort: s, page: '0' }) }
+  function handleSearch(v: string) {
+    setSearch(v)
+    setPage(0)
+    syncUrl({ search: v, page: '0' })
+  }
+  function handleEstado(v: string) {
+    setEstado(v as EstadoEvento)
+    setPage(0)
+    syncUrl({ estado: v, page: '0' })
+  }
+  function handleTipo(v: string) {
+    setTipoEvento(v)
+    setPage(0)
+    syncUrl({ tipoEvento: v, page: '0' })
+  }
+  function handleModalidad(v: string) {
+    setModalidadPago(v)
+    setPage(0)
+    syncUrl({ modalidadPago: v, page: '0' })
+  }
+  function handleFechaDesde(v: string) {
+    setFechaDesde(v)
+    setPage(0)
+    syncUrl({ fechaDesde: v, page: '0' })
+  }
+  function handleFechaHasta(v: string) {
+    setFechaHasta(v)
+    setPage(0)
+    syncUrl({ fechaHasta: v, page: '0' })
+  }
+  function handlePage(p: number) {
+    setPage(p)
+    syncUrl({ page: String(p) })
+  }
+  function handleSize(s: number) {
+    setSize(s)
+    setPage(0)
+    syncUrl({ size: String(s), page: '0' })
+  }
+  function handleSort(s: string) {
+    setSort(s)
+    setPage(0)
+    syncUrl({ sort: s, page: '0' })
+  }
 
   function handleTab(tab: string) {
     setTabActivo(tab)
-    const tabDef = TABS_RAPIDOS.find((t) => (t.key ?? 'todos') === tab || t.label.toLowerCase() === tab)
-    const rango = tab === 'todos' ? { fechaDesde: '', fechaHasta: '' } : getRangoTab(tab)
+    const tabDef = TABS_RAPIDOS.find(
+      (t) => (t.key ?? 'todos') === tab || t.label.toLowerCase() === tab
+    )
+    const rango =
+      tab === 'todos' ? { fechaDesde: '', fechaHasta: '' } : getRangoTab(tab)
     setFechaDesde(rango.fechaDesde)
     setFechaHasta(rango.fechaHasta)
     setPage(0)
-    syncUrl({ tab, fechaDesde: rango.fechaDesde, fechaHasta: rango.fechaHasta, page: '0' })
+    syncUrl({
+      tab,
+      fechaDesde: rango.fechaDesde,
+      fechaHasta: rango.fechaHasta,
+      page: '0',
+    })
   }
 
   function limpiarFiltros() {
-    setSearch(''); setEstado(''); setFechaDesde(''); setFechaHasta('')
-    setTipoEvento(''); setModalidadPago(''); setPage(0); setTabActivo('todos')
+    setSearch('')
+    setEstado('')
+    setFechaDesde('')
+    setFechaHasta('')
+    setTipoEvento('')
+    setModalidadPago('')
+    setPage(0)
+    setTabActivo('todos')
     router.replace(pathname, { scroll: false })
   }
 
-  const filtrosActivos = [search, estado, fechaDesde, fechaHasta, tipoEvento, modalidadPago]
-    .filter(Boolean).length
+  const filtrosActivos = [
+    search,
+    estado,
+    fechaDesde,
+    fechaHasta,
+    tipoEvento,
+    modalidadPago,
+  ].filter(Boolean).length
 
   const { data, isLoading, isError, refetch } = useEventos({
-    page, size, sort,
-    idSede:       idSede ?? undefined,
-    estado:       estado || undefined,
-    fechaDesde:   fechaDesde || undefined,
-    fechaHasta:   fechaHasta || undefined,
-    tipoEvento:   tipoEvento || undefined,
-    modalidadPago:modalidadPago || undefined,
-    search:       dSearch || undefined,
+    page,
+    size,
+    sort,
+    idSede: idSede ?? undefined,
+    estado: estado || undefined,
+    fechaDesde: fechaDesde || undefined,
+    fechaHasta: fechaHasta || undefined,
+    tipoEvento: tipoEvento || undefined,
+    modalidadPago: modalidadPago || undefined,
+    search: dSearch || undefined,
   })
 
   const { data: kpis } = useEventosKpis(idSede ?? undefined)
@@ -203,19 +281,22 @@ export function EventosListView() {
 
   function handleExportCSV() {
     if (!data?.content?.length) return
-    exportarCSV('eventos.csv', data.content.map((e) => ({
-      Fecha:      e.fechaEvento,
-      Cliente:    e.nombreCliente,
-      Correo:     e.correoCliente ?? '',
-      Tipo:       e.tipoEvento,
-      Turno:      e.turno,
-      Aforo:      e.aforoDeclarado ?? '',
-      Estado:     e.estado,
-      Modalidad:  e.modalidadPago ?? '',
-      Precio:     e.precioTotalContrato ?? '',
-      Adelanto:   e.montoAdelanto ?? '',
-      Saldo:      e.montoSaldo ?? '',
-    })))
+    exportarCSV(
+      'eventos.csv',
+      data.content.map((e) => ({
+        Fecha: e.fechaEvento,
+        Cliente: e.nombreCliente,
+        Correo: e.correoCliente ?? '',
+        Tipo: e.tipoEvento,
+        Turno: e.turno,
+        Aforo: e.aforoDeclarado ?? '',
+        Estado: e.estado,
+        Modalidad: e.modalidadPago ?? '',
+        Precio: e.precioTotalContrato ?? '',
+        Adelanto: e.montoAdelanto ?? '',
+        Saldo: e.montoSaldo ?? '',
+      }))
+    )
   }
 
   const columns: ColumnDef<EventoPrivado>[] = [
@@ -224,7 +305,10 @@ export function EventosListView() {
       header: ({ column }) => (
         <button
           onClick={() => {
-            const next = sort === 'fechaEvento,asc' ? 'fechaEvento,desc' : 'fechaEvento,asc'
+            const next =
+              sort === 'fechaEvento,asc'
+                ? 'fechaEvento,desc'
+                : 'fechaEvento,asc'
             handleSort(next)
             column.toggleSorting(column.getIsSorted() === 'asc')
           }}
@@ -237,10 +321,16 @@ export function EventosListView() {
         const urgente = esUrgente(row.original)
         return (
           <div className="flex items-center gap-2">
-            {urgente && <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />}
+            {urgente && (
+              <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+            )}
             <div>
-              <p className="text-sm font-semibold text-gray-900">{formatDate(row.original.fechaEvento)}</p>
-              <p className="text-xs text-gray-400">{row.original.turno} · {row.original.horaInicio}</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {formatDate(row.original.fechaEvento)}
+              </p>
+              <p className="text-xs text-gray-400">
+                {row.original.turno} · {row.original.horaInicio}
+              </p>
             </div>
           </div>
         )
@@ -248,40 +338,70 @@ export function EventosListView() {
     },
     {
       accessorKey: 'nombreCliente',
-      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Cliente</span>,
+      header: () => (
+        <span className="text-xs font-bold text-gray-400 uppercase">
+          Cliente
+        </span>
+      ),
       cell: ({ row }) => (
         <div>
-          <p className="text-sm font-semibold text-gray-900">{row.original.nombreCliente}</p>
-          <p className="text-xs text-gray-400 truncate max-w-[140px]">{row.original.correoCliente}</p>
+          <p className="text-sm font-semibold text-gray-900">
+            {row.original.nombreCliente}
+          </p>
+          <p className="text-xs text-gray-400 truncate max-w-[140px]">
+            {row.original.correoCliente}
+          </p>
         </div>
       ),
     },
     {
       accessorKey: 'tipoEvento',
-      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Tipo</span>,
+      header: () => (
+        <span className="text-xs font-bold text-gray-400 uppercase">Tipo</span>
+      ),
       cell: ({ row }) => (
-        <span className="text-sm text-gray-700 truncate max-w-[120px] block">{row.original.tipoEvento}</span>
+        <span className="text-sm text-gray-700 truncate max-w-[120px] block">
+          {row.original.tipoEvento}
+        </span>
       ),
     },
     {
       accessorKey: 'estado',
-      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Estado</span>,
-      cell: ({ row }) => <EventoEstadoBadge estado={row.original.estado} size="sm" />,
+      header: () => (
+        <span className="text-xs font-bold text-gray-400 uppercase">
+          Estado
+        </span>
+      ),
+      cell: ({ row }) => (
+        <EventoEstadoBadge estado={row.original.estado} size="sm" />
+      ),
     },
     {
       id: 'indicadores',
-      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Alertas</span>,
-      cell: ({ row }) => <EventoAlertasBadges evento={row.original} variant="icons" />,
+      header: () => (
+        <span className="text-xs font-bold text-gray-400 uppercase">
+          Alertas
+        </span>
+      ),
+      cell: ({ row }) => (
+        <EventoAlertasBadges evento={row.original} variant="icons" />
+      ),
     },
     {
       accessorKey: 'precioTotalContrato',
-      header: () => <span className="text-xs font-bold text-gray-400 uppercase">Precio</span>,
+      header: () => (
+        <span className="text-xs font-bold text-gray-400 uppercase">
+          Precio
+        </span>
+      ),
       cell: ({ row }) => {
         const e = row.original
         return (
           <div>
             <p className="text-sm font-semibold text-gray-900">
-              {e.precioTotalContrato ? formatCurrency(e.precioTotalContrato) : '—'}
+              {e.precioTotalContrato
+                ? formatCurrency(e.precioTotalContrato)
+                : '—'}
             </p>
             {e.montoSaldo && e.montoSaldo > 0 && (
               <p className="text-xs text-amber-600 font-semibold">
@@ -297,7 +417,10 @@ export function EventosListView() {
       cell: ({ row }) => {
         const e = row.original
         return (
-          <div className="flex items-center gap-1" onClick={(ev) => ev.stopPropagation()}>
+          <div
+            className="flex items-center gap-1"
+            onClick={(ev) => ev.stopPropagation()}
+          >
             <Button
               variant="ghost"
               size="sm"
@@ -357,7 +480,12 @@ export function EventosListView() {
               <Download className="h-4 w-4" />
               Exportar CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              className="rounded-xl gap-1.5"
+            >
               <RefreshCw className="h-4 w-4" />
               Actualizar
             </Button>
@@ -410,10 +538,10 @@ export function EventosListView() {
 
       <div className="flex gap-1 border-b border-gray-100 pb-0 overflow-x-auto">
         {[
-          { key: 'todos',   label: 'Todos' },
-          { key: 'hoy',     label: 'Hoy' },
-          { key: 'semana',  label: 'Esta semana' },
-          { key: 'mes',     label: 'Este mes' },
+          { key: 'todos', label: 'Todos' },
+          { key: 'hoy', label: 'Hoy' },
+          { key: 'semana', label: 'Esta semana' },
+          { key: 'mes', label: 'Este mes' },
         ].map((t) => (
           <button
             key={t.key}
@@ -450,36 +578,51 @@ export function EventosListView() {
             )}
           </div>
 
-          <Select value={estado || 'todos'} onValueChange={(v) => handleEstado(v === 'todos' ? '' : v)}>
+          <Select
+            value={estado || 'todos'}
+            onValueChange={(v) => handleEstado(v === 'todos' ? '' : v)}
+          >
             <SelectTrigger className="h-10 w-44 rounded-xl border-gray-200 text-sm">
               <SelectValue placeholder="Estado..." />
             </SelectTrigger>
             <SelectContent>
               {ESTADOS.map(({ value, label }) => (
-                <SelectItem key={value || 'todos'} value={value || 'todos'}>{label}</SelectItem>
+                <SelectItem key={value || 'todos'} value={value || 'todos'}>
+                  {label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={tipoEvento || 'todos'} onValueChange={(v) => handleTipo(v === 'todos' ? '' : v)}>
+          <Select
+            value={tipoEvento || 'todos'}
+            onValueChange={(v) => handleTipo(v === 'todos' ? '' : v)}
+          >
             <SelectTrigger className="h-10 w-44 rounded-xl border-gray-200 text-sm">
               <SelectValue placeholder="Tipo..." />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todo tipo</SelectItem>
               {tiposEvento.map((t) => (
-                <SelectItem key={t.codigo} value={t.codigo}>{t.nombre}</SelectItem>
+                <SelectItem key={t.codigo} value={t.codigo}>
+                  {t.nombre}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={modalidadPago || 'todos'} onValueChange={(v) => handleModalidad(v === 'todos' ? '' : v)}>
+          <Select
+            value={modalidadPago || 'todos'}
+            onValueChange={(v) => handleModalidad(v === 'todos' ? '' : v)}
+          >
             <SelectTrigger className="h-10 w-40 rounded-xl border-gray-200 text-sm">
               <SelectValue placeholder="Modalidad..." />
             </SelectTrigger>
             <SelectContent>
               {MODALIDADES.map(({ value, label }) => (
-                <SelectItem key={value || 'todos'} value={value || 'todos'}>{label}</SelectItem>
+                <SelectItem key={value || 'todos'} value={value || 'todos'}>
+                  {label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -500,7 +643,10 @@ export function EventosListView() {
           )}
 
           {data?.totalElements !== undefined && (
-            <Badge variant="secondary" className="bg-gray-100 text-gray-600 h-10 px-3 text-sm ml-auto">
+            <Badge
+              variant="secondary"
+              className="bg-gray-100 text-gray-600 h-10 px-3 text-sm ml-auto"
+            >
               {data.totalElements} eventos
             </Badge>
           )}
@@ -557,7 +703,9 @@ export function EventosListView() {
           data={data?.content ?? []}
           isLoading={isLoading}
           emptyMessage="No se encontraron eventos con los filtros aplicados."
-          onRowClick={(evento) => router.push(ADMIN_ROUTES.eventoDetalle(evento.id))}
+          onRowClick={(evento) =>
+            router.push(ADMIN_ROUTES.eventoDetalle(evento.id))
+          }
           getRowClassName={(evento) =>
             esUrgente(evento) ? 'bg-red-50/40 border-l-2 border-l-red-400' : ''
           }

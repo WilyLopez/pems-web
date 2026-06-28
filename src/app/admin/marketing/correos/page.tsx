@@ -2,7 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Plus, RefreshCw, Loader2, ChevronLeft, ChevronRight, Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
+import {
+  Plus,
+  RefreshCw,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
+} from 'lucide-react'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
@@ -21,7 +31,12 @@ export default function CorreosPage() {
   const eliminar = useEliminarCorreo()
 
   function handleEliminar(id: number, nombre: string) {
-    if (!confirm(`¿Eliminar el correo "${nombre}"? Esta acción no se puede deshacer.`)) return
+    if (
+      !confirm(
+        `¿Eliminar el correo "${nombre}"? Esta acción no se puede deshacer.`
+      )
+    )
+      return
     eliminar.mutate(id)
   }
 
@@ -82,12 +97,19 @@ export default function CorreosPage() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {data.content.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
+                <tr
+                  key={c.id}
+                  className="hover:bg-gray-50/50 transition-colors"
+                >
                   <td className="px-4 py-3.5">
                     <p className="font-semibold text-gray-900">{c.nombre}</p>
-                    <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{c.asunto}</p>
+                    <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">
+                      {c.asunto}
+                    </p>
                   </td>
-                  <td className="px-4 py-3.5 text-xs text-gray-500">{c.tipoEmailNombre}</td>
+                  <td className="px-4 py-3.5 text-xs text-gray-500">
+                    {c.tipoEmailNombre}
+                  </td>
                   <td className="px-4 py-3.5">
                     {c.activa ? (
                       <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 text-[11px]">
@@ -107,7 +129,9 @@ export default function CorreosPage() {
                       <button
                         type="button"
                         title={c.activa ? 'Desactivar' : 'Activar'}
-                        onClick={() => toggle.mutate({ id: c.id, activa: !c.activa })}
+                        onClick={() =>
+                          toggle.mutate({ id: c.id, activa: !c.activa })
+                        }
                         className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
                       >
                         {c.activa ? (

@@ -1,6 +1,11 @@
 import React from 'react'
 import { Plus, X } from 'lucide-react'
-import { Controller, useFieldArray, useFormState, type Control } from 'react-hook-form'
+import {
+  Controller,
+  useFieldArray,
+  useFormState,
+  type Control,
+} from 'react-hook-form'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { cn } from '@/lib/utils'
@@ -12,7 +17,11 @@ interface RegistroNinosProps {
   edadMax: number
 }
 
-export const RegistroNinos = ({ control, edadMin, edadMax }: RegistroNinosProps) => {
+export const RegistroNinos = ({
+  control,
+  edadMin,
+  edadMax,
+}: RegistroNinosProps) => {
   const { fields, append, remove } = useFieldArray({ control, name: 'ninos' })
   const { errors } = useFormState({ control, name: 'ninos' })
 
@@ -49,7 +58,10 @@ export const RegistroNinos = ({ control, edadMin, edadMax }: RegistroNinosProps)
                       {...f}
                       placeholder="Nombre completo"
                       onChange={(e) => f.onChange(e.target.value.toUpperCase())}
-                      className={cn('h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700', errorNombre && 'border-red-400 dark:border-red-600')}
+                      className={cn(
+                        'h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+                        errorNombre && 'border-red-400 dark:border-red-600'
+                      )}
                     />
                   )}
                 />
@@ -61,10 +73,19 @@ export const RegistroNinos = ({ control, edadMin, edadMax }: RegistroNinosProps)
                       type="number"
                       placeholder="Edad"
                       value={f.value === 0 ? '' : f.value}
-                      onChange={(e) => f.onChange(e.target.value === '' ? 0 : parseInt(e.target.value, 10))}
+                      onChange={(e) =>
+                        f.onChange(
+                          e.target.value === ''
+                            ? 0
+                            : parseInt(e.target.value, 10)
+                        )
+                      }
                       min={edadMin}
                       max={edadMax}
-                      className={cn('h-8 text-xs w-16 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700', errorEdad && 'border-red-400 dark:border-red-600')}
+                      className={cn(
+                        'h-8 text-xs w-16 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+                        errorEdad && 'border-red-400 dark:border-red-600'
+                      )}
                     />
                   )}
                 />
@@ -79,7 +100,9 @@ export const RegistroNinos = ({ control, edadMin, edadMax }: RegistroNinosProps)
                 )}
               </div>
               {(errorNombre || errorEdad) && (
-                <p className="text-[10px] text-red-500 dark:text-red-400 pl-1">{errorNombre || errorEdad}</p>
+                <p className="text-[10px] text-red-500 dark:text-red-400 pl-1">
+                  {errorNombre || errorEdad}
+                </p>
               )}
             </div>
           )

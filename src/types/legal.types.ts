@@ -1,5 +1,10 @@
-export const TIPOS_PREDEFINIDOS = ['TERMINOS', 'PRIVACIDAD', 'REEMBOLSO', 'MENORES'] as const
-export type TipoPredefinido = typeof TIPOS_PREDEFINIDOS[number]
+export const TIPOS_PREDEFINIDOS = [
+  'TERMINOS',
+  'PRIVACIDAD',
+  'REEMBOLSO',
+  'MENORES',
+] as const
+export type TipoPredefinido = (typeof TIPOS_PREDEFINIDOS)[number]
 export type TipoLegal = TipoPredefinido
 
 export interface ContenidoLegal {
@@ -31,36 +36,43 @@ export function esTipoPredefinido(tipo: string): tipo is TipoPredefinido {
 
 export function labelParaTipo(tipo: string): string {
   const labels: Record<string, string> = {
-    TERMINOS:   'Términos y Condiciones',
+    TERMINOS: 'Términos y Condiciones',
     PRIVACIDAD: 'Política de Privacidad',
-    REEMBOLSO:  'Política de Reembolso',
-    MENORES:    'Protección de Menores',
+    REEMBOLSO: 'Política de Reembolso',
+    MENORES: 'Protección de Menores',
   }
-  return labels[tipo] ?? tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase().replace(/_/g, ' ')
+  return (
+    labels[tipo] ??
+    tipo.charAt(0).toUpperCase() +
+      tipo.slice(1).toLowerCase().replace(/_/g, ' ')
+  )
 }
 
 export function slugParaTipo(tipo: string): string {
   const slugs: Record<string, string> = {
-    TERMINOS:   'terminos',
+    TERMINOS: 'terminos',
     PRIVACIDAD: 'privacidad',
-    REEMBOLSO:  'reembolsos',
-    MENORES:    'menores',
+    REEMBOLSO: 'reembolsos',
+    MENORES: 'menores',
   }
   return slugs[tipo] ?? tipo.toLowerCase().replace(/_/g, '-')
 }
 
 export const TIPO_LEGAL_LABELS: Record<TipoPredefinido, string> = {
-  TERMINOS:   'Términos y Condiciones',
+  TERMINOS: 'Términos y Condiciones',
   PRIVACIDAD: 'Política de Privacidad',
-  REEMBOLSO:  'Política de Reembolso',
-  MENORES:    'Protección de Menores',
+  REEMBOLSO: 'Política de Reembolso',
+  MENORES: 'Protección de Menores',
 }
 
 export const SLUG_TO_TIPO: Record<string, TipoPredefinido> = {
-  terminos:   'TERMINOS',
+  terminos: 'TERMINOS',
   privacidad: 'PRIVACIDAD',
   reembolsos: 'REEMBOLSO',
-  menores:    'MENORES',
+  menores: 'MENORES',
 }
 
-export const TIPOS_SIEMPRE_ACTIVOS: ReadonlySet<string> = new Set(['TERMINOS', 'PRIVACIDAD'])
+export const TIPOS_SIEMPRE_ACTIVOS: ReadonlySet<string> = new Set([
+  'TERMINOS',
+  'PRIVACIDAD',
+])

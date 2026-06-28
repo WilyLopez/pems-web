@@ -10,7 +10,8 @@ export async function proxy(request: NextRequest) {
 
   if (pathname.startsWith('/auth')) {
     if (user && tipoPerfil && !searchParams.has('redirect')) {
-      const dashboardUrl = tipoPerfil === 'STAFF' ? '/admin/dashboard' : '/cliente'
+      const dashboardUrl =
+        tipoPerfil === 'STAFF' ? '/admin/dashboard' : '/cliente'
       return NextResponse.redirect(new URL(dashboardUrl, request.url))
     }
     return supabaseResponse

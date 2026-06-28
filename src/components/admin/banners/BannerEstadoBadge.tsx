@@ -14,10 +14,19 @@ export function calcularEstado(banner: Banner): EstadoBanner {
 }
 
 const CONFIG: Record<EstadoBanner, { label: string; cls: string }> = {
-  ACTIVO:     { label: 'Activo',     cls: 'bg-green-100 text-green-800 border-green-200'    },
-  PROGRAMADO: { label: 'Programado', cls: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  VENCIDO:    { label: 'Vencido',    cls: 'bg-red-100 text-red-700 border-red-200'          },
-  INACTIVO:   { label: 'Inactivo',   cls: 'bg-gray-100 text-gray-500 border-gray-200'       },
+  ACTIVO: {
+    label: 'Activo',
+    cls: 'bg-green-100 text-green-800 border-green-200',
+  },
+  PROGRAMADO: {
+    label: 'Programado',
+    cls: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  },
+  VENCIDO: { label: 'Vencido', cls: 'bg-red-100 text-red-700 border-red-200' },
+  INACTIVO: {
+    label: 'Inactivo',
+    cls: 'bg-gray-100 text-gray-500 border-gray-200',
+  },
 }
 
 interface BannerEstadoBadgeProps {
@@ -30,19 +39,31 @@ export function BannerEstadoBadge({ banner }: BannerEstadoBadgeProps) {
 
   const diasVencido =
     estado === 'VENCIDO' && banner.fechaFin
-      ? Math.floor((Date.now() - new Date(banner.fechaFin).getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor(
+          (Date.now() - new Date(banner.fechaFin).getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
       : null
 
   return (
     <div>
-      <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border', cls)}>
+      <span
+        className={cn(
+          'text-[10px] font-bold px-2 py-0.5 rounded-full border',
+          cls
+        )}
+      >
         {label}
       </span>
       {estado === 'PROGRAMADO' && (
-        <p className="text-[10px] text-gray-400 mt-0.5">Inicia {formatDate(banner.fechaInicio)}</p>
+        <p className="text-[10px] text-gray-400 mt-0.5">
+          Inicia {formatDate(banner.fechaInicio)}
+        </p>
       )}
       {estado === 'VENCIDO' && diasVencido !== null && (
-        <p className="text-[10px] text-red-400 mt-0.5">Vencio hace {diasVencido} dias</p>
+        <p className="text-[10px] text-red-400 mt-0.5">
+          Vencio hace {diasVencido} dias
+        </p>
       )}
     </div>
   )

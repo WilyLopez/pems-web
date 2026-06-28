@@ -1,7 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { marketingEmailService } from '@/services/marketingEmail.service'
-import { CrearCorreoMarketingPayload, ActualizarCorreoMarketingPayload } from '@/types/marketing.types'
+import {
+  CrearCorreoMarketingPayload,
+  ActualizarCorreoMarketingPayload,
+} from '@/types/marketing.types'
 
 export const CORREOS_KEY = 'correos-marketing'
 export const TIPOS_MARKETING_KEY = 'tipos-email-marketing'
@@ -31,7 +34,8 @@ export function useCorreoMarketing(id: number | null) {
 export function useCrearCorreo() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (payload: CrearCorreoMarketingPayload) => marketingEmailService.crear(payload),
+    mutationFn: (payload: CrearCorreoMarketingPayload) =>
+      marketingEmailService.crear(payload),
     onSuccess: () => {
       toast.success('Correo de marketing creado.')
       qc.invalidateQueries({ queryKey: [CORREOS_KEY] })

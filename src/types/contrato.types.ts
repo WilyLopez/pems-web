@@ -7,7 +7,10 @@ export type PlantillaId =
   | 'EVENTO_CORPORATIVO'
   | 'ALQUILER_PRIVADO'
 
-export const PLANTILLAS: Record<PlantillaId, { label: string; plantilla: string }> = {
+export const PLANTILLAS: Record<
+  PlantillaId,
+  { label: string; plantilla: string }
+> = {
   CUMPLEANOS_BASICO: {
     label: 'Cumpleanos Basico',
     plantilla: `CONTRATO DE SERVICIO DE EVENTO PRIVADO

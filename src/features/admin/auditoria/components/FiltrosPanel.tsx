@@ -11,16 +11,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
-import { AuditoriaFiltros, ACCIONES, MODULOS, NIVELES, RESULTADOS } from '../types'
+import {
+  AuditoriaFiltros,
+  ACCIONES,
+  MODULOS,
+  NIVELES,
+  RESULTADOS,
+} from '../types'
 
 interface Props {
   filtros: AuditoriaFiltros
   tieneFiltrosActivos: boolean
-  onChange: <K extends keyof AuditoriaFiltros>(key: K, value: AuditoriaFiltros[K]) => void
+  onChange: <K extends keyof AuditoriaFiltros>(
+    key: K,
+    value: AuditoriaFiltros[K]
+  ) => void
   onLimpiar: () => void
 }
 
-export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar }: Props) {
+export function FiltrosPanel({
+  filtros,
+  tieneFiltrosActivos,
+  onChange,
+  onLimpiar,
+}: Props) {
   return (
     <div className="rounded-xl border border-border bg-card p-4 space-y-3">
       <div className="flex flex-wrap gap-3 items-end">
@@ -48,7 +62,9 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
           <Label className="text-xs">Módulo</Label>
           <Select
             value={filtros.modulo ?? 'all'}
-            onValueChange={(v) => onChange('modulo', v === 'all' ? undefined : v)}
+            onValueChange={(v) =>
+              onChange('modulo', v === 'all' ? undefined : v)
+            }
           >
             <SelectTrigger className="w-36 h-9">
               <SelectValue placeholder="Todos" />
@@ -56,7 +72,9 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {MODULOS.map((m) => (
-                <SelectItem key={m} value={m}>{m}</SelectItem>
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -66,7 +84,9 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
           <Label className="text-xs">Acción</Label>
           <Select
             value={filtros.accion ?? 'all'}
-            onValueChange={(v) => onChange('accion', v === 'all' ? undefined : v)}
+            onValueChange={(v) =>
+              onChange('accion', v === 'all' ? undefined : v)
+            }
           >
             <SelectTrigger className="w-36 h-9">
               <SelectValue placeholder="Todas" />
@@ -74,7 +94,9 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
               {ACCIONES.map((a) => (
-                <SelectItem key={a} value={a}>{a}</SelectItem>
+                <SelectItem key={a} value={a}>
+                  {a}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -84,7 +106,9 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
           <Label className="text-xs">Nivel</Label>
           <Select
             value={filtros.nivel ?? 'all'}
-            onValueChange={(v) => onChange('nivel', v === 'all' ? undefined : v)}
+            onValueChange={(v) =>
+              onChange('nivel', v === 'all' ? undefined : v)
+            }
           >
             <SelectTrigger className="w-32 h-9">
               <SelectValue placeholder="Todos" />
@@ -92,7 +116,9 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {NIVELES.map((n) => (
-                <SelectItem key={n} value={n}>{n}</SelectItem>
+                <SelectItem key={n} value={n}>
+                  {n}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -102,7 +128,9 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
           <Label className="text-xs">Resultado</Label>
           <Select
             value={filtros.resultado ?? 'all'}
-            onValueChange={(v) => onChange('resultado', v === 'all' ? undefined : v)}
+            onValueChange={(v) =>
+              onChange('resultado', v === 'all' ? undefined : v)
+            }
           >
             <SelectTrigger className="w-32 h-9">
               <SelectValue placeholder="Todos" />
@@ -110,7 +138,9 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
               {RESULTADOS.map((r) => (
-                <SelectItem key={r} value={r}>{r}</SelectItem>
+                <SelectItem key={r} value={r}>
+                  {r}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -127,7 +157,12 @@ export function FiltrosPanel({ filtros, tieneFiltrosActivos, onChange, onLimpiar
         </div>
 
         {tieneFiltrosActivos && (
-          <Button size="sm" variant="ghost" onClick={onLimpiar} className="self-end">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onLimpiar}
+            className="self-end"
+          >
             <X className="mr-1.5 h-4 w-4" />
             Limpiar
           </Button>

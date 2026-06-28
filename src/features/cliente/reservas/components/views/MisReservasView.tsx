@@ -48,7 +48,8 @@ export function MisReservasView() {
   } = useMisReservasData(isAuthenticated)
 
   const reservaDetalle = reservas.find((r) => r.id === detalleId) || null
-  const setReservaDetalle = (reserva: Reserva | null) => setDetalleId(reserva ? reserva.id : null)
+  const setReservaDetalle = (reserva: Reserva | null) =>
+    setDetalleId(reserva ? reserva.id : null)
 
   const proximas = reservas.filter((r) =>
     ['PENDIENTE', 'CONFIRMADA'].includes(r.estado)
@@ -64,8 +65,12 @@ export function MisReservasView() {
     <div className="max-w-6xl mx-auto w-full space-y-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900">Mis reservas</h1>
-          <p className="text-sm text-gray-500">Tus tickets de acceso a Kiki y Lala</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
+            Mis reservas
+          </h1>
+          <p className="text-sm text-gray-500">
+            Tus tickets de acceso a Kiki y Lala
+          </p>
         </div>
         <Link
           href="/cliente/reservar"
@@ -138,23 +143,27 @@ export function MisReservasView() {
         </div>
       )}
 
-      {!isLoading && !isError && reservasMostradas.length === 0 && tab === 'proximas' && (
-        <EmptyReservas />
-      )}
+      {!isLoading &&
+        !isError &&
+        reservasMostradas.length === 0 &&
+        tab === 'proximas' && <EmptyReservas />}
 
-      {!isLoading && !isError && reservasMostradas.length === 0 && tab === 'historial' && (
-        <div className="flex flex-col items-center justify-center py-12 sm:py-16 gap-3 px-4">
-          <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center">
-            <Clock className="h-7 w-7 text-gray-400" />
+      {!isLoading &&
+        !isError &&
+        reservasMostradas.length === 0 &&
+        tab === 'historial' && (
+          <div className="flex flex-col items-center justify-center py-12 sm:py-16 gap-3 px-4">
+            <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center">
+              <Clock className="h-7 w-7 text-gray-400" />
+            </div>
+            <div className="text-center">
+              <p className="font-bold text-gray-900">Sin historial aún</p>
+              <p className="text-sm text-gray-500 mt-1">
+                Aquí aparecerán tus visitas anteriores a Kiki y Lala.
+              </p>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="font-bold text-gray-900">Sin historial aún</p>
-            <p className="text-sm text-gray-500 mt-1">
-              Aquí aparecerán tus visitas anteriores a Kiki y Lala.
-            </p>
-          </div>
-        </div>
-      )}
+        )}
 
       <ReservaDetalleDialog
         reserva={reservaDetalle}

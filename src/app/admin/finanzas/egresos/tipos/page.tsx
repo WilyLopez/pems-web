@@ -5,7 +5,10 @@ import { Plus, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { useTiposEgreso, useTipoEgresoMutations } from '@/features/admin/finanzas'
+import {
+  useTiposEgreso,
+  useTipoEgresoMutations,
+} from '@/features/admin/finanzas'
 import { CategoriaEgreso } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
@@ -44,15 +47,15 @@ function generarCodigo(nombre: string): string {
 }
 
 const categoriaBadge: Record<CategoriaEgreso, string> = {
-  RECURRENTE_FIJO:      'bg-blue-100 text-blue-700',
-  RECURRENTE_VARIABLE:  'bg-yellow-100 text-yellow-700',
-  EVENTUAL:             'bg-gray-100 text-gray-600',
+  RECURRENTE_FIJO: 'bg-blue-100 text-blue-700',
+  RECURRENTE_VARIABLE: 'bg-yellow-100 text-yellow-700',
+  EVENTUAL: 'bg-gray-100 text-gray-600',
 }
 
 const categoriaLabel: Record<CategoriaEgreso, string> = {
-  RECURRENTE_FIJO:      'Fijo',
-  RECURRENTE_VARIABLE:  'Variable',
-  EVENTUAL:             'Eventual',
+  RECURRENTE_FIJO: 'Fijo',
+  RECURRENTE_VARIABLE: 'Variable',
+  EVENTUAL: 'Eventual',
 }
 
 export default function TiposEgresoPage() {
@@ -62,7 +65,13 @@ export default function TiposEgresoPage() {
   const { data: tipos = [], isLoading } = useTiposEgreso()
   const { crear, desactivar } = useTipoEgresoMutations()
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(crearSchema),
     defaultValues: { nombre: '', descripcion: '', categoria: 'EVENTUAL' },
   })
@@ -72,8 +81,18 @@ export default function TiposEgresoPage() {
 
   function onSubmit(values: FormValues) {
     crear.mutate(
-      { codigo: generarCodigo(values.nombre), nombre: values.nombre, descripcion: values.descripcion, categoria: values.categoria },
-      { onSuccess: () => { reset(); setModal(false) } }
+      {
+        codigo: generarCodigo(values.nombre),
+        nombre: values.nombre,
+        descripcion: values.descripcion,
+        categoria: values.categoria,
+      },
+      {
+        onSuccess: () => {
+          reset()
+          setModal(false)
+        },
+      }
     )
   }
 
@@ -118,54 +137,72 @@ export default function TiposEgresoPage() {
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 4 }).map((_, j) => (
-                    <td key={j} className="px-4 py-3">
-                      <div className="h-4 bg-gray-100 rounded animate-pulse" />
-                    </td>
-                  ))}</tr>
+                  <tr key={i}>
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <td key={j} className="px-4 py-3">
+                        <div className="h-4 bg-gray-100 rounded animate-pulse" />
+                      </td>
+                    ))}
+                  </tr>
                 ))
               ) : tipos.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-10 text-center text-sm text-gray-400">
+                  <td
+                    colSpan={4}
+                    className="py-10 text-center text-sm text-gray-400"
+                  >
                     Sin tipos de egreso registrados.
                   </td>
                 </tr>
-              ) : tipos.map((t) => (
-                <tr
-                  key={t.codigo}
-                  className={cn('hover:bg-gray-50 transition-colors', !t.activo && 'opacity-50')}
-                >
-                  <td className="px-4 py-3 font-medium text-gray-900">{t.nombre}</td>
-                  <td className="px-4 py-3">
-                    <span className={cn(
-                      'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                      categoriaBadge[t.categoria]
-                    )}>
-                      {categoriaLabel[t.categoria]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={cn(
-                      'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                      t.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
-                    )}>
-                      {t.activo ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {t.activo && !t.esSistema && (
-                      <button
-                        type="button"
-                        onClick={() => setConfirmCodigo(t.codigo)}
-                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                        title="Desactivar"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
+              ) : (
+                tipos.map((t) => (
+                  <tr
+                    key={t.codigo}
+                    className={cn(
+                      'hover:bg-gray-50 transition-colors',
+                      !t.activo && 'opacity-50'
                     )}
-                  </td>
-                </tr>
-              ))}
+                  >
+                    <td className="px-4 py-3 font-medium text-gray-900">
+                      {t.nombre}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
+                          categoriaBadge[t.categoria]
+                        )}
+                      >
+                        {categoriaLabel[t.categoria]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
+                          t.activo
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-gray-100 text-gray-500'
+                        )}
+                      >
+                        {t.activo ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {t.activo && !t.esSistema && (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmCodigo(t.codigo)}
+                          className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                          title="Desactivar"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -192,24 +229,44 @@ export default function TiposEgresoPage() {
               <Label>Categoría</Label>
               <Select
                 defaultValue="EVENTUAL"
-                onValueChange={(v) => setValue('categoria', v as CategoriaEgreso)}
+                onValueChange={(v) =>
+                  setValue('categoria', v as CategoriaEgreso)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="RECURRENTE_FIJO">Recurrente fijo</SelectItem>
-                  <SelectItem value="RECURRENTE_VARIABLE">Recurrente variable</SelectItem>
+                  <SelectItem value="RECURRENTE_FIJO">
+                    Recurrente fijo
+                  </SelectItem>
+                  <SelectItem value="RECURRENTE_VARIABLE">
+                    Recurrente variable
+                  </SelectItem>
                   <SelectItem value="EVENTUAL">Eventual</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Descripción <span className="text-gray-400 font-normal">(opcional)</span></Label>
-              <Input {...register('descripcion')} placeholder="Descripción breve…" />
+              <Label>
+                Descripción{' '}
+                <span className="text-gray-400 font-normal">(opcional)</span>
+              </Label>
+              <Input
+                {...register('descripcion')}
+                placeholder="Descripción breve…"
+              />
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button type="button" variant="outline" size="sm" onClick={() => { reset(); setModal(false) }}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  reset()
+                  setModal(false)
+                }}
+              >
                 Cancelar
               </Button>
               <Button
@@ -225,16 +282,24 @@ export default function TiposEgresoPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={confirmCodigo !== null} onOpenChange={() => setConfirmCodigo(null)}>
+      <Dialog
+        open={confirmCodigo !== null}
+        onOpenChange={() => setConfirmCodigo(null)}
+      >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Desactivar tipo de egreso</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600 py-2">
-            Los egresos existentes no se verán afectados. No podrás registrar nuevos egresos con este tipo.
+            Los egresos existentes no se verán afectados. No podrás registrar
+            nuevos egresos con este tipo.
           </p>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => setConfirmCodigo(null)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmCodigo(null)}
+            >
               Cancelar
             </Button>
             <Button
@@ -243,7 +308,9 @@ export default function TiposEgresoPage() {
               disabled={desactivar.isPending}
               onClick={() => {
                 if (confirmCodigo) {
-                  desactivar.mutate(confirmCodigo, { onSuccess: () => setConfirmCodigo(null) })
+                  desactivar.mutate(confirmCodigo, {
+                    onSuccess: () => setConfirmCodigo(null),
+                  })
                 }
               }}
             >

@@ -24,10 +24,14 @@ export function useMiCuentaData(clientePerfilId?: number) {
       }),
     onSuccess: () => {
       toast.success('Datos personales actualizados correctamente.')
-      queryClient.invalidateQueries({ queryKey: clienteKeys.perfil(clientePerfilId) })
+      queryClient.invalidateQueries({
+        queryKey: clienteKeys.perfil(clientePerfilId),
+      })
     },
     onError: (err: { message?: string }) => {
-      toast.error(err?.message ?? 'No se pudieron actualizar los datos personales.')
+      toast.error(
+        err?.message ?? 'No se pudieron actualizar los datos personales.'
+      )
     },
   })
 
@@ -36,7 +40,9 @@ export function useMiCuentaData(clientePerfilId?: number) {
       clienteService.actualizar(clientePerfilId!, { aceptaComunicaciones }),
     onSuccess: () => {
       toast.success('Preferencias de comunicación actualizadas.')
-      queryClient.invalidateQueries({ queryKey: clienteKeys.perfil(clientePerfilId) })
+      queryClient.invalidateQueries({
+        queryKey: clienteKeys.perfil(clientePerfilId),
+      })
     },
     onError: (err: { message?: string }) => {
       toast.error(err?.message ?? 'No se pudieron actualizar las preferencias.')
@@ -44,10 +50,13 @@ export function useMiCuentaData(clientePerfilId?: number) {
   })
 
   const uploadPhotoMutation = useMutation({
-    mutationFn: (file: File) => clienteService.subirFoto(clientePerfilId!, file),
+    mutationFn: (file: File) =>
+      clienteService.subirFoto(clientePerfilId!, file),
     onSuccess: () => {
       toast.success('Foto de perfil actualizada correctamente.')
-      queryClient.invalidateQueries({ queryKey: clienteKeys.perfil(clientePerfilId) })
+      queryClient.invalidateQueries({
+        queryKey: clienteKeys.perfil(clientePerfilId),
+      })
     },
     onError: (err: { message?: string }) => {
       toast.error(err?.message ?? 'No se pudo subir la foto de perfil.')
@@ -58,7 +67,9 @@ export function useMiCuentaData(clientePerfilId?: number) {
     mutationFn: () => clienteService.eliminarFoto(clientePerfilId!),
     onSuccess: () => {
       toast.success('Foto de perfil eliminada correctamente.')
-      queryClient.invalidateQueries({ queryKey: clienteKeys.perfil(clientePerfilId) })
+      queryClient.invalidateQueries({
+        queryKey: clienteKeys.perfil(clientePerfilId),
+      })
     },
     onError: (err: { message?: string }) => {
       toast.error(err?.message ?? 'No se pudo eliminar la foto de perfil.')

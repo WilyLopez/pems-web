@@ -18,11 +18,18 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-import { useClienteDetail, useMutacionesCliente } from '@/features/admin/clientes/hooks/useClientesData'
+import {
+  useClienteDetail,
+  useMutacionesCliente,
+} from '@/features/admin/clientes/hooks/useClientesData'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { ClienteAvatar } from '@/features/admin/clientes/components/ui/ClienteAvatar'
-import { VipBadge, OrigenBadge, SegmentoBadge } from '@/features/admin/clientes/components/ui/ClienteBadges'
+import {
+  VipBadge,
+  OrigenBadge,
+  SegmentoBadge,
+} from '@/features/admin/clientes/components/ui/ClienteBadges'
 import { DetalleRow } from '@/features/admin/clientes/components/ui/DetalleRow'
 import { StatCard } from '@/features/admin/clientes/components/ui/StatCard'
 import { Button } from '@/components/ui/Button'
@@ -88,7 +95,9 @@ export default function ClienteDetailPage() {
               size="lg"
             />
             <div className="flex-1 min-w-0 space-y-2">
-              <h2 className="font-black text-gray-900">{cliente.nombreCompleto}</h2>
+              <h2 className="font-black text-gray-900">
+                {cliente.nombreCompleto}
+              </h2>
               <p className="text-sm text-gray-500 truncate">{cliente.correo}</p>
               <div className="flex flex-wrap gap-1.5">
                 <OrigenBadge origen={cliente.origen} />
@@ -168,7 +177,11 @@ export default function ClienteDetailPage() {
               Datos de contacto
             </p>
             <DetalleRow icon={Mail} label="Correo" value={cliente.correo} />
-            <DetalleRow icon={Phone} label="Teléfono" value={cliente.telefono} />
+            <DetalleRow
+              icon={Phone}
+              label="Teléfono"
+              value={cliente.telefono}
+            />
             <DetalleRow
               icon={BadgeCheck}
               label={cliente.tipoDocumentoCodigo}
@@ -183,7 +196,11 @@ export default function ClienteDetailPage() {
             <DetalleRow
               icon={Clock}
               label="Última visita"
-              value={cliente.ultimaVisitaAt ? formatDate(cliente.ultimaVisitaAt) : 'Sin visitas'}
+              value={
+                cliente.ultimaVisitaAt
+                  ? formatDate(cliente.ultimaVisitaAt)
+                  : 'Sin visitas'
+              }
             />
             <DetalleRow
               icon={CalendarDays}

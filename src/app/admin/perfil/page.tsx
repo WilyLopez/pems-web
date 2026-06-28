@@ -7,13 +7,25 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/common/Errorstate'
 import { useAuth } from '@/hooks/useAuth'
 import { usePerfilData } from '@/features/admin/perfil/hooks/usePerfilData'
-import { usePerfilNav, PerfilTab } from '@/features/admin/perfil/hooks/usePerfilNav'
+import {
+  usePerfilNav,
+  PerfilTab,
+} from '@/features/admin/perfil/hooks/usePerfilNav'
 import { PerfilHeader } from '@/features/admin/perfil/components/ui/PerfilHeader'
 import { InfoPersonalForm } from '@/features/admin/perfil/components/forms/InfoPersonalForm'
 import { SeguridadInfo } from '@/features/admin/perfil/components/ui/SeguridadInfo'
 import { ActividadReciente } from '@/features/admin/perfil/components/ui/ActividadReciente'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-import { Shield, KeyRound, User, ArrowRight, Crown, Users, Settings, ExternalLink } from 'lucide-react'
+import {
+  Shield,
+  KeyRound,
+  User,
+  ArrowRight,
+  Crown,
+  Users,
+  Settings,
+  ExternalLink,
+} from 'lucide-react'
 import Link from 'next/link'
 
 function PerfilSkeleton() {
@@ -58,12 +70,16 @@ function AccesoRapidoCard({
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}>
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}
+          >
             <Icon className={`h-5 w-5 ${iconColor}`} />
           </div>
           <div>
             <p className="text-sm font-bold text-gray-900">{title}</p>
-            <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{description}</p>
+            <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+              {description}
+            </p>
           </div>
         </div>
         <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-brand-azul group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
@@ -95,7 +111,9 @@ function AccesoRapidoLink({
       className="group w-full text-left rounded-2xl border border-gray-100 bg-white p-5 hover:border-brand-azul/30 hover:shadow-card transition-all duration-200 flex items-start justify-between"
     >
       <div className="flex items-start gap-4">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}>
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}
+        >
           <Icon className={`h-5 w-5 ${iconColor}`} />
         </div>
         <div>
@@ -107,7 +125,9 @@ function AccesoRapidoLink({
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{description}</p>
+          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+            {description}
+          </p>
         </div>
       </div>
       <ExternalLink className="h-4 w-4 text-gray-300 group-hover:text-brand-azul transition-colors shrink-0 mt-1" />
@@ -125,7 +145,7 @@ export default function PerfilPage() {
     }
   }, [userId, idUsuario, isSuperAdmin, setUserId])
 
-  const targetUserId = (userId && isSuperAdmin) ? userId : idUsuario
+  const targetUserId = userId && isSuperAdmin ? userId : idUsuario
   const isOwnProfile = !userId || userId === idUsuario
   const canEdit = isOwnProfile || isSuperAdmin
 
@@ -134,7 +154,10 @@ export default function PerfilPage() {
   if (isLoading || !idUsuario)
     return (
       <div className="space-y-6">
-        <PageHeader title="Mi perfil" description="Información personal y seguridad de cuenta" />
+        <PageHeader
+          title="Mi perfil"
+          description="Información personal y seguridad de cuenta"
+        />
         <PerfilSkeleton />
       </div>
     )
@@ -145,14 +168,31 @@ export default function PerfilPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs items={isOwnProfile ? [{ label: 'Mi perfil' }] : [{ label: 'Usuarios', href: '/admin/usuarios' }, { label: `Perfil: ${admin.nombre}` }]} />
+      <Breadcrumbs
+        items={
+          isOwnProfile
+            ? [{ label: 'Mi perfil' }]
+            : [
+                { label: 'Usuarios', href: '/admin/usuarios' },
+                { label: `Perfil: ${admin.nombre}` },
+              ]
+        }
+      />
 
       <PageHeader
         title={isOwnProfile ? 'Mi perfil' : `Perfil de ${admin.nombre}`}
-        description={isOwnProfile ? 'Información personal y configuración de seguridad' : 'Gestión de cuenta de administrador'}
+        description={
+          isOwnProfile
+            ? 'Información personal y configuración de seguridad'
+            : 'Gestión de cuenta de administrador'
+        }
       />
 
-      <PerfilHeader admin={admin} onTabChange={setTab} isOwnProfile={isOwnProfile} />
+      <PerfilHeader
+        admin={admin}
+        onTabChange={setTab}
+        isOwnProfile={isOwnProfile}
+      />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as PerfilTab)}>
         <TabsList className="bg-gray-100/80 rounded-xl p-1 h-auto">
@@ -186,18 +226,26 @@ export default function PerfilPage() {
                       <Crown className="h-4 w-4 text-violet-700" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-violet-900">Privilegios de Super Administrador</h4>
-                      <p className="text-xs text-violet-600">Tu cuenta tiene acceso completo a todos los módulos del sistema</p>
+                      <h4 className="text-sm font-bold text-violet-900">
+                        Privilegios de Super Administrador
+                      </h4>
+                      <p className="text-xs text-violet-600">
+                        Tu cuenta tiene acceso completo a todos los módulos del
+                        sistema
+                      </p>
                     </div>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {[
-                      { icon: Users,    label: 'Gestión de usuarios y roles' },
+                      { icon: Users, label: 'Gestión de usuarios y roles' },
                       { icon: Settings, label: 'Configuración del sistema' },
-                      { icon: Shield,   label: 'Seguridad y accesos' },
-                      { icon: Crown,    label: 'Administración de sedes' },
+                      { icon: Shield, label: 'Seguridad y accesos' },
+                      { icon: Crown, label: 'Administración de sedes' },
                     ].map(({ icon: Icon, label }) => (
-                      <div key={label} className="flex items-center gap-2 text-xs text-violet-700">
+                      <div
+                        key={label}
+                        className="flex items-center gap-2 text-xs text-violet-700"
+                      >
                         <Icon className="h-3.5 w-3.5 shrink-0" />
                         <span>{label}</span>
                       </div>
@@ -242,7 +290,9 @@ export default function PerfilPage() {
               <div className="lg:col-span-2">
                 <SeguridadInfo admin={admin} />
               </div>
-              <ActividadReciente idAdmin={isOwnProfile ? user?.id : undefined} />
+              <ActividadReciente
+                idAdmin={isOwnProfile ? user?.id : undefined}
+              />
             </div>
           </TabsContent>
         )}

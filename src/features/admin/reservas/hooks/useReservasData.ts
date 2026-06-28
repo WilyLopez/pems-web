@@ -43,7 +43,11 @@ export function useCancelarReserva() {
       toast.success('Reserva cancelada.')
     },
     onError: (err: any) => {
-      toast.error(err?.response?.data?.mensaje ?? err?.message ?? 'No se pudo cancelar la reserva.')
+      toast.error(
+        err?.response?.data?.mensaje ??
+          err?.message ??
+          'No se pudo cancelar la reserva.'
+      )
     },
   })
 }
@@ -58,7 +62,11 @@ export function useConfirmarIngreso() {
       toast.success(`Ingreso registrado para ticket ${reserva.numeroTicket}`)
     },
     onError: (err: any) => {
-      toast.error(err?.response?.data?.mensaje ?? err?.message ?? 'No se pudo registrar el ingreso.')
+      toast.error(
+        err?.response?.data?.mensaje ??
+          err?.message ??
+          'No se pudo registrar el ingreso.'
+      )
     },
   })
 }
@@ -73,7 +81,11 @@ export function useConfirmarPago() {
       toast.success('Pago confirmado. Reserva en estado CONFIRMADA.')
     },
     onError: (err: any) => {
-      toast.error(err?.response?.data?.mensaje ?? err?.message ?? 'No se pudo confirmar el pago.')
+      toast.error(
+        err?.response?.data?.mensaje ??
+          err?.message ??
+          'No se pudo confirmar el pago.'
+      )
     },
   })
 }
@@ -88,7 +100,11 @@ export function useEliminarReserva() {
       toast.success('Reserva eliminada con éxito.')
     },
     onError: (err: any) => {
-      toast.error(err?.response?.data?.mensaje ?? err?.message ?? 'No se pudo eliminar la reserva.')
+      toast.error(
+        err?.response?.data?.mensaje ??
+          err?.message ??
+          'No se pudo eliminar la reserva.'
+      )
     },
   })
 }

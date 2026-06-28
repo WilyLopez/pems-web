@@ -21,12 +21,12 @@ import { NotificacionesPanel } from '@/features/cliente/shared/components/Notifi
 import { clienteKeys } from '@/features/cliente/shared/queryKeys'
 
 const BREADCRUMB_MAP: Record<string, string> = {
-  cliente:          'Inicio',
-  'mis-reservas':   'Mis reservas',
-  'mis-eventos':    'Mis eventos',
-  'mi-cuenta':      'Mi cuenta',
-  beneficios:       'Beneficios',
-  ayuda:            'Ayuda',
+  cliente: 'Inicio',
+  'mis-reservas': 'Mis reservas',
+  'mis-eventos': 'Mis eventos',
+  'mi-cuenta': 'Mi cuenta',
+  beneficios: 'Beneficios',
+  ayuda: 'Ayuda',
 }
 
 function getBreadcrumb(pathname: string): { label: string; href: string }[] {
@@ -58,8 +58,13 @@ export function ClienteTopBar() {
   })
 
   const fotoUrl = fileUrl(perfil?.fotoPerfilPath)
-  const nombreMostrar = perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
-  const nombreCorto = perfil?.nombres?.split(' ')[0] || nombre?.split(' ')[0] || correo?.split('@')[0] || ''
+  const nombreMostrar =
+    perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
+  const nombreCorto =
+    perfil?.nombres?.split(' ')[0] ||
+    nombre?.split(' ')[0] ||
+    correo?.split('@')[0] ||
+    ''
 
   return (
     <header className="sticky top-0 z-40 h-14 bg-white/95 backdrop-blur-sm border-b border-gray-100 flex items-center px-4 lg:px-6 gap-3">
@@ -74,7 +79,9 @@ export function ClienteTopBar() {
               <ChevronRight className="h-3.5 w-3.5 text-gray-300 shrink-0 mx-0.5" />
             )}
             {i === breadcrumb.length - 1 ? (
-              <span className="text-sm font-bold text-gray-900">{crumb.label}</span>
+              <span className="text-sm font-bold text-gray-900">
+                {crumb.label}
+              </span>
             ) : (
               <Link
                 href={crumb.href}
@@ -139,7 +146,9 @@ export function ClienteTopBar() {
                 </AvatarFallback>
               </Avatar>
               <div className="overflow-hidden">
-                <p className="text-sm font-bold text-gray-900 truncate">{nombreMostrar}</p>
+                <p className="text-sm font-bold text-gray-900 truncate">
+                  {nombreMostrar}
+                </p>
                 <p className="text-xs text-gray-400 truncate">{correo}</p>
               </div>
             </div>

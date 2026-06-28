@@ -18,11 +18,7 @@ interface ImageCardProps {
   onEliminar: () => void
 }
 
-export function ImageCard({
-  imagen,
-  onDestacar,
-  onEliminar,
-}: ImageCardProps) {
+export function ImageCard({ imagen, onDestacar, onEliminar }: ImageCardProps) {
   const [hover, setHover] = useState(false)
 
   return (

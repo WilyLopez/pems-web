@@ -160,7 +160,9 @@ function HomeNovedades() {
               <div className="p-5 flex-1 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-gray-900 leading-tight">{nov.titulo}</h3>
+                    <h3 className="font-bold text-gray-900 leading-tight">
+                      {nov.titulo}
+                    </h3>
                     {nov.destacada && (
                       <Badge variant="secondary" className="text-xs shrink-0">
                         Destacada
@@ -205,7 +207,8 @@ function HomePromociones() {
     )
   }
 
-  const visibles = promociones?.filter((p) => p.mostrarEnInicio).slice(0, 4) ?? []
+  const visibles =
+    promociones?.filter((p) => p.mostrarEnInicio).slice(0, 4) ?? []
   if (visibles.length === 0) return null
 
   return (
@@ -232,12 +235,16 @@ function HomePromociones() {
           {visibles.map((p) => {
             const color = p.colorDestacado ?? '#00AEEF'
             const limit = p.fechaFin
-              ? Math.ceil((new Date(p.fechaFin).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+              ? Math.ceil(
+                  (new Date(p.fechaFin).getTime() - Date.now()) /
+                    (1000 * 60 * 60 * 24)
+                )
               : null
             const href = p.urlBoton ?? '/zona-de-juegos'
-            const descuentoStr = p.tipoPromocion === 'DESCUENTO_PORCENTAJE'
-              ? `${p.valorDescuento}%`
-              : formatCurrency(p.valorDescuento)
+            const descuentoStr =
+              p.tipoPromocion === 'DESCUENTO_PORCENTAJE'
+                ? `${p.valorDescuento}%`
+                : formatCurrency(p.valorDescuento)
 
             return (
               <Link
@@ -245,7 +252,10 @@ function HomePromociones() {
                 href={href}
                 className="group relative rounded-2xl overflow-hidden border bg-white hover:shadow-lg transition-all duration-300 flex flex-col"
               >
-                <div className="h-1 w-full" style={{ backgroundColor: color }} />
+                <div
+                  className="h-1 w-full"
+                  style={{ backgroundColor: color }}
+                />
                 {p.imagenUrl ? (
                   <div className="relative h-36 overflow-hidden bg-gray-100">
                     <Image
@@ -260,7 +270,9 @@ function HomePromociones() {
                       style={{ backgroundColor: color }}
                     >
                       {descuentoStr}
-                      <span className="text-[10px] block text-center font-bold">OFF</span>
+                      <span className="text-[10px] block text-center font-bold">
+                        OFF
+                      </span>
                     </div>
                   </div>
                 ) : (
@@ -286,7 +298,8 @@ function HomePromociones() {
                   )}
                   {limit !== null && limit <= 5 && limit > 0 && (
                     <div className="flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 rounded-lg px-2 py-1">
-                      <Clock className="h-3 w-3" /> Finaliza en {limit} día{limit !== 1 ? 's' : ''}
+                      <Clock className="h-3 w-3" /> Finaliza en {limit} día
+                      {limit !== 1 ? 's' : ''}
                     </div>
                   )}
                   <p className="text-[11px] text-muted-foreground mt-auto flex items-center gap-1">
@@ -335,8 +348,8 @@ function HomeZonas() {
             Horas de diversión garantizada
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Atracciones diseñadas para niños de todas las edades, con supervisión constante
-            y medidas de seguridad en cada rincón.
+            Atracciones diseñadas para niños de todas las edades, con
+            supervisión constante y medidas de seguridad en cada rincón.
           </p>
         </div>
 
@@ -372,8 +385,12 @@ function HomeZonas() {
                 </div>
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-1">{zona.nombre}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">{zona.descripcion}</p>
+                    <h3 className="font-bold text-gray-900 mb-1">
+                      {zona.nombre}
+                    </h3>
+                    <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
+                      {zona.descripcion}
+                    </p>
                   </div>
                   {edades && (
                     <span className="mt-3 inline-block text-xs font-semibold text-brand-azul bg-brand-azul/8 rounded-full px-3 py-0.5 self-start">
@@ -409,9 +426,10 @@ function HomePaquetes() {
   if (isLoading) return null
   if (!paquetes?.length) return null
 
-  const mostrar = paquetes.filter((p) => p.destacado).slice(0, 3).length >= 2
-    ? paquetes.filter((p) => p.destacado).slice(0, 3)
-    : paquetes.slice(0, 3)
+  const mostrar =
+    paquetes.filter((p) => p.destacado).slice(0, 3).length >= 2
+      ? paquetes.filter((p) => p.destacado).slice(0, 3)
+      : paquetes.slice(0, 3)
 
   return (
     <section className="py-20 bg-white">
@@ -424,8 +442,8 @@ function HomePaquetes() {
             El cumpleaños perfecto empieza aquí
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Paquetes diseñados para que cada celebración sea única e inolvidable.
-            Tú eliges, nosotros nos encargamos del resto.
+            Paquetes diseñados para que cada celebración sea única e
+            inolvidable. Tú eliges, nosotros nos encargamos del resto.
           </p>
         </div>
 
@@ -451,7 +469,9 @@ function HomePaquetes() {
 
                 <div>
                   <h3 className="font-bold text-gray-900">{paquete.nombre}</h3>
-                  <p className="text-sm text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{paquete.descripcionCorta}</p>
+                  <p className="text-sm text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">
+                    {paquete.descripcionCorta}
+                  </p>
                 </div>
 
                 <p className="text-2xl font-black text-brand-azul">
@@ -461,7 +481,10 @@ function HomePaquetes() {
                 {paquete.beneficios && paquete.beneficios.length > 0 && (
                   <ul className="space-y-1.5 flex-1">
                     {paquete.beneficios.slice(0, 4).map((b) => (
-                      <li key={b} className="flex items-center gap-2 text-xs text-gray-600">
+                      <li
+                        key={b}
+                        className="flex items-center gap-2 text-xs text-gray-600"
+                      >
                         <CheckCircle className="h-3 w-3 text-brand-menta shrink-0" />
                         {b}
                       </li>
@@ -472,9 +495,11 @@ function HomePaquetes() {
                 <Button
                   asChild
                   size="sm"
-                  className={destacado
-                    ? 'bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full mt-auto'
-                    : 'bg-brand-azul hover:bg-brand-azul/90 text-white rounded-full mt-auto'}
+                  className={
+                    destacado
+                      ? 'bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full mt-auto'
+                      : 'bg-brand-azul hover:bg-brand-azul/90 text-white rounded-full mt-auto'
+                  }
                 >
                   <Link href="/celebraciones">
                     Ver detalles <ArrowRight className="h-3.5 w-3.5 ml-1" />
@@ -544,7 +569,10 @@ function HomeTestimonios() {
               <div>
                 <div className="flex gap-0.5 mb-4">
                   {Array.from({ length: t.calificacion }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-brand-amarillo text-brand-amarillo" />
+                    <Star
+                      key={i}
+                      className="h-4 w-4 fill-brand-amarillo text-brand-amarillo"
+                    />
                   ))}
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed mb-4 font-medium italic">
@@ -567,7 +595,9 @@ function HomeTestimonios() {
                     <User className="h-4 w-4 text-white" />
                   </div>
                 )}
-                <span className="font-bold text-sm text-gray-900">{t.nombreAutor}</span>
+                <span className="font-bold text-sm text-gray-900">
+                  {t.nombreAutor}
+                </span>
               </div>
             </div>
           ))}
@@ -602,8 +632,9 @@ export function PublicHomeView() {
                   <span className="text-brand-azul">sin límites</span>
                 </h1>
                 <p className="text-lg text-white/70 max-w-lg leading-relaxed">
-                  El espacio donde los niños son los protagonistas. Juegos, celebraciones privadas
-                  y momentos que jamás olvidarán, en un ambiente seguro y lleno de alegría.
+                  El espacio donde los niños son los protagonistas. Juegos,
+                  celebraciones privadas y momentos que jamás olvidarán, en un
+                  ambiente seguro y lleno de alegría.
                 </p>
               </div>
 
@@ -633,7 +664,9 @@ export function PublicHomeView() {
 
               <div className="flex items-center justify-center lg:justify-start gap-6 pt-2 w-full">
                 <div className="text-center">
-                  <div className="text-3xl font-black text-brand-amarillo">+500</div>
+                  <div className="text-3xl font-black text-brand-amarillo">
+                    +500
+                  </div>
                   <div className="text-xs text-white/60">Familias felices</div>
                 </div>
                 <div className="w-px h-10 bg-white/20" />
@@ -647,7 +680,9 @@ export function PublicHomeView() {
                 <div className="w-px h-10 bg-white/20" />
                 <div className="text-center">
                   <div className="text-3xl font-black text-brand-menta">2+</div>
-                  <div className="text-xs text-white/60">Años de experiencia</div>
+                  <div className="text-xs text-white/60">
+                    Años de experiencia
+                  </div>
                 </div>
               </div>
             </div>
@@ -657,8 +692,15 @@ export function PublicHomeView() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 60L1440 60L1440 20C1200 60 960 0 720 20C480 40 240 0 0 20L0 60Z" fill="white" />
+          <svg
+            viewBox="0 0 1440 60"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 60L1440 60L1440 20C1200 60 960 0 720 20C480 40 240 0 0 20L0 60Z"
+              fill="white"
+            />
           </svg>
         </div>
       </section>
@@ -678,15 +720,32 @@ export function PublicHomeView() {
               La seguridad de tus hijos, nuestra prioridad
             </h2>
             <p className="text-white/80">
-              Cada rincón de Kiki y Lala está diseñado pensando en el bienestar de los niños
+              Cada rincón de Kiki y Lala está diseñado pensando en el bienestar
+              de los niños
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: Shield, titulo: 'Supervisión constante', desc: 'Personal capacitado en cada zona' },
-              { icon: Heart, titulo: 'Higiene garantizada', desc: 'Desinfección después de cada turno' },
-              { icon: Users, titulo: 'Personal certificado', desc: 'Entrenados en primeros auxilios' },
-              { icon: Zap, titulo: 'Equipos seguros', desc: 'Revisión diaria de instalaciones' },
+              {
+                icon: Shield,
+                titulo: 'Supervisión constante',
+                desc: 'Personal capacitado en cada zona',
+              },
+              {
+                icon: Heart,
+                titulo: 'Higiene garantizada',
+                desc: 'Desinfección después de cada turno',
+              },
+              {
+                icon: Users,
+                titulo: 'Personal certificado',
+                desc: 'Entrenados en primeros auxilios',
+              },
+              {
+                icon: Zap,
+                titulo: 'Equipos seguros',
+                desc: 'Revisión diaria de instalaciones',
+              },
             ].map(({ icon: Icon, titulo, desc }) => (
               <div
                 key={titulo}
@@ -714,9 +773,12 @@ export function PublicHomeView() {
           <div className="w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center mx-auto animate-float">
             <Zap className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-4xl sm:text-5xl font-black">¿Listo para la diversión?</h2>
+          <h2 className="text-4xl sm:text-5xl font-black">
+            ¿Listo para la diversión?
+          </h2>
           <p className="text-white/70 text-lg">
-            Reserva tu próxima visita o empieza a planificar la celebración perfecta.
+            Reserva tu próxima visita o empieza a planificar la celebración
+            perfecta.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button

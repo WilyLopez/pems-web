@@ -1,7 +1,14 @@
 import React from 'react'
 import { Eye } from 'lucide-react'
 import { VentaResumen } from '../../types'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/Table'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -29,22 +36,55 @@ function TableSkeleton() {
         <Table>
           <TableHeader className="bg-gray-50/50 dark:bg-gray-800/50">
             <TableRow>
-              {['ID', 'Operación', 'Visita', 'Cliente', 'Canal / Tipo', 'Total', 'Estado', ''].map((h) => (
-                <TableHead key={h} className="text-xs font-semibold text-gray-400 dark:text-gray-500">{h}</TableHead>
+              {[
+                'ID',
+                'Operación',
+                'Visita',
+                'Cliente',
+                'Canal / Tipo',
+                'Total',
+                'Estado',
+                '',
+              ].map((h) => (
+                <TableHead
+                  key={h}
+                  className="text-xs font-semibold text-gray-400 dark:text-gray-500"
+                >
+                  {h}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
             {Array.from({ length: 6 }).map((_, i) => (
-              <TableRow key={i} className="border-gray-100 dark:border-gray-800">
-                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
-                <TableCell><Skeleton className="h-8 w-8 rounded-lg" /></TableCell>
+              <TableRow
+                key={i}
+                className="border-gray-100 dark:border-gray-800"
+              >
+                <TableCell>
+                  <Skeleton className="h-4 w-16" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-28" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-20" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-32" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-16" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -82,13 +122,27 @@ export const VentasTable = ({
           <Table>
             <TableHeader>
               <TableRow className="border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/60 hover:bg-gray-50/60 dark:hover:bg-gray-800/60">
-                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">ID</TableHead>
-                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">Registro</TableHead>
-                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">Visita</TableHead>
-                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">Cliente / Acompañante</TableHead>
-                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">Canal / Tipo</TableHead>
-                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400 text-right">Total</TableHead>
-                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400 text-center">Estado</TableHead>
+                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  ID
+                </TableHead>
+                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  Registro
+                </TableHead>
+                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  Visita
+                </TableHead>
+                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  Cliente / Acompañante
+                </TableHead>
+                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  Canal / Tipo
+                </TableHead>
+                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400 text-right">
+                  Total
+                </TableHead>
+                <TableHead className="text-xs font-semibold text-gray-500 dark:text-gray-400 text-center">
+                  Estado
+                </TableHead>
                 <TableHead className="w-[52px]" />
               </TableRow>
             </TableHeader>
@@ -114,20 +168,30 @@ export const VentasTable = ({
                     {v.fechaVisita ? (
                       formatDate(v.fechaVisita, 'd MMM yyyy')
                     ) : (
-                      <span className="text-gray-300 dark:text-gray-600">—</span>
+                      <span className="text-gray-300 dark:text-gray-600">
+                        —
+                      </span>
                     )}
                   </TableCell>
 
                   <TableCell className="max-w-[180px]">
                     {v.nombreCliente ? (
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{v.nombreCliente}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        {v.nombreCliente}
+                      </p>
                     ) : v.nombreAcompanante ? (
                       <div>
-                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{v.nombreAcompanante}</p>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500">Acompañante</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
+                          {v.nombreAcompanante}
+                        </p>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                          Acompañante
+                        </p>
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-400 dark:text-gray-500 italic">Mostrador</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500 italic">
+                        Mostrador
+                      </span>
                     )}
                   </TableCell>
 

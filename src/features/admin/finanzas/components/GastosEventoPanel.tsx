@@ -6,7 +6,10 @@ import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Trash2, Plus } from 'lucide-react'
 import { ResumenEventoFinanciero } from '../types'
-import { useGastosEvento, useGastoEventoMutations } from '../hooks/useFinanceData'
+import {
+  useGastosEvento,
+  useGastoEventoMutations,
+} from '../hooks/useFinanceData'
 import { gastoOperativoSchema } from '../schemas/finance.schemas'
 import { formatCurrency } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
@@ -52,10 +55,26 @@ export function GastosEventoPanel({ idEvento, resumen }: Props) {
   }
 
   const metricas = [
-    { label: 'Ingreso contrato', value: resumen.ingresoContrato, color: 'text-emerald-700' },
-    { label: 'Adelanto recibido', value: resumen.montoAdelanto, color: 'text-blue-700' },
-    { label: 'Gastos adicionales', value: resumen.totalGastosAdicionales, color: 'text-orange-600' },
-    { label: 'Utilidad bruta', value: resumen.utilidadBruta, color: resumen.utilidadBruta >= 0 ? 'text-emerald-700' : 'text-red-600' },
+    {
+      label: 'Ingreso contrato',
+      value: resumen.ingresoContrato,
+      color: 'text-emerald-700',
+    },
+    {
+      label: 'Adelanto recibido',
+      value: resumen.montoAdelanto,
+      color: 'text-blue-700',
+    },
+    {
+      label: 'Gastos adicionales',
+      value: resumen.totalGastosAdicionales,
+      color: 'text-orange-600',
+    },
+    {
+      label: 'Utilidad bruta',
+      value: resumen.utilidadBruta,
+      color: resumen.utilidadBruta >= 0 ? 'text-emerald-700' : 'text-red-600',
+    },
   ]
 
   return (
@@ -64,14 +83,18 @@ export function GastosEventoPanel({ idEvento, resumen }: Props) {
         {metricas.map(({ label, value, color }) => (
           <div key={label} className="bg-gray-50 rounded-xl p-3 space-y-0.5">
             <p className="text-xs text-gray-500">{label}</p>
-            <p className={`text-base font-black ${color}`}>{formatCurrency(value)}</p>
+            <p className={`text-base font-black ${color}`}>
+              {formatCurrency(value)}
+            </p>
           </div>
         ))}
       </div>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-gray-700">Gastos adicionales</h4>
+          <h4 className="text-sm font-semibold text-gray-700">
+            Gastos adicionales
+          </h4>
           <Button
             size="sm"
             variant="outline"
@@ -97,7 +120,9 @@ export function GastosEventoPanel({ idEvento, resumen }: Props) {
                   {...register('descripcion')}
                 />
                 {errors.descripcion && (
-                  <p className="text-xs text-destructive">{errors.descripcion.message}</p>
+                  <p className="text-xs text-destructive">
+                    {errors.descripcion.message}
+                  </p>
                 )}
               </div>
               <div className="space-y-1.5">
@@ -110,7 +135,9 @@ export function GastosEventoPanel({ idEvento, resumen }: Props) {
                   {...register('monto')}
                 />
                 {errors.monto && (
-                  <p className="text-xs text-destructive">{errors.monto.message}</p>
+                  <p className="text-xs text-destructive">
+                    {errors.monto.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -127,7 +154,10 @@ export function GastosEventoPanel({ idEvento, resumen }: Props) {
                 type="button"
                 size="sm"
                 variant="outline"
-                onClick={() => { reset(); setShowForm(false) }}
+                onClick={() => {
+                  reset()
+                  setShowForm(false)
+                }}
               >
                 Cancelar
               </Button>
@@ -146,14 +176,23 @@ export function GastosEventoPanel({ idEvento, resumen }: Props) {
         {isLoading ? (
           <p className="text-sm text-gray-400">Cargando...</p>
         ) : gastos.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-4">Sin gastos adicionales.</p>
+          <p className="text-sm text-gray-400 text-center py-4">
+            Sin gastos adicionales.
+          </p>
         ) : (
           <ul className="divide-y divide-gray-100">
             {gastos.map((g) => (
-              <li key={g.id} className="flex items-center justify-between py-2.5 gap-2">
+              <li
+                key={g.id}
+                className="flex items-center justify-between py-2.5 gap-2"
+              >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">{g.descripcion}</p>
-                  <p className="text-xs text-gray-400">{g.fechaCreacion?.split('T')[0]}</p>
+                  <p className="text-sm font-medium text-gray-800 truncate">
+                    {g.descripcion}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {g.fechaCreacion?.split('T')[0]}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="text-sm font-semibold text-red-600">

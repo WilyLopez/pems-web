@@ -8,6 +8,7 @@
 ## 1. Principio base: todas las notificaciones son del sistema
 
 Ninguna notificación es creada manualmente por el admin. Todas las dispara el sistema automáticamente en respuesta a eventos de negocio (una reserva confirmada, un evento aprobado, una caja sin cerrar). El admin solo puede:
+
 - Ver sus notificaciones IN_APP
 - Marcarlas como leídas
 - Configurar qué canales quiere (push, email) por tipo
@@ -17,25 +18,25 @@ Ninguna notificación es creada manualmente por el admin. Todas las dispara el s
 
 ## 2. Notificaciones actuales (ya en seed)
 
-| # | Código | Destinatario | Prioridad | Canales | Disparador |
-|---|--------|-------------|-----------|---------|-----------|
-| 1 | RESERVA_CONFIRMADA | CLIENTE | NORMAL | IN_APP, EMAIL | Sistema confirma reserva pública |
-| 2 | RESERVA_RECORDATORIO | CLIENTE | NORMAL | EMAIL, WHATSAPP | Job 24h antes de la visita |
-| 3 | RESERVA_CANCELADA | CLIENTE | NORMAL | IN_APP, EMAIL | Cliente o admin cancela |
-| 4 | RESERVA_YAPE_PENDIENTE | ADMIN | ALTA | IN_APP | Cliente sube comprobante Yape |
-| 5 | EVENTO_SOLICITUD | ADMIN | ALTA | IN_APP, EMAIL | Cliente solicita evento privado |
-| 6 | EVENTO_CONTRATO_PENDIENTE | ADMIN | CRITICA | IN_APP, EMAIL | Job: evento próximo sin contrato |
-| 7 | EVENTO_SALDO_PENDIENTE | ADMIN | ALTA | IN_APP | Job: evento próximo con saldo |
-| 8 | EVENTO_CONFIRMADO | CLIENTE | NORMAL | IN_APP, EMAIL | Admin confirma el evento |
-| 9 | EVENTO_RECORDATORIO | CLIENTE | NORMAL | IN_APP, EMAIL, WHATSAPP | Job: X días antes del evento |
-| 10 | CAJA_SIN_CERRAR | ADMIN | ALTA | IN_APP | Job nocturno si caja sigue abierta |
-| 11 | CAJA_SIN_ABRIR | CAJERO | NORMAL | IN_APP | Job matutino si caja no abrió |
-| 12 | AFORO_LIMITE | ADMIN | NORMAL | IN_APP | Aforo >90% en fecha próxima |
-| 13 | RESENA_PENDIENTE | ADMIN | BAJA | IN_APP | Nueva reseña del sitio público |
-| 14 | MENSAJE_NUEVO | ADMIN | NORMAL | IN_APP, EMAIL | Formulario de contacto enviado |
-| 15 | BIENVENIDA | CLIENTE | NORMAL | EMAIL | Cliente crea cuenta |
-| 16 | CUMPLEANOS_NINO | CLIENTE | NORMAL | EMAIL | Job: cumpleaños del niño registrado |
-| 17 | LOGIN_IP_NUEVA | ADMIN | CRITICA | EMAIL | Login desde IP no reconocida |
+| #   | Código                    | Destinatario | Prioridad | Canales                 | Disparador                          |
+| --- | ------------------------- | ------------ | --------- | ----------------------- | ----------------------------------- |
+| 1   | RESERVA_CONFIRMADA        | CLIENTE      | NORMAL    | IN_APP, EMAIL           | Sistema confirma reserva pública    |
+| 2   | RESERVA_RECORDATORIO      | CLIENTE      | NORMAL    | EMAIL, WHATSAPP         | Job 24h antes de la visita          |
+| 3   | RESERVA_CANCELADA         | CLIENTE      | NORMAL    | IN_APP, EMAIL           | Cliente o admin cancela             |
+| 4   | RESERVA_YAPE_PENDIENTE    | ADMIN        | ALTA      | IN_APP                  | Cliente sube comprobante Yape       |
+| 5   | EVENTO_SOLICITUD          | ADMIN        | ALTA      | IN_APP, EMAIL           | Cliente solicita evento privado     |
+| 6   | EVENTO_CONTRATO_PENDIENTE | ADMIN        | CRITICA   | IN_APP, EMAIL           | Job: evento próximo sin contrato    |
+| 7   | EVENTO_SALDO_PENDIENTE    | ADMIN        | ALTA      | IN_APP                  | Job: evento próximo con saldo       |
+| 8   | EVENTO_CONFIRMADO         | CLIENTE      | NORMAL    | IN_APP, EMAIL           | Admin confirma el evento            |
+| 9   | EVENTO_RECORDATORIO       | CLIENTE      | NORMAL    | IN_APP, EMAIL, WHATSAPP | Job: X días antes del evento        |
+| 10  | CAJA_SIN_CERRAR           | ADMIN        | ALTA      | IN_APP                  | Job nocturno si caja sigue abierta  |
+| 11  | CAJA_SIN_ABRIR            | CAJERO       | NORMAL    | IN_APP                  | Job matutino si caja no abrió       |
+| 12  | AFORO_LIMITE              | ADMIN        | NORMAL    | IN_APP                  | Aforo >90% en fecha próxima         |
+| 13  | RESENA_PENDIENTE          | ADMIN        | BAJA      | IN_APP                  | Nueva reseña del sitio público      |
+| 14  | MENSAJE_NUEVO             | ADMIN        | NORMAL    | IN_APP, EMAIL           | Formulario de contacto enviado      |
+| 15  | BIENVENIDA                | CLIENTE      | NORMAL    | EMAIL                   | Cliente crea cuenta                 |
+| 16  | CUMPLEANOS_NINO           | CLIENTE      | NORMAL    | EMAIL                   | Job: cumpleaños del niño registrado |
+| 17  | LOGIN_IP_NUEVA            | ADMIN        | CRITICA   | EMAIL                   | Login desde IP no reconocida        |
 
 ---
 
@@ -43,73 +44,73 @@ Ninguna notificación es creada manualmente por el admin. Todas las dispara el s
 
 ### 3.1 Módulo Reservas
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `RESERVA_NUEVA` | Nueva reserva online | NORMAL | IN_APP | Cliente hace una reserva pública |
-| `RESERVA_CANCELADA_CLIENTE` | Reserva cancelada por cliente | NORMAL | IN_APP | Cliente cancela desde su portal |
-| `RESERVA_PAGO_VERIFICADO` | Pago Yape verificado | NORMAL | IN_APP | Admin aprueba el comprobante Yape |
-| `RESERVA_PAGO_RECHAZADO` | Pago Yape rechazado | NORMAL | IN_APP | Admin rechaza el comprobante Yape |
-| `AFORO_AGOTADO` | Aforo agotado | ALTA | IN_APP | Última reserva llena el cupo del día |
+| Código (nuevo)              | Nombre                        | Prioridad | Canales | Disparador                           |
+| --------------------------- | ----------------------------- | --------- | ------- | ------------------------------------ |
+| `RESERVA_NUEVA`             | Nueva reserva online          | NORMAL    | IN_APP  | Cliente hace una reserva pública     |
+| `RESERVA_CANCELADA_CLIENTE` | Reserva cancelada por cliente | NORMAL    | IN_APP  | Cliente cancela desde su portal      |
+| `RESERVA_PAGO_VERIFICADO`   | Pago Yape verificado          | NORMAL    | IN_APP  | Admin aprueba el comprobante Yape    |
+| `RESERVA_PAGO_RECHAZADO`    | Pago Yape rechazado           | NORMAL    | IN_APP  | Admin rechaza el comprobante Yape    |
+| `AFORO_AGOTADO`             | Aforo agotado                 | ALTA      | IN_APP  | Última reserva llena el cupo del día |
 
 > Actualmente `RESERVA_YAPE_PENDIENTE` existe, pero no hay notificación cuando llega una reserva normal (sin Yape). El admin no sabe que llegó una reserva nueva a menos que refresque la pantalla.
 
 ### 3.2 Módulo Eventos Privados
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `EVENTO_PRESUPUESTO_SOLICITADO` | Cotización solicitada | ALTA | IN_APP, EMAIL | Cliente pide cotización desde el sitio |
-| `EVENTO_ADELANTO_RECIBIDO` | Adelanto recibido | NORMAL | IN_APP | Se registra pago de adelanto del evento |
-| `EVENTO_SALDO_RECIBIDO` | Saldo final recibido | NORMAL | IN_APP | Se registra pago del saldo del evento |
-| `EVENTO_CANCELADO_CLIENTE` | Evento cancelado por cliente | ALTA | IN_APP, EMAIL | Cliente solicita cancelación |
-| `EVENTO_CHECKLIST_INCOMPLETO` | Checklist incompleto | ALTA | IN_APP | Job: evento en <48h con checklist sin completar |
-| `CONTRATO_FIRMADO` | Contrato firmado | NORMAL | IN_APP | Cliente firma contrato digital |
-| `CONTRATO_VENCIDO_SIN_FIRMA` | Contrato sin firmar (vencido) | CRITICA | IN_APP, EMAIL | Job: contrato enviado hace >5 días sin firma |
-| `GASTO_EVENTO_REGISTRADO` | Gasto de evento registrado | BAJA | IN_APP | Se registra un gasto operativo del evento |
+| Código (nuevo)                  | Nombre                        | Prioridad | Canales       | Disparador                                      |
+| ------------------------------- | ----------------------------- | --------- | ------------- | ----------------------------------------------- |
+| `EVENTO_PRESUPUESTO_SOLICITADO` | Cotización solicitada         | ALTA      | IN_APP, EMAIL | Cliente pide cotización desde el sitio          |
+| `EVENTO_ADELANTO_RECIBIDO`      | Adelanto recibido             | NORMAL    | IN_APP        | Se registra pago de adelanto del evento         |
+| `EVENTO_SALDO_RECIBIDO`         | Saldo final recibido          | NORMAL    | IN_APP        | Se registra pago del saldo del evento           |
+| `EVENTO_CANCELADO_CLIENTE`      | Evento cancelado por cliente  | ALTA      | IN_APP, EMAIL | Cliente solicita cancelación                    |
+| `EVENTO_CHECKLIST_INCOMPLETO`   | Checklist incompleto          | ALTA      | IN_APP        | Job: evento en <48h con checklist sin completar |
+| `CONTRATO_FIRMADO`              | Contrato firmado              | NORMAL    | IN_APP        | Cliente firma contrato digital                  |
+| `CONTRATO_VENCIDO_SIN_FIRMA`    | Contrato sin firmar (vencido) | CRITICA   | IN_APP, EMAIL | Job: contrato enviado hace >5 días sin firma    |
+| `GASTO_EVENTO_REGISTRADO`       | Gasto de evento registrado    | BAJA      | IN_APP        | Se registra un gasto operativo del evento       |
 
 ### 3.3 Módulo Caja y Ventas
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `CAJA_CIERRE_DISCREPANCIA` | Discrepancia en cierre de caja | ALTA | IN_APP, EMAIL | Diferencia entre monto esperado y contado |
-| `VENTA_MONTO_ALTO` | Venta de monto elevado | NORMAL | IN_APP | Venta en mostrador supera umbral configurable |
-| `EGRESO_MONTO_ALTO` | Egreso elevado registrado | NORMAL | IN_APP | Egreso supera umbral configurable |
-| `RESUMEN_DIARIO_CAJA` | Resumen diario de caja | BAJA | IN_APP, EMAIL | Job 22:00 con totales del día |
+| Código (nuevo)             | Nombre                         | Prioridad | Canales       | Disparador                                    |
+| -------------------------- | ------------------------------ | --------- | ------------- | --------------------------------------------- |
+| `CAJA_CIERRE_DISCREPANCIA` | Discrepancia en cierre de caja | ALTA      | IN_APP, EMAIL | Diferencia entre monto esperado y contado     |
+| `VENTA_MONTO_ALTO`         | Venta de monto elevado         | NORMAL    | IN_APP        | Venta en mostrador supera umbral configurable |
+| `EGRESO_MONTO_ALTO`        | Egreso elevado registrado      | NORMAL    | IN_APP        | Egreso supera umbral configurable             |
+| `RESUMEN_DIARIO_CAJA`      | Resumen diario de caja         | BAJA      | IN_APP, EMAIL | Job 22:00 con totales del día                 |
 
 ### 3.4 Módulo CMS / Marketing
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `NOVEDAD_PUBLICADA` | Novedad publicada | BAJA | IN_APP | Admin publica una novedad/blog |
-| `BANNER_EXPIRADO` | Banner vencido | BAJA | IN_APP | Job: banner llegó a su fecha de fin |
-| `PROMOCION_NUEVA_ACTIVA` | Promoción activada | BAJA | IN_APP | Promoción entra en vigencia hoy |
-| `REPORTE_EXPORTACION_LISTA` | Exportación de reporte lista | BAJA | IN_APP | Reporte pesado terminó de generarse |
+| Código (nuevo)              | Nombre                       | Prioridad | Canales | Disparador                          |
+| --------------------------- | ---------------------------- | --------- | ------- | ----------------------------------- |
+| `NOVEDAD_PUBLICADA`         | Novedad publicada            | BAJA      | IN_APP  | Admin publica una novedad/blog      |
+| `BANNER_EXPIRADO`           | Banner vencido               | BAJA      | IN_APP  | Job: banner llegó a su fecha de fin |
+| `PROMOCION_NUEVA_ACTIVA`    | Promoción activada           | BAJA      | IN_APP  | Promoción entra en vigencia hoy     |
+| `REPORTE_EXPORTACION_LISTA` | Exportación de reporte lista | BAJA      | IN_APP  | Reporte pesado terminó de generarse |
 
 ### 3.5 Módulo Clientes / Fidelización
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `CLIENTE_NUEVO_REGISTRADO` | Nuevo cliente registrado | BAJA | IN_APP | Cliente crea cuenta en el portal |
-| `CLIENTE_SIN_ACTIVIDAD` | Cliente sin actividad | BAJA | IN_APP | Job: cliente sin reservas en >90 días |
+| Código (nuevo)             | Nombre                   | Prioridad | Canales | Disparador                            |
+| -------------------------- | ------------------------ | --------- | ------- | ------------------------------------- |
+| `CLIENTE_NUEVO_REGISTRADO` | Nuevo cliente registrado | BAJA      | IN_APP  | Cliente crea cuenta en el portal      |
+| `CLIENTE_SIN_ACTIVIDAD`    | Cliente sin actividad    | BAJA      | IN_APP  | Job: cliente sin reservas en >90 días |
 
 ### 3.6 Seguridad / Sistema
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `ADMIN_CUENTA_BLOQUEADA` | Cuenta de admin bloqueada | CRITICA | IN_APP, EMAIL | Demasiados intentos de login fallidos |
-| `BACKUP_FALLIDO` | Error en backup | CRITICA | EMAIL | Job de backup no completó |
-| `ERROR_ENVIO_EMAIL` | Fallo en envío de email | ALTA | IN_APP | Email de campaña o transaccional falló >3 veces |
+| Código (nuevo)           | Nombre                    | Prioridad | Canales       | Disparador                                      |
+| ------------------------ | ------------------------- | --------- | ------------- | ----------------------------------------------- |
+| `ADMIN_CUENTA_BLOQUEADA` | Cuenta de admin bloqueada | CRITICA   | IN_APP, EMAIL | Demasiados intentos de login fallidos           |
+| `BACKUP_FALLIDO`         | Error en backup           | CRITICA   | EMAIL         | Job de backup no completó                       |
+| `ERROR_ENVIO_EMAIL`      | Fallo en envío de email   | ALTA      | IN_APP        | Email de campaña o transaccional falló >3 veces |
 
 ---
 
 ## 4. Notificaciones recomendadas para CAJERO
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `CAJA_SIN_ABRIR` *(ya existe)* | Caja sin abrir | NORMAL | IN_APP | Job matutino |
-| `RESERVA_EN_CAJA_HOY` | Reservas pendientes en caja hoy | BAJA | IN_APP | Job matutino: reservas con pago presencial |
-| `VENTA_ANULADA` | Venta anulada | NORMAL | IN_APP | Admin anula una venta del cajero |
-| `DESCUENTO_REQUIERE_APROBACION` | Descuento requiere aprobación | ALTA | IN_APP | Descuento solicitado supera límite del cajero |
-| `TURNO_POR_INICIAR` | Turno por iniciar | BAJA | IN_APP | Job: 30 min antes del inicio de turno del cajero |
+| Código (nuevo)                  | Nombre                          | Prioridad | Canales | Disparador                                       |
+| ------------------------------- | ------------------------------- | --------- | ------- | ------------------------------------------------ |
+| `CAJA_SIN_ABRIR` _(ya existe)_  | Caja sin abrir                  | NORMAL    | IN_APP  | Job matutino                                     |
+| `RESERVA_EN_CAJA_HOY`           | Reservas pendientes en caja hoy | BAJA      | IN_APP  | Job matutino: reservas con pago presencial       |
+| `VENTA_ANULADA`                 | Venta anulada                   | NORMAL    | IN_APP  | Admin anula una venta del cajero                 |
+| `DESCUENTO_REQUIERE_APROBACION` | Descuento requiere aprobación   | ALTA      | IN_APP  | Descuento solicitado supera límite del cajero    |
+| `TURNO_POR_INICIAR`             | Turno por iniciar               | BAJA      | IN_APP  | Job: 30 min antes del inicio de turno del cajero |
 
 ---
 
@@ -117,50 +118,50 @@ Ninguna notificación es creada manualmente por el admin. Todas las dispara el s
 
 ### 5.1 Reservas
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `RESERVA_CONFIRMADA` *(ya existe)* | Reserva confirmada | NORMAL | IN_APP, EMAIL | — |
-| `RESERVA_RECORDATORIO` *(ya existe)* | Recordatorio visita | NORMAL | EMAIL, WHATSAPP | — |
-| `RESERVA_CANCELADA` *(ya existe)* | Reserva cancelada | NORMAL | IN_APP, EMAIL | — |
-| `RESERVA_MODIFICADA` | Reserva modificada | NORMAL | IN_APP, EMAIL | Admin modifica fecha/hora de la reserva |
-| `PAGO_CONFIRMADO` | Pago confirmado | NORMAL | IN_APP, EMAIL | Admin aprueba Yape del cliente |
-| `PAGO_RECHAZADO` | Pago rechazado | ALTA | IN_APP, EMAIL | Admin rechaza Yape — debe pagar de otra forma |
-| `TICKET_DISPONIBLE` | Tickets disponibles | NORMAL | IN_APP, EMAIL | Ticket de entrada generado y listo |
+| Código (nuevo)                       | Nombre              | Prioridad | Canales         | Disparador                                    |
+| ------------------------------------ | ------------------- | --------- | --------------- | --------------------------------------------- |
+| `RESERVA_CONFIRMADA` _(ya existe)_   | Reserva confirmada  | NORMAL    | IN_APP, EMAIL   | —                                             |
+| `RESERVA_RECORDATORIO` _(ya existe)_ | Recordatorio visita | NORMAL    | EMAIL, WHATSAPP | —                                             |
+| `RESERVA_CANCELADA` _(ya existe)_    | Reserva cancelada   | NORMAL    | IN_APP, EMAIL   | —                                             |
+| `RESERVA_MODIFICADA`                 | Reserva modificada  | NORMAL    | IN_APP, EMAIL   | Admin modifica fecha/hora de la reserva       |
+| `PAGO_CONFIRMADO`                    | Pago confirmado     | NORMAL    | IN_APP, EMAIL   | Admin aprueba Yape del cliente                |
+| `PAGO_RECHAZADO`                     | Pago rechazado      | ALTA      | IN_APP, EMAIL   | Admin rechaza Yape — debe pagar de otra forma |
+| `TICKET_DISPONIBLE`                  | Tickets disponibles | NORMAL    | IN_APP, EMAIL   | Ticket de entrada generado y listo            |
 
 ### 5.2 Eventos Privados
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `EVENTO_CONFIRMADO` *(ya existe)* | Evento confirmado | NORMAL | IN_APP, EMAIL | — |
-| `EVENTO_RECORDATORIO` *(ya existe)* | Recordatorio evento | NORMAL | IN_APP, EMAIL, WHATSAPP | — |
-| `EVENTO_CONTRATO_LISTO` | Contrato listo para firmar | ALTA | IN_APP, EMAIL | Admin sube el contrato al sistema |
-| `EVENTO_PRESUPUESTO_ENVIADO` | Presupuesto/cotización enviado | NORMAL | IN_APP, EMAIL | Admin envía la cotización al cliente |
-| `EVENTO_CANCELADO_ADMIN` | Evento cancelado por el local | ALTA | IN_APP, EMAIL | Admin cancela el evento del cliente |
-| `EVENTO_RECORDATORIO_3DIAS` | Recordatorio 3 días antes | NORMAL | IN_APP, EMAIL | Job: 3 días antes del evento |
-| `PAGO_ADELANTO_CONFIRMADO` | Adelanto confirmado | NORMAL | IN_APP, EMAIL | Admin registra el adelanto recibido |
+| Código (nuevo)                      | Nombre                         | Prioridad | Canales                 | Disparador                           |
+| ----------------------------------- | ------------------------------ | --------- | ----------------------- | ------------------------------------ |
+| `EVENTO_CONFIRMADO` _(ya existe)_   | Evento confirmado              | NORMAL    | IN_APP, EMAIL           | —                                    |
+| `EVENTO_RECORDATORIO` _(ya existe)_ | Recordatorio evento            | NORMAL    | IN_APP, EMAIL, WHATSAPP | —                                    |
+| `EVENTO_CONTRATO_LISTO`             | Contrato listo para firmar     | ALTA      | IN_APP, EMAIL           | Admin sube el contrato al sistema    |
+| `EVENTO_PRESUPUESTO_ENVIADO`        | Presupuesto/cotización enviado | NORMAL    | IN_APP, EMAIL           | Admin envía la cotización al cliente |
+| `EVENTO_CANCELADO_ADMIN`            | Evento cancelado por el local  | ALTA      | IN_APP, EMAIL           | Admin cancela el evento del cliente  |
+| `EVENTO_RECORDATORIO_3DIAS`         | Recordatorio 3 días antes      | NORMAL    | IN_APP, EMAIL           | Job: 3 días antes del evento         |
+| `PAGO_ADELANTO_CONFIRMADO`          | Adelanto confirmado            | NORMAL    | IN_APP, EMAIL           | Admin registra el adelanto recibido  |
 
 ### 5.3 Documentos y Comprobantes
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `DOCUMENTO_LISTO` | Comprobante disponible | BAJA | IN_APP, EMAIL | Factura o boleta generada y disponible |
+| Código (nuevo)    | Nombre                 | Prioridad | Canales       | Disparador                             |
+| ----------------- | ---------------------- | --------- | ------------- | -------------------------------------- |
+| `DOCUMENTO_LISTO` | Comprobante disponible | BAJA      | IN_APP, EMAIL | Factura o boleta generada y disponible |
 
 ### 5.4 Fidelización y Marketing
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `PUNTOS_ACUMULADOS` | Puntos acumulados | BAJA | IN_APP | Después de cada compra/reserva con puntos |
-| `PUNTOS_POR_VENCER` | Puntos por vencer | NORMAL | IN_APP, EMAIL | Job: puntos expiran en <30 días |
-| `PROMOCION_EXCLUSIVA` | Promoción especial para ti | BAJA | IN_APP, EMAIL | Marketing segmentado activa una promo |
-| `CUMPLEANOS_NINO` *(ya existe)* | Cumpleaños del niño | NORMAL | EMAIL | — |
+| Código (nuevo)                  | Nombre                     | Prioridad | Canales       | Disparador                                |
+| ------------------------------- | -------------------------- | --------- | ------------- | ----------------------------------------- |
+| `PUNTOS_ACUMULADOS`             | Puntos acumulados          | BAJA      | IN_APP        | Después de cada compra/reserva con puntos |
+| `PUNTOS_POR_VENCER`             | Puntos por vencer          | NORMAL    | IN_APP, EMAIL | Job: puntos expiran en <30 días           |
+| `PROMOCION_EXCLUSIVA`           | Promoción especial para ti | BAJA      | IN_APP, EMAIL | Marketing segmentado activa una promo     |
+| `CUMPLEANOS_NINO` _(ya existe)_ | Cumpleaños del niño        | NORMAL    | EMAIL         | —                                         |
 
 ### 5.5 Cuenta y Seguridad
 
-| Código (nuevo) | Nombre | Prioridad | Canales | Disparador |
-|----------------|--------|-----------|---------|-----------|
-| `BIENVENIDA` *(ya existe)* | Bienvenida | NORMAL | EMAIL | — |
-| `PASSWORD_CAMBIADO` | Contraseña cambiada | CRITICA | EMAIL | El cliente cambió su contraseña |
-| `RESENA_RESPONDIDA` | El local respondió tu reseña | BAJA | IN_APP, EMAIL | Admin responde una reseña del cliente |
+| Código (nuevo)             | Nombre                       | Prioridad | Canales       | Disparador                            |
+| -------------------------- | ---------------------------- | --------- | ------------- | ------------------------------------- |
+| `BIENVENIDA` _(ya existe)_ | Bienvenida                   | NORMAL    | EMAIL         | —                                     |
+| `PASSWORD_CAMBIADO`        | Contraseña cambiada          | CRITICA   | EMAIL         | El cliente cambió su contraseña       |
+| `RESENA_RESPONDIDA`        | El local respondió tu reseña | BAJA      | IN_APP, EMAIL | Admin responde una reseña del cliente |
 
 ---
 
@@ -241,12 +242,12 @@ Este es el INSERT final para `V99_seed.sql` (incluye existentes + nuevos):
 
 ## 7. Resumen por destinatario
 
-| Rol | Actuales | Nuevas sugeridas | Total |
-|-----|----------|-----------------|-------|
-| ADMIN | 9 | 18 | **27** |
-| CAJERO | 1 | 4 | **5** |
-| CLIENTE | 7 | 16 | **23** |
-| **Total** | **17** | **38** | **55** |
+| Rol       | Actuales | Nuevas sugeridas | Total  |
+| --------- | -------- | ---------------- | ------ |
+| ADMIN     | 9        | 18               | **27** |
+| CAJERO    | 1        | 4                | **5**  |
+| CLIENTE   | 7        | 16               | **23** |
+| **Total** | **17**   | **38**           | **55** |
 
 ---
 
@@ -273,11 +274,11 @@ La tabla `notificacion` ya tiene `expira_at TIMESTAMPTZ`. La estrategia es simpl
 Tabla de retención por prioridad:
 
 | Prioridad | Retención IN_APP | Retención EMAIL tracking |
-|-----------|-----------------|--------------------------|
-| BAJA | 7 días | 30 días |
-| NORMAL | 30 días | 90 días |
-| ALTA | 60 días | 180 días |
-| CRITICA | 90 días | 365 días (compliance) |
+| --------- | ---------------- | ------------------------ |
+| BAJA      | 7 días           | 30 días                  |
+| NORMAL    | 30 días          | 90 días                  |
+| ALTA      | 60 días          | 180 días                 |
+| CRITICA   | 90 días          | 365 días (compliance)    |
 
 ### 9.2 Job de limpieza nocturna (Spring Scheduler)
 
@@ -385,10 +386,10 @@ En estado estable con 500 usuarios activos: **~100,000 filas totales** — no cr
 
 El sistema tiene **dos mecanismos de preferencias** activos:
 
-| Mecanismo | Tabla | Para quién | Estado | Granularidad |
-|-----------|-------|-----------|--------|-------------|
-| Preferencias generales | `preferencia_usuario.preferencias_extras` JSONB | ADMIN/CAJERO | ✅ Implementado con endpoints | Por canal global (push ON/OFF, email ON/OFF) |
-| Preferencias por tipo | `preferencia_notificacion` | ADMIN, CAJERO, CLIENTE | ❌ Sin endpoints | Por tipo específico + canal |
+| Mecanismo              | Tabla                                           | Para quién             | Estado                        | Granularidad                                 |
+| ---------------------- | ----------------------------------------------- | ---------------------- | ----------------------------- | -------------------------------------------- |
+| Preferencias generales | `preferencia_usuario.preferencias_extras` JSONB | ADMIN/CAJERO           | ✅ Implementado con endpoints | Por canal global (push ON/OFF, email ON/OFF) |
+| Preferencias por tipo  | `preferencia_notificacion`                      | ADMIN, CAJERO, CLIENTE | ❌ Sin endpoints              | Por tipo específico + canal                  |
 
 ### 10.2 Qué debería ver cada rol en "Preferencias de Notificaciones"
 
@@ -405,16 +406,16 @@ Por categoría:
     [✅] Nueva reserva online          [email] [in_app]
     [✅] Yape por validar              [in_app]
     [✅] Aforo cercano al límite       [in_app]
-  
+
   EVENTOS PRIVADOS
     [✅] Nueva solicitud de evento     [email] [in_app]
     [✅] Contrato sin firma vencido    [email] [in_app]
     [✅] Saldo pendiente               [in_app]
-  
+
   CAJA
     [✅] Caja sin cerrar               [in_app]
     [❌] Resumen diario                [email]
-  
+
   SEGURIDAD
     [✅] Login desde IP nueva          [email]   ← no desactivable
     [✅] Cuenta bloqueada              [email]   ← no desactivable
@@ -425,6 +426,7 @@ Las de seguridad (`LOGIN_IP_NUEVA`, `ADMIN_CUENTA_BLOQUEADA`, `PASSWORD_CAMBIADO
 #### Panel Cajero (si tiene su propia página de preferencias)
 
 Solo ve tipos destinatario=CAJERO:
+
 - Caja sin abrir
 - Reservas en caja hoy
 - Venta anulada
@@ -460,10 +462,12 @@ Seguridad:
 ### 10.3 Implementación recomendada de preferencias
 
 Para el MVP usar el mecanismo ya implementado (JSONB en `preferencia_usuario`):
+
 - Agregar campos booleanos por categoría: `notif_reservas`, `notif_eventos`, `notif_caja`, `notif_marketing`
 - Seguir usando los endpoints existentes (`PATCH /preferencias/admin/me`)
 
 Para la versión completa usar `preferencia_notificacion` (tabla ya creada):
+
 - Permite granularidad por tipo y canal
 - El sistema al crear una notificación consulta esta tabla para saber si enviar o no
 - Hay que crear endpoints: `GET/PUT /preferencias/notificaciones`
@@ -474,14 +478,14 @@ Para la versión completa usar `preferencia_notificacion` (tabla ya creada):
 
 Algunos tipos **nunca deben desactivarse**, independientemente de las preferencias del usuario:
 
-| Código | Por qué no se puede desactivar |
-|--------|-------------------------------|
-| `LOGIN_IP_NUEVA` | Seguridad — el usuario debe saber si alguien accedió |
-| `ADMIN_CUENTA_BLOQUEADA` | Seguridad operacional |
-| `PASSWORD_CAMBIADO` | Seguridad — alerta si otra persona cambió su clave |
-| `PAGO_RECHAZADO` | El cliente debe saber que su pago no fue aceptado |
-| `EVENTO_CANCELADO_ADMIN` | El cliente necesita saberlo para reorganizarse |
-| `CONTRATO_VENCIDO_SIN_FIRMA` | Operativo crítico para el negocio |
+| Código                       | Por qué no se puede desactivar                       |
+| ---------------------------- | ---------------------------------------------------- |
+| `LOGIN_IP_NUEVA`             | Seguridad — el usuario debe saber si alguien accedió |
+| `ADMIN_CUENTA_BLOQUEADA`     | Seguridad operacional                                |
+| `PASSWORD_CAMBIADO`          | Seguridad — alerta si otra persona cambió su clave   |
+| `PAGO_RECHAZADO`             | El cliente debe saber que su pago no fue aceptado    |
+| `EVENTO_CANCELADO_ADMIN`     | El cliente necesita saberlo para reorganizarse       |
+| `CONTRATO_VENCIDO_SIN_FIRMA` | Operativo crítico para el negocio                    |
 
 Implementar en `tipo_notificacion`: agregar columna `es_obligatoria BOOLEAN DEFAULT FALSE` y al evaluar preferencias, saltear el filtro si `es_obligatoria = TRUE`.
 
@@ -490,20 +494,23 @@ Implementar en `tipo_notificacion`: agregar columna `es_obligatoria BOOLEAN DEFA
 ## 12. Plan de acción priorizado
 
 ### Inmediato (sin tocar backend)
+
 1. Agregar los nuevos tipos al seed (`V99`) — solo SQL
 2. Expandir `preferencia_notificacion` con columna `es_obligatoria`
 
 ### Corto plazo (backend)
+
 3. Crear `NotificacionJpaRepository` con queries de limpieza
 4. Crear `NotificacionLimpiezaJob` con los 2 schedules
 5. Crear `CrearNotificacionUseCase` con cálculo de `expira_at`
 6. Integrar en los servicios de negocio (EventoPrivadoService ya llama al puerto — solo agregar BD)
 
 ### Mediano plazo (frontend)
+
 7. Expandir `NotificationSection.tsx` con preferencias por categoría
 8. Expandir `PreferenciasForm.tsx` del cliente con toggles por tipo
 9. Agregar página `/admin/notificaciones` con historial completo y filtros
 
 ---
 
-*Reporte generado el 2026-06-27.*
+_Reporte generado el 2026-06-27._

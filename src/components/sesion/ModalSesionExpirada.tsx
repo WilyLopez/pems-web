@@ -23,14 +23,17 @@ export function ModalSesionExpirada() {
           <Lock className="h-8 w-8 text-amber-600" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-gray-900">Tu sesión ha finalizado</h2>
+          <h2 className="text-xl font-black text-gray-900">
+            Tu sesión ha finalizado
+          </h2>
           <p className="text-sm text-gray-500 mt-2 leading-relaxed">
             Por tu seguridad, cerramos la sesión tras un período de inactividad.
           </p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2.5">
           <p className="text-xs text-green-800">
-            Guardamos tu progreso. Podrás continuar donde lo dejaste al volver a entrar.
+            Guardamos tu progreso. Podrás continuar donde lo dejaste al volver a
+            entrar.
           </p>
         </div>
         <button

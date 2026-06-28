@@ -30,10 +30,15 @@ export function useDisponibilidad(idSede: number, fecha: string | null) {
   })
 }
 
-export function useDisponibilidadRango(idSede: number, inicio: string, fin: string) {
+export function useDisponibilidadRango(
+  idSede: number,
+  inicio: string,
+  fin: string
+) {
   return useQuery({
     queryKey: [CALENDAR_KEYS.RANGO, idSede, inicio, fin],
-    queryFn: ({ signal }) => calendarApi.getDisponibilidadRango(idSede, inicio, fin, signal),
+    queryFn: ({ signal }) =>
+      calendarApi.getDisponibilidadRango(idSede, inicio, fin, signal),
     enabled: !!idSede && !!inicio && !!fin,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 15,
@@ -45,15 +50,29 @@ export function useDisponibilidadRango(idSede: number, inicio: string, fin: stri
 export function useBloquearFechas() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ idSede, confirmado, ...payload }: { idSede: number; fechaInicio: string; fechaFin: string; motivo: string; tipoBloqueo: TipoBloqueo; confirmado?: boolean }) =>
-      calendarApi.bloquearFechas(idSede, payload, confirmado),
+    mutationFn: ({
+      idSede,
+      confirmado,
+      ...payload
+    }: {
+      idSede: number
+      fechaInicio: string
+      fechaFin: string
+      motivo: string
+      tipoBloqueo: TipoBloqueo
+      confirmado?: boolean
+    }) => calendarApi.bloquearFechas(idSede, payload, confirmado),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [CALENDAR_KEYS.RANGO] })
       qc.invalidateQueries({ queryKey: [CALENDAR_KEYS.RESUMEN] })
       toast.success('Accion realizada correctamente.')
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.mensaje ?? err.message ?? 'No se pudo completar la accion.')
+      toast.error(
+        err.response?.data?.mensaje ??
+          err.message ??
+          'No se pudo completar la accion.'
+      )
     },
   })
 }
@@ -76,8 +95,11 @@ export function useDesactivarBloqueo() {
 export function useCrearFeriado() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (payload: { tipoFeriado: string; fecha: string; descripcion: string }) =>
-      calendarApi.crearFeriado(payload),
+    mutationFn: (payload: {
+      tipoFeriado: string
+      fecha: string
+      descripcion: string
+    }) => calendarApi.crearFeriado(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [CALENDAR_KEYS.RANGO] })
       toast.success('Feriado registrado correctamente.')
@@ -156,7 +178,11 @@ export function useCrearProgramacion(idSede: number) {
       toast.success('Programacion semanal creada.')
     },
     onError: (err: any) => {
-      toast.error(err?.response?.data?.mensaje ?? err.message ?? 'No se pudo crear la programacion.')
+      toast.error(
+        err?.response?.data?.mensaje ??
+          err.message ??
+          'No se pudo crear la programacion.'
+      )
     },
   })
 }

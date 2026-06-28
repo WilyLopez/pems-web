@@ -53,7 +53,9 @@ export function LegalPreviewPanel({ titulo, contenido }: Props) {
         <div
           className={cn(
             'mx-auto transition-all duration-300',
-            modo === 'desktop' ? 'max-w-full px-10 py-8' : 'max-w-[390px] px-5 py-6'
+            modo === 'desktop'
+              ? 'max-w-full px-10 py-8'
+              : 'max-w-[390px] px-5 py-6'
           )}
         >
           {titulo && (

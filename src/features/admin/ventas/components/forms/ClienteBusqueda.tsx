@@ -50,8 +50,12 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
             <UserCheck className="h-4 w-4 text-brand-azul" />
           </div>
           <div>
-            <p className="font-semibold text-xs text-gray-800 dark:text-gray-200">Sí, tiene cuenta</p>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">Buscar por correo</p>
+            <p className="font-semibold text-xs text-gray-800 dark:text-gray-200">
+              Sí, tiene cuenta
+            </p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+              Buscar por correo
+            </p>
           </div>
         </button>
         <button
@@ -63,8 +67,12 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
             <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           </div>
           <div>
-            <p className="font-semibold text-xs text-gray-800 dark:text-gray-200">No, es visitante</p>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">Continuar sin cuenta</p>
+            <p className="font-semibold text-xs text-gray-800 dark:text-gray-200">
+              No, es visitante
+            </p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+              Continuar sin cuenta
+            </p>
           </div>
         </button>
       </div>
@@ -74,10 +82,15 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Buscar cliente</p>
+        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">
+          Buscar cliente
+        </p>
         <button
           type="button"
-          onClick={() => { setPaso('inicio'); setEmail('') }}
+          onClick={() => {
+            setPaso('inicio')
+            setEmail('')
+          }}
           className="text-[10px] text-brand-azul hover:underline"
         >
           Volver
@@ -89,7 +102,12 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
           placeholder="correo@ejemplo.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); buscar() } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              buscar()
+            }
+          }}
           className="h-9 text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
         />
         <button
@@ -98,7 +116,11 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
           disabled={!email.trim() || buscando}
           className="h-9 px-3 flex items-center justify-center rounded-lg bg-brand-azul text-white disabled:opacity-40 hover:bg-brand-azul/90 transition-colors"
         >
-          {buscando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+          {buscando ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Search className="h-4 w-4" />
+          )}
         </button>
       </div>
     </div>

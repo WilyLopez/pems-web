@@ -1,11 +1,30 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { X, Crown, Phone, Mail, BadgeCheck, CalendarDays, Clock, Ticket, PartyPopper, CreditCard, Star, RefreshCw, Loader2 } from 'lucide-react'
+import {
+  X,
+  Crown,
+  Phone,
+  Mail,
+  BadgeCheck,
+  CalendarDays,
+  Clock,
+  Ticket,
+  PartyPopper,
+  CreditCard,
+  Star,
+  RefreshCw,
+  Loader2,
+} from 'lucide-react'
 import { Cliente } from '../../types'
 import { useMutacionesCliente } from '../../hooks/useClientesData'
 import { ClienteAvatar } from './ClienteAvatar'
-import { VipBadge, VisitasBadge, OrigenBadge, SegmentoBadge } from './ClienteBadges'
+import {
+  VipBadge,
+  VisitasBadge,
+  OrigenBadge,
+  SegmentoBadge,
+} from './ClienteBadges'
 import { DetalleRow } from './DetalleRow'
 import { StatCard } from './StatCard'
 import { Button } from '@/components/ui/Button'
@@ -152,7 +171,11 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">
               Información
             </p>
-            <DetalleRow icon={Phone} label="Teléfono" value={cliente.telefono} />
+            <DetalleRow
+              icon={Phone}
+              label="Teléfono"
+              value={cliente.telefono}
+            />
             <DetalleRow icon={Mail} label="Correo" value={cliente.correo} />
             <DetalleRow
               icon={BadgeCheck}
@@ -168,7 +191,11 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
             <DetalleRow
               icon={Clock}
               label="Última visita"
-              value={cliente.ultimaVisitaAt ? formatDate(cliente.ultimaVisitaAt) : null}
+              value={
+                cliente.ultimaVisitaAt
+                  ? formatDate(cliente.ultimaVisitaAt)
+                  : null
+              }
             />
             <DetalleRow
               icon={CalendarDays}

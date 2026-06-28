@@ -7,14 +7,14 @@
 
 ## 1. Mapa de módulos analizados
 
-| Módulo | Ruta frontend | Tabla BD | Endpoint |
-|--------|---------------|----------|----------|
-| Configuración global | `/admin/configuracion` | `configuracion_global` | `PUT /api/v1/configuracion` |
-| Configuración calendario | `/admin/configuracion` + `CalendarioAcciones` | `configuracion_calendario` | `PUT /api/v1/calendario/configuracion/sedes/{id}` |
-| Datos de sede | `/admin/configuracion` | `sede` | `PUT /api/v1/sedes/{id}` |
-| Configuración pública (CMS) | `/admin/cms/configuracion-publica` | `configuracion_publica` | `PUT /api/v1/cms/configuracion` |
-| Sistema/Mantenimiento | `/admin/configuracion` (SistemaCard) | `configuracion_publica` | `PUT /api/v1/cms/configuracion` |
-| Fidelización | Sin pantalla propia | `fidelizacion_config` | `PUT /api/v1/fidelizacion/config/sedes/{id}` |
+| Módulo                      | Ruta frontend                                 | Tabla BD                   | Endpoint                                          |
+| --------------------------- | --------------------------------------------- | -------------------------- | ------------------------------------------------- |
+| Configuración global        | `/admin/configuracion`                        | `configuracion_global`     | `PUT /api/v1/configuracion`                       |
+| Configuración calendario    | `/admin/configuracion` + `CalendarioAcciones` | `configuracion_calendario` | `PUT /api/v1/calendario/configuracion/sedes/{id}` |
+| Datos de sede               | `/admin/configuracion`                        | `sede`                     | `PUT /api/v1/sedes/{id}`                          |
+| Configuración pública (CMS) | `/admin/cms/configuracion-publica`            | `configuracion_publica`    | `PUT /api/v1/cms/configuracion`                   |
+| Sistema/Mantenimiento       | `/admin/configuracion` (SistemaCard)          | `configuracion_publica`    | `PUT /api/v1/cms/configuracion`                   |
+| Fidelización                | Sin pantalla propia                           | `fidelizacion_config`      | `PUT /api/v1/fidelizacion/config/sedes/{id}`      |
 
 ---
 
@@ -25,6 +25,7 @@
 **Archivo:** [SistemaCard.tsx](../src/components/admin/configuracion/SistemaCard.tsx)
 
 `SistemaCard` vive en `/admin/configuracion` pero:
+
 - Llama a `useConfiguracionAdmin()` → `GET /cms/configuracion`
 - Llama a `useActualizarConfiguracionPublica()` → `PUT /cms/configuracion`
 - Modifica campos de la tabla `configuracion_publica` (`es_mantenimiento_activo`, `mensaje_mantenimiento`)
@@ -42,6 +43,7 @@ Es decir, **edita datos de CMS desde el módulo de configuración del sistema**.
 ### 2.2 ❌ CRÍTICO — Configuración de calendario duplicada en dos lugares
 
 **Archivos afectados:**
+
 - [configuracion/page.tsx](../src/app/admin/configuracion/page.tsx) — cards Operación, Reservas, Eventos
 - [CalendarioAcciones.tsx](../src/features/admin/calendario/components/actions/CalendarioAcciones.tsx) — botón "Configurar calendario" → `ConfigurarCalendarioModal`
 
@@ -53,14 +55,15 @@ Ambos editan exactamente la misma entidad `configuracion_calendario` vía el mis
 
 ### 2.3 ❌ CRÍTICO — Datos de contacto en tres lugares distintos
 
-| Campo | `sede` | `configuracion_publica` | `configuracion_global` |
-|-------|--------|------------------------|----------------------|
-| Teléfono | `telefono` | `telefono`, `telefonoSecundario` | — |
-| WhatsApp | — | `whatsapp` | `WHATSAPP_NUMERO` |
-| Correo | `correo` | `correo`, `correoSecundario` | — |
-| Dirección | `direccion` | `direccion` | — |
+| Campo     | `sede`      | `configuracion_publica`          | `configuracion_global` |
+| --------- | ----------- | -------------------------------- | ---------------------- |
+| Teléfono  | `telefono`  | `telefono`, `telefonoSecundario` | —                      |
+| WhatsApp  | —           | `whatsapp`                       | `WHATSAPP_NUMERO`      |
+| Correo    | `correo`    | `correo`, `correoSecundario`     | —                      |
+| Dirección | `direccion` | `direccion`                      | —                      |
 
 El mismo dato puede estar en dos tablas sin que sea obvio cuál es la fuente de verdad:
+
 - El sitio web público ¿muestra el teléfono de `sede` o el de `configuracion_publica`?
 - `WHATSAPP_NUMERO` en `configuracion_global` y `whatsapp` en `configuracion_publica` son el mismo dato.
 
@@ -69,14 +72,17 @@ El mismo dato puede estar en dos tablas sin que sea obvio cuál es la fuente de 
 ### 2.4 ❌ CRÍTICO — Tabla legacy `configuracion_sede` no migrada completamente
 
 La migración `V3_sede_y_configuracion.sql` crea `configuracion_sede` con:
+
 - `dias_operacion INT[]` (array de enteros)
 - `porcentaje_adelanto_evento NUMERIC(5,2)` ← **campo que NO existe en `configuracion_calendario`**
 
 La migración `V15_configuracion_calendario.sql` crea `configuracion_calendario` con:
+
 - `dias_operacion VARCHAR(20)` ← tipo diferente (string CSV en lugar de array)
 - Sin `porcentaje_adelanto_evento`
 
 **Problemas derivados:**
+
 1. Si hay código legacy que aún lee `configuracion_sede`, obtiene `dias_operacion` en formato INT[] que no es compatible con el nuevo VARCHAR.
 2. `porcentaje_adelanto_evento` desapareció sin migración de datos — se perdió el dato.
 3. `configuracion_sede` parece ser una tabla huérfana en la BD sin consumidores activos en el nuevo sistema.
@@ -88,9 +94,9 @@ La migración `V15_configuracion_calendario.sql` crea `configuracion_calendario`
 `application.yaml` tiene hardcoded valores que también están en BD:
 
 ```yaml
-negocio.aforo-maximo: 60           # duplicado: configuracion_calendario.aforo_maximo
-negocio.dias-max-reserva-publica: 14  # duplicado: configuracion_calendario.dias_max_reserva_publica
-negocio.visitas-para-entrada-gratis: 6  # duplicado: fidelizacion_config.umbral
+negocio.aforo-maximo: 60 # duplicado: configuracion_calendario.aforo_maximo
+negocio.dias-max-reserva-publica: 14 # duplicado: configuracion_calendario.dias_max_reserva_publica
+negocio.visitas-para-entrada-gratis: 6 # duplicado: fidelizacion_config.umbral
 ```
 
 Si el admin cambia el aforo a 80 desde la pantalla, pero el backend tiene un validador que lee el YAML, el límite real seguirá siendo 60. Hay que verificar qué fuente usa cada validador.
@@ -99,10 +105,10 @@ Si el admin cambia el aforo a 80 desde la pantalla, pero el backend tiene un val
 
 ### 2.6 ⚠️ MODERADO — Colores en tres contextos sin distinción clara
 
-| Campo | Contexto | Dónde se edita |
-|-------|----------|----------------|
-| `color_primario` / `color_secundario` | Colores del **sitio web público** | CMS → Configuración Pública |
-| `colorPrimario` / `colorSecundario` / `colorSidebar` / `colorAcento` | Colores del **panel admin** (preferencias) | Preferencias de usuario |
+| Campo                                                                | Contexto                                   | Dónde se edita              |
+| -------------------------------------------------------------------- | ------------------------------------------ | --------------------------- |
+| `color_primario` / `color_secundario`                                | Colores del **sitio web público**          | CMS → Configuración Pública |
+| `colorPrimario` / `colorSecundario` / `colorSidebar` / `colorAcento` | Colores del **panel admin** (preferencias) | Preferencias de usuario     |
 
 Son contextos completamente distintos pero visualmente similares en el UI. Un admin puede cambiar el color primario en CMS pensando que afecta al panel, o viceversa. No hay etiquetas que aclaren el alcance.
 
@@ -134,6 +140,7 @@ El historial de logos y favicons subidos se guarda solo en el navegador local. S
 ### 2.9 ⚠️ MODERADO — Campos JSONB en BD no expuestos en frontend
 
 La migración `V20__mejoras_sitio_publico.sql` agrega a `configuracion_publica`:
+
 - `metricas_negocio JSONB`
 - `reglas_local JSONB`
 
@@ -153,12 +160,12 @@ Los medios de pago están hardcodeados en el controlador. Si el negocio deja de 
 
 ### 2.11 ℹ️ MENOR — Nomenclatura inconsistente entre capas
 
-| Capa | Campo |
-|------|-------|
-| BD (snake_case) | `es_mantenimiento_activo` |
-| Java Entity | `esMantenimientoActivo` |
-| Frontend type | `mantenimientoActivo` (sin prefijo `es`) |
-| Zod schema | `mantenimientoActivo` |
+| Capa            | Campo                                    |
+| --------------- | ---------------------------------------- |
+| BD (snake_case) | `es_mantenimiento_activo`                |
+| Java Entity     | `esMantenimientoActivo`                  |
+| Frontend type   | `mantenimientoActivo` (sin prefijo `es`) |
+| Zod schema      | `mantenimientoActivo`                    |
 
 La entidad Java usa el prefijo `es` (booleano semántico correcto) pero el DTO/type del frontend lo omite. No causa bugs porque el mapeo JSON es por nombre del campo serializado, pero dificulta la trazabilidad cuando se busca el campo en el código.
 
@@ -181,6 +188,7 @@ El módulo mezcla configuración **operativa de negocio** (lo que el dueño del 
 ### 3.2 Meta tags SEO y Open Graph → Mover a CMS o eliminar
 
 `metaTitle`, `metaDescription`, `metaKeywords`, `openGraphTitle`, `openGraphDescription`, `openGraphImageUrl` son datos que:
+
 - El dueño de un local de juegos infantil probablemente no entiende ni mantiene.
 - Se configuran una vez y raramente cambian.
 - Su mantenimiento correcto requiere conocimiento de SEO.
@@ -250,12 +258,12 @@ Mover los catálogos a una sección de Ayuda/Referencia o a la documentación. E
 **Estado actual:** 8 cards en grilla 4 columnas  
 **Propuesta:** 4 cards más densas y mejor organizadas
 
-| Card propuesta | Contenido consolidado | Antes |
-|---------------|----------------------|-------|
-| Del negocio & operación | Sede + Horarios + Turnos + Aforo + Reservas + Eventos | 4 cards |
-| Seguridad de acceso | Sin cambios | 1 card |
-| Pagos y facturación | Sin cambios | 1 card |
-| Sistema avanzado | Mantenimiento movido a CMS; esta card queda para futuras integraciones técnicas | — |
+| Card propuesta          | Contenido consolidado                                                           | Antes   |
+| ----------------------- | ------------------------------------------------------------------------------- | ------- |
+| Del negocio & operación | Sede + Horarios + Turnos + Aforo + Reservas + Eventos                           | 4 cards |
+| Seguridad de acceso     | Sin cambios                                                                     | 1 card  |
+| Pagos y facturación     | Sin cambios                                                                     | 1 card  |
+| Sistema avanzado        | Mantenimiento movido a CMS; esta card queda para futuras integraciones técnicas | —       |
 
 ### 4.6 Sugerencia para Configuración Pública (CMS)
 
@@ -356,6 +364,7 @@ Existe un segundo módulo de configuración completamente refactorizado en:
 [/features/admin/configuracion/](../src/features/admin/configuracion/)
 
 Este módulo nuevo tiene:
+
 - `ConfiguracionView.tsx` — vista principal mejorada (5 cards en lugar de 8)
 - `SystemHealthPanel.tsx` — panel de alertas proactivas del sistema
 - `SistemaSection.tsx` — consolida Mantenimiento + SUNAT en una sola card
@@ -393,6 +402,7 @@ El seed `V99_seed.sql` inserta estas claves en `configuracion_global`:
 **`EDAD_MAX_NINO` no está en el seed.** Tampoco `EDAD_MIN_NINO`.
 
 El servicio backend valida explícitamente:
+
 ```java
 ConfiguracionGlobal config = configuracionRepository.findByClave(entry.getKey())
     .orElseThrow(() -> new ResourceNotFoundException("Configuracion", "clave", entry.getKey()));
@@ -413,6 +423,7 @@ El módulo nuevo `ReservasEventosSection.tsx` ya corrigió esto: usa `edadMinCum
 El formulario de Reservas del módulo activo valida cada campo por separado pero **no valida que `diasMinReservaPublica < diasMaxReservaPublica`**.
 
 El módulo nuevo `ReservasEventosSection.tsx` sí lo valida:
+
 ```ts
 .refine(d => d.diasMinReservaPublica < d.diasMaxReservaPublica, ...)
 ```
@@ -426,6 +437,7 @@ Si el admin configura `diasMin = 7` y `diasMax = 7`, la ventana de reservas es c
 **Archivo afectado:** [OperacionTab.tsx](../src/components/admin/configuracion/OperacionTab.tsx)
 
 El formulario permite configurar turnos sin verificar que no se superpongan:
+
 - `turnoT1Fin` puede ser mayor que `turnoT2Inicio`
 - No hay validación de que los turnos estén dentro del rango apertura-cierre
 
@@ -437,47 +449,47 @@ Ejemplo posible sin error: `T1: 10:00–18:00` y `T2: 14:00–20:00` → 4 horas
 
 ### 8.1 Seguro de eliminar (sin riesgo de error)
 
-| Elemento | Razón | Riesgo |
-|----------|-------|--------|
-| `CatalogosCard` / `CatalogosTab` | Datos hardcodeados en el frontend, no vienen de BD, no tienen lógica | Ninguno |
-| `WHATSAPP_NUMERO` de `configuracion_global` | Duplicado con `configuracion_publica.whatsapp`. Ningún código del backend nuevo lo lee | Bajo — verificar que ningún servicio de notificaciones lo lea |
-| Módulo viejo en `/components/admin/configuracion/` | Una vez que se conecte el módulo nuevo `ConfiguracionView` al router | Solo después de conectar el nuevo |
-| `metaKeywords` del formulario CMS | Los motores de búsqueda lo ignoran desde 2009 | Ninguno en SEO; solo eliminar del form, mantener campo en BD por compatibilidad |
+| Elemento                                           | Razón                                                                                  | Riesgo                                                                          |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `CatalogosCard` / `CatalogosTab`                   | Datos hardcodeados en el frontend, no vienen de BD, no tienen lógica                   | Ninguno                                                                         |
+| `WHATSAPP_NUMERO` de `configuracion_global`        | Duplicado con `configuracion_publica.whatsapp`. Ningún código del backend nuevo lo lee | Bajo — verificar que ningún servicio de notificaciones lo lea                   |
+| Módulo viejo en `/components/admin/configuracion/` | Una vez que se conecte el módulo nuevo `ConfiguracionView` al router                   | Solo después de conectar el nuevo                                               |
+| `metaKeywords` del formulario CMS                  | Los motores de búsqueda lo ignoran desde 2009                                          | Ninguno en SEO; solo eliminar del form, mantener campo en BD por compatibilidad |
 
 ### 8.2 NO eliminar — Causa errores inmediatos en backend
 
-| Elemento | Consecuencia si se elimina |
-|----------|---------------------------|
-| `INTENTOS_LOGIN_ANTES_BLOQUEO` | El servicio de autenticación no puede leer el límite → puede dejar de bloquear cuentas o crashear |
-| `DURACION_BLOQUEO_LOGIN_MIN` | Sin duración de bloqueo definida, el comportamiento del login queda indefinido |
-| `EXPIRACION_SESION_ADMIN_MIN` | Las sesiones de admin nunca expiran (riesgo de seguridad) o el backend lanza NullPointerException |
-| `SUNAT_PROVEEDOR` | La emisión de comprobantes electrónicos no sabe qué proveedor usar → todas las facturas/boletas fallan |
-| `SUNAT_API_URL` / `SUNAT_API_TOKEN` | Sin endpoint ni token, SUNAT rechaza todas las llamadas |
-| `DECOLECTA_API_URL` / `DECOLECTA_API_TOKEN` | La búsqueda por DNI falla en toda el sistema |
-| `STORAGE_BUCKET_PUBLICO/PRIVADO/TEMPORAL` | La subida de imágenes (logos, galería, banners) falla con NullPointerException en el StorageService |
+| Elemento                                    | Consecuencia si se elimina                                                                             |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `INTENTOS_LOGIN_ANTES_BLOQUEO`              | El servicio de autenticación no puede leer el límite → puede dejar de bloquear cuentas o crashear      |
+| `DURACION_BLOQUEO_LOGIN_MIN`                | Sin duración de bloqueo definida, el comportamiento del login queda indefinido                         |
+| `EXPIRACION_SESION_ADMIN_MIN`               | Las sesiones de admin nunca expiran (riesgo de seguridad) o el backend lanza NullPointerException      |
+| `SUNAT_PROVEEDOR`                           | La emisión de comprobantes electrónicos no sabe qué proveedor usar → todas las facturas/boletas fallan |
+| `SUNAT_API_URL` / `SUNAT_API_TOKEN`         | Sin endpoint ni token, SUNAT rechaza todas las llamadas                                                |
+| `DECOLECTA_API_URL` / `DECOLECTA_API_TOKEN` | La búsqueda por DNI falla en toda el sistema                                                           |
+| `STORAGE_BUCKET_PUBLICO/PRIVADO/TEMPORAL`   | La subida de imágenes (logos, galería, banners) falla con NullPointerException en el StorageService    |
 
 ### 8.3 NO eliminar — Causa errores en reglas de negocio
 
-| Elemento | Consecuencia si se elimina o pone en cero |
-|----------|------------------------------------------|
-| `aforoMaximo` | Sin límite, el sistema podría aceptar 1000 reservas para el mismo día |
-| `horaApertura` / `horaCierre` | El calendario público no puede calcular slots disponibles |
-| `rangoMaxBloqueo` | `CalendarioAcciones.tsx` usa este valor para validar bloqueos; sin él cae al default 90 días (puede ocultarse el problema) |
-| `edadMinCumple` / `edadMaxCumple` | El wizard de celebraciones (`SolicitarEventoWizardView.tsx`) usa estos valores para validar la edad del cumpleañero. Si se borra la fila de `configuracion_calendario`, los formularios de nuevo evento aceptarían cualquier edad |
-| `diasMaxReservaPublica` | Si se pone muy bajo (ej: 1), los clientes solo pueden reservar con 1 día de anticipación máximo |
-| `nombreNegocio` en `configuracion_publica` | El campo tiene `@NotNull` en BD; un PUT con campo vacío rechazado a nivel de validación Java |
-| `esMantenimientoActivo` | Si se borra la fila singleton de `configuracion_publica`, `ConfiguracionPublicaService.obtenerOAutocrear()` recrea el registro con `nombreNegocio="Mi Negocio"` y `colorTema="#000000"` — se pierden todos los datos de branding |
+| Elemento                                   | Consecuencia si se elimina o pone en cero                                                                                                                                                                                         |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `aforoMaximo`                              | Sin límite, el sistema podría aceptar 1000 reservas para el mismo día                                                                                                                                                             |
+| `horaApertura` / `horaCierre`              | El calendario público no puede calcular slots disponibles                                                                                                                                                                         |
+| `rangoMaxBloqueo`                          | `CalendarioAcciones.tsx` usa este valor para validar bloqueos; sin él cae al default 90 días (puede ocultarse el problema)                                                                                                        |
+| `edadMinCumple` / `edadMaxCumple`          | El wizard de celebraciones (`SolicitarEventoWizardView.tsx`) usa estos valores para validar la edad del cumpleañero. Si se borra la fila de `configuracion_calendario`, los formularios de nuevo evento aceptarían cualquier edad |
+| `diasMaxReservaPublica`                    | Si se pone muy bajo (ej: 1), los clientes solo pueden reservar con 1 día de anticipación máximo                                                                                                                                   |
+| `nombreNegocio` en `configuracion_publica` | El campo tiene `@NotNull` en BD; un PUT con campo vacío rechazado a nivel de validación Java                                                                                                                                      |
+| `esMantenimientoActivo`                    | Si se borra la fila singleton de `configuracion_publica`, `ConfiguracionPublicaService.obtenerOAutocrear()` recrea el registro con `nombreNegocio="Mi Negocio"` y `colorTema="#000000"` — se pierden todos los datos de branding  |
 
 ### 8.4 Peligroso de modificar sin precaución (no eliminar, pero editar con cuidado)
 
-| Acción del admin | Escenario de error |
-|-----------------|-------------------|
-| Reducir `diasMinReservaPublica` a 0 durante temporada alta | Los clientes pueden reservar para el mismo día, desbordando al staff si no hay flujo de aprobación manual |
-| Aumentar `diasMaxReservaPublica` a más de 365 | No es un error técnico, pero puede generar reservas muy lejanas que el negocio no puede garantizar (cambio de precios, etc.) |
-| Cambiar `SUNAT_PROVEEDOR` durante el día cuando hay comprobantes en estado PENDIENTE | Las facturas pendientes de envío pueden quedar en limbo si el nuevo proveedor tiene un formato diferente |
-| Activar modo mantenimiento sin recordar desactivarlo | El sitio público queda inaccesible indefinidamente. No hay temporizador automático de desactivación |
-| Reducir `INTENTOS_LOGIN_ANTES_BLOQUEO` a 1 | El propio admin que está configurando puede bloquearse en su siguiente intento fallido de login |
-| Cambiar `horaApertura` a una hora posterior a la de inicio de reservas ya confirmadas del día | Las reservas del día ya confirmadas podrían quedar "fuera de horario" pero no se cancelan automáticamente |
+| Acción del admin                                                                              | Escenario de error                                                                                                           |
+| --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Reducir `diasMinReservaPublica` a 0 durante temporada alta                                    | Los clientes pueden reservar para el mismo día, desbordando al staff si no hay flujo de aprobación manual                    |
+| Aumentar `diasMaxReservaPublica` a más de 365                                                 | No es un error técnico, pero puede generar reservas muy lejanas que el negocio no puede garantizar (cambio de precios, etc.) |
+| Cambiar `SUNAT_PROVEEDOR` durante el día cuando hay comprobantes en estado PENDIENTE          | Las facturas pendientes de envío pueden quedar en limbo si el nuevo proveedor tiene un formato diferente                     |
+| Activar modo mantenimiento sin recordar desactivarlo                                          | El sitio público queda inaccesible indefinidamente. No hay temporizador automático de desactivación                          |
+| Reducir `INTENTOS_LOGIN_ANTES_BLOQUEO` a 1                                                    | El propio admin que está configurando puede bloquearse en su siguiente intento fallido de login                              |
+| Cambiar `horaApertura` a una hora posterior a la de inicio de reservas ya confirmadas del día | Las reservas del día ya confirmadas podrían quedar "fuera de horario" pero no se cancelan automáticamente                    |
 
 ---
 
@@ -503,4 +515,4 @@ Estas preguntas surgieron del análisis y deben resolverse antes de hacer cambio
 
 ---
 
-*Fin del reporte. Actualizado: 2026-06-27. Archivos fuente analizados: 40+ archivos entre frontend, backend y migraciones SQL.*
+_Fin del reporte. Actualizado: 2026-06-27. Archivos fuente analizados: 40+ archivos entre frontend, backend y migraciones SQL._

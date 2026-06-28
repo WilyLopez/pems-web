@@ -18,8 +18,18 @@ import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 const MESES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
 ]
 
 function KpiCard({
@@ -39,11 +49,18 @@ function KpiCard({
 }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-      <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', color)}>
+      <div
+        className={cn(
+          'w-10 h-10 rounded-xl flex items-center justify-center',
+          color
+        )}
+      >
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className={cn('text-2xl font-black', valueClass ?? 'text-gray-900')}>{value}</p>
+        <p className={cn('text-2xl font-black', valueClass ?? 'text-gray-900')}>
+          {value}
+        </p>
         <p className="text-sm font-semibold text-gray-700">{label}</p>
         {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
       </div>
@@ -52,7 +69,9 @@ function KpiCard({
 }
 
 function SkeletonCard() {
-  return <div className="bg-white rounded-2xl border border-gray-100 p-5 h-32 animate-pulse" />
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 h-32 animate-pulse" />
+  )
 }
 
 export default function FinanzasDashboardPage() {
@@ -61,19 +80,27 @@ export default function FinanzasDashboardPage() {
   const [anio, setAnio] = useState(hoy.getFullYear())
   const [mes, setMes] = useState(hoy.getMonth() + 1)
 
-  const { data: dash, isLoading } = useDashboardFinanciero(idSede ?? undefined, anio, mes)
+  const { data: dash, isLoading } = useDashboardFinanciero(
+    idSede ?? undefined,
+    anio,
+    mes
+  )
 
   const anios = Array.from({ length: 5 }, (_, i) => hoy.getFullYear() - i)
 
   const utilidadPositiva = (dash?.utilidadNeta ?? 0) >= 0
-  const margen = dash && dash.totalIngresos > 0
-    ? ((dash.utilidadNeta / dash.totalIngresos) * 100).toFixed(1)
-    : '0.0'
+  const margen =
+    dash && dash.totalIngresos > 0
+      ? ((dash.utilidadNeta / dash.totalIngresos) * 100).toFixed(1)
+      : '0.0'
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <PageHeader title="Dashboard Financiero" description="Resumen consolidado de ingresos, egresos y caja" />
+        <PageHeader
+          title="Dashboard Financiero"
+          description="Resumen consolidado de ingresos, egresos y caja"
+        />
         <div className="flex items-center gap-2">
           <select
             value={mes}
@@ -81,7 +108,9 @@ export default function FinanzasDashboardPage() {
             className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-azul"
           >
             {MESES.map((m, i) => (
-              <option key={i + 1} value={i + 1}>{m}</option>
+              <option key={i + 1} value={i + 1}>
+                {m}
+              </option>
             ))}
           </select>
           <select
@@ -90,7 +119,9 @@ export default function FinanzasDashboardPage() {
             className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-azul"
           >
             {anios.map((a) => (
-              <option key={a} value={a}>{a}</option>
+              <option key={a} value={a}>
+                {a}
+              </option>
             ))}
           </select>
         </div>
@@ -99,10 +130,14 @@ export default function FinanzasDashboardPage() {
       {isLoading ? (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
           <div className="grid lg:grid-cols-3 gap-4">
-            {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         </>
       ) : !dash ? (
@@ -131,7 +166,11 @@ export default function FinanzasDashboardPage() {
               value={formatCurrency(dash.utilidadNeta)}
               sub={`Margen: ${margen}%`}
               icon={DollarSign}
-              color={utilidadPositiva ? 'bg-brand-azul/10 text-brand-azul' : 'bg-red-100 text-red-600'}
+              color={
+                utilidadPositiva
+                  ? 'bg-brand-azul/10 text-brand-azul'
+                  : 'bg-red-100 text-red-600'
+              }
               valueClass={utilidadPositiva ? 'text-brand-azul' : 'text-red-600'}
             />
             <KpiCard
@@ -151,21 +190,39 @@ export default function FinanzasDashboardPage() {
               </h3>
               <ul className="space-y-2">
                 {[
-                  { label: 'Reservas públicas', value: dash.ingresoReservas, color: 'bg-emerald-500' },
-                  { label: 'Adelantos eventos', value: dash.ingresoAdelantos, color: 'bg-brand-azul' },
-                  { label: 'Ingresos manuales', value: dash.ingresoManual, color: 'bg-brand-amarillo' },
+                  {
+                    label: 'Reservas públicas',
+                    value: dash.ingresoReservas,
+                    color: 'bg-emerald-500',
+                  },
+                  {
+                    label: 'Adelantos eventos',
+                    value: dash.ingresoAdelantos,
+                    color: 'bg-brand-azul',
+                  },
+                  {
+                    label: 'Ingresos manuales',
+                    value: dash.ingresoManual,
+                    color: 'bg-brand-amarillo',
+                  },
                 ].map(({ label, value, color }) => {
-                  const pct = dash.totalIngresos > 0
-                    ? Math.round((value / dash.totalIngresos) * 100)
-                    : 0
+                  const pct =
+                    dash.totalIngresos > 0
+                      ? Math.round((value / dash.totalIngresos) * 100)
+                      : 0
                   return (
                     <li key={label} className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-600">{label}</span>
-                        <span className="font-semibold text-gray-800">{formatCurrency(value)}</span>
+                        <span className="font-semibold text-gray-800">
+                          {formatCurrency(value)}
+                        </span>
                       </div>
                       <div className="h-1.5 rounded-full bg-gray-100">
-                        <div className={cn('h-1.5 rounded-full', color)} style={{ width: `${pct}%` }} />
+                        <div
+                          className={cn('h-1.5 rounded-full', color)}
+                          style={{ width: `${pct}%` }}
+                        />
                       </div>
                     </li>
                   )
@@ -180,21 +237,39 @@ export default function FinanzasDashboardPage() {
               </h3>
               <ul className="space-y-2">
                 {[
-                  { label: 'Fijo', value: dash.egresoFijo, color: 'bg-red-500' },
-                  { label: 'Variable', value: dash.egresoVariable, color: 'bg-orange-400' },
-                  { label: 'Eventual', value: dash.egresoEventual, color: 'bg-yellow-400' },
+                  {
+                    label: 'Fijo',
+                    value: dash.egresoFijo,
+                    color: 'bg-red-500',
+                  },
+                  {
+                    label: 'Variable',
+                    value: dash.egresoVariable,
+                    color: 'bg-orange-400',
+                  },
+                  {
+                    label: 'Eventual',
+                    value: dash.egresoEventual,
+                    color: 'bg-yellow-400',
+                  },
                 ].map(({ label, value, color }) => {
-                  const pct = dash.totalEgresos > 0
-                    ? Math.round((value / dash.totalEgresos) * 100)
-                    : 0
+                  const pct =
+                    dash.totalEgresos > 0
+                      ? Math.round((value / dash.totalEgresos) * 100)
+                      : 0
                   return (
                     <li key={label} className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-600">{label}</span>
-                        <span className="font-semibold text-gray-800">{formatCurrency(value)}</span>
+                        <span className="font-semibold text-gray-800">
+                          {formatCurrency(value)}
+                        </span>
                       </div>
                       <div className="h-1.5 rounded-full bg-gray-100">
-                        <div className={cn('h-1.5 rounded-full', color)} style={{ width: `${pct}%` }} />
+                        <div
+                          className={cn('h-1.5 rounded-full', color)}
+                          style={{ width: `${pct}%` }}
+                        />
                       </div>
                     </li>
                   )
@@ -210,15 +285,21 @@ export default function FinanzasDashboardPage() {
               <ul className="divide-y divide-gray-100">
                 <li className="flex justify-between py-2 text-sm">
                   <span className="text-gray-600">Confirmadas</span>
-                  <span className="font-semibold text-emerald-600">{dash.reservasConfirmadas}</span>
+                  <span className="font-semibold text-emerald-600">
+                    {dash.reservasConfirmadas}
+                  </span>
                 </li>
                 <li className="flex justify-between py-2 text-sm">
                   <span className="text-gray-600">Canceladas</span>
-                  <span className="font-semibold text-red-500">{dash.reservasCanceladas}</span>
+                  <span className="font-semibold text-red-500">
+                    {dash.reservasCanceladas}
+                  </span>
                 </li>
                 <li className="flex justify-between py-2 text-sm">
                   <span className="text-gray-600">Saldo pendiente eventos</span>
-                  <span className="font-semibold text-brand-azul">{formatCurrency(dash.saldoPendienteEventos)}</span>
+                  <span className="font-semibold text-brand-azul">
+                    {formatCurrency(dash.saldoPendienteEventos)}
+                  </span>
                 </li>
               </ul>
 

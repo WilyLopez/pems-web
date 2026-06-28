@@ -3,7 +3,14 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 
-export type ModalType = 'nuevo' | 'ver' | 'editar' | 'rol' | 'reset' | 'desactivar' | 'desbloquear'
+export type ModalType =
+  | 'nuevo'
+  | 'ver'
+  | 'editar'
+  | 'rol'
+  | 'reset'
+  | 'desactivar'
+  | 'desbloquear'
 
 export function useUsuariosNav() {
   const router = useRouter()
@@ -48,8 +55,10 @@ export function useUsuariosNav() {
     page,
     userId,
     setSearch: (s: string) => updateParams({ search: s || null, page: null }),
-    setRol: (r: string) => updateParams({ rol: r !== 'TODOS' ? r : null, page: null }),
-    setEstado: (e: string) => updateParams({ estado: e !== 'TODOS' ? e : null, page: null }),
+    setRol: (r: string) =>
+      updateParams({ rol: r !== 'TODOS' ? r : null, page: null }),
+    setEstado: (e: string) =>
+      updateParams({ estado: e !== 'TODOS' ? e : null, page: null }),
     setPage: (p: number) => updateParams({ page: p > 1 ? p.toString() : null }),
     openModal: (m: ModalType, id?: number) =>
       updateParams({ modal: m, userId: id ? id.toString() : null }),

@@ -9,9 +9,14 @@ export function useNuevaContrasena() {
 
   return useMutation({
     mutationFn: async (values: NuevaFormValues) => {
-      const { error } = await supabase.auth.updateUser({ password: values.password })
+      const { error } = await supabase.auth.updateUser({
+        password: values.password,
+      })
       if (error) {
-        throw new Error(error.message || 'No se pudo actualizar la contraseña. El enlace puede haber expirado.')
+        throw new Error(
+          error.message ||
+            'No se pudo actualizar la contraseña. El enlace puede haber expirado.'
+        )
       }
     },
     onSuccess: () => {

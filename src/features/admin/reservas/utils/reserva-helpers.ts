@@ -6,7 +6,9 @@ export const reservaHelpers = {
   },
 
   canEnter: (reserva: Reserva) => {
-    return !reserva.ingresado && ['PENDIENTE', 'CONFIRMADA'].includes(reserva.estado)
+    return (
+      !reserva.ingresado && ['PENDIENTE', 'CONFIRMADA'].includes(reserva.estado)
+    )
   },
 
   needsYapeValidation: (reserva: Reserva) => {

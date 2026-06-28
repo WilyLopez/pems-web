@@ -33,10 +33,7 @@ export const marketingService = {
     await api.delete(`/marketing/tipos-email/${codigo}`)
   },
 
-  listarPlantillas: async (
-    page = 0,
-    size = 20
-  ): Promise<PlantillaEmail[]> => {
+  listarPlantillas: async (page = 0, size = 20): Promise<PlantillaEmail[]> => {
     const { data } = await api.get<ApiResponse<PlantillaEmail[]>>(
       '/marketing/plantillas',
       { params: { page, size } }
@@ -72,9 +69,7 @@ export const marketingService = {
     return data.data
   },
 
-  crearCampana: async (
-    payload: CrearCampanaPayload
-  ): Promise<CampanaEmail> => {
+  crearCampana: async (payload: CrearCampanaPayload): Promise<CampanaEmail> => {
     const { data } = await api.post<ApiResponse<CampanaEmail>>(
       '/marketing/campanas',
       payload

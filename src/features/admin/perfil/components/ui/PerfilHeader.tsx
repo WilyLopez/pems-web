@@ -9,7 +9,11 @@ import {
   Clock,
   Crown,
 } from 'lucide-react'
-import { UsuarioAdmin, RolAdmin, getEstadoAdmin } from '@/features/admin/usuarios/types'
+import {
+  UsuarioAdmin,
+  RolAdmin,
+  getEstadoAdmin,
+} from '@/features/admin/usuarios/types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar'
 import { RolBadge } from '@/features/admin/usuarios/components/ui/RolBadge'
 import { EstadoBadge } from '@/features/admin/usuarios/components/ui/EstadoBadge'
@@ -31,14 +35,14 @@ function initials(nombre: string) {
 
 const ROL_GRADIENT: Record<RolAdmin, string> = {
   SUPERADMIN: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 60%, #3b0764 100%)',
-  ADMIN:      'linear-gradient(135deg, #00AEEF 0%, #0086c3 60%, #005f8e 100%)',
-  CAJERO:     'linear-gradient(135deg, #059669 0%, #047857 60%, #064e3b 100%)',
+  ADMIN: 'linear-gradient(135deg, #00AEEF 0%, #0086c3 60%, #005f8e 100%)',
+  CAJERO: 'linear-gradient(135deg, #059669 0%, #047857 60%, #064e3b 100%)',
 }
 
 const ROL_LABEL: Record<RolAdmin, string> = {
   SUPERADMIN: 'Super Administrador',
-  ADMIN:      'Administrador',
-  CAJERO:     'Cajero',
+  ADMIN: 'Administrador',
+  CAJERO: 'Cajero',
 }
 
 interface PerfilHeaderProps {
@@ -64,24 +68,27 @@ function StatItem({ icon: Icon, label, value }: StatItemProps) {
   )
 }
 
-export function PerfilHeader({ admin, onTabChange, isOwnProfile = true }: PerfilHeaderProps) {
-  const estado      = getEstadoAdmin(admin)
+export function PerfilHeader({
+  admin,
+  onTabChange,
+  isOwnProfile = true,
+}: PerfilHeaderProps) {
+  const estado = getEstadoAdmin(admin)
   const isSuperAdmin = admin.rol === 'SUPERADMIN'
-  const gradient    = ROL_GRADIENT[admin.rol] ?? ROL_GRADIENT.ADMIN
+  const gradient = ROL_GRADIENT[admin.rol] ?? ROL_GRADIENT.ADMIN
 
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-100 shadow-card">
       {isSuperAdmin && (
         <div className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white text-xs font-semibold">
           <Crown className="h-3.5 w-3.5 text-yellow-300 fill-yellow-300" />
-          <span>Cuenta con acceso total al sistema — todos los permisos habilitados</span>
+          <span>
+            Cuenta con acceso total al sistema — todos los permisos habilitados
+          </span>
         </div>
       )}
 
-      <div
-        className="relative px-6 pt-6 pb-8"
-        style={{ background: gradient }}
-      >
+      <div className="relative px-6 pt-6 pb-8" style={{ background: gradient }}>
         <div
           className="absolute inset-0 opacity-10"
           style={{
@@ -124,7 +131,9 @@ export function PerfilHeader({ admin, onTabChange, isOwnProfile = true }: Perfil
                 <EstadoBadge estado={estado} />
               </div>
               <p className="text-sm text-white/70">{admin.correo}</p>
-              <p className="text-xs text-white/50 mt-0.5">{ROL_LABEL[admin.rol]}</p>
+              <p className="text-xs text-white/50 mt-0.5">
+                {ROL_LABEL[admin.rol]}
+              </p>
             </div>
 
             <div className="flex flex-wrap gap-x-5 gap-y-1.5">
@@ -136,12 +145,20 @@ export function PerfilHeader({ admin, onTabChange, isOwnProfile = true }: Perfil
               <StatItem
                 icon={Clock}
                 label="Último acceso"
-                value={admin.ultimoAcceso ? formatDateTime(admin.ultimoAcceso) : 'Nunca'}
+                value={
+                  admin.ultimoAcceso
+                    ? formatDateTime(admin.ultimoAcceso)
+                    : 'Nunca'
+                }
               />
               <StatItem
                 icon={Calendar}
                 label="Miembro desde"
-                value={admin.fechaCreacion ? formatDateTime(admin.fechaCreacion) : null}
+                value={
+                  admin.fechaCreacion
+                    ? formatDateTime(admin.fechaCreacion)
+                    : null
+                }
               />
             </div>
           </div>
@@ -204,8 +221,8 @@ export function PerfilHeader({ admin, onTabChange, isOwnProfile = true }: Perfil
                 label === 'Nivel de acceso'
                   ? 'text-violet-700'
                   : danger
-                  ? 'text-red-600'
-                  : 'text-gray-700'
+                    ? 'text-red-600'
+                    : 'text-gray-700'
               )}
             >
               {value}

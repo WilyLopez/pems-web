@@ -40,7 +40,10 @@ function PeriodoSelector({
   onAnio: (v: number) => void
   onMes: (v: number) => void
 }) {
-  const anios = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
+  const anios = Array.from(
+    { length: 5 },
+    (_, i) => new Date().getFullYear() - i
+  )
   return (
     <div className="flex items-center gap-2">
       <select
@@ -49,7 +52,9 @@ function PeriodoSelector({
         className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-azul"
       >
         {MESES.map((m, i) => (
-          <option key={i + 1} value={i + 1}>{m}</option>
+          <option key={i + 1} value={i + 1}>
+            {m}
+          </option>
         ))}
       </select>
       <select
@@ -58,7 +63,9 @@ function PeriodoSelector({
         className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-azul"
       >
         {anios.map((a) => (
-          <option key={a} value={a}>{a}</option>
+          <option key={a} value={a}>
+            {a}
+          </option>
         ))}
       </select>
     </div>
@@ -77,7 +84,11 @@ function ResumenMensualTab({
   onMes: (v: number) => void
 }) {
   const { idSede } = useAuth()
-  const { data: resumen, isLoading } = useResumenMensual(idSede ?? undefined, anio, mes)
+  const { data: resumen, isLoading } = useResumenMensual(
+    idSede ?? undefined,
+    anio,
+    mes
+  )
 
   return (
     <div className="space-y-6">
@@ -86,19 +97,26 @@ function ResumenMensualTab({
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 h-28 animate-pulse" />
+            <div
+              key={i}
+              className="bg-white rounded-2xl border border-gray-100 p-5 h-28 animate-pulse"
+            />
           ))}
         </div>
       ) : resumen ? (
         <div className="space-y-6">
           <ResumenMensualCards resumen={resumen} />
           <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700">Desglose por tipo de egreso</h3>
+            <h3 className="text-sm font-semibold text-gray-700">
+              Desglose por tipo de egreso
+            </h3>
             <DesgloseTiposEgreso desglose={resumen.desglosePorTipoEgreso} />
           </div>
         </div>
       ) : (
-        <p className="text-sm text-gray-400 text-center py-8">Sin datos para el periodo.</p>
+        <p className="text-sm text-gray-400 text-center py-8">
+          Sin datos para el periodo.
+        </p>
       )}
     </div>
   )
@@ -123,18 +141,21 @@ function ResumenDiarioTab({
   const { data: dias = [], isLoading } = useResumenDiario(
     idSede ?? null,
     debouncedDesde || null,
-    debouncedHasta || null,
+    debouncedHasta || null
   )
 
   const handleExportar = () => {
-    exportarCSV(`reporte-diario-${debouncedDesde}-${debouncedHasta}.csv`, dias.map((d) => ({
-      Fecha: d.fecha,
-      'Ingresos reservas': d.ingresoReservas,
-      'Gastos operativos': d.gastoOperativo,
-      'Utilidad dia': d.utilidadDia,
-      'Cantidad reservas': d.cantidadReservas,
-      'Ticket promedio': d.ticketPromedio,
-    })))
+    exportarCSV(
+      `reporte-diario-${debouncedDesde}-${debouncedHasta}.csv`,
+      dias.map((d) => ({
+        Fecha: d.fecha,
+        'Ingresos reservas': d.ingresoReservas,
+        'Gastos operativos': d.gastoOperativo,
+        'Utilidad dia': d.utilidadDia,
+        'Cantidad reservas': d.cantidadReservas,
+        'Ticket promedio': d.ticketPromedio,
+      }))
+    )
   }
 
   return (
@@ -143,15 +164,30 @@ function ResumenDiarioTab({
         <div className="flex items-center gap-3 flex-wrap">
           <div className="space-y-1">
             <Label className="text-xs">Desde</Label>
-            <Input type="date" value={desde} onChange={(e) => onDesde(e.target.value)} className="h-9 w-40" />
+            <Input
+              type="date"
+              value={desde}
+              onChange={(e) => onDesde(e.target.value)}
+              className="h-9 w-40"
+            />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Hasta</Label>
-            <Input type="date" value={hasta} onChange={(e) => onHasta(e.target.value)} className="h-9 w-40" />
+            <Input
+              type="date"
+              value={hasta}
+              onChange={(e) => onHasta(e.target.value)}
+              className="h-9 w-40"
+            />
           </div>
         </div>
         {dias.length > 0 && (
-          <Button size="sm" variant="outline" onClick={handleExportar} className="gap-1.5">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleExportar}
+            className="gap-1.5"
+          >
             <Download className="h-4 w-4" />
             Exportar CSV
           </Button>
@@ -160,7 +196,9 @@ function ResumenDiarioTab({
 
       {dias.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <p className="text-sm font-semibold text-gray-700 mb-4">Tendencia del periodo</p>
+          <p className="text-sm font-semibold text-gray-700 mb-4">
+            Tendencia del periodo
+          </p>
           <GraficaLineaDiaria dias={dias} />
         </div>
       )}
@@ -174,7 +212,9 @@ function ResumenDiarioTab({
               <th className="px-4 py-3 font-semibold text-right">Gastos</th>
               <th className="px-4 py-3 font-semibold text-right">Utilidad</th>
               <th className="px-4 py-3 font-semibold text-right">Reservas</th>
-              <th className="px-4 py-3 font-semibold text-right">Ticket prom.</th>
+              <th className="px-4 py-3 font-semibold text-right">
+                Ticket prom.
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -190,14 +230,22 @@ function ResumenDiarioTab({
               ))
             ) : dias.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-10 text-center text-sm text-gray-400">
+                <td
+                  colSpan={6}
+                  className="py-10 text-center text-sm text-gray-400"
+                >
                   Sin datos para el rango seleccionado.
                 </td>
               </tr>
             ) : (
               dias.map((d) => (
-                <tr key={d.fecha} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3 font-medium text-gray-800">{d.fecha}</td>
+                <tr
+                  key={d.fecha}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-4 py-3 font-medium text-gray-800">
+                    {d.fecha}
+                  </td>
                   <td className="px-4 py-3 text-right text-emerald-700 font-semibold">
                     {formatCurrency(d.ingresoReservas)}
                   </td>
@@ -205,11 +253,17 @@ function ResumenDiarioTab({
                     {formatCurrency(d.gastoOperativo)}
                   </td>
                   <td className="px-4 py-3 text-right font-black">
-                    <span className={d.utilidadDia >= 0 ? 'text-brand-azul' : 'text-red-600'}>
+                    <span
+                      className={
+                        d.utilidadDia >= 0 ? 'text-brand-azul' : 'text-red-600'
+                      }
+                    >
                       {formatCurrency(d.utilidadDia)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-600">{d.cantidadReservas}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">
+                    {d.cantidadReservas}
+                  </td>
                   <td className="px-4 py-3 text-right text-gray-600">
                     {formatCurrency(d.ticketPromedio)}
                   </td>
@@ -235,7 +289,11 @@ function MetricasReservasTab({
   onMes: (v: number) => void
 }) {
   const { idSede } = useAuth()
-  const { data: metricas, isLoading } = useMetricasReservas(idSede ?? undefined, anio, mes)
+  const { data: metricas, isLoading } = useMetricasReservas(
+    idSede ?? undefined,
+    anio,
+    mes
+  )
 
   return (
     <div className="space-y-6">
@@ -244,13 +302,18 @@ function MetricasReservasTab({
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 h-24 animate-pulse" />
+            <div
+              key={i}
+              className="bg-white rounded-2xl border border-gray-100 p-4 h-24 animate-pulse"
+            />
           ))}
         </div>
       ) : metricas ? (
         <MetricasReservasSection metricas={metricas} />
       ) : (
-        <p className="text-sm text-gray-400 text-center py-8">Sin datos para el periodo.</p>
+        <p className="text-sm text-gray-400 text-center py-8">
+          Sin datos para el periodo.
+        </p>
       )}
     </div>
   )
@@ -267,25 +330,34 @@ export default function ReportesPage() {
   const desde = searchParams.get('desde') ?? DEFAULT_DESDE
   const hasta = searchParams.get('hasta') ?? DEFAULT_HASTA
 
-  const setParam = useCallback((key: string, value: string) => {
-    const params = new URLSearchParams(searchParams)
-    if (value) params.set(key, value)
-    else params.delete(key)
-    router.push(`${pathname}?${params}`)
-  }, [searchParams, router, pathname])
+  const setParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams)
+      if (value) params.set(key, value)
+      else params.delete(key)
+      router.push(`${pathname}?${params}`)
+    },
+    [searchParams, router, pathname]
+  )
 
-  const setTab = useCallback((value: string) => {
-    const params = new URLSearchParams(searchParams)
-    params.set('tab', value)
-    router.push(`${pathname}?${params}`)
-  }, [searchParams, router, pathname])
+  const setTab = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams)
+      params.set('tab', value)
+      router.push(`${pathname}?${params}`)
+    },
+    [searchParams, router, pathname]
+  )
 
-  const setPeriodo = useCallback((newAnio: number, newMes: number) => {
-    const params = new URLSearchParams(searchParams)
-    params.set('anio', String(newAnio))
-    params.set('mes', String(newMes))
-    router.push(`${pathname}?${params}`)
-  }, [searchParams, router, pathname])
+  const setPeriodo = useCallback(
+    (newAnio: number, newMes: number) => {
+      const params = new URLSearchParams(searchParams)
+      params.set('anio', String(newAnio))
+      params.set('mes', String(newMes))
+      router.push(`${pathname}?${params}`)
+    },
+    [searchParams, router, pathname]
+  )
 
   return (
     <div className="space-y-6">

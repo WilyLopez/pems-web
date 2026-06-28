@@ -19,7 +19,12 @@ export function LogosSection({ control }: Props) {
           name="logoUrl"
           control={control}
           render={({ field }) => (
-            <ImageUploadField label="Logo principal" tipo="logo" value={field.value ?? ''} onChange={field.onChange} />
+            <ImageUploadField
+              label="Logo principal"
+              tipo="logo"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+            />
           )}
         />
         <div className="border-t border-border pt-6">
@@ -27,7 +32,12 @@ export function LogosSection({ control }: Props) {
             name="faviconUrl"
             control={control}
             render={({ field }) => (
-              <ImageUploadField label="Favicon" tipo="favicon" value={field.value ?? ''} onChange={field.onChange} />
+              <ImageUploadField
+                label="Favicon"
+                tipo="favicon"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+              />
             )}
           />
         </div>

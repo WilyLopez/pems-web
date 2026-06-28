@@ -22,11 +22,15 @@ export interface ActualizarUsuarioPayload {
 
 export const usuariosApi = {
   listar: async (): Promise<UsuarioAdmin[]> => {
-    const { data } = await api.get<ApiResponse<UsuarioAdmin[]>>('/usuarios-admin')
+    const { data } =
+      await api.get<ApiResponse<UsuarioAdmin[]>>('/usuarios-admin')
     return data.data
   },
 
-  crear: async (idSede: number, payload: CrearUsuarioPayload): Promise<CrearUsuarioResponse> => {
+  crear: async (
+    idSede: number,
+    payload: CrearUsuarioPayload
+  ): Promise<CrearUsuarioResponse> => {
     const { data } = await api.post<ApiResponse<CrearUsuarioResponse>>(
       `/usuarios-admin/sedes/${idSede}`,
       payload
@@ -34,13 +38,22 @@ export const usuariosApi = {
     return data.data
   },
 
-  actualizar: async (id: number, payload: ActualizarUsuarioPayload): Promise<UsuarioAdmin> => {
-    const { data } = await api.put<ApiResponse<UsuarioAdmin>>(`/usuarios-admin/${id}`, payload)
+  actualizar: async (
+    id: number,
+    payload: ActualizarUsuarioPayload
+  ): Promise<UsuarioAdmin> => {
+    const { data } = await api.put<ApiResponse<UsuarioAdmin>>(
+      `/usuarios-admin/${id}`,
+      payload
+    )
     return data.data
   },
 
   cambiarRol: async (id: number, nuevoRol: string): Promise<UsuarioAdmin> => {
-    const { data } = await api.patch<ApiResponse<UsuarioAdmin>>(`/usuarios-admin/${id}/rol`, { nuevoRol })
+    const { data } = await api.patch<ApiResponse<UsuarioAdmin>>(
+      `/usuarios-admin/${id}/rol`,
+      { nuevoRol }
+    )
     return data.data
   },
 

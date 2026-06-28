@@ -11,17 +11,17 @@ El módulo de auditoría existe estructuralmente (tabla, entidad JPA, servicio, 
 
 ### Bugs bloqueantes confirmados
 
-| # | Capa | Problema | Impacto |
-|---|------|----------|---------|
-| B1 | Backend | `RegistrarLogUseCase.Command` no tiene `nivel` ni `resultado` | Todos los logs se graban como INFO/EXITOSO siempre |
-| B2 | Backend | `AuditoriaPersistenceAdapter.toDomain()` llama `perfilUsuarioRepository.buscarPorId()` por cada fila | N+1: 20 queries extra por página |
-| B3 | Backend | `LogAuditoriaJpaRepository` usa `LocalDateTime` pero la entidad tiene `OffsetDateTime` | Riesgo de resultados incorrectos por zona horaria |
-| B4 | Backend | `AuditoriaController` inyecta `LogAuditoriaRepository` directamente | Viola arquitectura hexagonal |
-| B5 | Backend | No valida `desde <= hasta` ni pone cap a `tamano` | Permite rangos inválidos y queries sin límite |
-| B6 | Frontend | `NivelAuditoria` define `'CRITICO'` pero BD envía `'CRITICAL'` | NivelBadge siempre gris para nivel crítico |
-| B7 | Frontend | `ResultadoAuditoria` define `'DENEGADO'` pero BD tiene `'PARCIAL'` | Tipo incorrecto, aunque el fallback en UI lo disimula |
-| B8 | Frontend | `idUsuario?: number` en AuditoriaFiltros | Backend espera UUID string |
-| B9 | Frontend | Parámetro `tamaño` con ñ en useAuditoria | URL encoding inconsistente con el parámetro `tamano` del controller |
+| #   | Capa     | Problema                                                                                             | Impacto                                                             |
+| --- | -------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| B1  | Backend  | `RegistrarLogUseCase.Command` no tiene `nivel` ni `resultado`                                        | Todos los logs se graban como INFO/EXITOSO siempre                  |
+| B2  | Backend  | `AuditoriaPersistenceAdapter.toDomain()` llama `perfilUsuarioRepository.buscarPorId()` por cada fila | N+1: 20 queries extra por página                                    |
+| B3  | Backend  | `LogAuditoriaJpaRepository` usa `LocalDateTime` pero la entidad tiene `OffsetDateTime`               | Riesgo de resultados incorrectos por zona horaria                   |
+| B4  | Backend  | `AuditoriaController` inyecta `LogAuditoriaRepository` directamente                                  | Viola arquitectura hexagonal                                        |
+| B5  | Backend  | No valida `desde <= hasta` ni pone cap a `tamano`                                                    | Permite rangos inválidos y queries sin límite                       |
+| B6  | Frontend | `NivelAuditoria` define `'CRITICO'` pero BD envía `'CRITICAL'`                                       | NivelBadge siempre gris para nivel crítico                          |
+| B7  | Frontend | `ResultadoAuditoria` define `'DENEGADO'` pero BD tiene `'PARCIAL'`                                   | Tipo incorrecto, aunque el fallback en UI lo disimula               |
+| B8  | Frontend | `idUsuario?: number` en AuditoriaFiltros                                                             | Backend espera UUID string                                          |
+| B9  | Frontend | Parámetro `tamaño` con ñ en useAuditoria                                                             | URL encoding inconsistente con el parámetro `tamano` del controller |
 
 ---
 
@@ -100,6 +100,7 @@ PARCIAL    → operación completada parcialmente (ej: envío de correo fallido 
 **Archivo:** `application/auditoria/port/in/RegistrarLogUseCase.java`
 
 Agregar campos al record:
+
 ```java
 record Command(
     UUID   idUsuarioAdmin,
@@ -127,6 +128,7 @@ record Command(
 **Archivo:** `application/auditoria/service/AuditoriaService.java`
 
 Añadir al builder de `LogAuditoria`:
+
 ```java
 .nivel(command.nivel())
 .resultado(command.resultado())
@@ -161,6 +163,7 @@ O alternativamente: agregar campo `nombreUsuario` a la entidad `auditoria_log` c
 **Archivo:** `infrastructure/persistence/auditoria/jpa/LogAuditoriaJpaRepository.java`
 
 Cambiar todos los parámetros de `LocalDateTime` a `OffsetDateTime` en los métodos:
+
 - `findByFechaLogBetweenOrderByFechaLogDesc`
 - `findByFiltros`
 
@@ -171,6 +174,7 @@ Ajustar `AuditoriaPersistenceAdapter` para pasar `OffsetDateTime` correctamente 
 **Archivo nuevo:** `application/auditoria/port/in/ObtenerAuditoriaUseCase.java`
 
 Puerto de lectura con los métodos actualmente en el repository llamados desde el controller:
+
 ```java
 public interface ObtenerAuditoriaUseCase {
     PagedResult<LogAuditoria> listarPorFiltros(FiltrosQuery filtros);
@@ -239,59 +243,59 @@ public class XxxService {
 
 ### 2A — `AuthService` (módulo: ACCESOS)
 
-| Acción | Nivel | Resultado | Trigger |
-|--------|-------|-----------|---------|
-| LOGIN | INFO | EXITOSO | Login correcto |
-| LOGIN_FALLIDO | WARNING | FALLIDO | Credenciales incorrectas |
-| BLOQUEO_CUENTA | CRITICAL | EXITOSO | Al superar intentos máximos |
-| LOGOUT | INFO | EXITOSO | Cierre de sesión |
+| Acción         | Nivel    | Resultado | Trigger                     |
+| -------------- | -------- | --------- | --------------------------- |
+| LOGIN          | INFO     | EXITOSO   | Login correcto              |
+| LOGIN_FALLIDO  | WARNING  | FALLIDO   | Credenciales incorrectas    |
+| BLOQUEO_CUENTA | CRITICAL | EXITOSO   | Al superar intentos máximos |
+| LOGOUT         | INFO     | EXITOSO   | Cierre de sesión            |
 
 valorAnterior/Nuevo: `{ email, intentosFallidos, bloqueadoHasta }` para bloqueos; null para login/logout.
 
 ### 2B — `StaffService` (módulo: USUARIOS)
 
-| Acción | Nivel | valorAnterior | valorNuevo |
-|--------|-------|---------------|------------|
-| CREAR | INFO | null | objeto Staff sin password |
-| ACTUALIZAR | INFO | estado previo | estado nuevo |
-| ELIMINAR | CRITICAL | objeto completo | null |
+| Acción     | Nivel    | valorAnterior   | valorNuevo                |
+| ---------- | -------- | --------------- | ------------------------- |
+| CREAR      | INFO     | null            | objeto Staff sin password |
+| ACTUALIZAR | INFO     | estado previo   | estado nuevo              |
+| ELIMINAR   | CRITICAL | objeto completo | null                      |
 
 ### 2C — `ContratoService` (módulo: CONTRATOS)
 
-| Acción | Nivel |
-|--------|-------|
-| CREAR | INFO |
-| ACTUALIZAR | INFO |
-| FIRMAR | CRITICAL |
-| CANCELAR | CRITICAL |
+| Acción     | Nivel    |
+| ---------- | -------- |
+| CREAR      | INFO     |
+| ACTUALIZAR | INFO     |
+| FIRMAR     | CRITICAL |
+| CANCELAR   | CRITICAL |
 
 ### 2D — `VentaService` + `VentaMostradorService` (módulo: VENTAS)
 
-| Acción | Nivel |
-|--------|-------|
-| CREAR | INFO |
+| Acción | Nivel    |
+| ------ | -------- |
+| CREAR  | INFO     |
 | ANULAR | CRITICAL |
 
 ### 2E — `FacturacionService` (módulo: FACTURACION)
 
-| Acción | Nivel |
-|--------|-------|
-| EMITIR | INFO |
+| Acción | Nivel    |
+| ------ | -------- |
+| EMITIR | INFO     |
 | ANULAR | CRITICAL |
 
 ### 2F — `CajaService` (módulo: CAJA)
 
 | Acción | Nivel |
-|--------|-------|
-| ABRIR | INFO |
-| CERRAR | INFO |
-| ARQUEO | INFO |
+| ------ | ----- |
+| ABRIR  | INFO  |
+| CERRAR | INFO  |
+| ARQUEO | INFO  |
 
 ### 2G — `EgresoService` + `IngresoService` (módulo: FINANZAS)
 
-| Acción | Nivel |
-|--------|-------|
-| CREAR | INFO |
+| Acción   | Nivel    |
+| -------- | -------- |
+| CREAR    | INFO     |
 | ELIMINAR | CRITICAL |
 
 ---
@@ -300,57 +304,57 @@ valorAnterior/Nuevo: `{ email, intentosFallidos, bloqueadoHasta }` para bloqueos
 
 ### 3A — `EventoPrivadoService` (módulo: EVENTOS)
 
-| Acción | Nivel |
-|--------|-------|
-| CREAR | INFO |
-| ACTUALIZAR | INFO |
-| CONFIRMAR | INFO |
-| CANCELAR | CRITICAL |
+| Acción     | Nivel    |
+| ---------- | -------- |
+| CREAR      | INFO     |
+| ACTUALIZAR | INFO     |
+| CONFIRMAR  | INFO     |
+| CANCELAR   | CRITICAL |
 
 valorAnterior/Nuevo: snapshot del objeto con campos relevantes (fechaEvento, estado, montoPagado).
 
 ### 3B — `ReservaAdminService` (módulo: RESERVAS)
 
-| Acción | Nivel |
-|--------|-------|
-| CREAR | INFO |
-| REPROGRAMAR | WARNING |
-| CANCELAR | CRITICAL |
+| Acción      | Nivel    |
+| ----------- | -------- |
+| CREAR       | INFO     |
+| REPROGRAMAR | WARNING  |
+| CANCELAR    | CRITICAL |
 
 ### 3C — `ReservaPublicaService` (módulo: RESERVAS)
 
-| Acción | Nivel |
-|--------|-------|
+| Acción      | Nivel   |
+| ----------- | ------- |
 | REPROGRAMAR | WARNING |
 
 ### 3D — `PromocionService` (módulo: PROMOCIONES)
 
-| Acción | Nivel |
-|--------|-------|
-| CREAR | INFO |
-| ACTUALIZAR | INFO |
-| ELIMINAR | CRITICAL |
-| ACTIVAR | INFO |
-| DESACTIVAR | INFO |
+| Acción     | Nivel    |
+| ---------- | -------- |
+| CREAR      | INFO     |
+| ACTUALIZAR | INFO     |
+| ELIMINAR   | CRITICAL |
+| ACTIVAR    | INFO     |
+| DESACTIVAR | INFO     |
 
 ### 3E — `ConfiguracionGlobalService` (módulo: CONFIGURACION)
 
-| Acción | Nivel | valorAnterior | valorNuevo |
-|--------|-------|---------------|------------|
+| Acción     | Nivel   | valorAnterior             | valorNuevo             |
+| ---------- | ------- | ------------------------- | ---------------------- |
 | ACTUALIZAR | WARNING | mapa clave-valor anterior | mapa clave-valor nuevo |
 
 ### 3F — `ConfiguracionPublicaService` (módulo: CONFIGURACION)
 
-| Acción | Nivel |
-|--------|-------|
+| Acción     | Nivel   |
+| ---------- | ------- |
 | ACTUALIZAR | WARNING |
 
 valorAnterior/Nuevo: snapshot sin campos de imágenes (solo texto y config crítica).
 
 ### 3G — `SedeService` (módulo: CONFIGURACION)
 
-| Acción | Nivel |
-|--------|-------|
+| Acción     | Nivel   |
+| ---------- | ------- |
 | ACTUALIZAR | WARNING |
 
 ---
@@ -363,25 +367,25 @@ Acciones: CREAR, ACTUALIZAR, ELIMINAR. Nivel INFO para crear/actualizar, CRITICA
 
 ### 4B — `BannerService` (módulo: CMS)
 
-| Acción | Nivel |
-|--------|-------|
-| CREAR | INFO |
-| ACTUALIZAR | INFO |
-| ELIMINAR | CRITICAL |
-| ACTIVAR | INFO |
-| DESACTIVAR | INFO |
+| Acción     | Nivel    |
+| ---------- | -------- |
+| CREAR      | INFO     |
+| ACTUALIZAR | INFO     |
+| ELIMINAR   | CRITICAL |
+| ACTIVAR    | INFO     |
+| DESACTIVAR | INFO     |
 
 ### 4C — `ConfiguracionCalendarioService` + `TarifaService` (módulo: CALENDARIO)
 
-| Acción | Nivel |
-|--------|-------|
+| Acción     | Nivel   |
+| ---------- | ------- |
 | ACTUALIZAR | WARNING |
 
 ### 4D — `MensajeContactoService` (módulo: MENSAJES)
 
-| Acción | Nivel |
-|--------|-------|
-| RESPONDER | INFO |
+| Acción      | Nivel   |
+| ----------- | ------- |
+| RESPONDER   | INFO    |
 | MARCAR_SPAM | WARNING |
 
 ---
@@ -438,6 +442,7 @@ features/admin/auditoria/
 ### 5C — Nuevos filtros
 
 Añadir a `FiltrosPanel`:
+
 - Select `nivel`: Todos / INFO / WARNING / ERROR / CRITICAL
 - Select `resultado`: Todos / EXITOSO / FALLIDO / PARCIAL
 - Select `módulo`: lista de los 15 módulos definidos en constantes (no hardcoded libre)
@@ -446,6 +451,7 @@ Añadir a `FiltrosPanel`:
 - Los filtros se aplican automáticamente con 400ms debounce (eliminar botón "Consultar")
 
 Añadir a `FiltrosAvanzados` (colapsable):
+
 - Input UUID `idUsuario`
 - Select tamaño de página: 10 / 20 / 50
 
@@ -454,11 +460,12 @@ Añadir a `FiltrosAvanzados` (colapsable):
 Todos los `bg-white` → `bg-card`, `border-gray-100` → `border-border`, `bg-gray-50` → `bg-muted/40`, `text-gray-500` → `text-muted-foreground`.
 
 Badges en `NivelBadge` con variantes `dark:`:
+
 ```ts
 CRITICAL: 'bg-red-200 text-red-900 dark:bg-red-950 dark:text-red-300 font-semibold'
-ERROR:    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-WARNING:  'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-INFO:     'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'
+ERROR: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+WARNING: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+INFO: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'
 ```
 
 ### 5E — Botón "Ver cambio" en `LogDetalleModal`
@@ -466,21 +473,25 @@ INFO:     'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'
 Resolver ruta por `modulo` + `entidadAfectada` + `idEntidad`:
 
 ```ts
-function resolverRuta(modulo: string, entidad: string, idEntidad?: number): string | null {
+function resolverRuta(
+  modulo: string,
+  entidad: string,
+  idEntidad?: number
+): string | null {
   const rutas: Record<string, string> = {
-    EVENTOS:      `/admin/eventos/${idEntidad}`,
-    RESERVAS:     `/admin/eventos/reservas/${idEntidad}`,
-    CONTRATOS:    `/admin/eventos/${idEntidad}`,  // tab contratos
-    VENTAS:       `/admin/ventas/${idEntidad}`,
-    USUARIOS:     `/admin/usuarios`,
-    ACCESOS:      null,  // no navegable
-    CAJA:         `/admin/finanzas/caja`,
-    FINANZAS:     `/admin/finanzas`,
-    CONFIGURACION:`/admin/configuracion`,
-    CMS:          `/admin/cms`,
-    COMERCIAL:    `/admin/comercial`,
-    PROMOCIONES:  `/admin/promociones`,
-    CALENDARIO:   `/admin/configuracion/calendario`,
+    EVENTOS: `/admin/eventos/${idEntidad}`,
+    RESERVAS: `/admin/eventos/reservas/${idEntidad}`,
+    CONTRATOS: `/admin/eventos/${idEntidad}`, // tab contratos
+    VENTAS: `/admin/ventas/${idEntidad}`,
+    USUARIOS: `/admin/usuarios`,
+    ACCESOS: null, // no navegable
+    CAJA: `/admin/finanzas/caja`,
+    FINANZAS: `/admin/finanzas`,
+    CONFIGURACION: `/admin/configuracion`,
+    CMS: `/admin/cms`,
+    COMERCIAL: `/admin/comercial`,
+    PROMOCIONES: `/admin/promociones`,
+    CALENDARIO: `/admin/configuracion/calendario`,
   }
   return idEntidad ? (rutas[modulo] ?? null) : null
 }
@@ -522,11 +533,13 @@ La fase 5 completa (B-F) requiere que al menos la Fase 1 esté terminada para po
 ## Resumen de archivos afectados
 
 ### Archivos nuevos — Backend
+
 - `application/auditoria/AuditoriaConstants.java`
 - `application/auditoria/port/in/ObtenerAuditoriaUseCase.java`
 - `application/auditoria/service/ObtenerAuditoriaService.java`
 
 ### Archivos modificados — Backend
+
 - `application/auditoria/port/in/RegistrarLogUseCase.java` — añadir nivel/resultado al Command
 - `application/auditoria/service/AuditoriaService.java` — propagar nivel/resultado
 - `infrastructure/persistence/auditoria/jpa/LogAuditoriaJpaRepository.java` — OffsetDateTime + JOIN + filtros nivel/resultado
@@ -535,12 +548,15 @@ La fase 5 completa (B-F) requiere que al menos la Fase 1 esté terminada para po
 - 22 servicios de aplicación (fases 2, 3 y 4)
 
 ### Archivos nuevos — Frontend
+
 - `features/admin/auditoria/` — 11 archivos (types, hooks, components, views)
 
 ### Archivos eliminados — Frontend
+
 - `components/admin/auditoria/` (4 archivos)
 - `hooks/useAuditoria.ts`
 
 ### Archivos modificados — Frontend
+
 - `types/auditoria.types.ts` — enums corregidos
 - `app/admin/auditoria/page.tsx` — server component + Suspense

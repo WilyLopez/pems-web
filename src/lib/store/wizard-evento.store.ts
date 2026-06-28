@@ -80,7 +80,8 @@ export const useWizardEventoStore = create<WizardEventoState>()(
             ? s.serviciosCotizacion.filter((x) => x !== id)
             : [...s.serviciosCotizacion, id],
         })),
-      setPresupuestoCliente: (presupuestoCliente) => set({ presupuestoCliente }),
+      setPresupuestoCliente: (presupuestoCliente) =>
+        set({ presupuestoCliente }),
       setFecha: (fechaSel) => set({ fechaSel }),
       setIdTurno: (idTurno) => set({ idTurno }),
       setNombreNino: (nombreNino) => set({ nombreNino }),

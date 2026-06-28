@@ -6,7 +6,10 @@ interface PerfilCompletadoProps {
   cliente: Cliente
 }
 
-function calcularCompletitud(cliente: Cliente): { porcentaje: number; pendientes: string[] } {
+function calcularCompletitud(cliente: Cliente): {
+  porcentaje: number
+  pendientes: string[]
+} {
   const items = [
     { completo: !!cliente.telefono, label: 'Teléfono' },
     { completo: !!cliente.correo, label: 'Correo electrónico' },
@@ -28,10 +31,14 @@ export function PerfilCompletado({ cliente }: PerfilCompletadoProps) {
     <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm font-bold text-gray-900">Perfil completado</p>
-        <span className={cn(
-          'text-sm font-black',
-          porcentaje === 100 ? 'text-green-600' : 'text-brand-azul'
-        )}>{porcentaje}%</span>
+        <span
+          className={cn(
+            'text-sm font-black',
+            porcentaje === 100 ? 'text-green-600' : 'text-brand-azul'
+          )}
+        >
+          {porcentaje}%
+        </span>
       </div>
       <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
         <div
@@ -45,7 +52,9 @@ export function PerfilCompletado({ cliente }: PerfilCompletadoProps) {
       {completo ? (
         <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
           <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-          <p className="text-xs text-green-700 font-semibold">Perfil al 100%. Todo listo.</p>
+          <p className="text-xs text-green-700 font-semibold">
+            Perfil al 100%. Todo listo.
+          </p>
         </div>
       ) : (
         <div className="space-y-1.5">

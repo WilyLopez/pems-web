@@ -34,4 +34,7 @@ export interface ConfiguracionPublica {
   updatedAt?: string
 }
 
-export type ActualizarConfiguracionPayload = Omit<ConfiguracionPublica, 'updatedAt'>
+export type ActualizarConfiguracionPayload = Omit<
+  ConfiguracionPublica,
+  'updatedAt'
+>

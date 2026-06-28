@@ -3,7 +3,13 @@
 import { cn, formatDate } from '@/lib/utils'
 import { DisponibilidadDia } from '@/types/dashboard.types'
 
-function TurnoChip({ label, disponible }: { label: string; disponible: boolean }) {
+function TurnoChip({
+  label,
+  disponible,
+}: {
+  label: string
+  disponible: boolean
+}) {
   return (
     <span
       className={cn(
@@ -27,7 +33,9 @@ export function DisponibilidadSemana({ data }: Props) {
         Disponibilidad de la semana
       </h3>
       {data.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-8">Sin datos de disponibilidad.</p>
+        <p className="text-sm text-gray-400 text-center py-8">
+          Sin datos de disponibilidad.
+        </p>
       ) : (
         <div className="space-y-2">
           {data.map((dia) => (

@@ -1,5 +1,11 @@
 import React from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/Dialog'
 import { Loader2, Download, Printer } from 'lucide-react'
 import { useVentaDetail } from '../../hooks/useVentaDetail'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -34,26 +40,49 @@ const METODO_LABEL: Record<string, string> = {
 
 function Divider({ dashed }: { dashed?: boolean }) {
   return (
-    <div className={`border-t ${dashed ? 'border-dashed border-gray-300 dark:border-gray-600' : 'border-gray-200 dark:border-gray-700'}`} />
+    <div
+      className={`border-t ${dashed ? 'border-dashed border-gray-300 dark:border-gray-600' : 'border-gray-200 dark:border-gray-700'}`}
+    />
   )
 }
 
-function Row({ label, value, bold, mono }: { label: string; value: React.ReactNode; bold?: boolean; mono?: boolean }) {
+function Row({
+  label,
+  value,
+  bold,
+  mono,
+}: {
+  label: string
+  value: React.ReactNode
+  bold?: boolean
+  mono?: boolean
+}) {
   return (
     <div className="flex justify-between items-baseline gap-4 py-0.5">
-      <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">{label}</span>
-      <span className={`text-xs text-right text-gray-900 dark:text-gray-100 ${bold ? 'font-bold' : 'font-medium'} ${mono ? 'font-mono' : ''}`}>
+      <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
+        {label}
+      </span>
+      <span
+        className={`text-xs text-right text-gray-900 dark:text-gray-100 ${bold ? 'font-bold' : 'font-medium'} ${mono ? 'font-mono' : ''}`}
+      >
         {value}
       </span>
     </div>
   )
 }
 
-export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) => {
+export const VentaDetailDrawer = ({
+  ventaId,
+  onClose,
+}: VentaDetailDrawerProps) => {
   const { data: venta, isLoading, isError } = useVentaDetail(ventaId)
   const [descargando, setDescargando] = React.useState(false)
-  const [loadingTicketId, setLoadingTicketId] = React.useState<number | null>(null)
-  const [loadingPrintId, setLoadingPrintId] = React.useState<number | null>(null)
+  const [loadingTicketId, setLoadingTicketId] = React.useState<number | null>(
+    null
+  )
+  const [loadingPrintId, setLoadingPrintId] = React.useState<number | null>(
+    null
+  )
 
   const handleDescargar = async () => {
     if (!ventaId) return
@@ -99,7 +128,9 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
       >
         <DialogHeader className="sr-only">
           <DialogTitle>Nota de Venta</DialogTitle>
-          <DialogDescription id="venta-nota-desc">Comprobante de venta</DialogDescription>
+          <DialogDescription id="venta-nota-desc">
+            Comprobante de venta
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
@@ -108,11 +139,12 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
           </div>
         ) : isError || !venta ? (
           <div className="h-52 flex items-center justify-center">
-            <p className="text-sm text-gray-400 dark:text-gray-500">No se pudo cargar la venta</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">
+              No se pudo cargar la venta
+            </p>
           </div>
         ) : (
           <div className="overflow-y-auto max-h-[88vh]">
-
             {/* Cabecera */}
             <div className="px-6 pt-6 pb-4 text-center space-y-1 border-b border-gray-200 dark:border-gray-800">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
@@ -125,12 +157,16 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
                 {formatDate(venta.createdAt, "d 'de' MMMM yyyy, HH:mm")}
               </p>
               <div className="flex items-center justify-center gap-1.5 pt-1">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                  (venta.totalPagado ?? 0) >= venta.total
-                    ? 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400'
-                    : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-500'
-                }`}>
-                  {(venta.totalPagado ?? 0) >= venta.total ? 'PAGADA' : 'PENDIENTE'}
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                    (venta.totalPagado ?? 0) >= venta.total
+                      ? 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400'
+                      : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-500'
+                  }`}
+                >
+                  {(venta.totalPagado ?? 0) >= venta.total
+                    ? 'PAGADA'
+                    : 'PENDIENTE'}
                 </span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400">
                   {TIPO_LABEL[venta.tipo] ?? venta.tipo}
@@ -139,10 +175,12 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
             </div>
 
             <div className="px-6 py-4 space-y-4 text-sm">
-
               {/* Datos operativos */}
               <div className="space-y-1.5">
-                <Row label="Canal" value={CANAL_LABEL[venta.canalCodigo] ?? venta.canalCodigo} />
+                <Row
+                  label="Canal"
+                  value={CANAL_LABEL[venta.canalCodigo] ?? venta.canalCodigo}
+                />
                 {venta.nombreCliente && (
                   <Row label="Cliente" value={venta.nombreCliente} bold />
                 )}
@@ -153,7 +191,11 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
                   <Row label="DNI" value={venta.dniAcompanante} mono />
                 )}
                 {venta.fechaVisita && (
-                  <Row label="Fecha visita" value={formatDate(venta.fechaVisita, "d 'de' MMMM yyyy")} bold />
+                  <Row
+                    label="Fecha visita"
+                    value={formatDate(venta.fechaVisita, "d 'de' MMMM yyyy")}
+                    bold
+                  />
                 )}
               </div>
 
@@ -167,47 +209,65 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
                       Entradas ({venta.tickets.length})
                     </p>
                     {venta.tickets.map((t) => (
-                      <div key={t.id} className="flex items-center justify-between gap-2 py-1">
+                      <div
+                        key={t.id}
+                        className="flex items-center justify-between gap-2 py-1"
+                      >
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">
                             {t.nombreNino}
-                            <span className="text-gray-400 dark:text-gray-500 font-normal"> · {t.edadNino} años</span>
+                            <span className="text-gray-400 dark:text-gray-500 font-normal">
+                              {' '}
+                              · {t.edadNino} años
+                            </span>
                           </p>
                           <p className="text-[10px] font-mono text-gray-500 dark:text-gray-400 mt-0.5">
                             {t.numeroTicket}
                           </p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
-                            t.ingresado
-                              ? 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'
-                              : 'border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500'
-                          }`}>
+                          <span
+                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                              t.ingresado
+                                ? 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400'
+                                : 'border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500'
+                            }`}
+                          >
                             {t.ingresado ? 'Ingresado' : 'Pendiente'}
                           </span>
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => handleDescargarTicket(t.id)}
-                            disabled={loadingTicketId === t.id || loadingPrintId === t.id}
+                            disabled={
+                              loadingTicketId === t.id ||
+                              loadingPrintId === t.id
+                            }
                             className="h-7 w-7 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                             title="Descargar"
                           >
-                            {loadingTicketId === t.id
-                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                              : <Download className="h-3.5 w-3.5" />}
+                            {loadingTicketId === t.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Download className="h-3.5 w-3.5" />
+                            )}
                           </Button>
                           <Button
                             size="icon"
                             variant="ghost"
                             onClick={() => handleImprimirTicket(t.id)}
-                            disabled={loadingTicketId === t.id || loadingPrintId === t.id}
+                            disabled={
+                              loadingTicketId === t.id ||
+                              loadingPrintId === t.id
+                            }
                             className="h-7 w-7 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                             title="Imprimir"
                           >
-                            {loadingPrintId === t.id
-                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                              : <Printer className="h-3.5 w-3.5" />}
+                            {loadingPrintId === t.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Printer className="h-3.5 w-3.5" />
+                            )}
                           </Button>
                         </div>
                       </div>
@@ -222,9 +282,17 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">
                   Desglose
                 </p>
-                <Row label="Subtotal" value={formatCurrency(venta.subtotal)} mono />
+                <Row
+                  label="Subtotal"
+                  value={formatCurrency(venta.subtotal)}
+                  mono
+                />
                 {venta.descuento > 0 && (
-                  <Row label="Descuento" value={`− ${formatCurrency(venta.descuento)}`} mono />
+                  <Row
+                    label="Descuento"
+                    value={`− ${formatCurrency(venta.descuento)}`}
+                    mono
+                  />
                 )}
               </div>
 
@@ -267,7 +335,12 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
                     </div>
                   ))}
                   {venta.vuelto != null && venta.vuelto > 0 && (
-                    <Row label="Vuelto" value={formatCurrency(venta.vuelto)} mono bold />
+                    <Row
+                      label="Vuelto"
+                      value={formatCurrency(venta.vuelto)}
+                      mono
+                      bold
+                    />
                   )}
                 </div>
               )}
@@ -280,7 +353,9 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                       Notas
                     </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{venta.notas}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {venta.notas}
+                    </p>
                   </div>
                 </>
               )}
@@ -298,13 +373,14 @@ export const VentaDetailDrawer = ({ ventaId, onClose }: VentaDetailDrawerProps) 
                   disabled={descargando}
                   className="h-7 text-xs gap-1.5 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
                 >
-                  {descargando
-                    ? <Loader2 className="h-3 w-3 animate-spin" />
-                    : <Download className="h-3 w-3" />}
+                  {descargando ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Download className="h-3 w-3" />
+                  )}
                   Descargar nota
                 </Button>
               </div>
-
             </div>
           </div>
         )}

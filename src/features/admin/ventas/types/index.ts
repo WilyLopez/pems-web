@@ -1,6 +1,11 @@
 import { Reserva } from '../../reservas/types'
 
-export type MetodoPago = 'EFECTIVO' | 'YAPE' | 'TARJETA' | 'PLIN' | 'TRANSFERENCIA'
+export type MetodoPago =
+  | 'EFECTIVO'
+  | 'YAPE'
+  | 'TARJETA'
+  | 'PLIN'
+  | 'TRANSFERENCIA'
 
 export interface NinoVenta {
   nombreNino: string
@@ -132,4 +137,3 @@ export interface VentaDetalleResponse {
   pagos: PagoDetalleResponse[]
   totalPagado: number
 }
-

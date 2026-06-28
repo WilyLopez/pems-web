@@ -13,7 +13,10 @@ import { Label } from '@/components/ui/Label'
 import { Button } from '@/components/ui/Button'
 import { IconPicker } from '@/components/admin/comercial/shared/IconPicker'
 import { useTipoEventoMutations } from '../hooks/useTiposEvento'
-import { TipoEventoFormValues, tipoEventoSchema } from '../schemas/tipo-evento.schema'
+import {
+  TipoEventoFormValues,
+  tipoEventoSchema,
+} from '../schemas/tipo-evento.schema'
 import { TipoEvento } from '@/types/comercial.types'
 
 interface TipoEventoFormDialogProps {
@@ -39,7 +42,13 @@ export function TipoEventoFormDialog({
     formState: { errors, isSubmitting },
   } = useForm<TipoEventoFormValues>({
     resolver: zodResolver(tipoEventoSchema),
-    defaultValues: { nombre: '', descripcion: '', icono: '', orden: 0, activo: true },
+    defaultValues: {
+      nombre: '',
+      descripcion: '',
+      icono: '',
+      orden: 0,
+      activo: true,
+    },
   })
 
   useEffect(() => {
@@ -53,7 +62,13 @@ export function TipoEventoFormDialog({
           activo: tipoEvento.activo,
         })
       } else {
-        reset({ nombre: '', descripcion: '', icono: '', orden: 0, activo: true })
+        reset({
+          nombre: '',
+          descripcion: '',
+          icono: '',
+          orden: 0,
+          activo: true,
+        })
       }
     }
   }, [open, tipoEvento, reset])
@@ -81,20 +96,34 @@ export function TipoEventoFormDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v) }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) reset()
+        onOpenChange(v)
+      }}
+    >
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar tipo de evento' : 'Nuevo tipo de evento'}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? 'Editar tipo de evento' : 'Nuevo tipo de evento'}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1">
             <div className="flex justify-between">
               <Label>Nombre *</Label>
-              <span className="text-xs text-muted-foreground">{nombre?.length ?? 0}/80</span>
+              <span className="text-xs text-muted-foreground">
+                {nombre?.length ?? 0}/80
+              </span>
             </div>
             <Input {...register('nombre')} placeholder="Ej: Cumpleaños" />
-            {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
+            {errors.nombre && (
+              <p className="text-xs text-destructive">
+                {errors.nombre.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -105,7 +134,11 @@ export function TipoEventoFormDialog({
               className="resize-none"
               placeholder="Descripción opcional del tipo de evento"
             />
-            {errors.descripcion && <p className="text-xs text-destructive">{errors.descripcion.message}</p>}
+            {errors.descripcion && (
+              <p className="text-xs text-destructive">
+                {errors.descripcion.message}
+              </p>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -115,30 +148,56 @@ export function TipoEventoFormDialog({
                 control={control}
                 name="icono"
                 render={({ field }) => (
-                  <IconPicker value={field.value ?? ''} onChange={field.onChange} />
+                  <IconPicker
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                  />
                 )}
               />
             </div>
             <div className="space-y-1">
               <Label>Orden</Label>
               <Input type="number" {...register('orden')} />
-              {errors.orden && <p className="text-xs text-destructive">{errors.orden.message}</p>}
+              {errors.orden && (
+                <p className="text-xs text-destructive">
+                  {errors.orden.message}
+                </p>
+              )}
             </div>
           </div>
 
           {isEditing && (
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" {...register('activo')} className="w-4 h-4 rounded" />
+              <input
+                type="checkbox"
+                {...register('activo')}
+                className="w-4 h-4 rounded"
+              />
               <span className="text-sm">Activo</span>
             </label>
           )}
 
           <div className="flex justify-end gap-2 pt-2 border-t">
-            <Button type="button" variant="outline" onClick={() => { reset(); onOpenChange(false) }}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                reset()
+                onOpenChange(false)
+              }}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-brand-azul text-white">
-              {isSubmitting ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear tipo'}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-brand-azul text-white"
+            >
+              {isSubmitting
+                ? 'Guardando...'
+                : isEditing
+                  ? 'Guardar cambios'
+                  : 'Crear tipo'}
             </Button>
           </div>
         </form>

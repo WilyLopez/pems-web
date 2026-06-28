@@ -5,10 +5,17 @@ export const LABEL_ROL: Record<string, string> = {
   CLIENTE: 'Cliente',
 }
 
-export function getDashboardUrl(roles: string[], tipoPerfil: string | null): string {
+export function getDashboardUrl(
+  roles: string[],
+  tipoPerfil: string | null
+): string {
   if (tipoPerfil === 'CLIENTE') return '/cliente'
   if (tipoPerfil === 'STAFF') {
-    if (roles.includes('CAJERO') && !roles.includes('ADMIN') && !roles.includes('SUPERADMIN')) {
+    if (
+      roles.includes('CAJERO') &&
+      !roles.includes('ADMIN') &&
+      !roles.includes('SUPERADMIN')
+    ) {
       return '/admin/ventas'
     }
     return '/admin/dashboard'

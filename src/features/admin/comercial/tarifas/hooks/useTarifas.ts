@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { tarifaService, ConfigurarTarifaPayload } from '@/services/tarifa.service'
+import {
+  tarifaService,
+  ConfigurarTarifaPayload,
+} from '@/services/tarifa.service'
 import { COMERCIAL_QUERY_KEYS } from '@/features/admin/comercial/shared/queryKeys'
 
 export function useTarifasActivas(idSede: number | null) {
@@ -31,7 +34,8 @@ export function useConfigurarTarifa(idSede: number | null) {
       toast.success('Tarifa actualizada correctamente')
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      const msg = (err as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message
       toast.error(msg ?? 'Error al actualizar la tarifa')
     },
   })

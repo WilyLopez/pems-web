@@ -7,8 +7,8 @@ try {
   backendOrigin = new URL(apiUrl.trim()).origin
 } catch (e) {
   if (apiUrl.startsWith('http')) {
-    const match = apiUrl.match(/^https?:\/\/[^\/]+/);
-    if (match) backendOrigin = match[0];
+    const match = apiUrl.match(/^https?:\/\/[^\/]+/)
+    if (match) backendOrigin = match[0]
   }
 }
 
@@ -33,12 +33,27 @@ const nextConfig = {
         hostname: 'divljjsnorvkrgcznwlh.supabase.co',
         pathname: '/**',
       },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '8080',
-        pathname: '/**',
-      },
+      ...(() => {
+        try {
+          const u = new URL(backendOrigin)
+          const pattern = {
+            protocol: u.protocol.replace(':', ''),
+            hostname: u.hostname,
+            pathname: '/**',
+          }
+          if (u.port) pattern.port = u.port
+          return [pattern]
+        } catch {
+          return [
+            {
+              protocol: 'http',
+              hostname: 'localhost',
+              port: '8080',
+              pathname: '/**',
+            },
+          ]
+        }
+      })(),
     ],
   },
 }

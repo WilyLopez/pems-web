@@ -24,17 +24,20 @@ export function useClientesNav() {
 
   const modal = searchParams.get('modal')
 
-  const updateParams = useCallback((updates: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams.toString())
-    Object.entries(updates).forEach(([name, value]) => {
-      if (value) {
-        params.set(name, value)
-      } else {
-        params.delete(name)
-      }
-    })
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
-  }, [pathname, router, searchParams])
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString())
+      Object.entries(updates).forEach(([name, value]) => {
+        if (value) {
+          params.set(name, value)
+        } else {
+          params.delete(name)
+        }
+      })
+      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    },
+    [pathname, router, searchParams]
+  )
 
   return {
     page,
@@ -44,7 +47,8 @@ export function useClientesNav() {
     modal,
     setPage: (p: number) => updateParams({ page: p > 0 ? p.toString() : null }),
     setSearch: (s: string) => updateParams({ search: s || null, page: null }),
-    setFiltro: (f: FiltroCliente) => updateParams({ filtro: f !== 'todos' ? f : null, page: null }),
+    setFiltro: (f: FiltroCliente) =>
+      updateParams({ filtro: f !== 'todos' ? f : null, page: null }),
     openDrawer: (id: number) => updateParams({ drawerId: id.toString() }),
     closeDrawer: () => updateParams({ drawerId: null }),
     openNuevoModal: () => updateParams({ modal: 'nuevo' }),

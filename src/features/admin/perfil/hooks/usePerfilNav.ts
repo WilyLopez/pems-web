@@ -17,25 +17,31 @@ export function usePerfilNav() {
     return id ? parseInt(id, 10) : null
   }, [searchParams])
 
-  const setTab = useCallback((t: PerfilTab) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (t === 'perfil') {
-      params.delete('tab')
-    } else {
-      params.set('tab', t)
-    }
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
-  }, [pathname, router, searchParams])
+  const setTab = useCallback(
+    (t: PerfilTab) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (t === 'perfil') {
+        params.delete('tab')
+      } else {
+        params.set('tab', t)
+      }
+      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    },
+    [pathname, router, searchParams]
+  )
 
-  const setUserId = useCallback((id: number | null) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (id === null) {
-      params.delete('userId')
-    } else {
-      params.set('userId', id.toString())
-    }
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
-  }, [pathname, router, searchParams])
+  const setUserId = useCallback(
+    (id: number | null) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (id === null) {
+        params.delete('userId')
+      } else {
+        params.set('userId', id.toString())
+      }
+      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    },
+    [pathname, router, searchParams]
+  )
 
   return {
     tab,

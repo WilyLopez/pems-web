@@ -1,7 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Newspaper, Home, Image as ImageIcon, Search } from 'lucide-react'
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Newspaper,
+  Home,
+  Image as ImageIcon,
+  Search,
+} from 'lucide-react'
 import Image from 'next/image'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { PageHeader } from '@/components/common/PageHeader'
@@ -14,7 +22,10 @@ import { EmptyState } from '@/components/common/Emptystate'
 import { ErrorState } from '@/components/common/Errorstate'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { QuickToggle } from '@/components/admin/comercial/shared/QuickToggle'
-import { useNovedadesAdmin, useNovedadMutations } from '@/features/admin/cms/novedades/hooks/useNovedades'
+import {
+  useNovedadesAdmin,
+  useNovedadMutations,
+} from '@/features/admin/cms/novedades/hooks/useNovedades'
 import { NovedadLocal } from '@/types/comercial.types'
 import { fixMediaUrl } from '@/lib/media'
 import { NovedadFormDialog } from '@/features/admin/cms/novedades/components/NovedadFormDialog'
@@ -28,17 +39,24 @@ export default function NovedadesPage() {
   const formOpenParam = searchParams.get('open') === 'true'
   const editIdParam = searchParams.get('edit')
 
-  const [deleteId, setDeleteId]     = useState<number | null>(null)
+  const [deleteId, setDeleteId] = useState<number | null>(null)
 
-  const { data: novedades = [], isLoading, isError, refetch } = useNovedadesAdmin()
+  const {
+    data: novedades = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useNovedadesAdmin()
   const { eliminar, toggleActivo } = useNovedadMutations()
 
   const editTarget = editIdParam
-    ? novedades.find((n) => n.id === Number(editIdParam)) ?? null
+    ? (novedades.find((n) => n.id === Number(editIdParam)) ?? null)
     : null
 
   const formOpen = formOpenParam || !!editTarget
-  const novedadesHome = novedades.filter((n) => n.visibleHome && n.activa).length
+  const novedadesHome = novedades.filter(
+    (n) => n.visibleHome && n.activa
+  ).length
 
   function abrirCrear() {
     const params = new URLSearchParams(searchParams.toString())
@@ -82,17 +100,19 @@ export default function NovedadesPage() {
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs items={[
-        { label: 'CMS', href: '/admin/cms' },
-        { label: 'Novedades' }
-      ]} />
+      <Breadcrumbs
+        items={[{ label: 'CMS', href: '/admin/cms' }, { label: 'Novedades' }]}
+      />
 
       <PageHeader
         title="Novedades"
         description="Gestiona las novedades y noticias del sitio"
         actions={
-          <Button size="sm" className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
-            onClick={abrirCrear}>
+          <Button
+            size="sm"
+            className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
+            onClick={abrirCrear}
+          >
             <Plus className="h-4 w-4" /> Nueva novedad
           </Button>
         }
@@ -120,16 +140,23 @@ export default function NovedadesPage() {
 
       {isLoading && (
         <div className="space-y-2">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-16 rounded-lg" />
+          ))}
         </div>
       )}
 
       {!isLoading && novedades.length === 0 && (
-        <EmptyState title="Sin novedades" description="Crea la primera novedad para mostrarla en el sitio."
+        <EmptyState
+          title="Sin novedades"
+          description="Crea la primera novedad para mostrarla en el sitio."
           icon={<Newspaper className="h-6 w-6" />}
           action={
-            <Button size="sm" className="bg-brand-azul text-white gap-1.5"
-              onClick={abrirCrear}>
+            <Button
+              size="sm"
+              className="bg-brand-azul text-white gap-1.5"
+              onClick={abrirCrear}
+            >
               <Plus className="h-4 w-4" /> Nueva novedad
             </Button>
           }
@@ -138,7 +165,9 @@ export default function NovedadesPage() {
 
       {!isLoading && novedades.length > 0 && filteredNovedades.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 gap-4 bg-white rounded-2xl border border-gray-100">
-          <p className="text-sm font-medium text-gray-500">No se encontraron novedades que coincidan con la búsqueda.</p>
+          <p className="text-sm font-medium text-gray-500">
+            No se encontraron novedades que coincidan con la búsqueda.
+          </p>
         </div>
       )}
 
@@ -148,15 +177,22 @@ export default function NovedadesPage() {
             <thead>
               <tr className="border-b bg-muted/50 text-xs text-muted-foreground">
                 <th className="px-4 py-3 text-left">Novedad</th>
-                <th className="px-4 py-3 text-center hidden sm:table-cell">Prioridad</th>
-                <th className="px-4 py-3 text-left hidden md:table-cell">Vigencia</th>
+                <th className="px-4 py-3 text-center hidden sm:table-cell">
+                  Prioridad
+                </th>
+                <th className="px-4 py-3 text-left hidden md:table-cell">
+                  Vigencia
+                </th>
                 <th className="px-4 py-3 text-left">Estado</th>
                 <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filteredNovedades.map((n) => (
-                <tr key={n.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                <tr
+                  key={n.id}
+                  className="border-b last:border-0 hover:bg-muted/30 transition-colors"
+                >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {n.imagenUrl ? (
@@ -176,13 +212,19 @@ export default function NovedadesPage() {
                       )}
                       <div>
                         <p className="font-medium text-sm">{n.titulo}</p>
-                        <p className="text-xs text-muted-foreground truncate max-w-[200px]">{n.descripcion}</p>
+                        <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                          {n.descripcion}
+                        </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-center hidden sm:table-cell text-muted-foreground">{n.prioridad}</td>
+                  <td className="px-4 py-3 text-center hidden sm:table-cell text-muted-foreground">
+                    {n.prioridad}
+                  </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell">
-                    {n.fechaInicio && n.fechaFin ? `${n.fechaInicio} — ${n.fechaFin}` : '—'}
+                    {n.fechaInicio && n.fechaFin
+                      ? `${n.fechaInicio} — ${n.fechaFin}`
+                      : '—'}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -194,18 +236,29 @@ export default function NovedadesPage() {
                       <QuickToggle
                         activo={n.activa}
                         onToggle={() => toggleActivo.mutate(n)}
-                        isPending={toggleActivo.isPending && (toggleActivo.variables as NovedadLocal)?.id === n.id}
+                        isPending={
+                          toggleActivo.isPending &&
+                          (toggleActivo.variables as NovedadLocal)?.id === n.id
+                        }
                       />
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
-                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                        onClick={() => abrirEditar(n)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={() => abrirEditar(n)}
+                      >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-destructive"
-                        onClick={() => setDeleteId(n.id)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 hover:text-destructive"
+                        onClick={() => setDeleteId(n.id)}
+                      >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -234,7 +287,8 @@ export default function NovedadesPage() {
         description="La novedad será eliminada permanentemente."
         confirmLabel="Eliminar"
         onConfirm={() => {
-          if (deleteId !== null) eliminar.mutate(deleteId, { onSettled: () => setDeleteId(null) })
+          if (deleteId !== null)
+            eliminar.mutate(deleteId, { onSettled: () => setDeleteId(null) })
         }}
         loading={eliminar.isPending}
       />

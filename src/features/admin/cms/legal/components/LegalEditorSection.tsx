@@ -13,7 +13,10 @@ import { Textarea } from '@/components/ui/Textarea'
 import { ErrorState } from '@/components/common/Errorstate'
 import { LegalFormatToolbar } from '@/components/admin/legal/LegalFormatToolbar'
 import { LegalPreviewPanel } from '@/components/admin/legal/LegalPreviewPanel'
-import { useContenidoLegalAdmin, useActualizarLegal } from '../hooks/useContenidoLegal'
+import {
+  useContenidoLegalAdmin,
+  useActualizarLegal,
+} from '../hooks/useContenidoLegal'
 import { legalSchema, LegalFormValues } from '../schemas/legal.schema'
 import { formatDateTime, cn } from '@/lib/utils'
 
@@ -55,13 +58,19 @@ export function LegalEditorSection({ tipo }: LegalEditorSectionProps) {
 
   const handleToolbarChange = useCallback(
     (newValue: string) => {
-      setValue('contenido', newValue, { shouldDirty: true, shouldValidate: false })
+      setValue('contenido', newValue, {
+        shouldDirty: true,
+        shouldValidate: false,
+      })
     },
     [setValue]
   )
 
   function onSubmit(data: LegalFormValues) {
-    actualizar.mutate({ tipo, payload: { titulo: data.titulo, contenido: data.contenido } })
+    actualizar.mutate({
+      tipo,
+      payload: { titulo: data.titulo, contenido: data.contenido },
+    })
   }
 
   if (isError) return <ErrorState onRetry={refetch} />
@@ -126,17 +135,23 @@ export function LegalEditorSection({ tipo }: LegalEditorSectionProps) {
                 placeholder="Ej: Términos y Condiciones de Uso"
               />
               {errors.titulo && (
-                <p className="text-xs text-destructive mt-1">{errors.titulo.message}</p>
+                <p className="text-xs text-destructive mt-1">
+                  {errors.titulo.message}
+                </p>
               )}
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1">
                 <Label htmlFor={`contenido-${tipo}`}>Contenido *</Label>
-                <span className="text-xs text-muted-foreground">{wordCount} palabras</span>
+                <span className="text-xs text-muted-foreground">
+                  {wordCount} palabras
+                </span>
               </div>
               <LegalFormatToolbar
-                textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
+                textareaRef={
+                  textareaRef as React.RefObject<HTMLTextAreaElement>
+                }
                 onChange={handleToolbarChange}
               />
               <Textarea
@@ -145,13 +160,17 @@ export function LegalEditorSection({ tipo }: LegalEditorSectionProps) {
                 {...registerContenido}
                 ref={(el) => {
                   rhfRef(el)
-                  ;(textareaRef as React.MutableRefObject<HTMLTextAreaElement | null>).current = el
+                  ;(
+                    textareaRef as React.MutableRefObject<HTMLTextAreaElement | null>
+                  ).current = el
                 }}
                 className="font-mono text-sm resize-y rounded-t-none border-t-0"
                 placeholder="Escribe el contenido legal aquí. Puedes usar texto plano o HTML básico..."
               />
               {errors.contenido && (
-                <p className="text-xs text-destructive mt-1">{errors.contenido.message}</p>
+                <p className="text-xs text-destructive mt-1">
+                  {errors.contenido.message}
+                </p>
               )}
             </div>
 

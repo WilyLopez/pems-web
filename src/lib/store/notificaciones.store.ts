@@ -53,68 +53,70 @@ function toNotificacion(dto: NotificacionDTO): Notificacion {
   }
 }
 
-export const useNotificacionesStore = create<NotificacionesState>((set, get) => ({
-  notificaciones: [],
-  noLeidas: 0,
-  cargando: false,
-  ultimaActualizacion: null,
+export const useNotificacionesStore = create<NotificacionesState>(
+  (set, get) => ({
+    notificaciones: [],
+    noLeidas: 0,
+    cargando: false,
+    ultimaActualizacion: null,
 
-  fetchNotificaciones: async () => {
-    set({ cargando: true })
-    try {
-      const page = await getApi().feed({ size: 30 })
-      const notifs = page.content.map(toNotificacion)
-      set({
-        notificaciones: notifs,
-        noLeidas: notifs.filter((n) => !n.leida).length,
-        ultimaActualizacion: Date.now(),
-      })
-    } catch {
-      // silent — no interrumpir la UI si no hay sesion activa
-    } finally {
-      set({ cargando: false })
-    }
-  },
+    fetchNotificaciones: async () => {
+      set({ cargando: true })
+      try {
+        const page = await getApi().feed({ size: 30 })
+        const notifs = page.content.map(toNotificacion)
+        set({
+          notificaciones: notifs,
+          noLeidas: notifs.filter((n) => !n.leida).length,
+          ultimaActualizacion: Date.now(),
+        })
+      } catch {
+        // silent — no interrumpir la UI si no hay sesion activa
+      } finally {
+        set({ cargando: false })
+      }
+    },
 
-  fetchCount: async () => {
-    try {
-      const count = await getApi().count()
-      set({ noLeidas: count })
-    } catch {
-      // silent
-    }
-  },
+    fetchCount: async () => {
+      try {
+        const count = await getApi().count()
+        set({ noLeidas: count })
+      } catch {
+        // silent
+      }
+    },
 
-  marcarLeida: async (id: string) => {
-    const prevNotifs = get().notificaciones
-    const yaLeida = prevNotifs.find((n) => n.id === id)?.leida ?? true
+    marcarLeida: async (id: string) => {
+      const prevNotifs = get().notificaciones
+      const yaLeida = prevNotifs.find((n) => n.id === id)?.leida ?? true
 
-    set((s) => ({
-      notificaciones: s.notificaciones.map((n) =>
-        n.id === id ? { ...n, leida: true } : n
-      ),
-      noLeidas: Math.max(0, s.noLeidas - (yaLeida ? 0 : 1)),
-    }))
+      set((s) => ({
+        notificaciones: s.notificaciones.map((n) =>
+          n.id === id ? { ...n, leida: true } : n
+        ),
+        noLeidas: Math.max(0, s.noLeidas - (yaLeida ? 0 : 1)),
+      }))
 
-    try {
-      await getApi().marcarLeida(Number(id))
-    } catch {
-      set({ notificaciones: prevNotifs })
-    }
-  },
+      try {
+        await getApi().marcarLeida(Number(id))
+      } catch {
+        set({ notificaciones: prevNotifs })
+      }
+    },
 
-  marcarTodasLeidas: async () => {
-    const prevNotifs = get().notificaciones
+    marcarTodasLeidas: async () => {
+      const prevNotifs = get().notificaciones
 
-    set((s) => ({
-      notificaciones: s.notificaciones.map((n) => ({ ...n, leida: true })),
-      noLeidas: 0,
-    }))
+      set((s) => ({
+        notificaciones: s.notificaciones.map((n) => ({ ...n, leida: true })),
+        noLeidas: 0,
+      }))
 
-    try {
-      await getApi().marcarTodasLeidas()
-    } catch {
-      set({ notificaciones: prevNotifs })
-    }
-  },
-}))
+      try {
+        await getApi().marcarTodasLeidas()
+      } catch {
+        set({ notificaciones: prevNotifs })
+      }
+    },
+  })
+)

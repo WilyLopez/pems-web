@@ -1,14 +1,20 @@
 'use client'
 
-import { Ticket, Users, AlertTriangle, PartyPopper, LucideIcon } from 'lucide-react'
+import {
+  Ticket,
+  Users,
+  AlertTriangle,
+  PartyPopper,
+  LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DashboardAdmin } from '@/types/dashboard.types'
 
 interface KpiCardProps {
-  label:   string
-  valor:   number | string
-  icon:    LucideIcon
-  color:   string
+  label: string
+  valor: number | string
+  icon: LucideIcon
+  color: string
   detalle: string
 }
 
@@ -19,12 +25,21 @@ function KpiCard({ label, valor, icon: Icon, color, detalle }: KpiCardProps) {
         <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wide text-gray-400 leading-tight">
           {label}
         </span>
-        <div className={cn('w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0', color)}>
+        <div
+          className={cn(
+            'w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0',
+            color
+          )}
+        >
           <Icon className="h-4 w-4" />
         </div>
       </div>
-      <p className="text-lg sm:text-2xl font-black text-gray-900 leading-none">{valor}</p>
-      <p className="text-[11px] sm:text-xs text-gray-400 mt-1.5 leading-tight">{detalle}</p>
+      <p className="text-lg sm:text-2xl font-black text-gray-900 leading-none">
+        {valor}
+      </p>
+      <p className="text-[11px] sm:text-xs text-gray-400 mt-1.5 leading-tight">
+        {detalle}
+      </p>
     </div>
   )
 }
@@ -35,9 +50,8 @@ interface Props {
 
 export function KpisDelDia({ data }: Props) {
   const aforoUsado = data.reservasHoy
-  const pctAforo   = data.aforoMaximo > 0
-    ? Math.round((aforoUsado / data.aforoMaximo) * 100)
-    : 0
+  const pctAforo =
+    data.aforoMaximo > 0 ? Math.round((aforoUsado / data.aforoMaximo) * 100) : 0
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -63,12 +77,18 @@ export function KpisDelDia({ data }: Props) {
           <div
             className={cn(
               'h-1.5 rounded-full transition-all',
-              pctAforo >= 90 ? 'bg-red-500' : pctAforo >= 70 ? 'bg-amber-500' : 'bg-emerald-500'
+              pctAforo >= 90
+                ? 'bg-red-500'
+                : pctAforo >= 70
+                  ? 'bg-amber-500'
+                  : 'bg-emerald-500'
             )}
             style={{ width: `${Math.min(pctAforo, 100)}%` }}
           />
         </div>
-        <p className="text-[11px] text-gray-400 mt-1.5">{data.plazasDisponibles} plazas libres</p>
+        <p className="text-[11px] text-gray-400 mt-1.5">
+          {data.plazasDisponibles} plazas libres
+        </p>
       </div>
 
       <KpiCard

@@ -8,21 +8,21 @@
 
 ## Resumen de problemas que resuelve este plan
 
-| # | Problema | Fase que lo resuelve |
-|---|----------|----------------------|
-| Bug activo | `EDAD_MAX_NINO` no existe en BD, guarda con error 404 | 1 |
-| Bug activo | `AuthService` lee seguridad del YAML, no de BD — UI miente | 2 |
-| Bug activo | `ReservaPublicaPersistenceAdapter` lee aforo del YAML, no de BD | 2 |
-| Bug silencioso | Turnos pueden solaparse sin validación | 1 |
-| Bug silencioso | `diasMin >= diasMax` pasa sin error | 1 |
-| Deuda | `ConfiguracionView` escrito pero nunca conectado al router | 1 |
-| Deuda | 8 cards antiguas en módulo muerto | 1 |
-| Deuda | Routing con query params en lugar de `useParams` | 3 |
-| Deuda | Valores de negocio hardcodeados en YAML | 2 |
-| Deuda | Contacto del negocio en tres tablas distintas | 5 |
-| Deuda | Email de admin hardcodeado en YAML | 6 |
-| Deuda | Dark mode no soportado en ningún componente de configuración | 4 |
-| Diseño | Tabla `configuracion_sede` huérfana (legacy V3) | 6 |
+| #              | Problema                                                        | Fase que lo resuelve |
+| -------------- | --------------------------------------------------------------- | -------------------- |
+| Bug activo     | `EDAD_MAX_NINO` no existe en BD, guarda con error 404           | 1                    |
+| Bug activo     | `AuthService` lee seguridad del YAML, no de BD — UI miente      | 2                    |
+| Bug activo     | `ReservaPublicaPersistenceAdapter` lee aforo del YAML, no de BD | 2                    |
+| Bug silencioso | Turnos pueden solaparse sin validación                          | 1                    |
+| Bug silencioso | `diasMin >= diasMax` pasa sin error                             | 1                    |
+| Deuda          | `ConfiguracionView` escrito pero nunca conectado al router      | 1                    |
+| Deuda          | 8 cards antiguas en módulo muerto                               | 1                    |
+| Deuda          | Routing con query params en lugar de `useParams`                | 3                    |
+| Deuda          | Valores de negocio hardcodeados en YAML                         | 2                    |
+| Deuda          | Contacto del negocio en tres tablas distintas                   | 5                    |
+| Deuda          | Email de admin hardcodeado en YAML                              | 6                    |
+| Deuda          | Dark mode no soportado en ningún componente de configuración    | 4                    |
+| Diseño         | Tabla `configuracion_sede` huérfana (legacy V3)                 | 6                    |
 
 ---
 
@@ -56,9 +56,9 @@ Ninguno.
 
 **Modificar:**
 
-| Archivo | Cambio |
-|---------|--------|
-| `app/admin/configuracion/page.tsx` | Reemplazar todo el contenido por `<ConfiguracionView />` importado desde `features/admin/configuracion` |
+| Archivo                                                                 | Cambio                                                                                                                          |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `app/admin/configuracion/page.tsx`                                      | Reemplazar todo el contenido por `<ConfiguracionView />` importado desde `features/admin/configuracion`                         |
 | `features/admin/configuracion/components/sections/OperacionSection.tsx` | Agregar refines al schema Zod: `T1.fin <= T2.inicio`, `T1.inicio >= horaApertura`, `T2.fin <= horaCierre`, `T2.inicio > T1.fin` |
 
 **Eliminar (módulo viejo — ya no tiene referencias después del cambio en page.tsx):**
@@ -129,13 +129,13 @@ ON CONFLICT (clave) DO NOTHING;
 
 **Modificar:**
 
-| Archivo | Cambio |
-|---------|--------|
-| `application/usuario/service/AuthService.java` | Inyectar `ConfiguracionGlobalRepository` vía puerto de salida; leer `INTENTOS_LOGIN_ANTES_BLOQUEO` y `DURACION_BLOQUEO_LOGIN_MIN` de BD en tiempo de ejecución, con fallback defensivo a 5 y 15 si la clave no existe |
-| `infrastructure/persistence/evento/adapter/ReservaPublicaPersistenceAdapter.java` | Inyectar `ConfiguracionCalendarioRepository`; leer `aforo_maximo` de `configuracion_calendario` en tiempo de ejecución |
-| `application/evento/service/ReservaPublicaService.java` | Inyectar puerto de lectura de `configuracion_global` para `MAX_REPROGRAMACIONES` en lugar de `@Value` |
-| `application.yaml` | Eliminar sección completa `playzone.negocio` (aforo-maximo, anticipacion-min-horas, anticipacion-min-evento-dias, dias-max-reserva-publica, visitas-para-entrada-gratis, max-reprogramaciones) y sección `playzone.seguridad` (max-intentos-login, duracion-bloqueo-min) |
-| `application-dev.yml` | Eliminar `playzone.zona-horaria` |
+| Archivo                                                                           | Cambio                                                                                                                                                                                                                                                                   |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `application/usuario/service/AuthService.java`                                    | Inyectar `ConfiguracionGlobalRepository` vía puerto de salida; leer `INTENTOS_LOGIN_ANTES_BLOQUEO` y `DURACION_BLOQUEO_LOGIN_MIN` de BD en tiempo de ejecución, con fallback defensivo a 5 y 15 si la clave no existe                                                    |
+| `infrastructure/persistence/evento/adapter/ReservaPublicaPersistenceAdapter.java` | Inyectar `ConfiguracionCalendarioRepository`; leer `aforo_maximo` de `configuracion_calendario` en tiempo de ejecución                                                                                                                                                   |
+| `application/evento/service/ReservaPublicaService.java`                           | Inyectar puerto de lectura de `configuracion_global` para `MAX_REPROGRAMACIONES` en lugar de `@Value`                                                                                                                                                                    |
+| `application.yaml`                                                                | Eliminar sección completa `playzone.negocio` (aforo-maximo, anticipacion-min-horas, anticipacion-min-evento-dias, dias-max-reserva-publica, visitas-para-entrada-gratis, max-reprogramaciones) y sección `playzone.seguridad` (max-intentos-login, duracion-bloqueo-min) |
+| `application-dev.yml`                                                             | Eliminar `playzone.zona-horaria`                                                                                                                                                                                                                                         |
 
 **No modificar:** Las claves en la BD ni los formularios del frontend — ya están correctos. Solo el backend deja de ignorar lo que el admin guarda.
 
@@ -165,18 +165,18 @@ Mismo problema en CMS configuracion-publica: la sección activa es estado local 
 
 **Crear:**
 
-| Archivo | Contenido |
-|---------|-----------|
-| `app/admin/configuracion/[seccion]/page.tsx` | Renderiza `ConfiguracionView`; `seccion` viene de `useParams` |
+| Archivo                                                  | Contenido                                                                                   |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `app/admin/configuracion/[seccion]/page.tsx`             | Renderiza `ConfiguracionView`; `seccion` viene de `useParams`                               |
 | `app/admin/cms/configuracion-publica/[seccion]/page.tsx` | Renderiza `ConfiguracionPublicaView` (componente a extraer); `seccion` viene de `useParams` |
 
 **Modificar:**
 
-| Archivo | Cambio |
-|---------|--------|
-| `features/admin/configuracion/hooks/useConfiguracionNav.ts` | Reemplazar `searchParams.get('s')` por `useParams<{ seccion: SeccionConfig }>()` para la sección; conservar `searchParams` solo para `m` (estado del modal, que es transitorio) |
-| `features/admin/configuracion/components/views/ConfiguracionView.tsx` | Recibir `seccion` desde hook en lugar de query param; ajustar breadcrumbs |
-| `app/admin/cms/configuracion-publica/page.tsx` | Extraer lógica a `ConfiguracionPublicaView` en `features/admin/cms/configuracion-publica/`; el `page.tsx` solo monta el componente |
+| Archivo                                                               | Cambio                                                                                                                                                                          |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `features/admin/configuracion/hooks/useConfiguracionNav.ts`           | Reemplazar `searchParams.get('s')` por `useParams<{ seccion: SeccionConfig }>()` para la sección; conservar `searchParams` solo para `m` (estado del modal, que es transitorio) |
+| `features/admin/configuracion/components/views/ConfiguracionView.tsx` | Recibir `seccion` desde hook en lugar de query param; ajustar breadcrumbs                                                                                                       |
+| `app/admin/cms/configuracion-publica/page.tsx`                        | Extraer lógica a `ConfiguracionPublicaView` en `features/admin/cms/configuracion-publica/`; el `page.tsx` solo monta el componente                                              |
 
 **Extraer (descomposición):**
 
@@ -237,17 +237,17 @@ Todos los componentes de configuración usan colores hardcodeados Tailwind (`bg-
 
 ### Regla de conversión
 
-| Clase hardcodeada | Reemplazar por |
-|-------------------|----------------|
-| `bg-white` | `bg-card` |
-| `text-gray-900` | `text-card-foreground` |
-| `text-gray-500`, `text-gray-600` | `text-muted-foreground` |
-| `border-gray-100`, `border-gray-200` | `border-border` |
-| `bg-gray-50`, `bg-gray-50/50` | `bg-muted/40` |
-| `bg-gray-100` | `bg-muted` |
-| `text-gray-800` | `text-foreground` |
+| Clase hardcodeada                            | Reemplazar por                                                 |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| `bg-white`                                   | `bg-card`                                                      |
+| `text-gray-900`                              | `text-card-foreground`                                         |
+| `text-gray-500`, `text-gray-600`             | `text-muted-foreground`                                        |
+| `border-gray-100`, `border-gray-200`         | `border-border`                                                |
+| `bg-gray-50`, `bg-gray-50/50`                | `bg-muted/40`                                                  |
+| `bg-gray-100`                                | `bg-muted`                                                     |
+| `text-gray-800`                              | `text-foreground`                                              |
 | `bg-blue-50 text-blue-600` (iconos de color) | conservar — son colores semánticos de acento, no de superficie |
-| `bg-amber-50 border-amber-200` (alertas) | conservar — son colores semánticos de estado |
+| `bg-amber-50 border-amber-200` (alertas)     | conservar — son colores semánticos de estado                   |
 
 ### Alcance frontend
 
@@ -305,12 +305,12 @@ El script debe ser idempotente (ON CONFLICT DO NOTHING / IF EXISTS).
 
 **Modificar:**
 
-| Archivo | Cambio |
-|---------|--------|
-| `domain/sede/model/Sede.java` | Eliminar campos `telefono`, `correo`, `direccion` |
-| `infrastructure/persistence/sede/entity/SedeEntity.java` | Eliminar columnas correspondientes |
-| `interfaces/rest/sede/request/ActualizarSedeRequest.java` | Eliminar campos `telefono`, `correo`, `direccion` |
-| `interfaces/rest/sede/response/SedeResponse.java` | Eliminar campos correspondientes |
+| Archivo                                                   | Cambio                                                                                                                     |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `domain/sede/model/Sede.java`                             | Eliminar campos `telefono`, `correo`, `direccion`                                                                          |
+| `infrastructure/persistence/sede/entity/SedeEntity.java`  | Eliminar columnas correspondientes                                                                                         |
+| `interfaces/rest/sede/request/ActualizarSedeRequest.java` | Eliminar campos `telefono`, `correo`, `direccion`                                                                          |
+| `interfaces/rest/sede/response/SedeResponse.java`         | Eliminar campos correspondientes                                                                                           |
 | `interfaces/rest/cms/ConfiguracionPublicaController.java` | Verificar que `ActualizarConfiguracionRequest` ya incluye telefono, whatsapp, correo, direccion (actualmente sí los tiene) |
 
 **Verificar (no modificar si ya es correcto):**
@@ -321,10 +321,10 @@ El `ConfiguracionGlobalService` no debe tener lógica especial para `WHATSAPP_NU
 
 **Modificar:**
 
-| Archivo | Cambio |
-|---------|--------|
+| Archivo                                                            | Cambio                                                                   |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------ |
 | `features/admin/configuracion/components/sections/SedeSection.tsx` | Eliminar campos `telefono`, `correo`, `direccion` del formulario y vista |
-| `features/admin/configuracion/types/index.ts` | Eliminar `telefono`, `correo`, `direccion` del tipo `Sede` |
+| `features/admin/configuracion/types/index.ts`                      | Eliminar `telefono`, `correo`, `direccion` del tipo `Sede`               |
 
 **Crear:**
 
@@ -349,6 +349,7 @@ Esta sección se agrega a la navegación de `ConfiguracionPublicaView` entre Red
 ### Problema
 
 `CorreoAdapter` y `MensajeContactoService` leen el correo del admin y el nombre del negocio del YAML:
+
 - `playzone.negocio.correo-admin: admin@kikiylala.com`
 - `playzone.correo.nombre-remitente: ${MAIL_SENDER_NAME:Kiki y Lala}`
 
@@ -372,11 +373,11 @@ Antes de ejecutar: verificar con `SELECT COUNT(*) FROM configuracion_sede` que n
 
 **Modificar:**
 
-| Archivo | Cambio |
-|---------|--------|
-| `infrastructure/external/correo/CorreoAdapter.java` | Inyectar `ConfiguracionPublicaRepository` vía puerto de salida; leer `nombreNegocio` y `correo` de `configuracion_publica` en tiempo de ejecución en lugar de `@Value` |
-| `application/cms/service/MensajeContactoService.java` | Mismo cambio: leer correo destino de `configuracion_publica.correo` |
-| `application.yaml` | Eliminar `playzone.negocio.correo-admin` y `playzone.correo.nombre-remitente` |
+| Archivo                                               | Cambio                                                                                                                                                                 |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `infrastructure/external/correo/CorreoAdapter.java`   | Inyectar `ConfiguracionPublicaRepository` vía puerto de salida; leer `nombreNegocio` y `correo` de `configuracion_publica` en tiempo de ejecución en lugar de `@Value` |
+| `application/cms/service/MensajeContactoService.java` | Mismo cambio: leer correo destino de `configuracion_publica.correo`                                                                                                    |
+| `application.yaml`                                    | Eliminar `playzone.negocio.correo-admin` y `playzone.correo.nombre-remitente`                                                                                          |
 
 **No crear** una nueva dependencia directa desde infraestructura al repositorio CMS — usar el puerto existente `GestionarConfiguracionPublicaUseCase.obtener()` para no romper la arquitectura hexagonal.
 
@@ -403,11 +404,11 @@ Fases 1 y 2 son independientes entre sí en código (una es frontend, la otra es
 
 ## Scripts de BD a crear (resumen)
 
-| Fase | Nombre del archivo | Tipo |
-|------|-------------------|------|
-| 2 | `V_verificacion_claves_seguridad.sql` | INSERT ON CONFLICT DO NOTHING |
-| 5 | `V_contacto_fuente_unica.sql` | UPDATE + ALTER TABLE DROP COLUMN + DELETE |
-| 6 | `V_drop_configuracion_sede.sql` | DROP TABLE IF EXISTS |
+| Fase | Nombre del archivo                    | Tipo                                      |
+| ---- | ------------------------------------- | ----------------------------------------- |
+| 2    | `V_verificacion_claves_seguridad.sql` | INSERT ON CONFLICT DO NOTHING             |
+| 5    | `V_contacto_fuente_unica.sql`         | UPDATE + ALTER TABLE DROP COLUMN + DELETE |
+| 6    | `V_drop_configuracion_sede.sql`       | DROP TABLE IF EXISTS                      |
 
 Todos van en: `pems/src/main/resources/db/migration_legacy/`
 
@@ -428,4 +429,4 @@ pems-web/src/components/admin/configuracion/SistemaCard.tsx
 
 ---
 
-*Esperando aprobación para iniciar implementación.*
+_Esperando aprobación para iniciar implementación._

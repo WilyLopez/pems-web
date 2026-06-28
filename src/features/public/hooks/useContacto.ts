@@ -13,7 +13,10 @@ export interface ContactoPayload {
 export function useContacto() {
   return useMutation({
     mutationFn: async (payload: ContactoPayload) => {
-      const response = await api.post<ApiResponse<any>>('/api/v1/contacto', payload)
+      const response = await api.post<ApiResponse<any>>(
+        '/api/v1/contacto',
+        payload
+      )
       return response.data.data
     },
   })

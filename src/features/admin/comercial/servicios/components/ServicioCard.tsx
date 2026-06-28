@@ -13,7 +13,11 @@ interface ServicioCardProps {
   onDelete: (id: number) => void
 }
 
-export function ServicioCard({ servicio, onEdit, onDelete }: ServicioCardProps) {
+export function ServicioCard({
+  servicio,
+  onEdit,
+  onDelete,
+}: ServicioCardProps) {
   const { actualizar } = useServicioCotizacionMutations()
 
   return (
@@ -26,7 +30,9 @@ export function ServicioCard({ servicio, onEdit, onDelete }: ServicioCardProps) 
             </div>
             <div>
               <h3 className="font-semibold text-sm">{servicio.nombre}</h3>
-              <p className="text-xs text-muted-foreground">Orden: {servicio.orden}</p>
+              <p className="text-xs text-muted-foreground">
+                Orden: {servicio.orden}
+              </p>
             </div>
           </div>
           <QuickToggle
@@ -37,7 +43,10 @@ export function ServicioCard({ servicio, onEdit, onDelete }: ServicioCardProps) 
                 payload: { ...servicio, activo: !servicio.activo },
               })
             }
-            isPending={actualizar.isPending && (actualizar.variables as any)?.id === servicio.id}
+            isPending={
+              actualizar.isPending &&
+              (actualizar.variables as any)?.id === servicio.id
+            }
           />
         </div>
 
@@ -47,10 +56,17 @@ export function ServicioCard({ servicio, onEdit, onDelete }: ServicioCardProps) 
 
         <div className="flex items-center justify-between pt-2 border-t mt-auto">
           <span className="text-sm font-bold text-brand-azul">
-            {servicio.precioReferencial ? formatCurrency(servicio.precioReferencial) : 'Precio variable'}
+            {servicio.precioReferencial
+              ? formatCurrency(servicio.precioReferencial)
+              : 'Precio variable'}
           </span>
           <div className="flex gap-1">
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => onEdit(servicio)}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 w-8 p-0"
+              onClick={() => onEdit(servicio)}
+            >
               <Pencil className="h-3.5 w-3.5" />
             </Button>
             <Button

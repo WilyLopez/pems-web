@@ -13,7 +13,7 @@ export const downloadFile = async (url: string, filename: string) => {
     link.setAttribute('download', filename)
     document.body.appendChild(link)
     link.click()
-    
+
     // Cleanup
     document.body.removeChild(link)
     window.URL.revokeObjectURL(downloadUrl)

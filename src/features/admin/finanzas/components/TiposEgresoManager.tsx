@@ -43,15 +43,15 @@ function generarCodigo(nombre: string): string {
 }
 
 const categoriaBadge: Record<CategoriaEgreso, string> = {
-  RECURRENTE_FIJO:      'bg-blue-100 text-blue-700',
-  RECURRENTE_VARIABLE:  'bg-yellow-100 text-yellow-700',
-  EVENTUAL:             'bg-gray-100 text-gray-600',
+  RECURRENTE_FIJO: 'bg-blue-100 text-blue-700',
+  RECURRENTE_VARIABLE: 'bg-yellow-100 text-yellow-700',
+  EVENTUAL: 'bg-gray-100 text-gray-600',
 }
 
 const categoriaLabel: Record<CategoriaEgreso, string> = {
-  RECURRENTE_FIJO:      'Fijo',
-  RECURRENTE_VARIABLE:  'Variable',
-  EVENTUAL:             'Eventual',
+  RECURRENTE_FIJO: 'Fijo',
+  RECURRENTE_VARIABLE: 'Variable',
+  EVENTUAL: 'Eventual',
 }
 
 export function TiposEgresoManager() {
@@ -74,7 +74,9 @@ export function TiposEgresoManager() {
   })
 
   const tiposFiltrados = busqueda.trim()
-    ? tipos.filter((t) => t.nombre.toLowerCase().includes(busqueda.toLowerCase()))
+    ? tipos.filter((t) =>
+        t.nombre.toLowerCase().includes(busqueda.toLowerCase())
+      )
     : tipos
 
   const activos = tipos.filter((t) => t.activo).length
@@ -82,8 +84,18 @@ export function TiposEgresoManager() {
 
   function onSubmit(data: FormValues) {
     crear.mutate(
-      { codigo: generarCodigo(data.nombre), nombre: data.nombre, descripcion: data.descripcion, categoria: data.categoria },
-      { onSuccess: () => { reset(); setOpenCrear(false) } }
+      {
+        codigo: generarCodigo(data.nombre),
+        nombre: data.nombre,
+        descripcion: data.descripcion,
+        categoria: data.categoria,
+      },
+      {
+        onSuccess: () => {
+          reset()
+          setOpenCrear(false)
+        },
+      }
     )
   }
 
@@ -142,8 +154,13 @@ export function TiposEgresoManager() {
               ))
             ) : tiposFiltrados.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-sm text-gray-400">
-                  {busqueda ? 'Sin resultados para esa búsqueda.' : 'Sin tipos registrados.'}
+                <td
+                  colSpan={4}
+                  className="py-8 text-center text-sm text-gray-400"
+                >
+                  {busqueda
+                    ? 'Sin resultados para esa búsqueda.'
+                    : 'Sin tipos registrados.'}
                 </td>
               </tr>
             ) : (
@@ -152,25 +169,31 @@ export function TiposEgresoManager() {
                   key={t.codigo}
                   className={cn(
                     'hover:bg-gray-50 transition-colors',
-                    !t.activo && 'opacity-50',
+                    !t.activo && 'opacity-50'
                   )}
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900">{t.nombre}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    {t.nombre}
+                  </td>
                   <td className="px-4 py-3">
-                    <span className={cn(
-                      'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                      categoriaBadge[t.categoria],
-                    )}>
+                    <span
+                      className={cn(
+                        'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
+                        categoriaBadge[t.categoria]
+                      )}
+                    >
                       {categoriaLabel[t.categoria]}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={cn(
-                      'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                      t.activo
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-gray-100 text-gray-500',
-                    )}>
+                    <span
+                      className={cn(
+                        'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
+                        t.activo
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-gray-100 text-gray-500'
+                      )}
+                    >
                       {t.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
@@ -214,28 +237,43 @@ export function TiposEgresoManager() {
               <Label>Categoría</Label>
               <Select
                 defaultValue="EVENTUAL"
-                onValueChange={(v) => setValue('categoria', v as CategoriaEgreso)}
+                onValueChange={(v) =>
+                  setValue('categoria', v as CategoriaEgreso)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="RECURRENTE_FIJO">Recurrente fijo</SelectItem>
-                  <SelectItem value="RECURRENTE_VARIABLE">Recurrente variable</SelectItem>
+                  <SelectItem value="RECURRENTE_FIJO">
+                    Recurrente fijo
+                  </SelectItem>
+                  <SelectItem value="RECURRENTE_VARIABLE">
+                    Recurrente variable
+                  </SelectItem>
                   <SelectItem value="EVENTUAL">Eventual</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Descripción <span className="text-gray-400 font-normal">(opcional)</span></Label>
-              <Input placeholder="Descripción breve…" {...register('descripcion')} />
+              <Label>
+                Descripción{' '}
+                <span className="text-gray-400 font-normal">(opcional)</span>
+              </Label>
+              <Input
+                placeholder="Descripción breve…"
+                {...register('descripcion')}
+              />
             </div>
             <div className="flex justify-end gap-2 pt-1">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => { reset(); setOpenCrear(false) }}
+                onClick={() => {
+                  reset()
+                  setOpenCrear(false)
+                }}
               >
                 Cancelar
               </Button>
@@ -258,10 +296,15 @@ export function TiposEgresoManager() {
             <DialogTitle>Desactivar tipo de egreso</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600 py-2">
-            Los egresos existentes no se verán afectados. No podrás registrar nuevos egresos con este tipo.
+            Los egresos existentes no se verán afectados. No podrás registrar
+            nuevos egresos con este tipo.
           </p>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => setConfirmId(null)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmId(null)}
+            >
               Cancelar
             </Button>
             <Button
@@ -270,7 +313,9 @@ export function TiposEgresoManager() {
               disabled={desactivar.isPending}
               onClick={() => {
                 if (confirmId !== null) {
-                  desactivar.mutate(confirmId, { onSuccess: () => setConfirmId(null) })
+                  desactivar.mutate(confirmId, {
+                    onSuccess: () => setConfirmId(null),
+                  })
                 }
               }}
             >

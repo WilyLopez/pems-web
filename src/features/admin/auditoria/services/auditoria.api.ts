@@ -25,7 +25,9 @@ export const auditoriaApi = {
   },
 
   obtener: async (id: number) => {
-    const { data } = await api.get<ApiResponse<LogAuditoria>>(`/auditoria/${id}`)
+    const { data } = await api.get<ApiResponse<LogAuditoria>>(
+      `/auditoria/${id}`
+    )
     return data.data
   },
 }

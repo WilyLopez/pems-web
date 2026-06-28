@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { useAuth } from '@/hooks/useAuth'
-import { useTarifasActivas, useConfigurarTarifa } from '@/features/admin/comercial/tarifas/hooks/useTarifas'
+import {
+  useTarifasActivas,
+  useConfigurarTarifa,
+} from '@/features/admin/comercial/tarifas/hooks/useTarifas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { TarifaCard } from '@/features/admin/comercial/tarifas/components/TarifaCard'
@@ -17,7 +20,9 @@ export default function TarifasPage() {
   const tarifaSemana = tarifas?.find((t) => t.tipoDia === 'SEMANA')
   const tarifaFds = tarifas?.find((t) => t.tipoDia === 'FIN_SEMANA_FERIADO')
 
-  const [precioSemanaLocal, setPrecioSemanaLocal] = useState<number | null>(null)
+  const [precioSemanaLocal, setPrecioSemanaLocal] = useState<number | null>(
+    null
+  )
   const [precioFdsLocal, setPrecioFdsLocal] = useState<number | null>(null)
 
   useEffect(() => {
@@ -55,7 +60,9 @@ export default function TarifasPage() {
             <TarifaCard
               titulo="Entre semana"
               subtitulo="Lunes a Viernes"
-              precioActual={tarifaSemana ? Number(tarifaSemana.precio) : undefined}
+              precioActual={
+                tarifaSemana ? Number(tarifaSemana.precio) : undefined
+              }
               onPrecioChange={setPrecioSemanaLocal}
               onGuardar={(precio) => handleGuardar('SEMANA', precio)}
               isLoading={configurar.isPending}
@@ -65,7 +72,9 @@ export default function TarifasPage() {
               subtitulo="Sábados, Domingos y Feriados"
               precioActual={tarifaFds ? Number(tarifaFds.precio) : undefined}
               onPrecioChange={setPrecioFdsLocal}
-              onGuardar={(precio) => handleGuardar('FIN_SEMANA_FERIADO', precio)}
+              onGuardar={(precio) =>
+                handleGuardar('FIN_SEMANA_FERIADO', precio)
+              }
               isLoading={configurar.isPending}
             />
           </div>

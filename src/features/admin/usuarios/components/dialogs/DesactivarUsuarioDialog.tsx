@@ -12,7 +12,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/AlertDialog'
 import { useUsuariosNav } from '../../hooks/useUsuariosNav'
-import { useUsuariosList, useMutacionesUsuario } from '../../hooks/useUsuariosData'
+import {
+  useUsuariosList,
+  useMutacionesUsuario,
+} from '../../hooks/useUsuariosData'
 
 export function DesactivarUsuarioDialog() {
   const { modal, userId, closeModal } = useUsuariosNav()

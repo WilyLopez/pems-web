@@ -2,13 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import {
-  Mail,
-  Send,
-  FileText,
-  XCircle,
-  Settings2,
-} from 'lucide-react'
+import { Mail, Send, FileText, XCircle, Settings2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
@@ -38,7 +32,12 @@ function MetricCard({
 }) {
   const content = (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3 hover:shadow-md transition-shadow">
-      <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', color)}>
+      <div
+        className={cn(
+          'w-10 h-10 rounded-xl flex items-center justify-center',
+          color
+        )}
+      >
         <Icon className="h-5 w-5" />
       </div>
       <div>
@@ -64,8 +63,10 @@ export default function MarketingPage() {
     queryFn: () => marketingService.listarPlantillas(0, 100),
   })
 
-  const totalEnviados = campanas?.content.reduce((s, c) => s + c.totalEnviados, 0) ?? 0
-  const totalFallidos = campanas?.content.reduce((s, c) => s + c.totalFallidos, 0) ?? 0
+  const totalEnviados =
+    campanas?.content.reduce((s, c) => s + c.totalEnviados, 0) ?? 0
+  const totalFallidos =
+    campanas?.content.reduce((s, c) => s + c.totalFallidos, 0) ?? 0
 
   return (
     <div className="space-y-5">
@@ -155,7 +156,9 @@ export default function MarketingPage() {
                   <div className="text-right">
                     <p className="text-sm font-bold text-gray-900">
                       {c.totalEnviados}
-                      <span className="text-gray-400 font-normal">/{c.totalDestinatarios}</span>
+                      <span className="text-gray-400 font-normal">
+                        /{c.totalDestinatarios}
+                      </span>
                     </p>
                     <p className="text-xs text-gray-400">enviados</p>
                   </div>
@@ -173,7 +176,9 @@ export default function MarketingPage() {
             <Send className="h-8 w-8 opacity-80" />
             <div>
               <p className="font-bold">Nueva campaña</p>
-              <p className="text-sm opacity-75">Crea y programa envíos masivos</p>
+              <p className="text-sm opacity-75">
+                Crea y programa envíos masivos
+              </p>
             </div>
           </div>
         </Link>

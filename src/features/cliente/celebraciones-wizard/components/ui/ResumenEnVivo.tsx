@@ -35,7 +35,9 @@ function ItemResumen({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <p className="text-[11px] text-gray-400 uppercase tracking-wide">{label}</p>
+      <p className="text-[11px] text-gray-400 uppercase tracking-wide">
+        {label}
+      </p>
       <p className="text-sm font-semibold text-gray-900">{valor}</p>
       {sub && <p className="text-xs text-brand-azul font-bold">{sub}</p>}
     </div>
@@ -100,10 +102,15 @@ export function ResumenEnVivo({
 
           {nombresExtras.length > 0 && (
             <div>
-              <p className="text-[11px] text-gray-400 uppercase tracking-wide mb-1">Extras</p>
+              <p className="text-[11px] text-gray-400 uppercase tracking-wide mb-1">
+                Extras
+              </p>
               <ul className="space-y-1">
                 {nombresExtras.map((nombre) => (
-                  <li key={nombre} className="flex items-center gap-1.5 text-xs text-gray-700">
+                  <li
+                    key={nombre}
+                    className="flex items-center gap-1.5 text-xs text-gray-700"
+                  >
                     <Plus className="h-3 w-3 text-brand-azul shrink-0" />
                     {nombre}
                   </li>
@@ -114,10 +121,15 @@ export function ResumenEnVivo({
 
           {nombresServicios.length > 0 && (
             <div>
-              <p className="text-[11px] text-gray-400 uppercase tracking-wide mb-1">Servicios</p>
+              <p className="text-[11px] text-gray-400 uppercase tracking-wide mb-1">
+                Servicios
+              </p>
               <ul className="space-y-1">
                 {nombresServicios.map((nombre) => (
-                  <li key={nombre} className="flex items-center gap-1.5 text-xs text-gray-700">
+                  <li
+                    key={nombre}
+                    className="flex items-center gap-1.5 text-xs text-gray-700"
+                  >
                     <Plus className="h-3 w-3 text-brand-azul shrink-0" />
                     {nombre}
                   </li>
@@ -126,12 +138,7 @@ export function ResumenEnVivo({
             </div>
           )}
 
-          {fecha && (
-            <ItemResumen
-              label="Fecha"
-              valor={formatDate(fecha)}
-            />
-          )}
+          {fecha && <ItemResumen label="Fecha" valor={formatDate(fecha)} />}
 
           {turno && (
             <ItemResumen
@@ -155,7 +162,9 @@ export function ResumenEnVivo({
 
       {camino === 'cotizacion' && presupuestoEstimado > 0 && (
         <div className="border-t border-gray-100 pt-3">
-          <p className="text-[11px] text-gray-400 uppercase tracking-wide">Estimado orientativo</p>
+          <p className="text-[11px] text-gray-400 uppercase tracking-wide">
+            Estimado orientativo
+          </p>
           <p className="text-xl font-black text-brand-azul mt-0.5">
             {formatCurrency(presupuestoEstimado)}
           </p>
@@ -164,7 +173,9 @@ export function ResumenEnVivo({
 
       {presupuestoCliente && presupuestoCliente > 0 && (
         <div className="border-t border-gray-100 pt-3">
-          <p className="text-[11px] text-gray-400 uppercase tracking-wide">Tu presupuesto</p>
+          <p className="text-[11px] text-gray-400 uppercase tracking-wide">
+            Tu presupuesto
+          </p>
           <p className="text-xl font-black text-green-700 mt-0.5">
             {formatCurrency(presupuestoCliente)}
           </p>

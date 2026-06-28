@@ -9,7 +9,11 @@ interface Props {
   onPageChange: (page: number) => void
 }
 
-export function PaginacionUsuarios({ pageActual, totalPaginas, onPageChange }: Props) {
+export function PaginacionUsuarios({
+  pageActual,
+  totalPaginas,
+  onPageChange,
+}: Props) {
   if (totalPaginas <= 1) return null
 
   return (

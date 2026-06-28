@@ -24,28 +24,46 @@ export function useSolicitarEventoWizard(
   idSede: number,
   isAuthenticated: boolean,
   edadMin = 0,
-  edadMax = 17,
+  edadMax = 17
 ) {
   const {
-    paso, setPaso,
-    tipoEvento, setTipoEvento,
-    camino, setCamino,
-    idPaquete, setIdPaquete,
-    extrasSeleccionados, setExtras, toggleExtra,
-    otrasIdeas, setOtrasIdeas,
-    descripcion, setDescripcion,
-    serviciosCotizacion, toggleServicio,
-    presupuestoCliente, setPresupuestoCliente,
-    fechaSel, setFecha,
-    idTurno, setIdTurno,
-    nombreNino, setNombreNino,
-    edadCumple, setEdadCumple,
-    invitados, setInvitados,
-    telefonoAdicional, setTelefonoAdicional,
+    paso,
+    setPaso,
+    tipoEvento,
+    setTipoEvento,
+    camino,
+    setCamino,
+    idPaquete,
+    setIdPaquete,
+    extrasSeleccionados,
+    setExtras,
+    toggleExtra,
+    otrasIdeas,
+    setOtrasIdeas,
+    descripcion,
+    setDescripcion,
+    serviciosCotizacion,
+    toggleServicio,
+    presupuestoCliente,
+    setPresupuestoCliente,
+    fechaSel,
+    setFecha,
+    idTurno,
+    setIdTurno,
+    nombreNino,
+    setNombreNino,
+    edadCumple,
+    setEdadCumple,
+    invitados,
+    setInvitados,
+    telefonoAdicional,
+    setTelefonoAdicional,
     reset: resetStore,
   } = useWizardEventoStore()
 
-  const [paqueteDetalle, setPaqueteDetalle] = useState<PaqueteEvento | null>(null)
+  const [paqueteDetalle, setPaqueteDetalle] = useState<PaqueteEvento | null>(
+    null
+  )
   const [modalAnticipacion, setModalAnticipacion] = useState(false)
   const [eventoCreado, setEventoCreado] = useState<EventoPrivado | null>(null)
 
@@ -70,13 +88,16 @@ export function useSolicitarEventoWizard(
 
     if (invitados !== null) {
       if (invitados < 1) errors.invitados = 'Mínimo 1 invitado'
-      if (camino !== 'cotizacion' && invitados > 500) errors.invitados = 'Máximo 500 personas'
+      if (camino !== 'cotizacion' && invitados > 500)
+        errors.invitados = 'Máximo 500 personas'
     }
 
     if (nombreNino) {
       if (nombreNino.length < 2) errors.nombreNino = 'Mínimo 2 caracteres'
-      else if (nombreNino.length > 60) errors.nombreNino = 'Máximo 60 caracteres'
-      else if (!NOMBRE_REGEX.test(nombreNino)) errors.nombreNino = 'Solo se permiten letras y espacios'
+      else if (nombreNino.length > 60)
+        errors.nombreNino = 'Máximo 60 caracteres'
+      else if (!NOMBRE_REGEX.test(nombreNino))
+        errors.nombreNino = 'Solo se permiten letras y espacios'
     }
 
     if (edadCumple !== null) {
@@ -85,16 +106,31 @@ export function useSolicitarEventoWizard(
     }
 
     if (telefonoAdicional && !TELEFONO_CELULAR_REGEX.test(telefonoAdicional)) {
-      errors.telefonoAdicional = 'Debe ser un celular de 9 dígitos que comience con 9'
+      errors.telefonoAdicional =
+        'Debe ser un celular de 9 dígitos que comience con 9'
     }
 
     if (presupuestoCliente !== null) {
-      if (presupuestoCliente <= 0) errors.presupuestoCliente = 'El monto debe ser mayor a 0'
-      if (presupuestoCliente > 50000) errors.presupuestoCliente = 'El monto parece demasiado alto. Verifica el valor'
+      if (presupuestoCliente <= 0)
+        errors.presupuestoCliente = 'El monto debe ser mayor a 0'
+      if (presupuestoCliente > 50000)
+        errors.presupuestoCliente =
+          'El monto parece demasiado alto. Verifica el valor'
     }
 
     return errors
-  }, [camino, descripcion, otrasIdeas, invitados, nombreNino, edadCumple, telefonoAdicional, presupuestoCliente, edadMin, edadMax])
+  }, [
+    camino,
+    descripcion,
+    otrasIdeas,
+    invitados,
+    nombreNino,
+    edadCumple,
+    telefonoAdicional,
+    presupuestoCliente,
+    edadMin,
+    edadMax,
+  ])
 
   const canAdvance1 = tipoEvento !== null && camino !== null
 
@@ -115,12 +151,29 @@ export function useSolicitarEventoWizard(
     if (!basico) return false
     if (!invitados || invitados <= 0) return false
     if (camino !== 'cotizacion' && invitados > 500) return false
-    if (tipoEvento === 'CUMPLEANOS' && (!nombreNino || nombreNino.trim().length < 2)) return false
+    if (
+      tipoEvento === 'CUMPLEANOS' &&
+      (!nombreNino || nombreNino.trim().length < 2)
+    )
+      return false
     if (nombreNino && !NOMBRE_REGEX.test(nombreNino)) return false
-    if (telefonoAdicional && !TELEFONO_CELULAR_REGEX.test(telefonoAdicional)) return false
-    if (edadCumple !== null && (edadCumple < edadMin || edadCumple > edadMax)) return false
+    if (telefonoAdicional && !TELEFONO_CELULAR_REGEX.test(telefonoAdicional))
+      return false
+    if (edadCumple !== null && (edadCumple < edadMin || edadCumple > edadMax))
+      return false
     return true
-  }, [camino, fechaSel, idTurno, invitados, tipoEvento, nombreNino, telefonoAdicional, edadCumple, edadMin, edadMax])
+  }, [
+    camino,
+    fechaSel,
+    idTurno,
+    invitados,
+    tipoEvento,
+    nombreNino,
+    telefonoAdicional,
+    edadCumple,
+    edadMin,
+    edadMax,
+  ])
 
   const resetWizard = () => {
     resetStore()
@@ -131,25 +184,45 @@ export function useSolicitarEventoWizard(
 
   const solicitarMutation = useMutation({
     mutationFn: () => {
-      if (!isAuthenticated || !idUsuario || !idTurno || !fechaSel || !tipoEvento) {
+      if (
+        !isAuthenticated ||
+        !idUsuario ||
+        !idTurno ||
+        !fechaSel ||
+        !tipoEvento
+      ) {
         throw new Error('Datos de solicitud incompletos.')
       }
       return eventoService.solicitar(idUsuario, idSede, {
         idTurno,
-        fechaEvento:               fechaSel,
-        tipoEvento:                tipoEvento,
-        origenContacto:            'WEB',
-        idPaquete:                 camino === 'paquete' ? idPaquete ?? undefined : undefined,
-        idsExtras:                 camino === 'paquete' && extrasSeleccionados.length > 0 ? extrasSeleccionados : undefined,
-        extrasLibres:              camino === 'paquete' && otrasIdeas.trim() ? [otrasIdeas.trim()] : undefined,
+        fechaEvento: fechaSel,
+        tipoEvento: tipoEvento,
+        origenContacto: 'WEB',
+        idPaquete: camino === 'paquete' ? (idPaquete ?? undefined) : undefined,
+        idsExtras:
+          camino === 'paquete' && extrasSeleccionados.length > 0
+            ? extrasSeleccionados
+            : undefined,
+        extrasLibres:
+          camino === 'paquete' && otrasIdeas.trim()
+            ? [otrasIdeas.trim()]
+            : undefined,
         esCotizacionPersonalizada: camino === 'cotizacion',
-        descripcionPersonalizada:  camino === 'cotizacion' ? descripcion : undefined,
-        idsServiciosCotizacion:    camino === 'cotizacion' && serviciosCotizacion.length > 0 ? serviciosCotizacion : undefined,
-        presupuestoEstimado:       presupuestoCliente ?? undefined,
-        aforoDeclarado:            invitados ?? undefined,
-        contactoAdicional:         telefonoAdicional || undefined,
-        nombreNino:                tipoEvento === 'CUMPLEANOS' && nombreNino ? nombreNino.trim() : undefined,
-        edadCumple:                tipoEvento === 'CUMPLEANOS' && edadCumple ? edadCumple : undefined,
+        descripcionPersonalizada:
+          camino === 'cotizacion' ? descripcion : undefined,
+        idsServiciosCotizacion:
+          camino === 'cotizacion' && serviciosCotizacion.length > 0
+            ? serviciosCotizacion
+            : undefined,
+        presupuestoEstimado: presupuestoCliente ?? undefined,
+        aforoDeclarado: invitados ?? undefined,
+        contactoAdicional: telefonoAdicional || undefined,
+        nombreNino:
+          tipoEvento === 'CUMPLEANOS' && nombreNino
+            ? nombreNino.trim()
+            : undefined,
+        edadCumple:
+          tipoEvento === 'CUMPLEANOS' && edadCumple ? edadCumple : undefined,
       })
     },
     onSuccess: (evento) => {
@@ -162,24 +235,44 @@ export function useSolicitarEventoWizard(
   })
 
   return {
-    paso, setPaso,
-    canAdvance1, canAdvance2, canAdvance3,
-    modalAnticipacion, setModalAnticipacion,
-    tipoEvento, setTipoEvento,
-    camino, setCamino,
-    idPaquete, setIdPaquete,
-    paqueteDetalle, setPaqueteDetalle,
-    extrasSeleccionados, setExtras, toggleExtra,
-    otrasIdeas, setOtrasIdeas,
-    descripcion, setDescripcion,
-    serviciosCotizacion, toggleServicio,
-    presupuestoCliente, setPresupuestoCliente,
-    fechaSel, setFecha,
-    idTurno, setIdTurno,
-    nombreNino, setNombreNino,
-    edadCumple, setEdadCumple,
-    invitados, setInvitados,
-    telefonoAdicional, setTelefonoAdicional,
+    paso,
+    setPaso,
+    canAdvance1,
+    canAdvance2,
+    canAdvance3,
+    modalAnticipacion,
+    setModalAnticipacion,
+    tipoEvento,
+    setTipoEvento,
+    camino,
+    setCamino,
+    idPaquete,
+    setIdPaquete,
+    paqueteDetalle,
+    setPaqueteDetalle,
+    extrasSeleccionados,
+    setExtras,
+    toggleExtra,
+    otrasIdeas,
+    setOtrasIdeas,
+    descripcion,
+    setDescripcion,
+    serviciosCotizacion,
+    toggleServicio,
+    presupuestoCliente,
+    setPresupuestoCliente,
+    fechaSel,
+    setFecha,
+    idTurno,
+    setIdTurno,
+    nombreNino,
+    setNombreNino,
+    edadCumple,
+    setEdadCumple,
+    invitados,
+    setInvitados,
+    telefonoAdicional,
+    setTelefonoAdicional,
     validationErrors,
     eventoCreado,
     solicitar: solicitarMutation.mutate,
@@ -188,4 +281,6 @@ export function useSolicitarEventoWizard(
   }
 }
 
-export type UseSolicitarEventoWizard = ReturnType<typeof useSolicitarEventoWizard>
+export type UseSolicitarEventoWizard = ReturnType<
+  typeof useSolicitarEventoWizard
+>

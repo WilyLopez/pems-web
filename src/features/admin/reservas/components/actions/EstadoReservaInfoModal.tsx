@@ -17,7 +17,10 @@ interface EstadoReservaInfoModalProps {
   onClose: () => void
 }
 
-export const EstadoReservaInfoModal = ({ open, onClose }: EstadoReservaInfoModalProps) => {
+export const EstadoReservaInfoModal = ({
+  open,
+  onClose,
+}: EstadoReservaInfoModalProps) => {
   const { data: estados, isLoading } = useEstadosReserva()
 
   return (
@@ -31,7 +34,8 @@ export const EstadoReservaInfoModal = ({ open, onClose }: EstadoReservaInfoModal
             Guía de Estados
           </DialogTitle>
           <DialogDescription className="text-sm text-gray-500 leading-relaxed">
-            Consulte el significado de cada estado para una gestión operativa correcta de las reservas.
+            Consulte el significado de cada estado para una gestión operativa
+            correcta de las reservas.
           </DialogDescription>
         </DialogHeader>
 
@@ -39,17 +43,21 @@ export const EstadoReservaInfoModal = ({ open, onClose }: EstadoReservaInfoModal
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-8 space-y-3">
               <div className="h-8 w-8 border-4 border-brand-azul/20 border-t-brand-azul rounded-full animate-spin" />
-              <p className="text-sm font-medium text-gray-400">Cargando catálogo...</p>
+              <p className="text-sm font-medium text-gray-400">
+                Cargando catálogo...
+              </p>
             </div>
           ) : (
             <div className="grid gap-4">
               {estados?.map((estado) => (
-                <div 
-                  key={estado.nombre} 
+                <div
+                  key={estado.nombre}
                   className="group flex gap-4 p-3.5 rounded-2xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md"
                 >
                   <div className="pt-1">
-                    <ReservaStatusBadge estado={estado.nombre as EstadoReserva} />
+                    <ReservaStatusBadge
+                      estado={estado.nombre as EstadoReserva}
+                    />
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-gray-700 leading-snug group-hover:text-gray-900 transition-colors">
@@ -63,8 +71,8 @@ export const EstadoReservaInfoModal = ({ open, onClose }: EstadoReservaInfoModal
         </div>
 
         <div className="flex justify-end pt-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={onClose}
             className="rounded-xl font-bold border-gray-200 hover:bg-gray-50 text-gray-600 px-6"
           >

@@ -1,6 +1,17 @@
 'use client'
 
-import { Search, Crown, UserCheck, UserX, Mail, Star, X, Globe, MapPin, ShieldCheck } from 'lucide-react'
+import {
+  Search,
+  Crown,
+  UserCheck,
+  UserX,
+  Mail,
+  Star,
+  X,
+  Globe,
+  MapPin,
+  ShieldCheck,
+} from 'lucide-react'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/utils'
@@ -14,15 +25,61 @@ interface FiltroBtn {
 }
 
 const FILTROS: FiltroBtn[] = [
-  { key: 'todos',        label: 'Todos',        icon: UserCheck,    activeClass: 'bg-gray-900 text-white border-gray-900' },
-  { key: 'vip',         label: 'VIP',           icon: Crown,        activeClass: 'bg-brand-amarillo/20 text-yellow-800 border-brand-amarillo/40' },
-  { key: 'activos',     label: 'Activos',       icon: UserCheck,    activeClass: 'bg-green-100 text-green-800 border-green-200' },
-  { key: 'inactivos',   label: 'Inactivos',     icon: UserX,        activeClass: 'bg-red-50 text-red-700 border-red-200' },
-  { key: 'verificados', label: 'Verificados',   icon: Mail,         activeClass: 'bg-brand-azul/10 text-brand-azul border-brand-azul/30' },
-  { key: 'frecuentes',  label: 'Frecuentes',    icon: Star,         activeClass: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/30' },
-  { key: 'web',         label: 'Web',           icon: Globe,        activeClass: 'bg-sky-100 text-sky-700 border-sky-200' },
-  { key: 'presenciales',label: 'Presenciales',  icon: MapPin,       activeClass: 'bg-orange-100 text-orange-700 border-orange-200' },
-  { key: 'admin',       label: 'Registrados',   icon: ShieldCheck,  activeClass: 'bg-purple-100 text-purple-700 border-purple-200' },
+  {
+    key: 'todos',
+    label: 'Todos',
+    icon: UserCheck,
+    activeClass: 'bg-gray-900 text-white border-gray-900',
+  },
+  {
+    key: 'vip',
+    label: 'VIP',
+    icon: Crown,
+    activeClass:
+      'bg-brand-amarillo/20 text-yellow-800 border-brand-amarillo/40',
+  },
+  {
+    key: 'activos',
+    label: 'Activos',
+    icon: UserCheck,
+    activeClass: 'bg-green-100 text-green-800 border-green-200',
+  },
+  {
+    key: 'inactivos',
+    label: 'Inactivos',
+    icon: UserX,
+    activeClass: 'bg-red-50 text-red-700 border-red-200',
+  },
+  {
+    key: 'verificados',
+    label: 'Verificados',
+    icon: Mail,
+    activeClass: 'bg-brand-azul/10 text-brand-azul border-brand-azul/30',
+  },
+  {
+    key: 'frecuentes',
+    label: 'Frecuentes',
+    icon: Star,
+    activeClass: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/30',
+  },
+  {
+    key: 'web',
+    label: 'Web',
+    icon: Globe,
+    activeClass: 'bg-sky-100 text-sky-700 border-sky-200',
+  },
+  {
+    key: 'presenciales',
+    label: 'Presenciales',
+    icon: MapPin,
+    activeClass: 'bg-orange-100 text-orange-700 border-orange-200',
+  },
+  {
+    key: 'admin',
+    label: 'Registrados',
+    icon: ShieldCheck,
+    activeClass: 'bg-purple-100 text-purple-700 border-purple-200',
+  },
 ]
 
 interface ClienteFiltrosProps {

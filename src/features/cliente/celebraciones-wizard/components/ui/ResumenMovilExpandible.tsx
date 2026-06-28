@@ -70,7 +70,9 @@ export function ResumenMovilExpandible({
               <PartyPopper className="h-4 w-4 text-brand-rosa" />
               <span className="text-sm font-bold text-gray-900">Tu evento</span>
               {resumenCorto && (
-                <span className="text-xs text-gray-400 truncate max-w-[160px]">{resumenCorto}</span>
+                <span className="text-xs text-gray-400 truncate max-w-[160px]">
+                  {resumenCorto}
+                </span>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -93,7 +95,9 @@ export function ResumenMovilExpandible({
         <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-2">
             <PartyPopper className="h-4 w-4 text-brand-rosa" />
-            <SheetTitle className="text-sm font-bold text-gray-900">Resumen de tu evento</SheetTitle>
+            <SheetTitle className="text-sm font-bold text-gray-900">
+              Resumen de tu evento
+            </SheetTitle>
           </div>
           <SheetClose className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
             <X className="h-4 w-4" />
@@ -104,32 +108,51 @@ export function ResumenMovilExpandible({
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
           {tipoEventoLabel && (
             <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Tipo</p>
-              <p className="text-sm font-semibold text-gray-900">{tipoEventoLabel}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Tipo
+              </p>
+              <p className="text-sm font-semibold text-gray-900">
+                {tipoEventoLabel}
+              </p>
             </div>
           )}
 
           {camino === 'paquete' && paquete && (
             <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Paquete</p>
-              <p className="text-sm font-semibold text-gray-900">{paquete.nombre}</p>
-              <p className="text-xs text-brand-azul font-bold mt-0.5">{formatCurrency(paquete.precio)}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Paquete
+              </p>
+              <p className="text-sm font-semibold text-gray-900">
+                {paquete.nombre}
+              </p>
+              <p className="text-xs text-brand-azul font-bold mt-0.5">
+                {formatCurrency(paquete.precio)}
+              </p>
             </div>
           )}
 
           {camino === 'cotizacion' && (
             <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Modalidad</p>
-              <p className="text-sm font-semibold text-gray-900">Cotización personalizada</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Modalidad
+              </p>
+              <p className="text-sm font-semibold text-gray-900">
+                Cotización personalizada
+              </p>
             </div>
           )}
 
           {nombresExtras.length > 0 && (
             <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">Extras</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">
+                Extras
+              </p>
               <ul className="space-y-0.5">
                 {nombresExtras.map((n) => (
-                  <li key={n} className="flex items-center gap-1.5 text-xs text-gray-700">
+                  <li
+                    key={n}
+                    className="flex items-center gap-1.5 text-xs text-gray-700"
+                  >
                     <Plus className="h-3 w-3 text-brand-azul shrink-0" />
                     {n}
                   </li>
@@ -140,10 +163,15 @@ export function ResumenMovilExpandible({
 
           {nombresServicios.length > 0 && (
             <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">Servicios</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">
+                Servicios
+              </p>
               <ul className="space-y-0.5">
                 {nombresServicios.map((n) => (
-                  <li key={n} className="flex items-center gap-1.5 text-xs text-gray-700">
+                  <li
+                    key={n}
+                    className="flex items-center gap-1.5 text-xs text-gray-700"
+                  >
                     <Plus className="h-3 w-3 text-brand-azul shrink-0" />
                     {n}
                   </li>
@@ -154,14 +182,20 @@ export function ResumenMovilExpandible({
 
           {fecha && (
             <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Fecha</p>
-              <p className="text-sm font-semibold text-gray-900">{formatDate(fecha)}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Fecha
+              </p>
+              <p className="text-sm font-semibold text-gray-900">
+                {formatDate(fecha)}
+              </p>
             </div>
           )}
 
           {turno && (
             <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Turno</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Turno
+              </p>
               <p className="text-sm font-semibold text-gray-900">
                 {turno.nombre} · {turno.horaInicio}–{turno.horaFin}
               </p>
@@ -170,15 +204,30 @@ export function ResumenMovilExpandible({
 
           {camino === 'cotizacion' && presupuestoEstimado > 0 && (
             <div className="border-t border-gray-100 pt-3">
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Estimado orientativo</p>
-              <p className="text-lg font-black text-brand-azul">{formatCurrency(presupuestoEstimado)}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Estimado orientativo
+              </p>
+              <p className="text-lg font-black text-brand-azul">
+                {formatCurrency(presupuestoEstimado)}
+              </p>
             </div>
           )}
 
           {presupuestoCliente && presupuestoCliente > 0 && (
-            <div className={cn('pt-3', camino !== 'cotizacion' || presupuestoEstimado === 0 ? 'border-t border-gray-100' : '')}>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Tu presupuesto</p>
-              <p className="text-lg font-black text-green-700">{formatCurrency(presupuestoCliente)}</p>
+            <div
+              className={cn(
+                'pt-3',
+                camino !== 'cotizacion' || presupuestoEstimado === 0
+                  ? 'border-t border-gray-100'
+                  : ''
+              )}
+            >
+              <p className="text-[10px] text-gray-400 uppercase tracking-wide">
+                Tu presupuesto
+              </p>
+              <p className="text-lg font-black text-green-700">
+                {formatCurrency(presupuestoCliente)}
+              </p>
             </div>
           )}
         </div>

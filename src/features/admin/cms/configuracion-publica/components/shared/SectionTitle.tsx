@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 
 interface Props {
-  icon:  LucideIcon
+  icon: LucideIcon
   label: string
 }
 

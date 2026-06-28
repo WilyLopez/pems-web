@@ -11,7 +11,9 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
     if (session?.access_token) {
       config.headers.Authorization = `Bearer ${session.access_token}`
     }
@@ -23,8 +25,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiError>) => {
-    if (error.response?.status === 403 && error.response?.data?.codigoError === 'password_change_required') {
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/cambiar-contrasena')) {
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.codigoError === 'password_change_required'
+    ) {
+      if (
+        typeof window !== 'undefined' &&
+        !window.location.pathname.includes('/auth/cambiar-contrasena')
+      ) {
         window.location.href = '/auth/cambiar-contrasena'
       }
     }

@@ -40,7 +40,9 @@ export default async function LegalPublicPage({ params }: Props) {
   if (!tipo) notFound()
 
   const supabase = await createServerSupabaseClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
   let esAdmin = false
   if (session?.access_token) {
@@ -53,7 +55,7 @@ export default async function LegalPublicPage({ params }: Props) {
         const json = await res.json()
         esAdmin = json.data?.tipoPerfil === 'STAFF'
       }
-    } catch { }
+    } catch {}
   }
 
   const doc = await legalService.obtenerPublico(tipo).catch(() => null)

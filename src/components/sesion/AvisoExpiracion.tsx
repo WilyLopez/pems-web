@@ -6,7 +6,8 @@ import { Clock } from 'lucide-react'
 import { useSesionStore } from '@/lib/store/sesion.store'
 
 export function AvisoExpiracion() {
-  const { avisoExpiracion, segundosRestantes, setAvisoExpiracion } = useSesionStore()
+  const { avisoExpiracion, segundosRestantes, setAvisoExpiracion } =
+    useSesionStore()
   const [cuenta, setCuenta] = useState(segundosRestantes)
 
   useEffect(() => {
@@ -41,7 +42,9 @@ export function AvisoExpiracion() {
           <Clock className="h-5 w-5 text-amber-600" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-gray-900 text-sm">Tu sesión expirará pronto</p>
+          <p className="font-bold text-gray-900 text-sm">
+            Tu sesión expirará pronto
+          </p>
           <p className="text-xs text-gray-500 mt-0.5">
             Por inactividad, se cerrará en{' '}
             <span className="font-mono font-bold text-amber-700">

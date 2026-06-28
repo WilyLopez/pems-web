@@ -43,7 +43,7 @@ export default function FaqPage() {
   const eliminar = useEliminarFaq()
 
   const editTarget = editIdParam
-    ? faqs.find((f) => f.id === Number(editIdParam)) ?? null
+    ? (faqs.find((f) => f.id === Number(editIdParam)) ?? null)
     : null
 
   const formOpen = formOpenParam || !!editTarget

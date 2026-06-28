@@ -32,8 +32,8 @@ export function BotonTurno({
         seleccionado
           ? 'border-brand-rosa bg-brand-rosa/5 dark:bg-brand-rosa/10'
           : disponible
-          ? 'border-gray-200 bg-white hover:border-brand-rosa/50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-brand-rosa/50'
-          : 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-50 dark:border-gray-800 dark:bg-gray-900'
+            ? 'border-gray-200 bg-white hover:border-brand-rosa/50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-brand-rosa/50'
+            : 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-50 dark:border-gray-800 dark:bg-gray-900'
       )}
     >
       <div className="flex items-center justify-between">
@@ -41,11 +41,17 @@ export function BotonTurno({
           <Icon
             className={cn(
               'h-4 w-4',
-              seleccionado ? 'text-brand-rosa' : 'text-gray-400 dark:text-gray-500'
+              seleccionado
+                ? 'text-brand-rosa'
+                : 'text-gray-400 dark:text-gray-500'
             )}
           />
-          <span className="font-bold text-sm text-gray-900 dark:text-gray-100">{label}</span>
-          <span className="text-xs text-gray-400 dark:text-gray-500">{horario}</span>
+          <span className="font-bold text-sm text-gray-900 dark:text-gray-100">
+            {label}
+          </span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">
+            {horario}
+          </span>
         </div>
         <span
           className={cn(

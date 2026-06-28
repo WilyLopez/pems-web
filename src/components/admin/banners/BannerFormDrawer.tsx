@@ -23,9 +23,18 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Textarea } from '@/components/ui/Textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select'
 import { MediaUploader } from '@/components/common/MediaUploader'
-import { useCrearBanner, useActualizarBanner } from '@/features/admin/cms/banners/hooks/useBanners'
+import {
+  useCrearBanner,
+  useActualizarBanner,
+} from '@/features/admin/cms/banners/hooks/useBanners'
 import { Banner, TipoBanner, CrearBannerPayload } from '@/types/banner.types'
 import { BannerTipoSelector } from './BannerTipoSelector'
 import { BannerPreview } from './BannerPreview'
@@ -35,21 +44,21 @@ import { toast } from 'sonner'
 
 const schema = z
   .object({
-    tipoBanner:     z.string().nullable().optional(),
-    titulo:         z.string().min(1, 'Requerido').max(60, 'Máximo 60 caracteres'),
-    descripcion:    z.string().max(150).nullable().optional(),
-    imagenUrl:      z.string().min(1, 'La imagen principal es requerida'),
+    tipoBanner: z.string().nullable().optional(),
+    titulo: z.string().min(1, 'Requerido').max(60, 'Máximo 60 caracteres'),
+    descripcion: z.string().max(150).nullable().optional(),
+    imagenUrl: z.string().min(1, 'La imagen principal es requerida'),
     imagenMovilUrl: z.string().nullable().optional(),
-    colorOverlay:   z.string().nullable().optional(),
+    colorOverlay: z.string().nullable().optional(),
     overlayOpacity: z.number().min(0).max(80).default(0),
-    enlaceDestino:  z.string().nullable().optional(),
-    textoBoton:     z.string().max(30).nullable().optional(),
-    soloMovil:      z.boolean().default(false),
-    soloDesktop:    z.boolean().default(false),
-    prioridad:      z.number().min(0).max(100).default(0),
-    fechaInicio:    z.string().min(1, 'Requerido'),
-    fechaFin:       z.string().nullable().optional(),
-    orden:          z.number().default(0),
+    enlaceDestino: z.string().nullable().optional(),
+    textoBoton: z.string().max(30).nullable().optional(),
+    soloMovil: z.boolean().default(false),
+    soloDesktop: z.boolean().default(false),
+    prioridad: z.number().min(0).max(100).default(0),
+    fechaInicio: z.string().min(1, 'Requerido'),
+    fechaFin: z.string().nullable().optional(),
+    orden: z.number().default(0),
   })
   .refine(
     (data) => {
@@ -60,7 +69,8 @@ const schema = z
       return true
     },
     {
-      message: 'Si configuras un botón, debes indicar tanto el texto como el enlace de destino.',
+      message:
+        'Si configuras un botón, debes indicar tanto el texto como el enlace de destino.',
       path: ['enlaceDestino'],
     }
   )
@@ -80,12 +90,17 @@ const schema = z
     (data) => {
       if (data.enlaceDestino && data.enlaceDestino.trim()) {
         const val = data.enlaceDestino.trim()
-        return val.startsWith('/') || val.startsWith('http://') || val.startsWith('https://')
+        return (
+          val.startsWith('/') ||
+          val.startsWith('http://') ||
+          val.startsWith('https://')
+        )
       }
       return true
     },
     {
-      message: 'Debe ser una ruta interna (empieza con /) o enlace externo válido (http/https).',
+      message:
+        'Debe ser una ruta interna (empieza con /) o enlace externo válido (http/https).',
       path: ['enlaceDestino'],
     }
   )
@@ -93,7 +108,7 @@ const schema = z
 type FormValues = z.infer<typeof schema>
 
 interface BannerFormDrawerProps {
-  open:    boolean
+  open: boolean
   onClose: () => void
   banner?: Banner | null
 }
@@ -108,16 +123,22 @@ const RUTAS_COMUNES = [
   { value: 'custom', label: 'Enlace personalizado o externo 🔗' },
 ]
 
-export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProps) {
+export function BannerFormDrawer({
+  open,
+  onClose,
+  banner,
+}: BannerFormDrawerProps) {
   const [imagenMovilDistinta, setImagenMovilDistinta] = useState(false)
   const [selectedRouteType, setSelectedRouteType] = useState<string>('none')
 
-  const crear      = useCrearBanner()
+  const crear = useCrearBanner()
   const actualizar = useActualizarBanner()
-  const isPending  = crear.isPending || actualizar.isPending
+  const isPending = crear.isPending || actualizar.isPending
 
   const [imagenMedia, setImagenMedia] = useState<MediaValue | null>(null)
-  const [imagenMovilMedia, setImagenMovilMedia] = useState<MediaValue | null>(null)
+  const [imagenMovilMedia, setImagenMovilMedia] = useState<MediaValue | null>(
+    null
+  )
   const [uploading, setUploading] = useState(false)
 
   const {
@@ -131,21 +152,21 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      tipoBanner:     undefined,
-      titulo:         '',
-      descripcion:    '',
-      imagenUrl:      '',
+      tipoBanner: undefined,
+      titulo: '',
+      descripcion: '',
+      imagenUrl: '',
       imagenMovilUrl: undefined,
-      colorOverlay:   '#000000',
+      colorOverlay: '#000000',
       overlayOpacity: 0,
-      enlaceDestino:  '',
-      textoBoton:     '',
-      soloMovil:      false,
-      soloDesktop:    false,
-      prioridad:      0,
-      fechaInicio:    new Date().toISOString().split('T')[0],
-      fechaFin:       '',
-      orden:          0,
+      enlaceDestino: '',
+      textoBoton: '',
+      soloMovil: false,
+      soloDesktop: false,
+      prioridad: 0,
+      fechaInicio: new Date().toISOString().split('T')[0],
+      fechaFin: '',
+      orden: 0,
     },
   })
 
@@ -153,11 +174,21 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
     if (banner && open) {
       reset({ ...banner, overlayOpacity: 0 })
       setImagenMovilDistinta(!!banner.imagenMovilUrl)
-      setImagenMedia(banner.imagenUrl ? { url: fixMediaUrl(banner.imagenUrl), esLocal: false } : null)
-      setImagenMovilMedia(banner.imagenMovilUrl ? { url: fixMediaUrl(banner.imagenMovilUrl), esLocal: false } : null)
+      setImagenMedia(
+        banner.imagenUrl
+          ? { url: fixMediaUrl(banner.imagenUrl), esLocal: false }
+          : null
+      )
+      setImagenMovilMedia(
+        banner.imagenMovilUrl
+          ? { url: fixMediaUrl(banner.imagenMovilUrl), esLocal: false }
+          : null
+      )
 
       if (banner.enlaceDestino) {
-        const match = RUTAS_COMUNES.find((r) => r.value === banner.enlaceDestino)
+        const match = RUTAS_COMUNES.find(
+          (r) => r.value === banner.enlaceDestino
+        )
         if (match && match.value !== 'custom') {
           setSelectedRouteType(match.value)
         } else {
@@ -179,7 +210,10 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
     setUploading(true)
     try {
       const resolvedImagenUrl = await resolverMediaValue(imagenMedia, 'banners')
-      const resolvedImagenMovilUrl = await resolverMediaValue(imagenMovilMedia, 'banners')
+      const resolvedImagenMovilUrl = await resolverMediaValue(
+        imagenMovilMedia,
+        'banners'
+      )
 
       if (!resolvedImagenUrl) {
         toast.error('La imagen principal es requerida')
@@ -188,20 +222,23 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
 
       const { overlayOpacity } = values
       const payload: CrearBannerPayload = {
-        titulo:         values.titulo,
-        descripcion:    values.descripcion ?? undefined,
-        imagenUrl:      resolvedImagenUrl,
-        imagenMovilUrl: imagenMovilDistinta ? (resolvedImagenMovilUrl ?? undefined) : undefined,
-        enlaceDestino:  values.enlaceDestino ?? undefined,
-        textoBoton:     values.textoBoton ?? undefined,
-        colorOverlay:   overlayOpacity > 0 ? (values.colorOverlay ?? undefined) : undefined,
-        tipoBanner:     (values.tipoBanner ?? undefined) as TipoBanner | undefined,
-        soloMovil:      values.soloMovil,
-        soloDesktop:    values.soloDesktop,
-        prioridad:      values.prioridad,
-        fechaInicio:    values.fechaInicio,
-        fechaFin:       values.fechaFin ?? undefined,
-        orden:          values.orden,
+        titulo: values.titulo,
+        descripcion: values.descripcion ?? undefined,
+        imagenUrl: resolvedImagenUrl,
+        imagenMovilUrl: imagenMovilDistinta
+          ? (resolvedImagenMovilUrl ?? undefined)
+          : undefined,
+        enlaceDestino: values.enlaceDestino ?? undefined,
+        textoBoton: values.textoBoton ?? undefined,
+        colorOverlay:
+          overlayOpacity > 0 ? (values.colorOverlay ?? undefined) : undefined,
+        tipoBanner: (values.tipoBanner ?? undefined) as TipoBanner | undefined,
+        soloMovil: values.soloMovil,
+        soloDesktop: values.soloDesktop,
+        prioridad: values.prioridad,
+        fechaInicio: values.fechaInicio,
+        fechaFin: values.fechaFin ?? undefined,
+        orden: values.orden,
       }
       if (banner) {
         await actualizar.mutateAsync({ id: banner.id, payload })
@@ -226,19 +263,24 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
     }
   }
 
-  const titulo         = watch('titulo')
-  const descripcion    = watch('descripcion')
-  const imagenUrl      = watch('imagenUrl')
+  const titulo = watch('titulo')
+  const descripcion = watch('descripcion')
+  const imagenUrl = watch('imagenUrl')
   const imagenMovilUrl = watch('imagenMovilUrl')
-  const colorOverlay   = watch('colorOverlay')
+  const colorOverlay = watch('colorOverlay')
   const overlayOpacity = watch('overlayOpacity') ?? 0
-  const textoBoton     = watch('textoBoton')
-  const tipoBanner     = watch('tipoBanner')
-  const soloMovil      = watch('soloMovil')
-  const soloDesktop    = watch('soloDesktop')
+  const textoBoton = watch('textoBoton')
+  const tipoBanner = watch('tipoBanner')
+  const soloMovil = watch('soloMovil')
+  const soloDesktop = watch('soloDesktop')
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) onClose()
+      }}
+    >
       <DialogContent className="max-w-[960px] p-0 gap-0 flex flex-col max-h-[90vh] overflow-hidden">
         <DialogHeader className="px-6 py-4 pr-12 border-b shrink-0">
           <DialogTitle>{banner ? 'Editar banner' : 'Nuevo banner'}</DialogTitle>
@@ -249,7 +291,12 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
             <form id="banner-form" onSubmit={handleSubmit(onSubmit, onError)}>
               <Accordion
                 type="multiple"
-                defaultValue={['clasificacion', 'contenido', 'imagen', 'publicacion']}
+                defaultValue={[
+                  'clasificacion',
+                  'contenido',
+                  'imagen',
+                  'publicacion',
+                ]}
                 className="px-6"
               >
                 <AccordionItem value="clasificacion">
@@ -274,7 +321,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="titulo">Título</Label>
-                        <span className="text-xs text-gray-400">{titulo?.length ?? 0}/60</span>
+                        <span className="text-xs text-gray-400">
+                          {titulo?.length ?? 0}/60
+                        </span>
                       </div>
                       <Input
                         id="titulo"
@@ -282,13 +331,17 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                         {...register('titulo')}
                       />
                       {errors.titulo && (
-                        <p className="text-xs text-destructive">{errors.titulo.message}</p>
+                        <p className="text-xs text-destructive">
+                          {errors.titulo.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="descripcion">Descripción</Label>
-                        <span className="text-xs text-gray-400">{descripcion?.length ?? 0}/150</span>
+                        <span className="text-xs text-gray-400">
+                          {descripcion?.length ?? 0}/150
+                        </span>
                       </div>
                       <Textarea
                         id="descripcion"
@@ -324,7 +377,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                         )}
                       />
                       {errors.imagenUrl && (
-                        <p className="text-xs text-destructive">{errors.imagenUrl.message}</p>
+                        <p className="text-xs text-destructive">
+                          {errors.imagenUrl.message}
+                        </p>
                       )}
                     </div>
 
@@ -334,7 +389,10 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                         checked={imagenMovilDistinta}
                         onCheckedChange={setImagenMovilDistinta}
                       />
-                      <Label htmlFor="movil-distinta" className="cursor-pointer font-normal">
+                      <Label
+                        htmlFor="movil-distinta"
+                        className="cursor-pointer font-normal"
+                      >
                         Configurar imagen diferente para móvil
                       </Label>
                     </div>
@@ -386,19 +444,25 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                               min={0}
                               max={80}
                               value={field.value}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
                               className="w-full"
                             />
                           )}
                         />
-                        <p className="text-[11px] text-gray-400">{overlayOpacity}% de opacidad</p>
+                        <p className="text-[11px] text-gray-400">
+                          {overlayOpacity}% de opacidad
+                        </p>
                       </div>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="cta">
-                  <AccordionTrigger>Acción CTA (Botón y Enlace)</AccordionTrigger>
+                  <AccordionTrigger>
+                    Acción CTA (Botón y Enlace)
+                  </AccordionTrigger>
                   <AccordionContent className="space-y-4">
                     <div className="space-y-1.5">
                       <Label>Destino del botón</Label>
@@ -414,7 +478,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                             if (val === 'custom') {
                               setValue('enlaceDestino', '')
                             } else {
-                              setValue('enlaceDestino', val, { shouldValidate: true })
+                              setValue('enlaceDestino', val, {
+                                shouldValidate: true,
+                              })
                             }
                           }
                         }}
@@ -423,7 +489,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                           <SelectValue placeholder="Selecciona una página destino..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">Sin botón de acción</SelectItem>
+                          <SelectItem value="none">
+                            Sin botón de acción
+                          </SelectItem>
                           {RUTAS_COMUNES.map((ruta) => (
                             <SelectItem key={ruta.value} value={ruta.value}>
                               {ruta.label}
@@ -435,7 +503,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
 
                     {selectedRouteType === 'custom' && (
                       <div className="space-y-1.5">
-                        <Label htmlFor="enlaceDestino">Ruta personalizada o URL externa</Label>
+                        <Label htmlFor="enlaceDestino">
+                          Ruta personalizada o URL externa
+                        </Label>
                         <Input
                           id="enlaceDestino"
                           placeholder="Ej: /promociones/mi-evento o https://..."
@@ -443,7 +513,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                           className="rounded-xl"
                         />
                         {errors.enlaceDestino && (
-                          <p className="text-xs text-destructive">{errors.enlaceDestino.message}</p>
+                          <p className="text-xs text-destructive">
+                            {errors.enlaceDestino.message}
+                          </p>
                         )}
                       </div>
                     )}
@@ -459,7 +531,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                           className="rounded-xl"
                         />
                         {errors.textoBoton && (
-                          <p className="text-xs text-destructive">{errors.textoBoton.message}</p>
+                          <p className="text-xs text-destructive">
+                            {errors.textoBoton.message}
+                          </p>
                         )}
                       </div>
                     )}
@@ -528,7 +602,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                           {...register('fechaInicio')}
                         />
                         {errors.fechaInicio && (
-                          <p className="text-xs text-destructive">{errors.fechaInicio.message}</p>
+                          <p className="text-xs text-destructive">
+                            {errors.fechaInicio.message}
+                          </p>
                         )}
                       </div>
                       <div className="space-y-1">
@@ -539,7 +615,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                           {...register('fechaFin')}
                         />
                         {errors.fechaFin && (
-                          <p className="text-xs text-destructive">{errors.fechaFin.message}</p>
+                          <p className="text-xs text-destructive">
+                            {errors.fechaFin.message}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -566,7 +644,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
                 titulo={titulo ?? ''}
                 descripcion={descripcion ?? undefined}
                 textoBoton={textoBoton ?? undefined}
-                colorOverlay={overlayOpacity > 0 ? (colorOverlay ?? undefined) : undefined}
+                colorOverlay={
+                  overlayOpacity > 0 ? (colorOverlay ?? undefined) : undefined
+                }
                 overlayOpacity={overlayOpacity}
                 tipoBanner={tipoBanner ?? undefined}
                 soloMovil={soloMovil}
@@ -578,7 +658,11 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
 
         <div className="border-t px-6 py-4 bg-white shrink-0">
           <DialogFooter>
-            <Button variant="outline" onClick={onClose} disabled={isPending || uploading}>
+            <Button
+              variant="outline"
+              onClick={onClose}
+              disabled={isPending || uploading}
+            >
               Cancelar
             </Button>
             <Button
@@ -587,7 +671,9 @@ export function BannerFormDrawer({ open, onClose, banner }: BannerFormDrawerProp
               disabled={isPending || uploading}
               className="gap-1.5"
             >
-              {(isPending || uploading) && <Loader2 className="h-4 w-4 animate-spin" />}
+              {(isPending || uploading) && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
               {banner ? 'Guardar cambios' : 'Crear banner'}
             </Button>
           </DialogFooter>

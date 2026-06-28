@@ -194,11 +194,11 @@
   border-color: hsl(217 20% 28%) !important;
 }
 
-.dark .divide-gray-100>*+* {
+.dark .divide-gray-100 > * + * {
   border-color: hsl(217 20% 18%) !important;
 }
 
-.dark .divide-gray-50>*+* {
+.dark .divide-gray-50 > * + * {
   border-color: hsl(217 20% 15%) !important;
 }
 
@@ -224,10 +224,10 @@
 
 .dark select,
 .dark textarea,
-.dark input[type="date"],
-.dark input[type="number"],
-.dark input[type="text"],
-.dark input[type="email"] {
+.dark input[type='date'],
+.dark input[type='number'],
+.dark input[type='text'],
+.dark input[type='email'] {
   background-color: hsl(222 20% 14%) !important;
   color: hsl(210 20% 90%) !important;
   border-color: hsl(217 20% 22%) !important;
@@ -326,6 +326,6 @@ main,
 }
 
 table,
-[class*="calendar"] {
+[class*='calendar'] {
   max-width: 100%;
 }

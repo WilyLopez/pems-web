@@ -18,7 +18,12 @@ interface Props {
   onPageChange: (page: number) => void
 }
 
-export function AuditoriaTable({ data, isLoading, onVerDetalle, onPageChange }: Props) {
+export function AuditoriaTable({
+  data,
+  isLoading,
+  onVerDetalle,
+  onPageChange,
+}: Props) {
   const columns: ColumnDef<LogAuditoria>[] = [
     {
       accessorKey: 'fechaLog',
@@ -55,7 +60,10 @@ export function AuditoriaTable({ data, isLoading, onVerDetalle, onPageChange }: 
         <span className="text-sm">
           {row.original.entidadAfectada}
           {row.original.idEntidad && (
-            <span className="text-muted-foreground"> #{row.original.idEntidad}</span>
+            <span className="text-muted-foreground">
+              {' '}
+              #{row.original.idEntidad}
+            </span>
           )}
         </span>
       ),

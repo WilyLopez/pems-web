@@ -37,7 +37,9 @@ export const legalService = {
     return data.data
   },
 
-  crear: async (payload: CrearContenidoLegalPayload): Promise<ContenidoLegal> => {
+  crear: async (
+    payload: CrearContenidoLegalPayload
+  ): Promise<ContenidoLegal> => {
     const { data } = await api.post<ApiResponse<ContenidoLegal>>(
       '/cms/legal',
       payload

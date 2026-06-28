@@ -45,11 +45,14 @@ const navLinks = [
 const SCROLL_THRESHOLD = 60
 
 export function PublicNavbar() {
-  const { nombre, correo, logout, isAdmin, isCliente, clientePerfilId } = useAuth()
+  const { nombre, correo, logout, isAdmin, isCliente, clientePerfilId } =
+    useAuth()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const whatsappUrl = useWhatsAppUrl('Hola, quisiera más información sobre Kiki y Lala')
+  const whatsappUrl = useWhatsAppUrl(
+    'Hola, quisiera más información sobre Kiki y Lala'
+  )
 
   const { data: perfil } = useQuery({
     queryKey: clienteKeys.perfil(clientePerfilId),
@@ -59,8 +62,13 @@ export function PublicNavbar() {
     refetchOnWindowFocus: false,
   })
 
-  const nombreMostrar = perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
-  const primerNombre = perfil?.nombres?.split(' ')[0] || nombre?.split(' ')[0] || correo?.split('@')[0] || ''
+  const nombreMostrar =
+    perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
+  const primerNombre =
+    perfil?.nombres?.split(' ')[0] ||
+    nombre?.split(' ')[0] ||
+    correo?.split('@')[0] ||
+    ''
 
   const isLanding = pathname === '/'
   const forceSolid = !isLanding
@@ -76,7 +84,9 @@ export function PublicNavbar() {
   const isSolid = forceSolid || scrolled
 
   const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/')
+    href === '/'
+      ? pathname === '/'
+      : pathname === href || pathname.startsWith(href + '/')
 
   return (
     <header
@@ -147,14 +157,21 @@ export function PublicNavbar() {
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl shadow-xl">
+              <DropdownMenuContent
+                align="end"
+                className="w-56 p-1.5 rounded-2xl shadow-xl"
+              >
                 <div className="px-3 py-2 flex items-center gap-2 mb-1 border-b border-gray-50 pb-2">
                   <div className="w-7 h-7 rounded-full bg-brand-rosa flex items-center justify-center text-[10px] font-bold text-white shrink-0">
                     {nombreMostrar ? getInitials(nombreMostrar) : 'C'}
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-xs font-bold text-gray-900 truncate leading-tight">{nombreMostrar}</p>
-                    <p className="text-[10px] text-gray-400 truncate leading-tight mt-0.5">{correo}</p>
+                    <p className="text-xs font-bold text-gray-900 truncate leading-tight">
+                      {nombreMostrar}
+                    </p>
+                    <p className="text-[10px] text-gray-400 truncate leading-tight mt-0.5">
+                      {correo}
+                    </p>
                   </div>
                 </div>
                 <DropdownMenuItem asChild>
@@ -226,7 +243,11 @@ export function PublicNavbar() {
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Menu"
         >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </div>
 
@@ -270,7 +291,10 @@ export function PublicNavbar() {
                   asChild
                   className="rounded-full border-brand-azul/30 text-brand-azul"
                 >
-                  <Link href="/admin/dashboard" onClick={() => setMobileOpen(false)}>
+                  <Link
+                    href="/admin/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                  >
                     <Shield className="mr-2 h-4 w-4" />
                     Panel Admin
                   </Link>
@@ -282,8 +306,12 @@ export function PublicNavbar() {
                       {nombreMostrar ? getInitials(nombreMostrar) : 'C'}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-sm font-bold text-gray-900 truncate leading-tight">{nombreMostrar}</p>
-                      <p className="text-xs text-gray-400 truncate leading-tight mt-0.5">{correo}</p>
+                      <p className="text-sm font-bold text-gray-900 truncate leading-tight">
+                        {nombreMostrar}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate leading-tight mt-0.5">
+                        {correo}
+                      </p>
                     </div>
                   </div>
                   <Link
@@ -303,7 +331,10 @@ export function PublicNavbar() {
                     Mis reservas
                   </Link>
                   <button
-                    onClick={() => { setMobileOpen(false); logout() }}
+                    onClick={() => {
+                      setMobileOpen(false)
+                      logout()
+                    }}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-destructive hover:bg-destructive/8"
                   >
                     <LogOut className="h-4 w-4" />
@@ -327,7 +358,10 @@ export function PublicNavbar() {
                 asChild
                 className="bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full font-bold"
               >
-                <Link href="/cliente/reservar" onClick={() => setMobileOpen(false)}>
+                <Link
+                  href="/cliente/reservar"
+                  onClick={() => setMobileOpen(false)}
+                >
                   <Ticket className="mr-2 h-4 w-4" />
                   Reservar
                 </Link>

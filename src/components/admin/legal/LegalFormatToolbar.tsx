@@ -24,13 +24,41 @@ interface ToolbarAction {
 }
 
 const ACCIONES: ToolbarAction[] = [
-  { icon: <Bold className="h-3.5 w-3.5" />, label: 'Negrita', wrap: ['<strong>', '</strong>'] },
-  { icon: <Italic className="h-3.5 w-3.5" />, label: 'Cursiva', wrap: ['<em>', '</em>'] },
-  { icon: <Heading2 className="h-3.5 w-3.5" />, label: 'Encabezado H2', block: 'h2' },
-  { icon: <Heading3 className="h-3.5 w-3.5" />, label: 'Encabezado H3', block: 'h3' },
-  { icon: <List className="h-3.5 w-3.5" />, label: 'Lista no ordenada', block: 'ul-li' },
-  { icon: <ListOrdered className="h-3.5 w-3.5" />, label: 'Lista ordenada', block: 'ol-li' },
-  { icon: <Minus className="h-3.5 w-3.5" />, label: 'Separador', insert: '<hr />' },
+  {
+    icon: <Bold className="h-3.5 w-3.5" />,
+    label: 'Negrita',
+    wrap: ['<strong>', '</strong>'],
+  },
+  {
+    icon: <Italic className="h-3.5 w-3.5" />,
+    label: 'Cursiva',
+    wrap: ['<em>', '</em>'],
+  },
+  {
+    icon: <Heading2 className="h-3.5 w-3.5" />,
+    label: 'Encabezado H2',
+    block: 'h2',
+  },
+  {
+    icon: <Heading3 className="h-3.5 w-3.5" />,
+    label: 'Encabezado H3',
+    block: 'h3',
+  },
+  {
+    icon: <List className="h-3.5 w-3.5" />,
+    label: 'Lista no ordenada',
+    block: 'ul-li',
+  },
+  {
+    icon: <ListOrdered className="h-3.5 w-3.5" />,
+    label: 'Lista ordenada',
+    block: 'ol-li',
+  },
+  {
+    icon: <Minus className="h-3.5 w-3.5" />,
+    label: 'Separador',
+    insert: '<hr />',
+  },
 ]
 
 interface Props {
@@ -39,7 +67,11 @@ interface Props {
   className?: string
 }
 
-export function LegalFormatToolbar({ textareaRef, onChange, className }: Props) {
+export function LegalFormatToolbar({
+  textareaRef,
+  onChange,
+  className,
+}: Props) {
   function applyAction(action: ToolbarAction) {
     const el = textareaRef.current
     if (!el) return
@@ -62,12 +94,18 @@ export function LegalFormatToolbar({ textareaRef, onChange, className }: Props) 
       replacement = selected ? `<h3>${selected}</h3>` : '<h3></h3>'
     } else if (action.block === 'ul-li') {
       const lines = selected
-        ? selected.split('\n').map((l) => `  <li>${l}</li>`).join('\n')
+        ? selected
+            .split('\n')
+            .map((l) => `  <li>${l}</li>`)
+            .join('\n')
         : '  <li></li>'
       replacement = `<ul>\n${lines}\n</ul>`
     } else if (action.block === 'ol-li') {
       const lines = selected
-        ? selected.split('\n').map((l) => `  <li>${l}</li>`).join('\n')
+        ? selected
+            .split('\n')
+            .map((l) => `  <li>${l}</li>`)
+            .join('\n')
         : '  <li></li>'
       replacement = `<ol>\n${lines}\n</ol>`
     }
@@ -85,7 +123,10 @@ export function LegalFormatToolbar({ textareaRef, onChange, className }: Props) 
   function limpiarHtml() {
     const el = textareaRef.current
     if (!el) return
-    const plain = el.value.replace(/<[^>]+>/g, '').replace(/\s{2,}/g, ' ').trim()
+    const plain = el.value
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
     onChange(plain)
   }
 

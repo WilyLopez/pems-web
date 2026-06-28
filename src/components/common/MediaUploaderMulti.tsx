@@ -10,12 +10,12 @@ import { MediaValue } from '@/types/media.types'
 const TIPOS_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp']
 
 interface MediaUploaderMultiProps {
-  values:       MediaValue[]
-  onChange:     (values: MediaValue[]) => void
-  carpeta:      CarpetaMedia
+  values: MediaValue[]
+  onChange: (values: MediaValue[]) => void
+  carpeta: CarpetaMedia
   maxImagenes?: number
-  maxMb?:       number
-  className?:   string
+  maxMb?: number
+  className?: string
 }
 
 export function MediaUploaderMulti({
@@ -23,22 +23,27 @@ export function MediaUploaderMulti({
   onChange,
   carpeta: _carpeta,
   maxImagenes = 8,
-  maxMb       = 5,
+  maxMb = 5,
   className,
 }: MediaUploaderMultiProps) {
-  const [dragSobre,  setDragSobre]  = useState<number | null>(null)
+  const [dragSobre, setDragSobre] = useState<number | null>(null)
   const [dragOrigen, setDragOrigen] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   function agregarArchivos(archivos: FileList) {
-    const disponibles  = maxImagenes - values.length
-    const candidatos   = Array.from(archivos)
-    const validos      = candidatos
+    const disponibles = maxImagenes - values.length
+    const candidatos = Array.from(archivos)
+    const validos = candidatos
       .slice(0, disponibles)
-      .filter((f) => TIPOS_PERMITIDOS.includes(f.type) && f.size <= maxMb * 1024 * 1024)
-    const omitidos     = candidatos.length - validos.length
+      .filter(
+        (f) =>
+          TIPOS_PERMITIDOS.includes(f.type) && f.size <= maxMb * 1024 * 1024
+      )
+    const omitidos = candidatos.length - validos.length
     if (omitidos > 0) {
-      toast.warning(`Se omitieron ${omitidos} archivo${omitidos > 1 ? 's' : ''} por tipo o tamaño`)
+      toast.warning(
+        `Se omitieron ${omitidos} archivo${omitidos > 1 ? 's' : ''} por tipo o tamaño`
+      )
     }
     const nuevos: MediaValue[] = validos.map((f) => ({
       url: URL.createObjectURL(f),
@@ -50,7 +55,8 @@ export function MediaUploaderMulti({
 
   function eliminar(index: number) {
     const item = values[index]
-    if (item.esLocal && item.url.startsWith('blob:')) URL.revokeObjectURL(item.url)
+    if (item.esLocal && item.url.startsWith('blob:'))
+      URL.revokeObjectURL(item.url)
     onChange(values.filter((_, i) => i !== index))
   }
 
@@ -73,7 +79,8 @@ export function MediaUploaderMulti({
   }
 
   function handleChangeFichero(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files.length > 0) agregarArchivos(e.target.files)
+    if (e.target.files && e.target.files.length > 0)
+      agregarArchivos(e.target.files)
     if (inputRef.current) inputRef.current.value = ''
   }
 
@@ -91,9 +98,15 @@ export function MediaUploaderMulti({
             key={v.url}
             draggable
             onDragStart={() => handleDragStart(i)}
-            onDragOver={(e) => { e.preventDefault(); setDragSobre(i) }}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setDragSobre(i)
+            }}
             onDragLeave={() => setDragSobre(null)}
-            onDrop={(e) => { e.preventDefault(); handleDropSobre(i) }}
+            onDrop={(e) => {
+              e.preventDefault()
+              handleDropSobre(i)
+            }}
             className={cn(
               'relative aspect-square rounded-xl overflow-hidden border-2 bg-muted cursor-grab transition-all',
               dragSobre === i && dragOrigen !== i

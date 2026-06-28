@@ -9,7 +9,15 @@ import { BeneficiosVip } from '@/features/cliente/mi-cuenta/components/ui/Benefi
 import { ErrorState } from '@/components/common/Errorstate'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { SectionCard } from '@/features/cliente/shared/components/SectionCard'
-import { Star, Award, ShieldCheck, HelpCircle, Gift, Sparkles, ChevronRight } from 'lucide-react'
+import {
+  Star,
+  Award,
+  ShieldCheck,
+  HelpCircle,
+  Gift,
+  Sparkles,
+  ChevronRight,
+} from 'lucide-react'
 import Link from 'next/link'
 
 function BeneficiosSkeleton() {
@@ -75,7 +83,8 @@ export default function BeneficiosPage() {
           Mis beneficios
         </h1>
         <p className="text-sm text-gray-500">
-          Consulta tu nivel de fidelidad, beneficios VIP y ventajas exclusivas por tu preferencia.
+          Consulta tu nivel de fidelidad, beneficios VIP y ventajas exclusivas
+          por tu preferencia.
         </p>
       </div>
 
@@ -89,50 +98,69 @@ export default function BeneficiosPage() {
               <p className="font-bold text-sm">¿Cómo subir a VIP?</p>
             </div>
             <p className="text-xs text-indigo-100 leading-relaxed">
-              Completa 5 visitas y automáticamente pasarás a ser <strong>Cliente Frecuente</strong>.
+              Completa 5 visitas y automáticamente pasarás a ser{' '}
+              <strong>Cliente Frecuente</strong>.
             </p>
             <p className="text-xs text-indigo-100 leading-relaxed">
-              Nuestros clientes más leales reciben invitaciones directas a la categoría <strong>VIP</strong>, que incluye descuentos exclusivos en celebraciones de cumpleaños y reservas.
+              Nuestros clientes más leales reciben invitaciones directas a la
+              categoría <strong>VIP</strong>, que incluye descuentos exclusivos
+              en celebraciones de cumpleaños y reservas.
             </p>
           </div>
         </div>
 
         <div className="md:col-span-2 space-y-6">
-          <SectionCard titulo="Beneficios exclusivos de tu membresía" icon={Sparkles}>
+          <SectionCard
+            titulo="Beneficios exclusivos de tu membresía"
+            icon={Sparkles}
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
               {[
                 {
                   titulo: 'Reservas prioritarias',
-                  descripcion: 'Accede antes que nadie a las fechas de mayor demanda para celebraciones privadas.',
+                  descripcion:
+                    'Accede antes que nadie a las fechas de mayor demanda para celebraciones privadas.',
                   icon: Gift,
                   color: 'text-amber-500 bg-amber-50 border-amber-100',
                 },
                 {
                   titulo: 'Descuentos acumulativos',
-                  descripcion: 'Tus compras y visitas se acumulan para darte acceso a mayores porcentajes de descuento.',
+                  descripcion:
+                    'Tus compras y visitas se acumulan para darte acceso a mayores porcentajes de descuento.',
                   icon: ShieldCheck,
                   color: 'text-emerald-500 bg-emerald-50 border-emerald-100',
                 },
                 {
                   titulo: 'Atención personalizada',
-                  descripcion: 'Un ejecutivo de eventos a tu disposición para organizar cada detalle de tu fiesta.',
+                  descripcion:
+                    'Un ejecutivo de eventos a tu disposición para organizar cada detalle de tu fiesta.',
                   icon: Sparkles,
                   color: 'text-indigo-500 bg-indigo-50 border-indigo-100',
                 },
                 {
                   titulo: 'Preventa y ofertas',
-                  descripcion: 'Recibe promociones de preventa en entradas para la Zona de Juegos y eventos de temporada.',
+                  descripcion:
+                    'Recibe promociones de preventa en entradas para la Zona de Juegos y eventos de temporada.',
                   icon: Award,
                   color: 'text-rose-500 bg-rose-50 border-rose-100',
                 },
               ].map((item) => (
-                <div key={item.titulo} className="flex gap-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-all bg-gray-50/30">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${item.color}`}>
+                <div
+                  key={item.titulo}
+                  className="flex gap-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-all bg-gray-50/30"
+                >
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${item.color}`}
+                  >
                     <item.icon className="h-5 w-5" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-gray-900">{item.titulo}</h3>
-                    <p className="text-xs text-gray-500 leading-relaxed">{item.descripcion}</p>
+                    <h3 className="text-sm font-bold text-gray-900">
+                      {item.titulo}
+                    </h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      {item.descripcion}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -142,7 +170,9 @@ export default function BeneficiosPage() {
           <SectionCard titulo="¿Tienes preguntas?" icon={HelpCircle}>
             <div className="space-y-3 mt-2">
               <p className="text-xs text-gray-500 leading-relaxed">
-                Si consideras que hay un error en tu contador de visitas o necesitas asistencia para aplicar tus descuentos VIP en una cotización, ponte en contacto con nosotros.
+                Si consideras que hay un error en tu contador de visitas o
+                necesitas asistencia para aplicar tus descuentos VIP en una
+                cotización, ponte en contacto con nosotros.
               </p>
               <div className="flex flex-wrap gap-2">
                 <a

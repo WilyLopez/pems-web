@@ -16,10 +16,17 @@ export function ProfileHeader({ cliente, onAvatarClick }: ProfileHeaderProps) {
       <div className="px-5 sm:px-6 pb-5 sm:pb-6 -mt-12 sm:-mt-14">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div className="flex items-end gap-4">
-            <div className="relative shrink-0 group cursor-pointer" onClick={onAvatarClick}>
+            <div
+              className="relative shrink-0 group cursor-pointer"
+              onClick={onAvatarClick}
+            >
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg bg-brand-rosa overflow-hidden flex items-center justify-center relative">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt={cliente.nombreCompleto} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                  <img
+                    src={avatarUrl}
+                    alt={cliente.nombreCompleto}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  />
                 ) : (
                   <span className="text-white text-2xl sm:text-3xl font-black">
                     {getInitials(cliente.nombreCompleto)}
@@ -40,7 +47,9 @@ export function ProfileHeader({ cliente, onAvatarClick }: ProfileHeaderProps) {
 
             <div className="pb-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black text-gray-900">{cliente.nombreCompleto}</h1>
+                <h1 className="text-xl sm:text-2xl font-black text-gray-900">
+                  {cliente.nombreCompleto}
+                </h1>
                 {cliente.esVip && (
                   <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
                     <Star className="h-2.5 w-2.5 fill-white" />
@@ -55,11 +64,13 @@ export function ProfileHeader({ cliente, onAvatarClick }: ProfileHeaderProps) {
 
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1">
           <span className="text-xs text-gray-400">
-            <span className="font-semibold text-gray-600">Miembro desde</span> {formatDate(cliente.creadoEn, 'MMMM yyyy')}
+            <span className="font-semibold text-gray-600">Miembro desde</span>{' '}
+            {formatDate(cliente.creadoEn, 'MMMM yyyy')}
           </span>
           {cliente.segmentoCodigo && (
             <span className="text-xs text-gray-400">
-              <span className="font-semibold text-gray-600">Segmento</span> {cliente.segmentoCodigo}
+              <span className="font-semibold text-gray-600">Segmento</span>{' '}
+              {cliente.segmentoCodigo}
             </span>
           )}
         </div>

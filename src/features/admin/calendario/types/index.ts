@@ -1,11 +1,22 @@
 import { TipoDia } from '@/types/enums'
 
-export type TipoOcupacion = 'LIBRE' | 'PUBLICO' | 'PRIVADO_PARCIAL' | 'PRIVADO_LLENO' | 'BLOQUEADO' | 'FERIADO'
+export type TipoOcupacion =
+  | 'LIBRE'
+  | 'PUBLICO'
+  | 'PRIVADO_PARCIAL'
+  | 'PRIVADO_LLENO'
+  | 'BLOQUEADO'
+  | 'FERIADO'
+export type TipoDiaCalendario =
+  | 'LABORABLE'
+  | 'NO_LABORABLE'
+  | 'FERIADO'
+  | 'BLOQUEADO'
 
 export interface Disponibilidad {
   idSede: number
   fecha: string
-  tipoDia: TipoDia
+  tipoDia: TipoDiaCalendario
   esFeriado: boolean
   descripcionFeriado?: string
   accesoPublicoActivo: boolean

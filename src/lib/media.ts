@@ -8,7 +8,8 @@ export function fixMediaUrl(url: string | null | undefined): string {
     url.startsWith('blob:') ||
     url.startsWith('data:') ||
     url.startsWith('/')
-  ) return url
+  )
+    return url
   const base = process.env.NEXT_PUBLIC_API_URL?.split('/api/')[0] ?? ''
   return `${base}/${url}`
 }

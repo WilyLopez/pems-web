@@ -8,16 +8,19 @@ export async function generateMetadata(): Promise<Metadata> {
     const baseTitle = config.metaTitle || 'Kiki y Lala'
     return {
       title: `Preguntas Frecuentes | ${baseTitle}`,
-      description: 'Resolvemos tus dudas sobre nuestros servicios, reservas y eventos en Chiclayo.',
+      description:
+        'Resolvemos tus dudas sobre nuestros servicios, reservas y eventos en Chiclayo.',
       openGraph: {
         title: `Preguntas Frecuentes | ${baseTitle}`,
-        description: 'Resolvemos tus dudas sobre nuestros servicios, reservas y eventos.',
+        description:
+          'Resolvemos tus dudas sobre nuestros servicios, reservas y eventos.',
       },
     }
   } catch {
     return {
       title: 'Preguntas Frecuentes | Kiki y Lala',
-      description: 'Resolvemos tus dudas sobre nuestros servicios, reservas y eventos.',
+      description:
+        'Resolvemos tus dudas sobre nuestros servicios, reservas y eventos.',
     }
   }
 }

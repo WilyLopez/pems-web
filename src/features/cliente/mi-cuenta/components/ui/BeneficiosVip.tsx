@@ -27,7 +27,9 @@ export function BeneficiosVip({ cliente, eventos }: BeneficiosVipProps) {
           </div>
           <div>
             <p className="text-sm font-black text-gray-900">Cliente VIP</p>
-            <p className="text-xs text-amber-700">{descuento}% de descuento activo</p>
+            <p className="text-xs text-amber-700">
+              {descuento}% de descuento activo
+            </p>
           </div>
         </div>
         <Separator className="border-amber-200" />
@@ -46,7 +48,9 @@ export function BeneficiosVip({ cliente, eventos }: BeneficiosVipProps) {
         {ahorrado != null && ahorrado > 0 && (
           <div className="bg-white/70 rounded-xl px-3 py-2">
             <p className="text-xs text-gray-500">Ahorro acumulado estimado</p>
-            <p className="text-base font-black text-amber-600">{formatCurrency(ahorrado)}</p>
+            <p className="text-base font-black text-amber-600">
+              {formatCurrency(ahorrado)}
+            </p>
           </div>
         )}
       </div>
@@ -63,16 +67,22 @@ export function BeneficiosVip({ cliente, eventos }: BeneficiosVipProps) {
           <TrendingUp className="h-4 w-4 text-brand-azul" />
         </div>
         <div>
-          <p className="text-sm font-bold text-gray-900">Programa de fidelidad</p>
+          <p className="text-sm font-bold text-gray-900">
+            Programa de fidelidad
+          </p>
           <p className="text-xs text-gray-500">
-            {cliente.segmentoCodigo === 'FRECUENTE' ? 'Cliente frecuente' : 'Cliente nuevo'}
+            {cliente.segmentoCodigo === 'FRECUENTE'
+              ? 'Cliente frecuente'
+              : 'Cliente nuevo'}
           </p>
         </div>
       </div>
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
           <span className="text-gray-500">{visitas} visitas</span>
-          <span className="font-semibold text-brand-azul">{FRECUENTE_THRESHOLD} para frecuente</span>
+          <span className="font-semibold text-brand-azul">
+            {FRECUENTE_THRESHOLD} para frecuente
+          </span>
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div

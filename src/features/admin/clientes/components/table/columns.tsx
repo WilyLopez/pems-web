@@ -2,11 +2,18 @@ import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, Eye } from 'lucide-react'
 import { Cliente } from '../../types'
 import { ClienteAvatar } from '../ui/ClienteAvatar'
-import { VipBadge, OrigenBadge, SegmentoBadge, VisitasBadge } from '../ui/ClienteBadges'
+import {
+  VipBadge,
+  OrigenBadge,
+  SegmentoBadge,
+  VisitasBadge,
+} from '../ui/ClienteBadges'
 import { Button } from '@/components/ui/Button'
 import { formatDate } from '@/lib/utils'
 
-export const createColumns = (onVerPerfil: (cliente: Cliente) => void): ColumnDef<Cliente>[] => [
+export const createColumns = (
+  onVerPerfil: (cliente: Cliente) => void
+): ColumnDef<Cliente>[] => [
   {
     accessorKey: 'nombreCompleto',
     header: ({ column }) => (
@@ -94,9 +101,7 @@ export const createColumns = (onVerPerfil: (cliente: Cliente) => void): ColumnDe
         <ArrowUpDown className="h-3.5 w-3.5" />
       </button>
     ),
-    cell: ({ row }) => (
-      <VisitasBadge visitas={row.original.contadorVisitas} />
-    ),
+    cell: ({ row }) => <VisitasBadge visitas={row.original.contadorVisitas} />,
   },
   {
     accessorKey: 'creadoEn',

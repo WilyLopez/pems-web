@@ -45,10 +45,7 @@ export const VentasFilters = ({
   const rangoInvalido = desde && hasta && desde > hasta
 
   const tieneFiltros =
-    !!search ||
-    !!tipo ||
-    desde !== DEFAULT_DESDE ||
-    hasta !== DEFAULT_HASTA
+    !!search || !!tipo || desde !== DEFAULT_DESDE || hasta !== DEFAULT_HASTA
 
   const limpiar = () => {
     onSearchChange('')
@@ -79,7 +76,10 @@ export const VentasFilters = ({
           </SelectTrigger>
           <SelectContent>
             {TIPOS.map((t) => (
-              <SelectItem key={t.value || '__all__'} value={t.value || '__all__'}>
+              <SelectItem
+                key={t.value || '__all__'}
+                value={t.value || '__all__'}
+              >
                 {t.label}
               </SelectItem>
             ))}
@@ -97,7 +97,8 @@ export const VentasFilters = ({
               onChange={(e) => onDesdeChange(e.target.value)}
               className={cn(
                 'flex-1 min-w-0 h-9 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-sm',
-                rangoInvalido && 'border-red-400 dark:border-red-600 focus-visible:ring-red-400'
+                rangoInvalido &&
+                  'border-red-400 dark:border-red-600 focus-visible:ring-red-400'
               )}
             />
             <span className="text-xs text-gray-400 shrink-0">al</span>
@@ -107,7 +108,8 @@ export const VentasFilters = ({
               onChange={(e) => onHastaChange(e.target.value)}
               className={cn(
                 'flex-1 min-w-0 h-9 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-sm',
-                rangoInvalido && 'border-red-400 dark:border-red-600 focus-visible:ring-red-400'
+                rangoInvalido &&
+                  'border-red-400 dark:border-red-600 focus-visible:ring-red-400'
               )}
             />
           </div>

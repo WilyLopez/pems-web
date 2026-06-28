@@ -3,17 +3,32 @@ import { ApiResponse, PagedResponse } from '@/types/api.types'
 import { Reserva, CrearReservaPayload } from '../types'
 
 export const reservaApi = {
-  listar: async (params: { page?: number; size?: number } = {}): Promise<PagedResponse<Reserva>> => {
-    const { data } = await api.get<ApiResponse<PagedResponse<Reserva>>>('/reservas', { params })
+  listar: async (
+    params: { page?: number; size?: number } = {}
+  ): Promise<PagedResponse<Reserva>> => {
+    const { data } = await api.get<ApiResponse<PagedResponse<Reserva>>>(
+      '/reservas',
+      { params }
+    )
     return data.data
   },
 
-  crear: async (idCliente: number, idSede: number, payload: CrearReservaPayload): Promise<Reserva> => {
-    const { data } = await api.post<ApiResponse<Reserva>>(`/reservas/clientes/${idCliente}/sedes/${idSede}`, payload)
+  crear: async (
+    idCliente: number,
+    idSede: number,
+    payload: CrearReservaPayload
+  ): Promise<Reserva> => {
+    const { data } = await api.post<ApiResponse<Reserva>>(
+      `/reservas/clientes/${idCliente}/sedes/${idSede}`,
+      payload
+    )
     return data.data
   },
 
-  subirComprobante: async (idReserva: number, comprobante: File): Promise<void> => {
+  subirComprobante: async (
+    idReserva: number,
+    comprobante: File
+  ): Promise<void> => {
     const form = new FormData()
     form.append('archivo', comprobante)
     await api.post(`/reservas/${idReserva}/comprobante`, form, {
@@ -21,17 +36,27 @@ export const reservaApi = {
     })
   },
 
-  reprogramar: async (idReserva: number, nuevaFecha: string): Promise<Reserva> => {
-    const { data } = await api.post<ApiResponse<Reserva>>(`/reservas/${idReserva}/reprogramar`, {
-      nuevaFechaEvento: nuevaFecha,
-    })
+  reprogramar: async (
+    idReserva: number,
+    nuevaFecha: string
+  ): Promise<Reserva> => {
+    const { data } = await api.post<ApiResponse<Reserva>>(
+      `/reservas/${idReserva}/reprogramar`,
+      {
+        nuevaFechaEvento: nuevaFecha,
+      }
+    )
     return data.data
   },
 
   cancelar: async (idReserva: number, motivo: string): Promise<Reserva> => {
-    const { data } = await api.post<ApiResponse<Reserva>>(`/reservas/${idReserva}/cancelar`, null, {
-      params: { motivo },
-    })
+    const { data } = await api.post<ApiResponse<Reserva>>(
+      `/reservas/${idReserva}/cancelar`,
+      null,
+      {
+        params: { motivo },
+      }
+    )
     return data.data
   },
 }

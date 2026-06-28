@@ -62,13 +62,15 @@ export function useTipoEventoMutations() {
   })
 
   const eliminar = useMutation({
-    mutationFn: (codigo: string) => comercialService.tiposEvento.eliminar(codigo),
+    mutationFn: (codigo: string) =>
+      comercialService.tiposEvento.eliminar(codigo),
     onSuccess: () => {
       invalidar()
       toast.success('Tipo de evento eliminado')
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      const msg = (err as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message
       toast.error(msg ?? 'Error al eliminar el tipo de evento')
     },
   })

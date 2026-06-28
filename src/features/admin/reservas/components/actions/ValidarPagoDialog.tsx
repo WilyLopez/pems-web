@@ -9,25 +9,27 @@ interface ValidarPagoDialogProps {
   numeroTicket?: string
 }
 
-export const ValidarPagoDialog = React.memo(({ open, onClose, reservaId, numeroTicket }: ValidarPagoDialogProps) => {
-  const confirmarPago = useConfirmarPago()
+export const ValidarPagoDialog = React.memo(
+  ({ open, onClose, reservaId, numeroTicket }: ValidarPagoDialogProps) => {
+    const confirmarPago = useConfirmarPago()
 
-  const handleConfirm = () => {
-    if (!reservaId) return
-    confirmarPago.mutate(reservaId, { onSuccess: onClose })
+    const handleConfirm = () => {
+      if (!reservaId) return
+      confirmarPago.mutate(reservaId, { onSuccess: onClose })
+    }
+
+    return (
+      <ConfirmDialog
+        open={open}
+        onOpenChange={(v) => !v && onClose()}
+        title="Validar Pago Yape"
+        description={`¿Confirmas haber recibido el pago por Yape para el ticket ${numeroTicket}? La reserva pasara a estado CONFIRMADA.`}
+        confirmLabel="Si, validar pago"
+        onConfirm={handleConfirm}
+        loading={confirmarPago.isPending}
+      />
+    )
   }
-
-  return (
-    <ConfirmDialog
-      open={open}
-      onOpenChange={(v) => !v && onClose()}
-      title="Validar Pago Yape"
-      description={`¿Confirmas haber recibido el pago por Yape para el ticket ${numeroTicket}? La reserva pasara a estado CONFIRMADA.`}
-      confirmLabel="Si, validar pago"
-      onConfirm={handleConfirm}
-      loading={confirmarPago.isPending}
-    />
-  )
-})
+)
 
 ValidarPagoDialog.displayName = 'ValidarPagoDialog'

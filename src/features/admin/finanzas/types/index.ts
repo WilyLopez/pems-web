@@ -1,4 +1,7 @@
-export type CategoriaEgreso = 'RECURRENTE_FIJO' | 'RECURRENTE_VARIABLE' | 'EVENTUAL'
+export type CategoriaEgreso =
+  | 'RECURRENTE_FIJO'
+  | 'RECURRENTE_VARIABLE'
+  | 'EVENTUAL'
 
 export interface TipoEgreso {
   codigo: string
@@ -158,10 +161,19 @@ export interface ActualizarGastoOperativoPayload {
   comprobanteUrl?: string
 }
 
-export type CategoriaIngreso = 'RESERVA_PUBLICA' | 'ADELANTO_EVENTO' | 'INGRESO_MANUAL' | 'OTRO'
+export type CategoriaIngreso =
+  | 'RESERVA_PUBLICA'
+  | 'ADELANTO_EVENTO'
+  | 'INGRESO_MANUAL'
+  | 'OTRO'
 export type EstadoCaja = 'ABIERTA' | 'CERRADA'
 export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO'
-export type CategoriaRetiro = 'SERVICIOS' | 'PROVEEDORES' | 'PERSONAL' | 'OPERATIVO' | 'OTRO'
+export type CategoriaRetiro =
+  | 'SERVICIOS'
+  | 'PROVEEDORES'
+  | 'PERSONAL'
+  | 'OPERATIVO'
+  | 'OTRO'
 export type EstadoPresupuesto = 'PENDIENTE' | 'APROBADO' | 'EJECUTADO'
 
 export interface TipoIngreso {

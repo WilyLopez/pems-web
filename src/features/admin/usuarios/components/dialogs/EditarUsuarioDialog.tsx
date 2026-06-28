@@ -4,13 +4,24 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { Loader2, Pencil } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { useUsuariosNav } from '../../hooks/useUsuariosNav'
-import { useUsuariosList, useMutacionesUsuario } from '../../hooks/useUsuariosData'
-import { editarUsuarioSchema, EditarUsuarioFormValues } from '../../schema/usuario.schema'
+import {
+  useUsuariosList,
+  useMutacionesUsuario,
+} from '../../hooks/useUsuariosData'
+import {
+  editarUsuarioSchema,
+  EditarUsuarioFormValues,
+} from '../../schema/usuario.schema'
 
 function toTitleCase(value: string): string {
   return value.trim().replace(/\b\w/g, (c) => c.toUpperCase())
@@ -40,7 +51,9 @@ export function EditarUsuarioDialog() {
     reset,
     setValue,
     formState: { errors },
-  } = useForm<EditarUsuarioFormValues>({ resolver: zodResolver(editarUsuarioSchema) })
+  } = useForm<EditarUsuarioFormValues>({
+    resolver: zodResolver(editarUsuarioSchema),
+  })
 
   useEffect(() => {
     if (usuario) {
@@ -56,7 +69,10 @@ export function EditarUsuarioDialog() {
   const onSubmit = (values: EditarUsuarioFormValues) => {
     if (!usuario) return
     actualizarUsuario.mutate(
-      { id: usuario.id, payload: { nombre: values.nombre, telefono: values.telefono } },
+      {
+        id: usuario.id,
+        payload: { nombre: values.nombre, telefono: values.telefono },
+      },
       { onSuccess: () => handleClose() }
     )
   }
@@ -67,10 +83,7 @@ export function EditarUsuarioDialog() {
     ...nombreRest
   } = register('nombre')
 
-  const {
-    onChange: onTelefonoChange,
-    ...telefonoRest
-  } = register('telefono')
+  const { onChange: onTelefonoChange, ...telefonoRest } = register('telefono')
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
@@ -90,12 +103,16 @@ export function EditarUsuarioDialog() {
               {...nombreRest}
               onChange={onNombreChange}
               onBlur={(e) => {
-                setValue('nombre', toTitleCase(e.target.value), { shouldValidate: true })
+                setValue('nombre', toTitleCase(e.target.value), {
+                  shouldValidate: true,
+                })
                 onNombreBlur(e)
               }}
             />
             {errors.nombre && (
-              <p className="text-xs text-destructive">{errors.nombre.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.nombre.message}
+              </p>
             )}
           </div>
 
@@ -111,7 +128,9 @@ export function EditarUsuarioDialog() {
               onChange={(e) => handleTelefonoChange(e, onTelefonoChange)}
             />
             {errors.telefono && (
-              <p className="text-xs text-destructive">{errors.telefono.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.telefono.message}
+              </p>
             )}
           </div>
 

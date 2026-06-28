@@ -83,13 +83,19 @@ export function ServicioFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{servicio ? 'Editar servicio' : 'Nuevo servicio'}</DialogTitle>
+          <DialogTitle>
+            {servicio ? 'Editar servicio' : 'Nuevo servicio'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           <div className="space-y-2">
             <Label>Nombre *</Label>
             <Input {...register('nombre')} placeholder="Ej: Show de Títeres" />
-            {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
+            {errors.nombre && (
+              <p className="text-xs text-destructive">
+                {errors.nombre.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -100,19 +106,35 @@ export function ServicioFormDialog({
               rows={3}
               className="resize-none"
             />
-            {errors.descripcion && <p className="text-xs text-destructive">{errors.descripcion.message}</p>}
+            {errors.descripcion && (
+              <p className="text-xs text-destructive">
+                {errors.descripcion.message}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Precio Referencial</Label>
-              <Input type="number" step="0.01" {...register('precioReferencial')} />
-              {errors.precioReferencial && <p className="text-xs text-destructive">{errors.precioReferencial.message}</p>}
+              <Input
+                type="number"
+                step="0.01"
+                {...register('precioReferencial')}
+              />
+              {errors.precioReferencial && (
+                <p className="text-xs text-destructive">
+                  {errors.precioReferencial.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Orden</Label>
               <Input type="number" {...register('orden')} />
-              {errors.orden && <p className="text-xs text-destructive">{errors.orden.message}</p>}
+              {errors.orden && (
+                <p className="text-xs text-destructive">
+                  {errors.orden.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -122,18 +144,32 @@ export function ServicioFormDialog({
               control={control}
               name="icono"
               render={({ field }) => (
-                <IconPicker value={field.value ?? ''} onChange={field.onChange} />
+                <IconPicker
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                />
               )}
             />
           </div>
 
           <div className="flex items-center gap-2 pt-2">
-            <input type="checkbox" {...register('activo')} id="chk-activo" className="h-4 w-4 rounded" />
-            <Label htmlFor="chk-activo" className="cursor-pointer">Servicio activo</Label>
+            <input
+              type="checkbox"
+              {...register('activo')}
+              id="chk-activo"
+              className="h-4 w-4 rounded"
+            />
+            <Label htmlFor="chk-activo" className="cursor-pointer">
+              Servicio activo
+            </Label>
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button

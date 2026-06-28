@@ -73,7 +73,12 @@ export interface CampanaEmail {
   fechaCreacion: string
 }
 
-export type EstadoEnvio = 'PENDIENTE' | 'ENVIADO' | 'ERROR' | 'REBOTADO' | 'CANCELADO'
+export type EstadoEnvio =
+  | 'PENDIENTE'
+  | 'ENVIADO'
+  | 'ERROR'
+  | 'REBOTADO'
+  | 'CANCELADO'
 
 export interface EnvioEmail {
   id: number

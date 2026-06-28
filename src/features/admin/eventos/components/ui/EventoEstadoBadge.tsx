@@ -5,11 +5,13 @@ import { EstadoEvento } from '../../types'
 const CONFIG: Record<EstadoEvento, { label: string; className: string }> = {
   SOLICITADA: {
     label: 'Solicitada',
-    className: 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100',
+    className:
+      'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100',
   },
   CONFIRMADA: {
     label: 'Confirmada',
-    className: 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100',
+    className:
+      'bg-green-100 text-green-800 border-green-200 hover:bg-green-100',
   },
   COMPLETADA: {
     label: 'Completada',
@@ -27,7 +29,11 @@ interface EventoEstadoBadgeProps {
   className?: string
 }
 
-export function EventoEstadoBadge({ estado, size = 'default', className }: EventoEstadoBadgeProps) {
+export function EventoEstadoBadge({
+  estado,
+  size = 'default',
+  className,
+}: EventoEstadoBadgeProps) {
   const config = CONFIG[estado] ?? {
     label: estado,
     className: 'bg-gray-100 text-gray-700 border-gray-200',

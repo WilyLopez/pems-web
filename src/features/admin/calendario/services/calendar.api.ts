@@ -40,14 +40,18 @@ export const calendarApi = {
     return data.data
   },
 
-  getConfiguracion: async (idSede: number): Promise<ConfiguracionCalendario> => {
+  getConfiguracion: async (
+    idSede: number
+  ): Promise<ConfiguracionCalendario> => {
     const { data } = await api.get<{ data: ConfiguracionCalendario }>(
       `/calendario/configuracion/sedes/${idSede}`
     )
     return data.data
   },
 
-  getConfiguracionPublica: async (idSede: number): Promise<ConfiguracionCalendarioPublica> => {
+  getConfiguracionPublica: async (
+    idSede: number
+  ): Promise<ConfiguracionCalendarioPublica> => {
     const { data } = await api.get<{ data: ConfiguracionCalendarioPublica }>(
       `/calendario/configuracion/sedes/${idSede}/publica`
     )
@@ -112,7 +116,9 @@ export const calendarApi = {
     await api.delete(`/calendario/sedes/${idSede}/programaciones/${id}`)
   },
 
-  listarProgramaciones: async (idSede: number): Promise<ProgramacionSemanal[]> => {
+  listarProgramaciones: async (
+    idSede: number
+  ): Promise<ProgramacionSemanal[]> => {
     const { data } = await api.get<ApiResponse<ProgramacionSemanal[]>>(
       `/calendario/sedes/${idSede}/programaciones`
     )

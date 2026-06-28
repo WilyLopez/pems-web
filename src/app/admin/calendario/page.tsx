@@ -1,15 +1,34 @@
 'use client'
 
 import React from 'react'
-import { 
-  addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, 
-  startOfMonth, endOfMonth, startOfWeek, endOfWeek, 
-  eachDayOfInterval, isSameDay, getDay, format 
+import {
+  addMonths,
+  subMonths,
+  addWeeks,
+  subWeeks,
+  addDays,
+  subDays,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  isSameDay,
+  getDay,
+  format,
 } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { 
-  LayoutGrid, Columns, CalendarCheck, ChevronLeft, ChevronRight, 
-  Settings, Ticket, PartyPopper, TrendingUp, CalendarDays 
+import {
+  LayoutGrid,
+  Columns,
+  CalendarCheck,
+  ChevronLeft,
+  ChevronRight,
+  Settings,
+  Ticket,
+  PartyPopper,
+  TrendingUp,
+  CalendarDays,
 } from 'lucide-react'
 
 import { useAuth } from '@/hooks/useAuth'
@@ -30,7 +49,11 @@ import { PageHeader } from '@/components/common/PageHeader'
 import { Card, CardContent, CardHeader } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/Popover'
 
 const DAYS = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
 
@@ -43,26 +66,42 @@ const VISTAS = [
 export default function CalendarioPage() {
   const { idSede } = useAuth()
   const sede = idSede ?? 1
-  const { 
-    vista, fecha: currentDate, selectedDate, drawer, 
-    setVista, setFecha, selectDate, closeAll 
+  const {
+    vista,
+    fecha: currentDate,
+    selectedDate,
+    drawer,
+    setVista,
+    setFecha,
+    selectDate,
+    closeAll,
   } = useCalendarNav()
 
   const inicio = format(
-    vista === 'mes' ? startOfMonth(currentDate) : 
-    vista === 'semana' ? startOfWeek(currentDate, { weekStartsOn: 1 }) : 
-    currentDate, 'yyyy-MM-dd'
+    vista === 'mes'
+      ? startOfMonth(currentDate)
+      : vista === 'semana'
+        ? startOfWeek(currentDate, { weekStartsOn: 1 })
+        : currentDate,
+    'yyyy-MM-dd'
   )
   const fin = format(
-    vista === 'mes' ? endOfMonth(currentDate) : 
-    vista === 'semana' ? endOfWeek(currentDate, { weekStartsOn: 1 }) : 
-    currentDate, 'yyyy-MM-dd'
+    vista === 'mes'
+      ? endOfMonth(currentDate)
+      : vista === 'semana'
+        ? endOfWeek(currentDate, { weekStartsOn: 1 })
+        : currentDate,
+    'yyyy-MM-dd'
   )
 
   const debouncedInicio = useDebounce(inicio, 300)
   const debouncedFin = useDebounce(fin, 300)
 
-  const { data: disponibilidades, isLoading } = useDisponibilidadRango(sede, debouncedInicio, debouncedFin)
+  const { data: disponibilidades, isLoading } = useDisponibilidadRango(
+    sede,
+    debouncedInicio,
+    debouncedFin
+  )
 
   const days = eachDayOfInterval({
     start: startOfMonth(currentDate),
@@ -70,11 +109,17 @@ export default function CalendarioPage() {
   })
   const startOffset = (getDay(startOfMonth(currentDate)) + 6) % 7
 
-  const getDisp = (day: Date) => disponibilidades?.find(d => isSameDay(new Date(d.fecha + 'T12:00:00'), day))
+  const getDisp = (day: Date) =>
+    disponibilidades?.find((d) =>
+      isSameDay(new Date(d.fecha + 'T12:00:00'), day)
+    )
 
-  const totalReservas = disponibilidades?.reduce((a, d) => a + (d.totalReservas ?? 0), 0) ?? 0
-  const totalEventos = disponibilidades?.reduce((a, d) => a + (d.totalEventos ?? 0), 0) ?? 0
-  const totalIngresos = disponibilidades?.reduce((acc, d) => acc + (d.ingresoEstimado ?? 0), 0) ?? 0
+  const totalReservas =
+    disponibilidades?.reduce((a, d) => a + (d.totalReservas ?? 0), 0) ?? 0
+  const totalEventos =
+    disponibilidades?.reduce((a, d) => a + (d.totalEventos ?? 0), 0) ?? 0
+  const totalIngresos =
+    disponibilidades?.reduce((acc, d) => acc + (d.ingresoEstimado ?? 0), 0) ?? 0
 
   const handleSelectDay = (day: Date) => {
     selectDate(selectedDate && isSameDay(selectedDate, day) ? null : day)
@@ -114,14 +159,46 @@ export default function CalendarioPage() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         {[
-          { label: 'Reservas del mes', sub: 'confirmadas este mes', value: String(totalReservas), color: 'text-brand-azul', bg: 'bg-brand-azul/8', iconColor: 'text-brand-azul', Icon: Ticket },
-          { label: 'Eventos privados', sub: 'eventos programados', value: String(totalEventos), color: 'text-brand-rosa', bg: 'bg-brand-rosa/8', iconColor: 'text-brand-rosa', Icon: PartyPopper },
-          { label: 'Ingresos estimados', sub: 'proyectado del mes', value: formatCurrency(totalIngresos, 0), color: 'text-green-700', bg: 'bg-green-50', iconColor: 'text-green-700', Icon: TrendingUp },
+          {
+            label: 'Reservas del mes',
+            sub: 'confirmadas este mes',
+            value: String(totalReservas),
+            color: 'text-brand-azul',
+            bg: 'bg-brand-azul/8',
+            iconColor: 'text-brand-azul',
+            Icon: Ticket,
+          },
+          {
+            label: 'Eventos privados',
+            sub: 'eventos programados',
+            value: String(totalEventos),
+            color: 'text-brand-rosa',
+            bg: 'bg-brand-rosa/8',
+            iconColor: 'text-brand-rosa',
+            Icon: PartyPopper,
+          },
+          {
+            label: 'Ingresos estimados',
+            sub: 'proyectado del mes',
+            value: formatCurrency(totalIngresos, 0),
+            color: 'text-green-700',
+            bg: 'bg-green-50',
+            iconColor: 'text-green-700',
+            Icon: TrendingUp,
+          },
         ].map(({ label, sub, value, color, bg, iconColor, Icon }) => (
-          <div key={label} className={cn('rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between gap-3', bg)}>
+          <div
+            key={label}
+            className={cn(
+              'rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between gap-3',
+              bg
+            )}
+          >
             <div className="min-w-0">
               <p className="text-xs text-gray-500 font-medium">{label}</p>
-              <p className={cn('text-2xl font-black leading-tight', color)}>{value}</p>
+              <p className={cn('text-2xl font-black leading-tight', color)}>
+                {value}
+              </p>
               <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>
             </div>
             <Icon className={cn('h-7 w-7 shrink-0 opacity-60', iconColor)} />
@@ -133,13 +210,24 @@ export default function CalendarioPage() {
         <CardHeader className="pb-0 px-5 pt-5">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3 flex-wrap">
-              <h2 className="text-lg font-black text-gray-900 capitalize">{titleLabel}</h2>
+              <h2 className="text-lg font-black text-gray-900 capitalize">
+                {titleLabel}
+              </h2>
               {vista === 'mes' && (
                 <>
-                  <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">{days.length} días</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="bg-gray-100 text-gray-600 text-xs"
+                  >
+                    {days.length} días
+                  </Badge>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-lg"
+                      >
                         <CalendarDays className="h-3.5 w-3.5 text-gray-500" />
                       </Button>
                     </PopoverTrigger>
@@ -148,7 +236,16 @@ export default function CalendarioPage() {
                         {Array.from({ length: 12 }).map((_, i) => {
                           const m = new Date(currentDate.getFullYear(), i, 1)
                           return (
-                            <button key={i} onClick={() => setFecha(m)} className={cn('rounded-lg px-2 py-1.5 text-xs font-medium capitalize transition-colors', i === currentDate.getMonth() ? 'bg-brand-azul text-white' : 'text-gray-700 hover:bg-gray-100')}>
+                            <button
+                              key={i}
+                              onClick={() => setFecha(m)}
+                              className={cn(
+                                'rounded-lg px-2 py-1.5 text-xs font-medium capitalize transition-colors',
+                                i === currentDate.getMonth()
+                                  ? 'bg-brand-azul text-white'
+                                  : 'text-gray-700 hover:bg-gray-100'
+                              )}
+                            >
                               {format(m, 'MMM', { locale: es })}
                             </button>
                           )
@@ -163,16 +260,46 @@ export default function CalendarioPage() {
             <div className="flex items-center gap-2">
               <div className="flex rounded-xl border border-gray-200 p-0.5 gap-0.5">
                 {VISTAS.map(({ key, label, Icon }) => (
-                  <button key={key} onClick={() => setVista(key)} className={cn('flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors', vista === key ? 'bg-brand-azul text-white' : 'text-gray-500 hover:bg-gray-100')}>
+                  <button
+                    key={key}
+                    onClick={() => setVista(key)}
+                    className={cn(
+                      'flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors',
+                      vista === key
+                        ? 'bg-brand-azul text-white'
+                        : 'text-gray-500 hover:bg-gray-100'
+                    )}
+                  >
                     <Icon className="h-3 w-3" />
                     {label}
                   </button>
                 ))}
               </div>
               <div className="flex gap-1">
-                <Button variant="outline" size="icon" className="h-8 w-8 rounded-xl" onClick={handlePrev}><ChevronLeft className="h-4 w-4" /></Button>
-                <Button variant="outline" size="sm" className="h-8 rounded-xl px-3 text-xs font-semibold" onClick={() => setFecha(new Date())}>Hoy</Button>
-                <Button variant="outline" size="icon" className="h-8 w-8 rounded-xl" onClick={handleNext}><ChevronRight className="h-4 w-4" /></Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 rounded-xl"
+                  onClick={handlePrev}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 rounded-xl px-3 text-xs font-semibold"
+                  onClick={() => setFecha(new Date())}
+                >
+                  Hoy
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 rounded-xl"
+                  onClick={handleNext}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
@@ -182,18 +309,30 @@ export default function CalendarioPage() {
           {vista === 'mes' && (
             <>
               <div className="grid grid-cols-7 gap-px mb-1">
-                {DAYS.map((d) => <div key={d} className="text-center text-[11px] font-bold uppercase tracking-wider text-gray-400 py-2">{d}</div>)}
+                {DAYS.map((d) => (
+                  <div
+                    key={d}
+                    className="text-center text-[11px] font-bold uppercase tracking-wider text-gray-400 py-2"
+                  >
+                    {d}
+                  </div>
+                ))}
               </div>
               <div className="grid grid-cols-7 gap-1 animate-fade-in">
-                {Array.from({ length: startOffset }).map((_, i) => <div key={`empty-${i}`} className="h-[88px] sm:h-24 rounded-xl bg-gray-50/40" />)}
+                {Array.from({ length: startOffset }).map((_, i) => (
+                  <div
+                    key={`empty-${i}`}
+                    className="h-[88px] sm:h-24 rounded-xl bg-gray-50/40"
+                  />
+                ))}
                 {days.map((day) => (
-                  <CalendarioCelda 
-                    key={day.toISOString()} 
-                    day={day} 
-                    disp={getDisp(day)} 
-                    loading={isLoading} 
-                    selected={!!selectedDate && isSameDay(selectedDate, day)} 
-                    onSelect={handleSelectDay} 
+                  <CalendarioCelda
+                    key={day.toISOString()}
+                    day={day}
+                    disp={getDisp(day)}
+                    loading={isLoading}
+                    selected={!!selectedDate && isSameDay(selectedDate, day)}
+                    onSelect={handleSelectDay}
                   />
                 ))}
               </div>
@@ -211,7 +350,9 @@ export default function CalendarioPage() {
             />
           )}
 
-          {vista === 'dia' && <CalendarioDia fecha={currentDate} idSede={sede} />}
+          {vista === 'dia' && (
+            <CalendarioDia fecha={currentDate} idSede={sede} />
+          )}
         </CardContent>
       </Card>
 

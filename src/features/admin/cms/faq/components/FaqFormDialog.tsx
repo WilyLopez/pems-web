@@ -54,7 +54,11 @@ export function FaqFormDialog({
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar Pregunta Frecuente' : 'Nueva Pregunta Frecuente'}</DialogTitle>
+          <DialogTitle>
+            {isEditing
+              ? 'Editar Pregunta Frecuente'
+              : 'Nueva Pregunta Frecuente'}
+          </DialogTitle>
         </DialogHeader>
         <form
           onSubmit={handleSubmit((data) => onSubmit(data))}

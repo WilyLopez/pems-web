@@ -100,7 +100,6 @@ export const VentasListView = () => {
         ventaId={selectedVentaId}
         onClose={() => setSelectedVentaId(null)}
       />
-
     </div>
   )
 }

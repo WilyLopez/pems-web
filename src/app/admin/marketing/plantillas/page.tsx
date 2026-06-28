@@ -16,12 +16,17 @@ export default function PlantillasPage() {
   const [crearOpen, setCrearOpen] = useState(false)
   const queryClient = useQueryClient()
 
-  const { data: plantillas, isLoading, refetch } = useQuery({
+  const {
+    data: plantillas,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['plantillas'],
     queryFn: () => marketingService.listarPlantillas(0, 50),
   })
 
-  const invalidar = () => queryClient.invalidateQueries({ queryKey: ['plantillas'] })
+  const invalidar = () =>
+    queryClient.invalidateQueries({ queryKey: ['plantillas'] })
 
   return (
     <div className="space-y-5">
@@ -85,7 +90,9 @@ export default function PlantillasPage() {
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 truncate">{p.nombre}</h3>
-                <p className="text-sm text-gray-500 truncate mt-0.5">{p.asunto}</p>
+                <p className="text-sm text-gray-500 truncate mt-0.5">
+                  {p.asunto}
+                </p>
               </div>
               <div className="flex items-center justify-between pt-1">
                 <span

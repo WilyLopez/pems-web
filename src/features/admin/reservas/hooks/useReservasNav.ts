@@ -22,7 +22,7 @@ export function useReservasNav() {
   const search = searchParams.get('search') || ''
   const estado = (searchParams.get('estado') || '') as EstadoReserva | ''
   const fecha = searchParams.get('fecha') || ''
-  
+
   const ingresado = useMemo(() => {
     const ing = searchParams.get('ingresado')
     if (ing === 'true') return true
@@ -30,51 +30,81 @@ export function useReservasNav() {
     return undefined
   }, [searchParams])
 
-  const modal = searchParams.get('modal') 
-  const actionId = searchParams.get('actionId') 
-  const drawerId = searchParams.get('drawerId') 
+  const modal = searchParams.get('modal')
+  const actionId = searchParams.get('actionId')
+  const drawerId = searchParams.get('drawerId')
 
-  const updateParams = useCallback((updates: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams.toString())
-    Object.entries(updates).forEach(([name, value]) => {
-      if (value) {
-        params.set(name, value)
-      } else {
-        params.delete(name)
-      }
-    })
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
-  }, [pathname, router, searchParams])
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString())
+      Object.entries(updates).forEach(([name, value]) => {
+        if (value) {
+          params.set(name, value)
+        } else {
+          params.delete(name)
+        }
+      })
+      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    },
+    [pathname, router, searchParams]
+  )
 
-  const setPage = useCallback((p: number) => updateParams({ page: p > 0 ? p.toString() : null }), [updateParams])
-  
-  const setSize = useCallback((s: number) => {
-    updateParams({ size: s.toString(), page: null })
-  }, [updateParams])
+  const setPage = useCallback(
+    (p: number) => updateParams({ page: p > 0 ? p.toString() : null }),
+    [updateParams]
+  )
 
-  const setSearch = useCallback((s: string) => {
-    updateParams({ search: s || null, page: null })
-  }, [updateParams])
+  const setSize = useCallback(
+    (s: number) => {
+      updateParams({ size: s.toString(), page: null })
+    },
+    [updateParams]
+  )
 
-  const setEstado = useCallback((e: string) => {
-    updateParams({ estado: e || null, page: null })
-  }, [updateParams])
+  const setSearch = useCallback(
+    (s: string) => {
+      updateParams({ search: s || null, page: null })
+    },
+    [updateParams]
+  )
 
-  const setFecha = useCallback((f: string) => {
-    updateParams({ fecha: f || null, page: null })
-  }, [updateParams])
+  const setEstado = useCallback(
+    (e: string) => {
+      updateParams({ estado: e || null, page: null })
+    },
+    [updateParams]
+  )
 
-  const setIngresado = useCallback((ing?: boolean) => {
-    updateParams({ ingresado: ing !== undefined ? String(ing) : null, page: null })
-  }, [updateParams])
+  const setFecha = useCallback(
+    (f: string) => {
+      updateParams({ fecha: f || null, page: null })
+    },
+    [updateParams]
+  )
 
-  const openAction = useCallback((m: string, id: number) => {
-    updateParams({ modal: m, actionId: id.toString() })
-  }, [updateParams])
+  const setIngresado = useCallback(
+    (ing?: boolean) => {
+      updateParams({
+        ingresado: ing !== undefined ? String(ing) : null,
+        page: null,
+      })
+    },
+    [updateParams]
+  )
 
-  const openDrawer = useCallback((id: number) => {
-    updateParams({ drawerId: id.toString() })
-  }, [updateParams])
+  const openAction = useCallback(
+    (m: string, id: number) => {
+      updateParams({ modal: m, actionId: id.toString() })
+    },
+    [updateParams]
+  )
+
+  const openDrawer = useCallback(
+    (id: number) => {
+      updateParams({ drawerId: id.toString() })
+    },
+    [updateParams]
+  )
 
   const openFidelizacion = useCallback(() => {
     updateParams({ modal: 'fidelizacion' })

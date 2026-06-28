@@ -76,8 +76,17 @@ export const ACCIONES = [
   'MARCAR_SPAM',
 ] as const
 
-export const NIVELES: NivelAuditoria[] = ['INFO', 'WARNING', 'ERROR', 'CRITICAL']
-export const RESULTADOS: ResultadoAuditoria[] = ['EXITOSO', 'FALLIDO', 'PARCIAL']
+export const NIVELES: NivelAuditoria[] = [
+  'INFO',
+  'WARNING',
+  'ERROR',
+  'CRITICAL',
+]
+export const RESULTADOS: ResultadoAuditoria[] = [
+  'EXITOSO',
+  'FALLIDO',
+  'PARCIAL',
+]
 
 export function resolverRutaEntidad(
   modulo: string,

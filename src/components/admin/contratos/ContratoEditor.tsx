@@ -12,7 +12,11 @@ interface ContratoEditorProps {
   readOnly?: boolean
 }
 
-export function ContratoEditor({ value, onChange, readOnly }: ContratoEditorProps) {
+export function ContratoEditor({
+  value,
+  onChange,
+  readOnly,
+}: ContratoEditorProps) {
   const [vista, setVista] = useState<'editor' | 'preview' | 'split'>('split')
 
   return (
@@ -21,9 +25,9 @@ export function ContratoEditor({ value, onChange, readOnly }: ContratoEditorProp
         <div className="flex items-center bg-gray-100 rounded-xl p-1 gap-0.5">
           {(
             [
-              { v: 'editor',  icon: Code,    label: 'Editor' },
-              { v: 'split',   icon: Columns2, label: 'Dividido' },
-              { v: 'preview', icon: Eye,     label: 'Vista previa' },
+              { v: 'editor', icon: Code, label: 'Editor' },
+              { v: 'split', icon: Columns2, label: 'Dividido' },
+              { v: 'preview', icon: Eye, label: 'Vista previa' },
             ] as const
           ).map(({ v, icon: Icon, label }) => (
             <button
@@ -50,7 +54,12 @@ export function ContratoEditor({ value, onChange, readOnly }: ContratoEditorProp
         )}
       >
         {(vista === 'editor' || vista === 'split') && (
-          <div className={cn('relative', vista === 'split' && 'border-r border-gray-200')}>
+          <div
+            className={cn(
+              'relative',
+              vista === 'split' && 'border-r border-gray-200'
+            )}
+          >
             {vista === 'split' && (
               <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-100 text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
                 Editor

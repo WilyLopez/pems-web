@@ -5,7 +5,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { Loader2, X, Monitor, Smartphone, Info, FlaskConical } from 'lucide-react'
+import {
+  Loader2,
+  X,
+  Monitor,
+  Smartphone,
+  Info,
+  FlaskConical,
+} from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { marketingService } from '@/services/marketing.service'
@@ -14,7 +21,9 @@ import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 
 const schema = z.object({
-  tipoEmailCodigo: z.string().min(1, { message: 'Selecciona un tipo de email' }),
+  tipoEmailCodigo: z
+    .string()
+    .min(1, { message: 'Selecciona un tipo de email' }),
   nombre: z
     .string()
     .min(1, { message: 'El nombre es obligatorio' })
@@ -23,7 +32,9 @@ const schema = z.object({
     .string()
     .min(1, { message: 'El asunto es obligatorio' })
     .max(200, { message: 'Maximo 200 caracteres' }),
-  contenidoHtml: z.string().min(1, { message: 'El contenido HTML es obligatorio' }),
+  contenidoHtml: z
+    .string()
+    .min(1, { message: 'El contenido HTML es obligatorio' }),
   variablesPermitidas: z.string().optional().or(z.literal('')),
   contenidoFallback: z.string().optional().or(z.literal('')),
 })
@@ -91,7 +102,10 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
   const htmlRaw = watch('contenidoHtml') ?? ''
   const variablesRaw = watch('variablesPermitidas') ?? ''
 
-  const variablesDeclaradas = useMemo(() => parseVariables(variablesRaw), [variablesRaw])
+  const variablesDeclaradas = useMemo(
+    () => parseVariables(variablesRaw),
+    [variablesRaw]
+  )
 
   const htmlPreview = useMemo(() => {
     const merged = { ...VARIABLES_SISTEMA, ...datosPrueba }
@@ -122,21 +136,29 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1200px] max-h-[92vh] flex flex-col">
-
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
-            <h2 className="font-bold text-gray-900">Nueva plantilla de email</h2>
-            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-xl">
+            <h2 className="font-bold text-gray-900">
+              Nueva plantilla de email
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="rounded-xl"
+            >
               <X className="h-5 w-5" />
             </Button>
           </div>
 
           {/* Body: 3 columnas */}
           <div className="flex flex-1 min-h-0 overflow-hidden">
-
             {/* ── Col 1: Formulario ── */}
             <form
               id="plantilla-form"
@@ -151,24 +173,44 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                 >
                   <option value="">Seleccionar...</option>
                   {tipos?.map((t) => (
-                    <option key={t.codigo} value={t.codigo}>{t.nombre}</option>
+                    <option key={t.codigo} value={t.codigo}>
+                      {t.nombre}
+                    </option>
                   ))}
                 </select>
                 {errors.tipoEmailCodigo && (
-                  <p className="text-xs text-red-500">{errors.tipoEmailCodigo.message}</p>
+                  <p className="text-xs text-red-500">
+                    {errors.tipoEmailCodigo.message}
+                  </p>
                 )}
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs">Nombre *</Label>
-                <Input {...register('nombre')} placeholder="Ej: Bienvenida nuevo cliente" className="text-sm" />
-                {errors.nombre && <p className="text-xs text-red-500">{errors.nombre.message}</p>}
+                <Input
+                  {...register('nombre')}
+                  placeholder="Ej: Bienvenida nuevo cliente"
+                  className="text-sm"
+                />
+                {errors.nombre && (
+                  <p className="text-xs text-red-500">
+                    {errors.nombre.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs">Asunto del correo *</Label>
-                <Input {...register('asunto')} placeholder="Ej: ¡Bienvenido a Kiki y Lala!" className="text-sm" />
-                {errors.asunto && <p className="text-xs text-red-500">{errors.asunto.message}</p>}
+                <Input
+                  {...register('asunto')}
+                  placeholder="Ej: ¡Bienvenido a Kiki y Lala!"
+                  className="text-sm"
+                />
+                {errors.asunto && (
+                  <p className="text-xs text-red-500">
+                    {errors.asunto.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -181,7 +223,11 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                   className="text-sm font-mono"
                 />
                 <p className="text-[11px] text-gray-400">
-                  Separa por comas. Usa <code className="bg-gray-100 px-1 rounded">{'{{variable}}'}</code> en el HTML.
+                  Separa por comas. Usa{' '}
+                  <code className="bg-gray-100 px-1 rounded">
+                    {'{{variable}}'}
+                  </code>{' '}
+                  en el HTML.
                 </p>
 
                 {/* Sugerencias de variables */}
@@ -192,16 +238,28 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                   </div>
                   <ul className="space-y-1">
                     {VARIABLE_SUGERIDAS.map((v) => (
-                      <li key={v.nombre} className="flex items-baseline gap-1.5">
+                      <li
+                        key={v.nombre}
+                        className="flex items-baseline gap-1.5"
+                      >
                         <code className="text-[10px] bg-blue-100 text-blue-800 px-1 rounded shrink-0">
                           {`{{${v.nombre}}}`}
                         </code>
-                        <span className="text-[10px] text-blue-600">{v.desc}</span>
+                        <span className="text-[10px] text-blue-600">
+                          {v.desc}
+                        </span>
                       </li>
                     ))}
                   </ul>
                   <p className="text-[10px] text-blue-500 pt-1 border-t border-blue-100">
-                    Las variables de sistema se reemplazan automaticamente. Para el logo usa <code className="bg-blue-100 px-0.5 rounded">{'{{logoUrl}}'}</code> en lugar de <code className="bg-blue-100 px-0.5 rounded">cid:logo</code>.
+                    Las variables de sistema se reemplazan automaticamente. Para
+                    el logo usa{' '}
+                    <code className="bg-blue-100 px-0.5 rounded">
+                      {'{{logoUrl}}'}
+                    </code>{' '}
+                    en lugar de{' '}
+                    <code className="bg-blue-100 px-0.5 rounded">cid:logo</code>
+                    .
                   </p>
                 </div>
               </div>
@@ -211,11 +269,15 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                 <textarea
                   {...register('contenidoHtml')}
                   rows={12}
-                  placeholder={'<!DOCTYPE html>\n<html>\n<body>\n  <h1>Hola, {{nombre}}!</h1>\n  <img src="{{logoUrl}}" alt="Logo"/>\n</body>\n</html>'}
+                  placeholder={
+                    '<!DOCTYPE html>\n<html>\n<body>\n  <h1>Hola, {{nombre}}!</h1>\n  <img src="{{logoUrl}}" alt="Logo"/>\n</body>\n</html>'
+                  }
                   className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-azul/30 resize-none leading-relaxed"
                 />
                 {errors.contenidoHtml && (
-                  <p className="text-xs text-red-500">{errors.contenidoHtml.message}</p>
+                  <p className="text-xs text-red-500">
+                    {errors.contenidoHtml.message}
+                  </p>
                 )}
               </div>
 
@@ -254,16 +316,27 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                         <label className="flex items-center gap-1 text-[11px] font-semibold text-gray-600">
                           <code className="font-mono text-brand-azul">{`{{${v}}}`}</code>
                           {esSistema && (
-                            <span className="text-[9px] bg-gray-100 text-gray-400 px-1 rounded">sistema</span>
+                            <span className="text-[9px] bg-gray-100 text-gray-400 px-1 rounded">
+                              sistema
+                            </span>
                           )}
                         </label>
                         <input
                           type="text"
-                          placeholder={esSistema ? VARIABLES_SISTEMA[v] : `valor de ${v}`}
+                          placeholder={
+                            esSistema ? VARIABLES_SISTEMA[v] : `valor de ${v}`
+                          }
                           disabled={esSistema}
-                          value={esSistema ? VARIABLES_SISTEMA[v] : (datosPrueba[v] ?? '')}
+                          value={
+                            esSistema
+                              ? VARIABLES_SISTEMA[v]
+                              : (datosPrueba[v] ?? '')
+                          }
                           onChange={(e) =>
-                            setDatosPrueba((prev) => ({ ...prev, [v]: e.target.value }))
+                            setDatosPrueba((prev) => ({
+                              ...prev,
+                              [v]: e.target.value,
+                            }))
                           }
                           className="w-full rounded-lg border border-gray-200 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-brand-azul/30 disabled:bg-gray-50 disabled:text-gray-400"
                         />
@@ -275,7 +348,9 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                 {/* Variables de sistema siempre activas */}
                 {variablesDeclaradas.length > 0 && (
                   <div className="pt-2 border-t border-gray-100">
-                    <p className="text-[10px] text-gray-400 mb-1.5">Siempre disponibles:</p>
+                    <p className="text-[10px] text-gray-400 mb-1.5">
+                      Siempre disponibles:
+                    </p>
                     {Object.entries(VARIABLES_SISTEMA).map(([k, v]) =>
                       !variablesDeclaradas.includes(k) ? (
                         <div key={k} className="space-y-0.5 mb-2">
@@ -308,7 +383,9 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                     onClick={() => setDevice('desktop')}
                     title="Escritorio"
                     className={`p-1.5 rounded-md transition-colors ${
-                      device === 'desktop' ? 'bg-brand-azul text-white' : 'text-gray-400 hover:text-gray-600'
+                      device === 'desktop'
+                        ? 'bg-brand-azul text-white'
+                        : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     <Monitor className="h-3.5 w-3.5" />
@@ -318,7 +395,9 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                     onClick={() => setDevice('mobile')}
                     title="Movil"
                     className={`p-1.5 rounded-md transition-colors ${
-                      device === 'mobile' ? 'bg-brand-azul text-white' : 'text-gray-400 hover:text-gray-600'
+                      device === 'mobile'
+                        ? 'bg-brand-azul text-white'
+                        : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     <Smartphone className="h-3.5 w-3.5" />
@@ -346,7 +425,9 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
                   <div className="flex flex-col items-center justify-center gap-3 text-gray-300 py-16">
                     <Monitor className="h-12 w-12" />
                     <p className="text-sm text-center">
-                      Escribe el contenido HTML<br />para ver la vista previa aqui
+                      Escribe el contenido HTML
+                      <br />
+                      para ver la vista previa aqui
                     </p>
                   </div>
                 )}
@@ -356,7 +437,12 @@ export function CrearPlantillaDialog({ open, onClose, onCreated }: Props) {
 
           {/* Footer */}
           <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 shrink-0 bg-white">
-            <Button variant="outline" type="button" onClick={onClose} className="rounded-xl">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={onClose}
+              className="rounded-xl"
+            >
               Cancelar
             </Button>
             <Button

@@ -1,7 +1,10 @@
 import React from 'react'
 import { Monitor, Globe, Smartphone } from 'lucide-react'
 
-const CANAL_MAP: Record<string, { label: string; Icon: React.ElementType; cls: string }> = {
+const CANAL_MAP: Record<
+  string,
+  { label: string; Icon: React.ElementType; cls: string }
+> = {
   MOSTRADOR: {
     label: 'Presencial',
     Icon: Monitor,
@@ -30,7 +33,9 @@ export const CanalBadge = ({ canal }: { canal: string }) => {
   }
   const { label, Icon, cls } = config
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${cls}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${cls}`}
+    >
       <Icon className="h-2.5 w-2.5" />
       {label}
     </span>

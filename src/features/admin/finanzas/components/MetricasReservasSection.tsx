@@ -45,7 +45,12 @@ export function MetricasReservasSection({ metricas }: Props) {
             key={label}
             className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2"
           >
-            <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', color)}>
+            <div
+              className={cn(
+                'w-9 h-9 rounded-xl flex items-center justify-center',
+                color
+              )}
+            >
               <Icon className="h-4 w-4" />
             </div>
             <div>
@@ -58,12 +63,20 @@ export function MetricasReservasSection({ metricas }: Props) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <p className="text-xs font-semibold text-gray-500 mb-1">Ingresos por efectivo (CAJA)</p>
-          <p className="text-lg font-black text-emerald-700">{formatCurrency(metricas.ingresoEfectivo)}</p>
+          <p className="text-xs font-semibold text-gray-500 mb-1">
+            Ingresos por efectivo (CAJA)
+          </p>
+          <p className="text-lg font-black text-emerald-700">
+            {formatCurrency(metricas.ingresoEfectivo)}
+          </p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <p className="text-xs font-semibold text-gray-500 mb-1">Ingresos por Yape</p>
-          <p className="text-lg font-black text-purple-700">{formatCurrency(metricas.ingresoYape)}</p>
+          <p className="text-xs font-semibold text-gray-500 mb-1">
+            Ingresos por Yape
+          </p>
+          <p className="text-lg font-black text-purple-700">
+            {formatCurrency(metricas.ingresoYape)}
+          </p>
         </div>
       </div>
     </div>

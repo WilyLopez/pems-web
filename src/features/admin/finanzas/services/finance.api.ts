@@ -41,12 +41,19 @@ export const financeApi = {
   },
 
   listarTiposEgresoPorCategoria: async (cat: string): Promise<TipoEgreso[]> => {
-    const { data } = await api.get<ApiResponse<TipoEgreso[]>>(`/tipos-egreso/categoria/${cat}`)
+    const { data } = await api.get<ApiResponse<TipoEgreso[]>>(
+      `/tipos-egreso/categoria/${cat}`
+    )
     return data.data
   },
 
-  crearTipoEgreso: async (payload: CrearTipoEgresoPayload): Promise<TipoEgreso> => {
-    const { data } = await api.post<ApiResponse<TipoEgreso>>('/tipos-egreso', payload)
+  crearTipoEgreso: async (
+    payload: CrearTipoEgresoPayload
+  ): Promise<TipoEgreso> => {
+    const { data } = await api.post<ApiResponse<TipoEgreso>>(
+      '/tipos-egreso',
+      payload
+    )
     return data.data
   },
 
@@ -101,8 +108,14 @@ export const financeApi = {
     return data.data
   },
 
-  actualizarEgreso: async (id: number, payload: ActualizarEgresoPayload): Promise<RegistroEgreso> => {
-    const { data } = await api.put<ApiResponse<RegistroEgreso>>(`/egresos/${id}`, payload)
+  actualizarEgreso: async (
+    id: number,
+    payload: ActualizarEgresoPayload
+  ): Promise<RegistroEgreso> => {
+    const { data } = await api.put<ApiResponse<RegistroEgreso>>(
+      `/egresos/${id}`,
+      payload
+    )
     return data.data
   },
 
@@ -128,7 +141,10 @@ export const financeApi = {
     return data.data
   },
 
-  eliminarGastoEvento: async (idEvento: number, idGasto: number): Promise<void> => {
+  eliminarGastoEvento: async (
+    idEvento: number,
+    idGasto: number
+  ): Promise<void> => {
     await api.delete(`/eventos-privados/${idEvento}/gastos/${idGasto}`)
   },
 
@@ -182,7 +198,10 @@ export const financeApi = {
     id: number,
     payload: ActualizarGastoOperativoPayload
   ): Promise<GastoOperativo> => {
-    const { data } = await api.put<ApiResponse<GastoOperativo>>(`/gastos-operativos/${id}`, payload)
+    const { data } = await api.put<ApiResponse<GastoOperativo>>(
+      `/gastos-operativos/${id}`,
+      payload
+    )
     return data.data
   },
 
@@ -252,8 +271,13 @@ export const financeApi = {
     return data.data
   },
 
-  crearTipoIngreso: async (payload: CrearTipoIngresoPayload): Promise<TipoIngreso> => {
-    const { data } = await api.post<ApiResponse<TipoIngreso>>('/tipos-ingreso', payload)
+  crearTipoIngreso: async (
+    payload: CrearTipoIngresoPayload
+  ): Promise<TipoIngreso> => {
+    const { data } = await api.post<ApiResponse<TipoIngreso>>(
+      '/tipos-ingreso',
+      payload
+    )
     return data.data
   },
 
@@ -300,7 +324,10 @@ export const financeApi = {
     await api.delete(`/ingresos/${id}`)
   },
 
-  obtenerCaja: async (idSede: number, fecha: string): Promise<AperturaCaja | null> => {
+  obtenerCaja: async (
+    idSede: number,
+    fecha: string
+  ): Promise<AperturaCaja | null> => {
     try {
       const { data } = await api.get<ApiResponse<AperturaCaja>>(
         `/caja/sedes/${idSede}/fecha/${fecha}`
@@ -310,11 +337,14 @@ export const financeApi = {
       if (err?.response?.status === 404) {
         return null
       }
-      throw err;
+      throw err
     }
   },
 
-  abrirCaja: async (idSede: number, payload: AbrirCajaPayload): Promise<AperturaCaja> => {
+  abrirCaja: async (
+    idSede: number,
+    payload: AbrirCajaPayload
+  ): Promise<AperturaCaja> => {
     const { data } = await api.post<ApiResponse<AperturaCaja>>(
       `/caja/sedes/${idSede}/abrir`,
       payload
@@ -322,7 +352,10 @@ export const financeApi = {
     return data.data
   },
 
-  cerrarCaja: async (idApertura: number, payload: CerrarCajaPayload): Promise<AperturaCaja> => {
+  cerrarCaja: async (
+    idApertura: number,
+    payload: CerrarCajaPayload
+  ): Promise<AperturaCaja> => {
     const { data } = await api.put<ApiResponse<AperturaCaja>>(
       `/caja/${idApertura}/cerrar`,
       payload
@@ -330,7 +363,9 @@ export const financeApi = {
     return data.data
   },
 
-  listarMovimientosCaja: async (idApertura: number): Promise<MovimientoCaja[]> => {
+  listarMovimientosCaja: async (
+    idApertura: number
+  ): Promise<MovimientoCaja[]> => {
     const { data } = await api.get<ApiResponse<MovimientoCaja[]>>(
       `/caja/${idApertura}/movimientos`
     )
@@ -339,7 +374,9 @@ export const financeApi = {
 
   obtenerCajaHoy: async (idSede: number): Promise<AperturaCaja | null> => {
     try {
-      const { data } = await api.get<ApiResponse<AperturaCaja>>(`/caja/sedes/${idSede}/hoy`)
+      const { data } = await api.get<ApiResponse<AperturaCaja>>(
+        `/caja/sedes/${idSede}/hoy`
+      )
       return data.data
     } catch (err: any) {
       if (err?.response?.status === 404) return null
@@ -348,12 +385,16 @@ export const financeApi = {
   },
 
   generarResumenCaja: async (idApertura: number): Promise<ResumenCaja> => {
-    const { data } = await api.get<ApiResponse<ResumenCaja>>(`/caja/${idApertura}/resumen`)
+    const { data } = await api.get<ApiResponse<ResumenCaja>>(
+      `/caja/${idApertura}/resumen`
+    )
     return data.data
   },
 
   listarArqueosCaja: async (idApertura: number): Promise<ArqueoCaja[]> => {
-    const { data } = await api.get<ApiResponse<ArqueoCaja[]>>(`/caja/${idApertura}/arqueos`)
+    const { data } = await api.get<ApiResponse<ArqueoCaja[]>>(
+      `/caja/${idApertura}/arqueos`
+    )
     return data.data
   },
 
@@ -361,7 +402,10 @@ export const financeApi = {
     idApertura: number,
     payload: RegistrarArqueoPayload
   ): Promise<ArqueoCaja> => {
-    const { data } = await api.post<ApiResponse<ArqueoCaja>>(`/caja/${idApertura}/arqueos`, payload)
+    const { data } = await api.post<ApiResponse<ArqueoCaja>>(
+      `/caja/${idApertura}/arqueos`,
+      payload
+    )
     return data.data
   },
 
@@ -376,7 +420,9 @@ export const financeApi = {
     return data.data
   },
 
-  listarPresupuestosEvento: async (idEvento: number): Promise<PresupuestoEvento[]> => {
+  listarPresupuestosEvento: async (
+    idEvento: number
+  ): Promise<PresupuestoEvento[]> => {
     const { data } = await api.get<ApiResponse<PresupuestoEvento[]>>(
       `/presupuesto-eventos/eventos/${idEvento}`
     )

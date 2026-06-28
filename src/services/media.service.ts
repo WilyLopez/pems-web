@@ -22,16 +22,26 @@ export interface MediaResponse {
 }
 
 function resolverUrl(url: string): string {
-  if (!url || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
+  if (
+    !url ||
+    url.startsWith('http://') ||
+    url.startsWith('https://') ||
+    url.startsWith('blob:')
+  ) {
     return url
   }
   const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
-  const serverOrigin = apiBase.replace(/\/api\/v1\/?$/, '').replace(/\/api\/?$/, '')
+  const serverOrigin = apiBase
+    .replace(/\/api\/v1\/?$/, '')
+    .replace(/\/api\/?$/, '')
   return `${serverOrigin}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
 export const mediaService = {
-  upload: async (archivo: File, carpeta: CarpetaMedia): Promise<MediaResponse> => {
+  upload: async (
+    archivo: File,
+    carpeta: CarpetaMedia
+  ): Promise<MediaResponse> => {
     const formData = new FormData()
     formData.append('archivo', archivo)
     formData.append('carpeta', carpeta)

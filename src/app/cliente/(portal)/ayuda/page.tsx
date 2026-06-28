@@ -92,7 +92,9 @@ function AyudaContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
-  const whatsappUrl = useWhatsAppUrl('Hola, tengo una consulta sobre mi área de cliente')
+  const whatsappUrl = useWhatsAppUrl(
+    'Hola, tengo una consulta sobre mi área de cliente'
+  )
 
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
@@ -115,7 +117,8 @@ function AyudaContent() {
           Guía y Centro de ayuda
         </h1>
         <p className="text-sm text-gray-500">
-          Aquí encontrarás todo lo que necesitas saber para reservar una entrada o solicitar tu evento privado.
+          Aquí encontrarás todo lo que necesitas saber para reservar una entrada
+          o solicitar tu evento privado.
         </p>
       </div>
 
@@ -124,7 +127,9 @@ function AyudaContent() {
           onClick={() => setTab('ticket')}
           className={cn(
             'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all',
-            activeTab === 'ticket' ? 'bg-white text-brand-azul shadow-sm' : 'text-gray-500 hover:text-gray-900'
+            activeTab === 'ticket'
+              ? 'bg-white text-brand-azul shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
           )}
         >
           <Ticket className="h-4 w-4" />
@@ -134,7 +139,9 @@ function AyudaContent() {
           onClick={() => setTab('evento')}
           className={cn(
             'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all',
-            activeTab === 'evento' ? 'bg-white text-brand-rosa shadow-sm' : 'text-gray-500 hover:text-gray-900'
+            activeTab === 'evento'
+              ? 'bg-white text-brand-rosa shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
           )}
         >
           <PartyPopper className="h-4 w-4" />
@@ -176,8 +183,12 @@ function AyudaContent() {
                     {item.step}
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-gray-900">{item.title}</h3>
-                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                    <h3 className="text-sm font-bold text-gray-900">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      {item.desc}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -193,12 +204,17 @@ function AyudaContent() {
                   <MessageCircle className="h-4 w-4 fill-white" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-900">¿Aún necesitas ayuda?</p>
-                  <p className="text-[10px] text-green-800">Soporte por WhatsApp activo</p>
+                  <p className="text-xs font-bold text-gray-900">
+                    ¿Aún necesitas ayuda?
+                  </p>
+                  <p className="text-[10px] text-green-800">
+                    Soporte por WhatsApp activo
+                  </p>
                 </div>
               </div>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Si tienes alguna duda con tu reserva o evento, escríbenos directamente y te respondemos rápido.
+                Si tienes alguna duda con tu reserva o evento, escríbenos
+                directamente y te respondemos rápido.
               </p>
               <a
                 href={whatsappUrl}

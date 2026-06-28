@@ -4,7 +4,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { legalService } from '@/services/legal.service'
 import { CMS_QUERY_KEYS } from '@/features/admin/cms/shared/queryKeys'
-import { ActualizarContenidoLegalPayload, CrearContenidoLegalPayload } from '@/types/legal.types'
+import {
+  ActualizarContenidoLegalPayload,
+  CrearContenidoLegalPayload,
+} from '@/types/legal.types'
 
 export function useContenidoLegalPublico(tipo: string) {
   return useQuery({
@@ -71,7 +74,9 @@ export function useToggleLegal() {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['legal-documentos'] })
       qc.invalidateQueries({ queryKey: ['legal'] })
-      toast.success(data.activo ? 'Documento activado.' : 'Documento desactivado.')
+      toast.success(
+        data.activo ? 'Documento activado.' : 'Documento desactivado.'
+      )
     },
     onError: () => toast.error('No se pudo cambiar el estado del documento.'),
   })

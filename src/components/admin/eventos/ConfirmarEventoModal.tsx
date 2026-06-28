@@ -21,7 +21,11 @@ import {
 import { useConfirmarEvento } from '@/hooks/useEventos'
 import { useGenerarContrato } from '@/hooks/useContratos'
 import { EventoPrivado, ModalidadPago, PagoItem } from '@/types/evento.types'
-import { PLANTILLAS, PlantillaId, aplicarPlantilla } from '@/types/contrato.types'
+import {
+  PLANTILLAS,
+  PlantillaId,
+  aplicarPlantilla,
+} from '@/types/contrato.types'
 import { formatCurrency, formatDate, cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -41,7 +45,10 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { MultiMedioPago } from '@/features/admin/eventos/components/forms/MultiMedioPago'
-import { PlanCuotasBuilder, PlanCuotasValue } from '@/features/admin/eventos/components/forms/PlanCuotasBuilder'
+import {
+  PlanCuotasBuilder,
+  PlanCuotasValue,
+} from '@/features/admin/eventos/components/forms/PlanCuotasBuilder'
 
 type Paso = 1 | 2 | 3
 
@@ -91,8 +98,8 @@ function StepIndicator({ paso }: { paso: Paso }) {
               n < paso
                 ? 'bg-green-500 text-white'
                 : n === paso
-                ? 'bg-brand-rosa text-white'
-                : 'bg-gray-100 text-gray-400'
+                  ? 'bg-brand-rosa text-white'
+                  : 'bg-gray-100 text-gray-400'
             )}
           >
             {n < paso ? <CheckCircle2 className="h-4 w-4" /> : n}
@@ -113,18 +120,28 @@ function StepIndicator({ paso }: { paso: Paso }) {
 }
 
 export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
-  const [paso, setPaso]                   = useState<Paso>(1)
-  const [precioData, setPrecioData]       = useState<PrecioData | null>(null)
-  const [pagosAdelanto, setPagosAdelanto] = useState<PagoItem[]>([{ medioPago: '', monto: 0 }])
-  const [modalidadPago, setModalidadPago] = useState<ModalidadPago>('AL_CONTADO')
-  const [planCuotas, setPlanCuotas]       = useState<PlanCuotasValue>({ numeroCuotas: 2, fechaLimitePago: '' })
-  const [pagoError, setPagoError]                     = useState<string | null>(null)
-  const [fechaLimitePagoContado, setFechaLimitePagoContado] = useState(evento.fechaEvento)
-  const [plantillaId, setPlantillaId]     = useState<PlantillaId | ''>('')
-  const [opcionContrato, setOpcionContrato] = useState<'plantilla' | 'manual' | 'omitir' | null>(null)
+  const [paso, setPaso] = useState<Paso>(1)
+  const [precioData, setPrecioData] = useState<PrecioData | null>(null)
+  const [pagosAdelanto, setPagosAdelanto] = useState<PagoItem[]>([
+    { medioPago: '', monto: 0 },
+  ])
+  const [modalidadPago, setModalidadPago] =
+    useState<ModalidadPago>('AL_CONTADO')
+  const [planCuotas, setPlanCuotas] = useState<PlanCuotasValue>({
+    numeroCuotas: 2,
+    fechaLimitePago: '',
+  })
+  const [pagoError, setPagoError] = useState<string | null>(null)
+  const [fechaLimitePagoContado, setFechaLimitePagoContado] = useState(
+    evento.fechaEvento
+  )
+  const [plantillaId, setPlantillaId] = useState<PlantillaId | ''>('')
+  const [opcionContrato, setOpcionContrato] = useState<
+    'plantilla' | 'manual' | 'omitir' | null
+  >(null)
   const [contratoGenerado, setContratoGenerado] = useState(false)
 
-  const confirmar       = useConfirmarEvento()
+  const confirmar = useConfirmarEvento()
   const generarContrato = useGenerarContrato()
 
   const {
@@ -154,9 +171,9 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
     }
   }, [open, reset])
 
-  const precioTotal   = watch('precioTotal') ?? 0
+  const precioTotal = watch('precioTotal') ?? 0
   const montoAdelanto = watch('montoAdelanto') ?? 0
-  const saldo         = Math.max(0, precioTotal - montoAdelanto)
+  const saldo = Math.max(0, precioTotal - montoAdelanto)
 
   const telefonoLimpio = evento.telefonoCliente?.replace(/\D/g, '') ?? null
   const whatsappCliente = telefonoLimpio
@@ -170,14 +187,14 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
 
   const textoContrato = plantillaId
     ? aplicarPlantilla(PLANTILLAS[plantillaId].plantilla, {
-        nombreCliente:       evento.nombreCliente,
-        tipoEvento:          evento.tipoEvento,
-        fechaEvento:         evento.fechaEvento,
-        turno:               evento.turno,
-        aforoDeclarado:      evento.aforoDeclarado,
+        nombreCliente: evento.nombreCliente,
+        tipoEvento: evento.tipoEvento,
+        fechaEvento: evento.fechaEvento,
+        turno: evento.turno,
+        aforoDeclarado: evento.aforoDeclarado,
         precioTotalContrato: precioData?.precioTotal,
-        montoAdelanto:       precioData?.montoAdelanto,
-        saldoPendiente:      precioData
+        montoAdelanto: precioData?.montoAdelanto,
+        saldoPendiente: precioData
           ? precioData.precioTotal - precioData.montoAdelanto
           : undefined,
       })
@@ -205,7 +222,9 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
         return
       }
       if (new Date(fechaLimitePagoContado) > new Date(evento.fechaEvento)) {
-        setPagoError('La fecha límite no puede ser posterior al día del evento.')
+        setPagoError(
+          'La fecha límite no puede ser posterior al día del evento.'
+        )
         return
       }
     }
@@ -220,7 +239,9 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
         return
       }
       if (new Date(planCuotas.fechaLimitePago) > new Date(evento.fechaEvento)) {
-        setPagoError('La fecha límite no puede ser posterior al día del evento.')
+        setPagoError(
+          'La fecha límite no puede ser posterior al día del evento.'
+        )
         return
       }
     }
@@ -231,7 +252,10 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
       pagosAdelanto: values.montoAdelanto > 0 ? pagosAdelanto : [],
       modalidadPago,
       ...(modalidadPago === 'CUOTAS'
-        ? { numeroCuotas: planCuotas.numeroCuotas, fechaLimitePago: planCuotas.fechaLimitePago }
+        ? {
+            numeroCuotas: planCuotas.numeroCuotas,
+            fechaLimitePago: planCuotas.fechaLimitePago,
+          }
         : { fechaLimitePago: fechaLimitePagoContado }),
     })
     setPaso(3)
@@ -240,7 +264,10 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
   function handleGenerarContrato() {
     if (!plantillaId || !precioData) return
     generarContrato.mutate(
-      { idEvento: evento.id, payload: { contenidoTexto: textoContrato, plantilla: plantillaId } },
+      {
+        idEvento: evento.id,
+        payload: { contenidoTexto: textoContrato, plantilla: plantillaId },
+      },
       {
         onSuccess: () => {
           setContratoGenerado(true)
@@ -256,11 +283,14 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
       {
         id: evento.id,
         payload: {
-          precioTotal:     precioData.precioTotal,
-          montoAdelanto:   precioData.montoAdelanto,
-          pagosAdelanto:   precioData.pagosAdelanto.length > 0 ? precioData.pagosAdelanto : undefined,
-          modalidadPago:   precioData.modalidadPago,
-          numeroCuotas:    precioData.numeroCuotas,
+          precioTotal: precioData.precioTotal,
+          montoAdelanto: precioData.montoAdelanto,
+          pagosAdelanto:
+            precioData.pagosAdelanto.length > 0
+              ? precioData.pagosAdelanto
+              : undefined,
+          modalidadPago: precioData.modalidadPago,
+          numeroCuotas: precioData.numeroCuotas,
           fechaLimitePago: precioData.fechaLimitePago,
         },
       },
@@ -279,7 +309,9 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
         </DialogHeader>
 
         <div className="text-sm text-gray-500 mb-1">
-          <span className="font-semibold text-gray-900">{evento.tipoEvento}</span>
+          <span className="font-semibold text-gray-900">
+            {evento.tipoEvento}
+          </span>
           {' · '}
           {evento.nombreCliente}
           {' · '}
@@ -293,14 +325,18 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
             <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-gray-500 shrink-0" />
-                <p className="text-sm font-bold text-gray-900">{evento.nombreCliente}</p>
+                <p className="text-sm font-bold text-gray-900">
+                  {evento.nombreCliente}
+                </p>
               </div>
 
               {evento.correoCliente && (
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2 text-gray-600">
                     <Mail className="h-3.5 w-3.5 text-gray-400" />
-                    <span className="truncate max-w-[200px]">{evento.correoCliente}</span>
+                    <span className="truncate max-w-[200px]">
+                      {evento.correoCliente}
+                    </span>
                   </div>
                   {mailtoCliente && (
                     <a
@@ -345,23 +381,29 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
 
             <div className="bg-brand-rosa/5 rounded-xl border border-brand-rosa/10 p-3 text-xs text-gray-600 space-y-1">
               <p>
-                <span className="font-semibold">Turno:</span>{' '}
-                {evento.turno} · {evento.horaInicio} – {evento.horaFin}
+                <span className="font-semibold">Turno:</span> {evento.turno} ·{' '}
+                {evento.horaInicio} – {evento.horaFin}
               </p>
               {evento.aforoDeclarado && (
                 <p>
-                  <span className="font-semibold">Invitados:</span> {evento.aforoDeclarado} personas
+                  <span className="font-semibold">Invitados:</span>{' '}
+                  {evento.aforoDeclarado} personas
                 </p>
               )}
               {evento.observaciones && (
                 <p>
-                  <span className="font-semibold">Notas del cliente:</span> {evento.observaciones}
+                  <span className="font-semibold">Notas del cliente:</span>{' '}
+                  {evento.observaciones}
                 </p>
               )}
             </div>
 
             <div className="flex justify-between gap-2 pt-1">
-              <Button variant="outline" className="rounded-xl" onClick={onClose}>
+              <Button
+                variant="outline"
+                className="rounded-xl"
+                onClick={onClose}
+              >
                 Cancelar
               </Button>
               <Button
@@ -391,7 +433,9 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                 {...register('precioTotal')}
               />
               {errors.precioTotal && (
-                <p className="text-xs text-destructive">{errors.precioTotal.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.precioTotal.message}
+                </p>
               )}
             </div>
 
@@ -409,13 +453,17 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                 {...register('montoAdelanto')}
               />
               {errors.montoAdelanto && (
-                <p className="text-xs text-destructive">{errors.montoAdelanto.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.montoAdelanto.message}
+                </p>
               )}
             </div>
 
             {montoAdelanto > 0 && (
               <div className="space-y-1.5">
-                <Label className="text-sm font-semibold">Medio(s) de pago del adelanto</Label>
+                <Label className="text-sm font-semibold">
+                  Medio(s) de pago del adelanto
+                </Label>
                 <MultiMedioPago
                   value={pagosAdelanto}
                   onChange={setPagosAdelanto}
@@ -447,7 +495,9 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
 
             {modalidadPago === 'AL_CONTADO' && (
               <div className="space-y-1.5">
-                <Label className="text-sm font-semibold">Fecha límite de pago del saldo</Label>
+                <Label className="text-sm font-semibold">
+                  Fecha límite de pago del saldo
+                </Label>
                 <Input
                   type="date"
                   min={new Date().toISOString().split('T')[0]}
@@ -456,11 +506,13 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                   onChange={(e) => setFechaLimitePagoContado(e.target.value)}
                   className="h-10 rounded-xl"
                 />
-                {fechaLimitePagoContado && new Date(fechaLimitePagoContado) > new Date(evento.fechaEvento) && (
-                  <p className="text-xs text-destructive">
-                    La fecha límite no puede ser posterior al día del evento.
-                  </p>
-                )}
+                {fechaLimitePagoContado &&
+                  new Date(fechaLimitePagoContado) >
+                    new Date(evento.fechaEvento) && (
+                    <p className="text-xs text-destructive">
+                      La fecha límite no puede ser posterior al día del evento.
+                    </p>
+                  )}
               </div>
             )}
 
@@ -481,16 +533,27 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
               <div className="rounded-xl bg-gray-50 border border-gray-100 p-3 space-y-1.5 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Total</span>
-                  <span className="font-semibold">{formatCurrency(precioTotal)}</span>
+                  <span className="font-semibold">
+                    {formatCurrency(precioTotal)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Adelanto</span>
-                  <span className="font-semibold text-green-700">{formatCurrency(montoAdelanto)}</span>
+                  <span className="font-semibold text-green-700">
+                    {formatCurrency(montoAdelanto)}
+                  </span>
                 </div>
                 <Separator className="my-1" />
                 <div className="flex justify-between">
-                  <span className="font-bold text-gray-900">Saldo pendiente</span>
-                  <span className={cn('font-black', saldo > 0 ? 'text-amber-600' : 'text-green-600')}>
+                  <span className="font-bold text-gray-900">
+                    Saldo pendiente
+                  </span>
+                  <span
+                    className={cn(
+                      'font-black',
+                      saldo > 0 ? 'text-amber-600' : 'text-green-600'
+                    )}
+                  >
                     {formatCurrency(saldo)}
                   </span>
                 </div>
@@ -529,9 +592,16 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                 <div className="flex items-center gap-2 text-sm">
                   <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
                   <span className="text-green-800">
-                    Precio: <strong>{formatCurrency(precioData.precioTotal)}</strong>
-                    {' · '}Adelanto: <strong>{formatCurrency(precioData.montoAdelanto)}</strong>
-                    {' · '}Saldo: <strong>{formatCurrency(precioData.precioTotal - precioData.montoAdelanto)}</strong>
+                    Precio:{' '}
+                    <strong>{formatCurrency(precioData.precioTotal)}</strong>
+                    {' · '}Adelanto:{' '}
+                    <strong>{formatCurrency(precioData.montoAdelanto)}</strong>
+                    {' · '}Saldo:{' '}
+                    <strong>
+                      {formatCurrency(
+                        precioData.precioTotal - precioData.montoAdelanto
+                      )}
+                    </strong>
                   </span>
                 </div>
                 {precioData.fechaLimitePago && (
@@ -544,7 +614,9 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
               </div>
             )}
 
-            <p className="text-sm font-semibold text-gray-900">¿Cómo gestionas el contrato?</p>
+            <p className="text-sm font-semibold text-gray-900">
+              ¿Cómo gestionas el contrato?
+            </p>
 
             <div className="space-y-2">
               <button
@@ -558,11 +630,21 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                 )}
               >
                 <div className="flex items-center gap-2">
-                  <FileText className={cn('h-4 w-4', opcionContrato === 'plantilla' ? 'text-brand-azul' : 'text-gray-400')} />
-                  <span className="text-sm font-bold text-gray-900">Generar desde plantilla</span>
+                  <FileText
+                    className={cn(
+                      'h-4 w-4',
+                      opcionContrato === 'plantilla'
+                        ? 'text-brand-azul'
+                        : 'text-gray-400'
+                    )}
+                  />
+                  <span className="text-sm font-bold text-gray-900">
+                    Generar desde plantilla
+                  </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                  Selecciona una plantilla y genera el contrato automáticamente con los datos del evento.
+                  Selecciona una plantilla y genera el contrato automáticamente
+                  con los datos del evento.
                 </p>
               </button>
 
@@ -577,11 +659,21 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                 )}
               >
                 <div className="flex items-center gap-2">
-                  <ExternalLink className={cn('h-4 w-4', opcionContrato === 'manual' ? 'text-brand-azul' : 'text-gray-400')} />
-                  <span className="text-sm font-bold text-gray-900">Subir contrato externo</span>
+                  <ExternalLink
+                    className={cn(
+                      'h-4 w-4',
+                      opcionContrato === 'manual'
+                        ? 'text-brand-azul'
+                        : 'text-gray-400'
+                    )}
+                  />
+                  <span className="text-sm font-bold text-gray-900">
+                    Subir contrato externo
+                  </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                  Confirma el evento y accede al módulo de contratos para subir el documento firmado.
+                  Confirma el evento y accede al módulo de contratos para subir
+                  el documento firmado.
                 </p>
               </button>
 
@@ -596,12 +688,20 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                 )}
               >
                 <div className="flex items-center gap-2">
-                  <span className={cn('text-sm font-bold', opcionContrato === 'omitir' ? 'text-gray-700' : 'text-gray-500')}>
+                  <span
+                    className={cn(
+                      'text-sm font-bold',
+                      opcionContrato === 'omitir'
+                        ? 'text-gray-700'
+                        : 'text-gray-500'
+                    )}
+                  >
                     Gestionar contrato después
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  Confirma el evento ahora y gestiona el contrato más adelante desde el módulo de contratos.
+                  Confirma el evento ahora y gestiona el contrato más adelante
+                  desde el módulo de contratos.
                 </p>
               </button>
             </div>
@@ -609,7 +709,9 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
             {opcionContrato === 'plantilla' && (
               <div className="space-y-3 bg-gray-50 rounded-xl border border-gray-100 p-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-gray-700">Plantilla</Label>
+                  <Label className="text-xs font-semibold text-gray-700">
+                    Plantilla
+                  </Label>
                   <Select
                     value={plantillaId}
                     onValueChange={(v) => setPlantillaId(v as PlantillaId)}
@@ -618,7 +720,12 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                       <SelectValue placeholder="Seleccionar plantilla..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {(Object.entries(PLANTILLAS) as [PlantillaId, { label: string }][]).map(([key, { label }]) => (
+                      {(
+                        Object.entries(PLANTILLAS) as [
+                          PlantillaId,
+                          { label: string },
+                        ][]
+                      ).map(([key, { label }]) => (
                         <SelectItem key={key} value={key}>
                           {label}
                         </SelectItem>
@@ -639,14 +746,17 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                         disabled={generarContrato.isPending}
                         onClick={handleGenerarContrato}
                       >
-                        {generarContrato.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                        {generarContrato.isPending && (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        )}
                         <FileText className="h-3.5 w-3.5" />
                         Generar contrato
                       </Button>
                     ) : (
                       <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2">
                         <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                        Contrato generado. Podrás editarlo desde el módulo de contratos.
+                        Contrato generado. Podrás editarlo desde el módulo de
+                        contratos.
                       </div>
                     )}
                   </>
@@ -657,7 +767,8 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
             {opcionContrato === 'manual' && (
               <div className="rounded-xl bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-800">
                 Tras confirmar el evento, accede a{' '}
-                <strong>Admin → Contratos</strong> para subir el documento firmado y asociarlo a este evento.
+                <strong>Admin → Contratos</strong> para subir el documento
+                firmado y asociarlo a este evento.
               </div>
             )}
 
@@ -678,9 +789,11 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                 disabled={!opcionContrato || confirmar.isPending}
                 onClick={handleConfirmar}
               >
-                {confirmar.isPending
-                  ? <Loader2 className="h-4 w-4 animate-spin" />
-                  : <CheckCircle2 className="h-4 w-4" />}
+                {confirmar.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4" />
+                )}
                 Confirmar evento
               </Button>
             </div>

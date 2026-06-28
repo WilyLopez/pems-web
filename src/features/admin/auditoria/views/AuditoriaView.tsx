@@ -13,15 +13,22 @@ import { AuditoriaTable } from '../components/AuditoriaTable'
 import { LogDetalleModal } from '../components/LogDetalleModal'
 
 export function AuditoriaView() {
-  const { filtros, page, setPage, actualizarFiltro, limpiar, tieneFiltrosActivos } =
-    useAuditoriaFiltros()
+  const {
+    filtros,
+    page,
+    setPage,
+    actualizarFiltro,
+    limpiar,
+    tieneFiltrosActivos,
+  } = useAuditoriaFiltros()
   const filtrosDebounced = useDebounce(filtros, 400)
   const [logSeleccionado, setLogSeleccionado] = useState<number | null>(null)
 
   const { data, isLoading, isError } = useAuditoriaLista(filtrosDebounced, page)
 
   useEffect(() => {
-    if (isError) toast.error('No se pudieron cargar los registros de auditoría.')
+    if (isError)
+      toast.error('No se pudieron cargar los registros de auditoría.')
   }, [isError])
 
   return (

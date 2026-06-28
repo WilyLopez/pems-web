@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import { correoField, nombreField, PW_RULES, telefonoOpcionalField } from '@/lib/validations/campos'
+import {
+  correoField,
+  nombreField,
+  PW_RULES,
+  telefonoOpcionalField,
+} from '@/lib/validations/campos'
 
 export { PW_RULES }
 
@@ -19,7 +24,11 @@ export const crearUsuarioSchema = z
     const pw = data.password ?? ''
     PW_RULES.forEach((rule) => {
       if (!rule.test(pw)) {
-        ctx.addIssue({ code: 'custom', path: ['password'], message: rule.label })
+        ctx.addIssue({
+          code: 'custom',
+          path: ['password'],
+          message: rule.label,
+        })
       }
     })
   })
@@ -27,7 +36,7 @@ export const crearUsuarioSchema = z
 export type CrearUsuarioFormValues = z.infer<typeof crearUsuarioSchema>
 
 export const editarUsuarioSchema = z.object({
-  nombre:   nombreField,
+  nombre: nombreField,
   telefono: telefonoOpcionalField,
 })
 

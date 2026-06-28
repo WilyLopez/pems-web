@@ -38,17 +38,22 @@ export const ventasApi = {
     return data.data
   },
 
-  listar: async (filtros: VentaFiltros): Promise<PageableResponse<VentaResumen>> => {
-    if (!filtros.idSede) throw new Error('ID Sede es requerido para listar ventas')
-    
+  listar: async (
+    filtros: VentaFiltros
+  ): Promise<PageableResponse<VentaResumen>> => {
+    if (!filtros.idSede)
+      throw new Error('ID Sede es requerido para listar ventas')
+
     const params = new URLSearchParams()
     if (filtros.desde) params.append('desde', filtros.desde)
     if (filtros.hasta) params.append('hasta', filtros.hasta)
     if (filtros.search) params.append('search', filtros.search)
     if (filtros.tipo) params.append('tipo', filtros.tipo)
-    if (filtros.page !== undefined) params.append('page', filtros.page.toString())
-    if (filtros.size !== undefined) params.append('size', filtros.size.toString())
-    
+    if (filtros.page !== undefined)
+      params.append('page', filtros.page.toString())
+    if (filtros.size !== undefined)
+      params.append('size', filtros.size.toString())
+
     const { data } = await api.get<ApiResponse<PageableResponse<VentaResumen>>>(
       `/ventas/sedes/${filtros.idSede}?${params.toString()}`
     )
@@ -61,11 +66,16 @@ export const ventasApi = {
   },
 
   obtenerDetalle: async (id: number): Promise<VentaDetalleResponse> => {
-    const { data } = await api.get<ApiResponse<VentaDetalleResponse>>(`/ventas/${id}/detalle`)
+    const { data } = await api.get<ApiResponse<VentaDetalleResponse>>(
+      `/ventas/${id}/detalle`
+    )
     return data.data
   },
 
-  cobrarReserva: async (reservaId: number, payload: CobrarReservaPayload): Promise<VentaResumen> => {
+  cobrarReserva: async (
+    reservaId: number,
+    payload: CobrarReservaPayload
+  ): Promise<VentaResumen> => {
     const { data } = await api.post<ApiResponse<VentaResumen>>(
       `/ventas/reserva/${reservaId}/cobrar`,
       payload
@@ -74,7 +84,10 @@ export const ventasApi = {
   },
 
   descargarNotaVenta: async (idVenta: number) => {
-    return downloadFile(`/ventas/${idVenta}/nota-venta`, `nota-venta-${idVenta}.pdf`)
+    return downloadFile(
+      `/ventas/${idVenta}/nota-venta`,
+      `nota-venta-${idVenta}.pdf`
+    )
   },
 
   enviarCorreo: async (idVenta: number, correo?: string): Promise<void> => {
@@ -92,6 +105,9 @@ export const ventasApi = {
   },
 
   descargarTicket: async (idReserva: number) => {
-    return downloadFile(`/reservas/${idReserva}/ticket`, `ticket-${idReserva}.pdf`)
+    return downloadFile(
+      `/reservas/${idReserva}/ticket`,
+      `ticket-${idReserva}.pdf`
+    )
   },
 }

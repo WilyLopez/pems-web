@@ -1,7 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Zap, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-react'
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Zap,
+  Image as ImageIcon,
+  ChevronUp,
+  ChevronDown,
+} from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/common/PageHeader'
@@ -14,33 +22,45 @@ import { ErrorState } from '@/components/common/Errorstate'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 import { QuickToggle } from '@/components/admin/comercial/shared/QuickToggle'
-import { useActividadesAdmin, useActividadMutations } from '@/features/admin/cms/actividades/hooks/useActividades'
+import {
+  useActividadesAdmin,
+  useActividadMutations,
+} from '@/features/admin/cms/actividades/hooks/useActividades'
 import { ActividadLocal } from '@/types/comercial.types'
 import { fixMediaUrl } from '@/lib/media'
 import { ActividadFormDialog } from '@/features/admin/cms/actividades/components/ActividadFormDialog'
 
 export default function ActividadesPage() {
-  const [formOpen, setFormOpen]     = useState(false)
+  const [formOpen, setFormOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<ActividadLocal | null>(null)
-  const [deleteId, setDeleteId]     = useState<number | null>(null)
+  const [deleteId, setDeleteId] = useState<number | null>(null)
 
-  const { data: actividades = [], isLoading, isError, refetch } = useActividadesAdmin()
+  const {
+    data: actividades = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useActividadesAdmin()
   const { eliminar, reordenar, toggleActivo } = useActividadMutations()
 
-  const regulares  = actividades.filter((a) => !a.esEspecial)
+  const regulares = actividades.filter((a) => !a.esEspecial)
   const especiales = actividades.filter((a) => a.esEspecial)
 
-  async function handleReordenar(lista: ActividadLocal[], id: number, dir: 'arriba' | 'abajo') {
+  async function handleReordenar(
+    lista: ActividadLocal[],
+    id: number,
+    dir: 'arriba' | 'abajo'
+  ) {
     const sorted = [...lista].sort((a, b) => a.orden - b.orden)
-    const idx    = sorted.findIndex((a) => a.id === id)
+    const idx = sorted.findIndex((a) => a.id === id)
     if (dir === 'arriba' && idx === 0) return
     if (dir === 'abajo' && idx === sorted.length - 1) return
     const otrIdx = dir === 'arriba' ? idx - 1 : idx + 1
     const actual = sorted[idx]
-    const otro   = sorted[otrIdx]
+    const otro = sorted[otrIdx]
     try {
       await reordenar.mutateAsync({ id: actual.id, nuevoOrden: otro.orden })
-      await reordenar.mutateAsync({ id: otro.id,   nuevoOrden: actual.orden })
+      await reordenar.mutateAsync({ id: otro.id, nuevoOrden: actual.orden })
     } catch {
       toast.error('Error al reordenar')
     }
@@ -49,10 +69,14 @@ export default function ActividadesPage() {
   if (isError) return <ErrorState onRetry={refetch} />
 
   function renderTabla(lista: ActividadLocal[]) {
-    if (lista.length === 0) return (
-      <EmptyState title="Sin actividades" description="Crea la primera."
-        icon={<Zap className="h-6 w-6" />} />
-    )
+    if (lista.length === 0)
+      return (
+        <EmptyState
+          title="Sin actividades"
+          description="Crea la primera."
+          icon={<Zap className="h-6 w-6" />}
+        />
+      )
     const sorted = [...lista].sort((a, b) => a.orden - b.orden)
     return (
       <div className="overflow-hidden rounded-xl border border-border">
@@ -61,14 +85,19 @@ export default function ActividadesPage() {
             <tr className="border-b bg-muted/50 text-xs text-muted-foreground">
               <th className="px-4 py-3 text-left">Actividad</th>
               <th className="px-4 py-3 text-left hidden sm:table-cell">Zona</th>
-              <th className="px-4 py-3 text-left hidden md:table-cell">Fechas</th>
+              <th className="px-4 py-3 text-left hidden md:table-cell">
+                Fechas
+              </th>
               <th className="px-4 py-3 text-left">Estado</th>
               <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map((a, i) => (
-              <tr key={a.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+              <tr
+                key={a.id}
+                className="border-b last:border-0 hover:bg-muted/30 transition-colors"
+              >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     {a.imagenUrl ? (
@@ -88,37 +117,67 @@ export default function ActividadesPage() {
                     )}
                     <div>
                       <p className="font-medium">{a.nombre}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">{a.descripcion}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                        {a.descripcion}
+                      </p>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{a.nombreZona ?? '—'}</td>
+                <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">
+                  {a.nombreZona ?? '—'}
+                </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell">
-                  {a.fechaInicio && a.fechaFin ? `${a.fechaInicio} — ${a.fechaFin}` : '—'}
+                  {a.fechaInicio && a.fechaFin
+                    ? `${a.fechaInicio} — ${a.fechaFin}`
+                    : '—'}
                 </td>
                 <td className="px-4 py-3">
                   <QuickToggle
                     activo={a.activa}
                     onToggle={() => toggleActivo.mutate(a)}
-                    isPending={toggleActivo.isPending && (toggleActivo.variables as ActividadLocal)?.id === a.id}
+                    isPending={
+                      toggleActivo.isPending &&
+                      (toggleActivo.variables as ActividadLocal)?.id === a.id
+                    }
                   />
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                      disabled={i === 0} onClick={() => handleReordenar(lista, a.id, 'arriba')}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0"
+                      disabled={i === 0}
+                      onClick={() => handleReordenar(lista, a.id, 'arriba')}
+                    >
                       <ChevronUp className="h-3.5 w-3.5" />
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                      disabled={i === sorted.length - 1} onClick={() => handleReordenar(lista, a.id, 'abajo')}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0"
+                      disabled={i === sorted.length - 1}
+                      onClick={() => handleReordenar(lista, a.id, 'abajo')}
+                    >
                       <ChevronDown className="h-3.5 w-3.5" />
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                      onClick={() => { setEditTarget(a); setFormOpen(true) }}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0"
+                      onClick={() => {
+                        setEditTarget(a)
+                        setFormOpen(true)
+                      }}
+                    >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-destructive"
-                      onClick={() => setDeleteId(a.id)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0 hover:text-destructive"
+                      onClick={() => setDeleteId(a.id)}
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -133,14 +192,22 @@ export default function ActividadesPage() {
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs items={[{ label: 'CMS', href: '/admin/cms' }, { label: 'Actividades' }]} />
+      <Breadcrumbs
+        items={[{ label: 'CMS', href: '/admin/cms' }, { label: 'Actividades' }]}
+      />
 
       <PageHeader
         title="Actividades"
         description="Gestiona las actividades regulares y especiales del local"
         actions={
-          <Button size="sm" className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
-            onClick={() => { setEditTarget(null); setFormOpen(true) }}>
+          <Button
+            size="sm"
+            className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
+            onClick={() => {
+              setEditTarget(null)
+              setFormOpen(true)
+            }}
+          >
             <Plus className="h-4 w-4" /> Nueva actividad
           </Button>
         }
@@ -148,7 +215,9 @@ export default function ActividadesPage() {
 
       {isLoading ? (
         <div className="space-y-2">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-16 rounded-lg" />
+          ))}
         </div>
       ) : (
         <Tabs defaultValue="regulares">
@@ -156,22 +225,34 @@ export default function ActividadesPage() {
             <TabsTrigger value="regulares">
               Regulares
               {regulares.length > 0 && (
-                <Badge variant="outline" className="ml-2 h-5 px-1.5 text-xs">{regulares.length}</Badge>
+                <Badge variant="outline" className="ml-2 h-5 px-1.5 text-xs">
+                  {regulares.length}
+                </Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="especiales">
               Especiales
               {especiales.length > 0 && (
-                <Badge variant="outline" className="ml-2 h-5 px-1.5 text-xs">{especiales.length}</Badge>
+                <Badge variant="outline" className="ml-2 h-5 px-1.5 text-xs">
+                  {especiales.length}
+                </Badge>
               )}
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="regulares"  className="mt-4">{renderTabla(regulares)}</TabsContent>
-          <TabsContent value="especiales" className="mt-4">{renderTabla(especiales)}</TabsContent>
+          <TabsContent value="regulares" className="mt-4">
+            {renderTabla(regulares)}
+          </TabsContent>
+          <TabsContent value="especiales" className="mt-4">
+            {renderTabla(especiales)}
+          </TabsContent>
         </Tabs>
       )}
 
-      <ActividadFormDialog open={formOpen} onOpenChange={setFormOpen} actividad={editTarget} />
+      <ActividadFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        actividad={editTarget}
+      />
 
       <ConfirmDialog
         open={deleteId !== null}
@@ -180,7 +261,8 @@ export default function ActividadesPage() {
         description="La actividad será eliminada permanentemente."
         confirmLabel="Eliminar"
         onConfirm={() => {
-          if (deleteId !== null) eliminar.mutate(deleteId, { onSettled: () => setDeleteId(null) })
+          if (deleteId !== null)
+            eliminar.mutate(deleteId, { onSettled: () => setDeleteId(null) })
         }}
         loading={eliminar.isPending}
       />

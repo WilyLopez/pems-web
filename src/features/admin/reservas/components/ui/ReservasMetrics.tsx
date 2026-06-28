@@ -34,51 +34,59 @@ function MetricaCard({
         <p className="text-2xl font-black text-gray-900 leading-tight">
           {value}
         </p>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-0.5 truncate">{label}</p>
-        {sub && <p className="text-[10px] text-gray-500 font-medium mt-0.5 truncate">{sub}</p>}
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-0.5 truncate">
+          {label}
+        </p>
+        {sub && (
+          <p className="text-[10px] text-gray-500 font-medium mt-0.5 truncate">
+            {sub}
+          </p>
+        )}
       </div>
     </div>
   )
 }
 
-export const ReservasMetrics = React.memo(({ metricas }: ReservasMetricsProps) => {
-  if (!metricas) return null
+export const ReservasMetrics = React.memo(
+  ({ metricas }: ReservasMetricsProps) => {
+    if (!metricas) return null
 
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-      <MetricaCard
-        icon={Ticket}
-        label="Total del dia"
-        value={metricas.totalReservas}
-        color="bg-brand-azul/10 text-brand-azul"
-      />
-      <MetricaCard
-        icon={BarChart2}
-        label="Pendientes"
-        value={metricas.pendientes}
-        color="bg-yellow-100 text-yellow-700"
-      />
-      <MetricaCard
-        icon={XCircle}
-        label="Canceladas"
-        value={metricas.canceladas}
-        color="bg-red-100 text-red-600"
-      />
-      <MetricaCard
-        icon={LogIn}
-        label="Ingresados"
-        value={metricas.ingresados}
-        color="bg-green-100 text-green-700"
-      />
-      <MetricaCard
-        icon={TrendingUp}
-        label="Ingresos"
-        value={formatCurrency(metricas.ingresosDia ?? 0, 0)}
-        color="bg-brand-menta/20 text-emerald-700"
-        sub={`${metricas.aforoRestante} plazas libres`}
-      />
-    </div>
-  )
-})
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <MetricaCard
+          icon={Ticket}
+          label="Total del dia"
+          value={metricas.totalReservas}
+          color="bg-brand-azul/10 text-brand-azul"
+        />
+        <MetricaCard
+          icon={BarChart2}
+          label="Pendientes"
+          value={metricas.pendientes}
+          color="bg-yellow-100 text-yellow-700"
+        />
+        <MetricaCard
+          icon={XCircle}
+          label="Canceladas"
+          value={metricas.canceladas}
+          color="bg-red-100 text-red-600"
+        />
+        <MetricaCard
+          icon={LogIn}
+          label="Ingresados"
+          value={metricas.ingresados}
+          color="bg-green-100 text-green-700"
+        />
+        <MetricaCard
+          icon={TrendingUp}
+          label="Ingresos"
+          value={formatCurrency(metricas.ingresosDia ?? 0, 0)}
+          color="bg-brand-menta/20 text-emerald-700"
+          sub={`${metricas.aforoRestante} plazas libres`}
+        />
+      </div>
+    )
+  }
+)
 
 ReservasMetrics.displayName = 'ReservasMetrics'
