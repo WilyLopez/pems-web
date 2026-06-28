@@ -9,16 +9,24 @@ import type {
 
 export const configuracionApi = {
   listarGlobal: async (): Promise<ConfiguracionSistema[]> => {
-    const { data } = await api.get<ApiResponse<ConfiguracionSistema[]>>('/configuracion')
+    const { data } =
+      await api.get<ApiResponse<ConfiguracionSistema[]>>('/configuracion')
     return data.data
   },
 
-  actualizarGlobal: async (cambios: Record<string, string>): Promise<ConfiguracionSistema[]> => {
-    const { data } = await api.put<ApiResponse<ConfiguracionSistema[]>>('/configuracion', cambios)
+  actualizarGlobal: async (
+    cambios: Record<string, string>
+  ): Promise<ConfiguracionSistema[]> => {
+    const { data } = await api.put<ApiResponse<ConfiguracionSistema[]>>(
+      '/configuracion',
+      cambios
+    )
     return data.data
   },
 
-  obtenerCalendario: async (idSede: number): Promise<ConfiguracionCalendario> => {
+  obtenerCalendario: async (
+    idSede: number
+  ): Promise<ConfiguracionCalendario> => {
     const { data } = await api.get<ApiResponse<ConfiguracionCalendario>>(
       `/calendario/configuracion/sedes/${idSede}`
     )
@@ -41,8 +49,14 @@ export const configuracionApi = {
     return data.data
   },
 
-  actualizarSede: async (idSede: number, values: Partial<Sede>): Promise<Sede> => {
-    const { data } = await api.put<ApiResponse<Sede>>(`/sedes/${idSede}`, values)
+  actualizarSede: async (
+    idSede: number,
+    values: Partial<Sede>
+  ): Promise<Sede> => {
+    const { data } = await api.put<ApiResponse<Sede>>(
+      `/sedes/${idSede}`,
+      values
+    )
     return data.data
   },
 }

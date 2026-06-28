@@ -34,12 +34,13 @@ export function FaqView() {
     setOpenId(openId === id ? null : id)
   }
 
-  const filteredFaqs = faqs?.filter(
-    (faq) =>
-      faq.visible &&
-      (faq.pregunta.toLowerCase().includes(query.toLowerCase()) ||
-        faq.respuesta.toLowerCase().includes(query.toLowerCase()))
-  ) ?? []
+  const filteredFaqs =
+    faqs?.filter(
+      (faq) =>
+        faq.visible &&
+        (faq.pregunta.toLowerCase().includes(query.toLowerCase()) ||
+          faq.respuesta.toLowerCase().includes(query.toLowerCase()))
+    ) ?? []
 
   const whatsappNumber = config?.whatsapp?.replace(/\D/g, '')
   const whatsappUrl = whatsappNumber ? `https://wa.me/${whatsappNumber}` : null
@@ -81,7 +82,7 @@ export function FaqView() {
             description={
               query
                 ? `No encontramos resultados para "${query}". Intenta buscar con otros términos.`
-                : "No hay preguntas frecuentes configuradas por el momento."
+                : 'No hay preguntas frecuentes configuradas por el momento.'
             }
           />
         ) : (

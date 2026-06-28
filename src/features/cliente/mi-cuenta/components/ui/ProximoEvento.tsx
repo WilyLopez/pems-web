@@ -1,6 +1,12 @@
 import { useMemo } from 'react'
 import Link from 'next/link'
-import { CalendarDays, ArrowRight, ChevronRight, PartyPopper, Ticket } from 'lucide-react'
+import {
+  CalendarDays,
+  ArrowRight,
+  ChevronRight,
+  PartyPopper,
+  Ticket,
+} from 'lucide-react'
 import { startOfDay, parseISO, isFuture, differenceInDays } from 'date-fns'
 import { Reserva, EventoPrivado } from '../../../shared/types'
 import { formatTipoEvento } from '../../../shared/constants'
@@ -22,7 +28,11 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
             ['PENDIENTE', 'CONFIRMADA'].includes(r.estado) &&
             isFuture(startOfDay(parseISO(r.fechaEvento)))
         )
-        .sort((a, b) => parseISO(a.fechaEvento).getTime() - parseISO(b.fechaEvento).getTime())[0] ?? null,
+        .sort(
+          (a, b) =>
+            parseISO(a.fechaEvento).getTime() -
+            parseISO(b.fechaEvento).getTime()
+        )[0] ?? null,
     [reservas]
   )
 
@@ -34,7 +44,11 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
             e.estado === 'CONFIRMADA' &&
             isFuture(startOfDay(parseISO(e.fechaEvento)))
         )
-        .sort((a, b) => parseISO(a.fechaEvento).getTime() - parseISO(b.fechaEvento).getTime())[0] ?? null,
+        .sort(
+          (a, b) =>
+            parseISO(a.fechaEvento).getTime() -
+            parseISO(b.fechaEvento).getTime()
+        )[0] ?? null,
     [eventos]
   )
 
@@ -45,8 +59,12 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
           <CalendarDays className="h-5 w-5 text-gray-400" />
         </div>
         <div>
-          <p className="text-sm font-bold text-gray-900">Sin próximas visitas</p>
-          <p className="text-xs text-gray-500 mt-0.5">Actualmente no tienes eventos programados.</p>
+          <p className="text-sm font-bold text-gray-900">
+            Sin próximas visitas
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Actualmente no tienes eventos programados.
+          </p>
         </div>
         <Link
           href="/cliente/reservar"
@@ -59,7 +77,10 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
   }
 
   if (proximoEvento) {
-    const dias = differenceInDays(startOfDay(parseISO(proximoEvento.fechaEvento)), hoy)
+    const dias = differenceInDays(
+      startOfDay(parseISO(proximoEvento.fechaEvento)),
+      hoy
+    )
     return (
       <div className="bg-gradient-to-r from-brand-rosa/5 to-brand-azul/5 rounded-2xl border border-brand-rosa/20 p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
@@ -71,10 +92,16 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
               <p className="text-[10px] font-bold uppercase tracking-wider text-brand-rosa mb-0.5">
                 Próximo evento privado
               </p>
-              <p className="text-base font-black text-gray-900">{formatTipoEvento(proximoEvento.tipoEvento)}</p>
+              <p className="text-base font-black text-gray-900">
+                {formatTipoEvento(proximoEvento.tipoEvento)}
+              </p>
               <p className="text-sm text-gray-500 mt-0.5">
                 {formatDate(proximoEvento.fechaEvento, "EEEE d 'de' MMMM")}
-                {dias === 0 ? ' · ¡Hoy!' : dias === 1 ? ' · Mañana' : ` · en ${dias} días`}
+                {dias === 0
+                  ? ' · ¡Hoy!'
+                  : dias === 1
+                    ? ' · Mañana'
+                    : ` · en ${dias} días`}
               </p>
             </div>
           </div>
@@ -89,7 +116,10 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
     )
   }
 
-  const dias = differenceInDays(startOfDay(parseISO(proximaReserva!.fechaEvento)), hoy)
+  const dias = differenceInDays(
+    startOfDay(parseISO(proximaReserva!.fechaEvento)),
+    hoy
+  )
   return (
     <div className="bg-gradient-to-r from-brand-azul/5 to-brand-azul/10 rounded-2xl border border-brand-azul/20 p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
@@ -106,7 +136,11 @@ export function ProximoEvento({ reservas, eventos }: ProximoEventoProps) {
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
               Visita de {proximaReserva!.nombreNino}
-              {dias === 0 ? ' · ¡Hoy!' : dias === 1 ? ' · Mañana' : ` · en ${dias} días`}
+              {dias === 0
+                ? ' · ¡Hoy!'
+                : dias === 1
+                  ? ' · Mañana'
+                  : ` · en ${dias} días`}
             </p>
           </div>
         </div>

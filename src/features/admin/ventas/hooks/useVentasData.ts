@@ -13,8 +13,13 @@ export const VENTAS_KEYS = {
 export function useCobrarReserva() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ reservaId, payload }: { reservaId: number; payload: CobrarReservaPayload }) =>
-      ventasApi.cobrarReserva(reservaId, payload),
+    mutationFn: ({
+      reservaId,
+      payload,
+    }: {
+      reservaId: number
+      payload: CobrarReservaPayload
+    }) => ventasApi.cobrarReserva(reservaId, payload),
     onSuccess: () => {
       toast.success('Reserva cobrada correctamente')
       qc.invalidateQueries({ queryKey: [VENTAS_KEYS.LIST] })
@@ -39,7 +44,8 @@ export function usePrecioDia(idSede: number | null, fecha: string) {
 export function useRegistrarVentaMostrador() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (payload: RegistrarVentaMostradorPayload) => ventasApi.registrarMostrador(payload),
+    mutationFn: (payload: RegistrarVentaMostradorPayload) =>
+      ventasApi.registrarMostrador(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [VENTAS_KEYS.LIST] })
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.ADMIN_LIST] })
@@ -63,7 +69,9 @@ export function useEnviarCorreoVenta() {
       ventasApi.enviarCorreo(idVenta, correo),
     onSuccess: (_, variables) => {
       toast.success('Correo enviado correctamente')
-      qc.invalidateQueries({ queryKey: [VENTAS_KEYS.DETAIL, variables.idVenta] })
+      qc.invalidateQueries({
+        queryKey: [VENTAS_KEYS.DETAIL, variables.idVenta],
+      })
       qc.invalidateQueries({ queryKey: [VENTAS_KEYS.LIST] })
     },
     onError: (err: any) => {

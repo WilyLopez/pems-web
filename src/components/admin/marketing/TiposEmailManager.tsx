@@ -12,20 +12,24 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 
-
 const schema = z.object({
   codigo: z
     .string()
     .min(1, { message: 'El codigo es obligatorio' })
     .min(2, { message: 'Minimo 2 caracteres' })
     .max(50, { message: 'Maximo 50 caracteres' })
-    .regex(/^[A-Z0-9_]+$/, { message: 'Solo mayusculas, numeros y guion bajo (ej: BIENVENIDA)' }),
+    .regex(/^[A-Z0-9_]+$/, {
+      message: 'Solo mayusculas, numeros y guion bajo (ej: BIENVENIDA)',
+    }),
   nombre: z
     .string()
     .min(1, { message: 'El nombre es obligatorio' })
     .min(2, { message: 'Minimo 2 caracteres' })
     .max(100, { message: 'Maximo 100 caracteres' }),
-  descripcion: z.string().max(255, { message: 'Maximo 255 caracteres' }).optional(),
+  descripcion: z
+    .string()
+    .max(255, { message: 'Maximo 255 caracteres' })
+    .optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -36,7 +40,9 @@ interface Props {
   showForm?: boolean
 }
 
-export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) {
+export function TiposEmailManager({
+  showForm: defaultShowForm = false,
+}: Props) {
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(defaultShowForm)
   const [confirmId, setConfirmId] = useState<string | null>(null)
@@ -86,7 +92,8 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
-          {tipos.length} tipo{tipos.length !== 1 ? 's' : ''} registrado{tipos.length !== 1 ? 's' : ''}
+          {tipos.length} tipo{tipos.length !== 1 ? 's' : ''} registrado
+          {tipos.length !== 1 ? 's' : ''}
         </p>
         <Button
           size="sm"
@@ -106,7 +113,10 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="codigo" className="text-xs">
-                Codigo * <span className="text-gray-400 font-normal">(ej: BIENVENIDA)</span>
+                Codigo *{' '}
+                <span className="text-gray-400 font-normal">
+                  (ej: BIENVENIDA)
+                </span>
               </Label>
               <Input
                 id="codigo"
@@ -118,11 +128,15 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
                 }}
               />
               {errors.codigo && (
-                <p className="text-xs text-destructive">{errors.codigo.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.codigo.message}
+                </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="nombre" className="text-xs">Nombre *</Label>
+              <Label htmlFor="nombre" className="text-xs">
+                Nombre *
+              </Label>
               <Input
                 id="nombre"
                 placeholder="Correo de bienvenida"
@@ -130,12 +144,16 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
                 {...register('nombre')}
               />
               {errors.nombre && (
-                <p className="text-xs text-destructive">{errors.nombre.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.nombre.message}
+                </p>
               )}
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="descripcion" className="text-xs">Descripcion</Label>
+            <Label htmlFor="descripcion" className="text-xs">
+              Descripcion
+            </Label>
             <Input
               id="descripcion"
               placeholder="Descripcion opcional..."
@@ -149,7 +167,10 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
               size="sm"
               variant="outline"
               className="h-7 text-xs"
-              onClick={() => { reset(); setShowForm(false) }}
+              onClick={() => {
+                reset()
+                setShowForm(false)
+              }}
             >
               Cancelar
             </Button>
@@ -168,24 +189,33 @@ export function TiposEmailManager({ showForm: defaultShowForm = false }: Props) 
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+            <div
+              key={i}
+              className="h-10 bg-gray-100 rounded-lg animate-pulse"
+            />
           ))}
         </div>
       ) : tipos.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-6">Sin tipos de correo registrados.</p>
+        <p className="text-sm text-gray-400 text-center py-6">
+          Sin tipos de correo registrados.
+        </p>
       ) : (
         <div className="divide-y divide-gray-100 rounded-xl border overflow-hidden bg-white">
           {tipos.map((t) => (
             <div key={t.codigo} className="flex items-center gap-3 px-4 py-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900">{t.nombre}</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {t.nombre}
+                  </span>
                   <span className="text-[11px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
                     {t.codigo}
                   </span>
                 </div>
                 {t.descripcion && (
-                  <p className="text-xs text-gray-400 truncate mt-0.5">{t.descripcion}</p>
+                  <p className="text-xs text-gray-400 truncate mt-0.5">
+                    {t.descripcion}
+                  </p>
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">

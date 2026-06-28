@@ -5,8 +5,15 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import {
-  Pencil, Globe, Eye, EyeOff, Search, X,
-  ChevronLeft, ChevronRight, ImageIcon,
+  Pencil,
+  Globe,
+  Eye,
+  EyeOff,
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ImageIcon,
 } from 'lucide-react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { PageHeader } from '@/components/common/PageHeader'
@@ -37,12 +44,12 @@ import { cn } from '@/lib/utils'
 // ── Schema ────────────────────────────────────────────────────────────────────
 
 const schema = z.object({
-  valorEs:            z.string().min(1, 'Requerido').max(5000),
-  valorEn:            z.string().max(5000).optional(),
-  imagenUrl:          z.string().max(500).optional().or(z.literal('')),
-  descripcion:        z.string().max(300).optional(),
-  visible:            z.boolean().default(true),
-  metadatos:          z.string().optional(),
+  valorEs: z.string().min(1, 'Requerido').max(5000),
+  valorEn: z.string().max(5000).optional(),
+  imagenUrl: z.string().max(500).optional().or(z.literal('')),
+  descripcion: z.string().max(300).optional(),
+  visible: z.boolean().default(true),
+  metadatos: z.string().optional(),
   ordenVisualizacion: z.coerce.number().int().min(0).default(0),
 })
 type FormValues = z.infer<typeof schema>
@@ -50,7 +57,11 @@ type FormValues = z.infer<typeof schema>
 // ── Edit dialog ───────────────────────────────────────────────────────────────
 
 function ContenidoEditDialog({
-  item, open, onOpenChange, isLoading, onSubmit,
+  item,
+  open,
+  onOpenChange,
+  isLoading,
+  onSubmit,
 }: {
   item: ContenidoWeb | null
   open: boolean
@@ -58,19 +69,25 @@ function ContenidoEditDialog({
   isLoading: boolean
   onSubmit: (payload: ActualizarContenidoWebPayload) => void
 }) {
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(schema),
   })
 
   useEffect(() => {
     if (item) {
       reset({
-        valorEs:            item.valorEs ?? '',
-        valorEn:            item.valorEn ?? '',
-        imagenUrl:          item.imagenUrl ?? '',
-        descripcion:        item.descripcion ?? '',
-        visible:            item.visible,
-        metadatos:          item.metadatos ?? '',
+        valorEs: item.valorEs ?? '',
+        valorEn: item.valorEn ?? '',
+        imagenUrl: item.imagenUrl ?? '',
+        descripcion: item.descripcion ?? '',
+        visible: item.visible,
+        metadatos: item.metadatos ?? '',
         ordenVisualizacion: item.ordenVisualizacion ?? 0,
       })
     }
@@ -79,7 +96,13 @@ function ContenidoEditDialog({
   const imagenUrlValue = watch('imagenUrl')
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) reset(); onOpenChange(v) }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) reset()
+        onOpenChange(v)
+      }}
+    >
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -95,12 +118,12 @@ function ContenidoEditDialog({
         <form
           onSubmit={handleSubmit((data) =>
             onSubmit({
-              valorEs:            data.valorEs,
-              valorEn:            data.valorEn || undefined,
-              imagenUrl:          data.imagenUrl || undefined,
-              descripcion:        data.descripcion || undefined,
-              metadatos:          data.metadatos || undefined,
-              visible:            data.visible,
+              valorEs: data.valorEs,
+              valorEn: data.valorEn || undefined,
+              imagenUrl: data.imagenUrl || undefined,
+              descripcion: data.descripcion || undefined,
+              metadatos: data.metadatos || undefined,
+              visible: data.visible,
               ordenVisualizacion: data.ordenVisualizacion,
             })
           )}
@@ -108,25 +131,41 @@ function ContenidoEditDialog({
         >
           <div className="space-y-1">
             <Label htmlFor="valorEs">Contenido (ES) *</Label>
-            <Textarea id="valorEs" rows={4} {...register('valorEs')} className="resize-y" />
+            <Textarea
+              id="valorEs"
+              rows={4}
+              {...register('valorEs')}
+              className="resize-y"
+            />
             {errors.valorEs && (
-              <p className="text-xs text-destructive">{errors.valorEs.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.valorEs.message}
+              </p>
             )}
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="valorEn">Contenido (EN)</Label>
             <Textarea
-              id="valorEn" rows={3} {...register('valorEn')}
-              className="resize-y" placeholder="Traducción al inglés (opcional)"
+              id="valorEn"
+              rows={3}
+              {...register('valorEn')}
+              className="resize-y"
+              placeholder="Traducción al inglés (opcional)"
             />
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="imagenUrl">URL de imagen</Label>
-            <Input id="imagenUrl" {...register('imagenUrl')} placeholder="https://..." />
+            <Input
+              id="imagenUrl"
+              {...register('imagenUrl')}
+              placeholder="https://..."
+            />
             {errors.imagenUrl && (
-              <p className="text-xs text-destructive">{errors.imagenUrl.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.imagenUrl.message}
+              </p>
             )}
             {imagenUrlValue && imagenUrlValue.startsWith('http') && (
               <div className="mt-2 rounded-lg border overflow-hidden h-24 bg-gray-50 flex items-center justify-center">
@@ -135,7 +174,9 @@ function ContenidoEditDialog({
                   src={imagenUrlValue}
                   alt="preview"
                   className="h-full object-contain"
-                  onError={(e) => { e.currentTarget.style.opacity = '0.3' }}
+                  onError={(e) => {
+                    e.currentTarget.style.opacity = '0.3'
+                  }}
                 />
               </div>
             )}
@@ -144,13 +185,20 @@ function ContenidoEditDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label htmlFor="descripcion">Descripción interna</Label>
-              <Input id="descripcion" {...register('descripcion')} placeholder="Nota para el admin" />
+              <Input
+                id="descripcion"
+                {...register('descripcion')}
+                placeholder="Nota para el admin"
+              />
             </div>
             <div className="space-y-1">
               <Label htmlFor="ordenVisualizacion">Orden</Label>
               <Input
-                id="ordenVisualizacion" type="number" min={0}
-                {...register('ordenVisualizacion')} className="w-full"
+                id="ordenVisualizacion"
+                type="number"
+                min={0}
+                {...register('ordenVisualizacion')}
+                className="w-full"
               />
             </div>
           </div>
@@ -158,21 +206,40 @@ function ContenidoEditDialog({
           <div className="space-y-1">
             <Label htmlFor="metadatos">Metadatos (JSON)</Label>
             <Textarea
-              id="metadatos" rows={3} {...register('metadatos')}
-              className="resize-none font-mono text-xs" placeholder='{"key": "value"}'
+              id="metadatos"
+              rows={3}
+              {...register('metadatos')}
+              className="resize-none font-mono text-xs"
+              placeholder='{"key": "value"}'
             />
           </div>
 
           <div className="flex items-center gap-2 py-1">
-            <input type="checkbox" id="visible" {...register('visible')} className="w-4 h-4 rounded" />
-            <Label htmlFor="visible" className="cursor-pointer">Visible en el sitio</Label>
+            <input
+              type="checkbox"
+              id="visible"
+              {...register('visible')}
+              className="w-4 h-4 rounded"
+            />
+            <Label htmlFor="visible" className="cursor-pointer">
+              Visible en el sitio
+            </Label>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading} className="bg-brand-azul text-white">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-brand-azul text-white"
+            >
               {isLoading ? 'Guardando...' : 'Guardar cambios'}
             </Button>
           </div>
@@ -185,7 +252,10 @@ function ContenidoEditDialog({
 // ── Fila de contenido ─────────────────────────────────────────────────────────
 
 function ContenidoRow({
-  item, onEdit, onToggleVisible, isTogglingId,
+  item,
+  onEdit,
+  onToggleVisible,
+  isTogglingId,
 }: {
   item: ContenidoWeb
   onEdit: (item: ContenidoWeb) => void
@@ -208,14 +278,25 @@ function ContenidoRow({
                 : 'text-muted-foreground'
             )}
           >
-            {item.visible
-              ? <><Eye className="h-3 w-3 mr-1" />Visible</>
-              : <><EyeOff className="h-3 w-3 mr-1" />Oculto</>
-            }
+            {item.visible ? (
+              <>
+                <Eye className="h-3 w-3 mr-1" />
+                Visible
+              </>
+            ) : (
+              <>
+                <EyeOff className="h-3 w-3 mr-1" />
+                Oculto
+              </>
+            )}
           </Badge>
           {item.imagenUrl && (
-            <Badge variant="outline" className="text-xs h-5 text-muted-foreground">
-              <ImageIcon className="h-3 w-3 mr-1" />Imagen
+            <Badge
+              variant="outline"
+              className="text-xs h-5 text-muted-foreground"
+            >
+              <ImageIcon className="h-3 w-3 mr-1" />
+              Imagen
             </Badge>
           )}
         </div>
@@ -225,25 +306,30 @@ function ContenidoRow({
         </p>
 
         {item.descripcion && (
-          <p className="text-xs text-muted-foreground mt-0.5">{item.descripcion}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {item.descripcion}
+          </p>
         )}
       </div>
 
       <div className="flex items-center gap-1 shrink-0">
         <Button
-          size="sm" variant="ghost"
+          size="sm"
+          variant="ghost"
           className="h-7 w-7 p-0"
           title={item.visible ? 'Ocultar' : 'Mostrar'}
           disabled={isTogglingId === item.id}
           onClick={() => onToggleVisible(item)}
         >
-          {item.visible
-            ? <EyeOff className="h-3.5 w-3.5 text-gray-400" />
-            : <Eye className="h-3.5 w-3.5 text-gray-400" />
-          }
+          {item.visible ? (
+            <EyeOff className="h-3.5 w-3.5 text-gray-400" />
+          ) : (
+            <Eye className="h-3.5 w-3.5 text-gray-400" />
+          )}
         </Button>
         <Button
-          size="sm" variant="ghost"
+          size="sm"
+          variant="ghost"
           className="h-7 w-7 p-0"
           title="Editar"
           onClick={() => onEdit(item)}
@@ -266,8 +352,8 @@ export default function ContenidoWebPage() {
   const page = Number(searchParams.get('page')) || 0
 
   const [search, setSearch] = useState(searchParams.get('search') || '')
-  const [editTarget, setEditTarget]   = useState<ContenidoWeb | null>(null)
-  const [togglingId, setTogglingId]   = useState<number | null>(null)
+  const [editTarget, setEditTarget] = useState<ContenidoWeb | null>(null)
+  const [togglingId, setTogglingId] = useState<number | null>(null)
 
   const claveBusqueda = useDebounce(search.trim() || undefined, 350)
 
@@ -292,20 +378,24 @@ export default function ContenidoWebPage() {
   }, [claveBusqueda, pathname, router, searchParams])
 
   const {
-    data: secciones = [], isLoading: loadingSecciones,
-    isError: errorSecciones, refetch: refetchSecciones,
+    data: secciones = [],
+    isLoading: loadingSecciones,
+    isError: errorSecciones,
+    refetch: refetchSecciones,
   } = useSeccionesWeb()
 
   const {
-    data: paged, isLoading: loadingItems,
-    isError: errorItems, refetch: refetchItems,
+    data: paged,
+    isLoading: loadingItems,
+    isError: errorItems,
+    refetch: refetchItems,
   } = useContenidoWeb(claveBusqueda, seccionId, page)
 
   const actualizar = useActualizarContenidoWeb()
 
-  const items      = paged?.content      ?? []
-  const totalPages = paged?.totalPages   ?? 0
-  const total      = paged?.totalElements ?? 0
+  const items = paged?.content ?? []
+  const totalPages = paged?.totalPages ?? 0
+  const total = paged?.totalElements ?? 0
 
   function handleSeccionChange(codigo: string | undefined) {
     const params = new URLSearchParams(searchParams.toString())
@@ -343,7 +433,10 @@ export default function ContenidoWebPage() {
   function handleToggleVisible(item: ContenidoWeb) {
     setTogglingId(item.id)
     actualizar.mutate(
-      { id: item.id, payload: { valorEs: item.valorEs, visible: !item.visible } },
+      {
+        id: item.id,
+        payload: { valorEs: item.valorEs, visible: !item.visible },
+      },
       { onSettled: () => setTogglingId(null) }
     )
   }
@@ -352,7 +445,12 @@ export default function ContenidoWebPage() {
 
   return (
     <div className="space-y-4">
-      <Breadcrumbs items={[{ label: 'CMS', href: '/admin/cms' }, { label: 'Contenido Web' }]} />
+      <Breadcrumbs
+        items={[
+          { label: 'CMS', href: '/admin/cms' },
+          { label: 'Contenido Web' },
+        ]}
+      />
 
       <PageHeader
         title="Contenido Web"
@@ -367,7 +465,9 @@ export default function ContenidoWebPage() {
           </p>
           {loadingSecciones ? (
             <div className="space-y-1.5">
-              {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-9 rounded-lg" />)}
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-9 rounded-lg" />
+              ))}
             </div>
           ) : (
             <div className="space-y-1">
@@ -384,7 +484,8 @@ export default function ContenidoWebPage() {
               </button>
               {secciones.map((s) => (
                 <button
-                  key={s.codigo} type="button"
+                  key={s.codigo}
+                  type="button"
                   onClick={() => handleSeccionChange(s.codigo)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                     seccionId === s.codigo
@@ -425,14 +526,20 @@ export default function ContenidoWebPage() {
 
           {loadingItems && (
             <div className="space-y-2">
-              {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-16 rounded-xl" />
+              ))}
             </div>
           )}
 
           {!loadingItems && !errorItems && items.length === 0 && (
             <EmptyState
               title="Sin resultados"
-              description={search ? `No hay contenido que coincida con "${search}".` : 'No hay entradas de contenido para esta sección.'}
+              description={
+                search
+                  ? `No hay contenido que coincida con "${search}".`
+                  : 'No hay entradas de contenido para esta sección.'
+              }
               icon={<Globe className="h-6 w-6" />}
             />
           )}
@@ -446,7 +553,8 @@ export default function ContenidoWebPage() {
               <div className="space-y-2">
                 {items.map((item) => (
                   <ContenidoRow
-                    key={item.id} item={item}
+                    key={item.id}
+                    item={item}
                     onEdit={setEditTarget}
                     onToggleVisible={handleToggleVisible}
                     isTogglingId={togglingId}
@@ -461,7 +569,8 @@ export default function ContenidoWebPage() {
                   </p>
                   <div className="flex gap-1">
                     <Button
-                      size="sm" variant="outline"
+                      size="sm"
+                      variant="outline"
                       disabled={page === 0}
                       onClick={() => handlePageChange(page - 1)}
                       className="h-7 w-7 p-0"
@@ -469,7 +578,8 @@ export default function ContenidoWebPage() {
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <Button
-                      size="sm" variant="outline"
+                      size="sm"
+                      variant="outline"
                       disabled={page >= totalPages - 1}
                       onClick={() => handlePageChange(page + 1)}
                       className="h-7 w-7 p-0"

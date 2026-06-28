@@ -20,24 +20,26 @@ Tres problemas identificados en el módulo `admin/finanzas`:
 
 **Params en URL:**
 
-| Param | Tipo | Default | Descripción |
-|---|---|---|---|
-| `desde` | `string` (YYYY-MM-DD) | `''` | Inicio del rango de fechas |
-| `hasta` | `string` (YYYY-MM-DD) | `''` | Fin del rango de fechas |
-| `page` | `number` | `0` | Página actual (paginación) |
-| `tipo` | `string` | `''` | Código de tipo de ingreso (filtro client-side) |
-| `medio` | `string` | `''` | Medio de pago (filtro client-side) |
-| `origen` | `'auto' \| 'manual' \| ''` | `''` | Filtro por `esAutomatico` |
+| Param    | Tipo                       | Default | Descripción                                    |
+| -------- | -------------------------- | ------- | ---------------------------------------------- |
+| `desde`  | `string` (YYYY-MM-DD)      | `''`    | Inicio del rango de fechas                     |
+| `hasta`  | `string` (YYYY-MM-DD)      | `''`    | Fin del rango de fechas                        |
+| `page`   | `number`                   | `0`     | Página actual (paginación)                     |
+| `tipo`   | `string`                   | `''`    | Código de tipo de ingreso (filtro client-side) |
+| `medio`  | `string`                   | `''`    | Medio de pago (filtro client-side)             |
+| `origen` | `'auto' \| 'manual' \| ''` | `''`    | Filtro por `esAutomatico`                      |
 
 **Regla de activación de filtros client-side:**
 Los filtros `tipo`, `medio` y `origen` solo se aplican cuando hay un rango de fechas activo (`desde` y `hasta`), porque solo entonces el backend devuelve la lista completa. Con paginación activa, filtrar sobre 20 registros sería confuso.
 
 **UI de filtros:**
+
 ```
 [ Desde ] [ Hasta ]  →  aparecen: [ Tipo ▾ ] [ Medio ▾ ] [ Origen ▾ ] [ Buscar... ]  [ × Limpiar ]
 ```
 
 **Cambios:**
+
 - Eliminar `const [page, setPage] = useState(0)` → `searchParams.get('page')`
 - Eliminar `const [inicio, setFin] = useState('')` → `searchParams.get('desde')`
 - Añadir barra de filtros secundaria (tipo, medio, origen) visible solo con rango activo
@@ -52,16 +54,17 @@ Los filtros `tipo`, `medio` y `origen` solo se aplican cuando hay un rango de fe
 
 **Params a agregar:**
 
-| Param | Aplica en tab | Descripción |
-|---|---|---|
-| `desde` | `egresos` | Inicio del rango de fechas |
-| `hasta` | `egresos` | Fin del rango de fechas |
-| `page` | `egresos` | Página actual |
-| `tipo` | `egresos` | Código de tipo de egreso (client-side, solo con rango) |
-| `recurrente` | `egresos` | `'si' \| 'no' \| ''` (client-side, solo con rango) |
-| `q` | `egresos` | Búsqueda por texto en descripcion (client-side) |
+| Param        | Aplica en tab | Descripción                                            |
+| ------------ | ------------- | ------------------------------------------------------ |
+| `desde`      | `egresos`     | Inicio del rango de fechas                             |
+| `hasta`      | `egresos`     | Fin del rango de fechas                                |
+| `page`       | `egresos`     | Página actual                                          |
+| `tipo`       | `egresos`     | Código de tipo de egreso (client-side, solo con rango) |
+| `recurrente` | `egresos`     | `'si' \| 'no' \| ''` (client-side, solo con rango)     |
+| `q`          | `egresos`     | Búsqueda por texto en descripcion (client-side)        |
 
 **Cambios:**
+
 - Mover `page`, `inicio`, `fin` de `useState` a `useSearchParams`
 - Añadir filtros secundarios (tipo, recurrente, q) visibles solo con rango activo en tab "egresos"
 - Las tabs "gastos-op" y "gastos-ev" ya tienen `PeriodoSelector` con URL state — sin cambios
@@ -72,15 +75,16 @@ Los filtros `tipo`, `medio` y `origen` solo se aplican cuando hay un rango de fe
 
 **Params a agregar:**
 
-| Param | Aplica en tab | Descripción |
-|---|---|---|
-| `tab` | todas | `'mensual' \| 'diario' \| 'metricas'` |
-| `anio` | `mensual`, `metricas` | Año del período |
-| `mes` | `mensual`, `metricas` | Mes del período (1-12) |
-| `desde` | `diario` | Inicio del rango diario |
-| `hasta` | `diario` | Fin del rango diario |
+| Param   | Aplica en tab         | Descripción                           |
+| ------- | --------------------- | ------------------------------------- |
+| `tab`   | todas                 | `'mensual' \| 'diario' \| 'metricas'` |
+| `anio`  | `mensual`, `metricas` | Año del período                       |
+| `mes`   | `mensual`, `metricas` | Mes del período (1-12)                |
+| `desde` | `diario`              | Inicio del rango diario               |
+| `hasta` | `diario`              | Fin del rango diario                  |
 
 **Cambios:**
+
 - Reemplazar `defaultValue` de `<Tabs>` por `value={tab}` desde `useSearchParams`
 - Subir el estado de período de cada sub-componente al componente padre
 - Pasar los valores como props a `ResumenMensualTab`, `ResumenDiarioTab`, `MetricasReservasTab`
@@ -91,28 +95,31 @@ Los filtros `tipo`, `medio` y `origen` solo se aplican cuando hay un rango de fe
 
 ### B.1 Decisión de arquitectura
 
-| Opción | Descripción |
-|---|---|
+| Opción                         | Descripción                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------- |
 | Sheet independiente por página | Botón "Gestionar tipos" en ingresos → Sheet de tipos ingreso. Mismo en egresos. |
-| Sheet unificado desde nav | Un solo Sheet accesible desde la nav del layout, con tabs Ingresos/Egresos. |
+| Sheet unificado desde nav      | Un solo Sheet accesible desde la nav del layout, con tabs Ingresos/Egresos.     |
 
 **Elegida: Sheet independiente por página.** El usuario que está en ingresos gestiona solo tipos de ingreso, lo cual es más intuitivo y no requiere cambios en el layout.
 
 ### B.2 Componentes a crear/modificar
 
 **`features/admin/finanzas/components/TiposIngresoManager.tsx`** (nuevo)
+
 - Extrae la lógica de tipos de ingreso que actualmente está embebida en `ingresos/tipos/page.tsx`
 - Misma estructura que `TiposEgresoManager`: tabla + Dialog crear + Dialog confirmar desactivar
 - Añade: campo de búsqueda por nombre/código (client-side sobre `tipos`)
 - Añade: stats resumen — `{activos} activos · {inactivos} inactivos`
 
 **`features/admin/finanzas/components/TiposEgresoManager.tsx`** (modificar)
+
 - Añadir: búsqueda por nombre/código (client-side)
 - Añadir: stats resumen — `{activos} activos · {inactivos} inactivos`
 - Añadir: columna "Código" (actualmente no visible en la tabla)
 - Sin cambios en la lógica de mutaciones
 
 **`features/admin/finanzas/components/TiposSheet.tsx`** (nuevo)
+
 - Wrapper genérico que recibe `tipo: 'ingreso' | 'egreso'` y renderiza el manager correspondiente
 - Alternativamente: dos componentes separados `TiposIngresoSheet.tsx` / `TiposEgresoSheet.tsx`
 
@@ -121,15 +128,18 @@ Los filtros `tipo`, `medio` y `origen` solo se aplican cuando hay un rango de fe
 ### B.3 Cambios en páginas
 
 **`ingresos/page.tsx`:**
+
 - Reemplazar: `<Link href="/admin/finanzas/ingresos/tipos"><Button>Ver tipos</Button></Link>`
 - Por: `<Button onClick={() => setOpenTipos(true)}>Gestionar tipos</Button>`
 - Añadir: `<Sheet open={openTipos} onOpenChange={setOpenTipos}><TiposIngresoManager /></Sheet>`
 - Estado `openTipos` en `useState` (no necesita URL)
 
 **`egresos/page.tsx`:**
+
 - Mismo patrón con `TiposEgresoManager`
 
 **Rutas `/egresos/tipos` e `/ingresos/tipos`:**
+
 - Las páginas actuales se mantienen pero redirigen a la página padre con el sheet abierto
 - O se eliminan y se confía en que el acceso es solo desde el botón
 - **Elegido**: mantener las rutas pero simplificarlas (solo accesibles desde el botón en la page padre, no desde nav)
@@ -158,19 +168,20 @@ El "Nuevo tipo" dentro del Sheet abre el Dialog existente por encima (ya funcion
 
 Las pages usan clases hardcodeadas de Tailwind (`bg-white`, `bg-gray-50`, `text-gray-900`, etc.) en lugar de los tokens CSS semánticos definidos en `globals.css` (`:root` / `.dark`):
 
-| Clase hardcodeada | Token semántico equivalente |
-|---|---|
-| `bg-white` | `bg-card` |
-| `bg-gray-50` | `bg-muted/40` |
-| `text-gray-900` | `text-foreground` |
-| `text-gray-700` / `text-gray-800` | `text-foreground/80` |
-| `text-gray-500` / `text-gray-600` | `text-muted-foreground` |
-| `text-gray-400` | `text-muted-foreground/70` |
-| `border-gray-100` | `border-border` |
-| `border-gray-200` | `border-border` |
-| `divide-gray-100` | `divide-border` |
+| Clase hardcodeada                 | Token semántico equivalente |
+| --------------------------------- | --------------------------- |
+| `bg-white`                        | `bg-card`                   |
+| `bg-gray-50`                      | `bg-muted/40`               |
+| `text-gray-900`                   | `text-foreground`           |
+| `text-gray-700` / `text-gray-800` | `text-foreground/80`        |
+| `text-gray-500` / `text-gray-600` | `text-muted-foreground`     |
+| `text-gray-400`                   | `text-muted-foreground/70`  |
+| `border-gray-100`                 | `border-border`             |
+| `border-gray-200`                 | `border-border`             |
+| `divide-gray-100`                 | `divide-border`             |
 
 El `globals.css` compensa con overrides `!important`, pero estos no cubren:
+
 - `<select>` nativos con `border-gray-200 bg-white` inline (en `reportes/page.tsx`)
 - `border-b` sin clase de color (hereda el color por defecto del browser)
 - `hover:bg-gray-50` en filas de tabla
@@ -206,9 +217,11 @@ Alcance: solo las páginas y componentes dentro de `features/admin/finanzas` y `
 ```
 
 **`<select>` nativos** (en `reportes/page.tsx`):
+
 - Reemplazar `<select className="border-gray-200 bg-white...">` por el componente `<Select>` de shadcn/ui que ya soporta dark mode
 
 **Layout (`finanzas/layout.tsx`):**
+
 ```tsx
 // Antes
 <nav className="... border-gray-100 bg-white ...">
@@ -222,15 +235,15 @@ Alcance: solo las páginas y componentes dentro de `features/admin/finanzas` y `
 
 ### C.3 Archivos afectados
 
-| Archivo | Cambios |
-|---|---|
-| `app/admin/finanzas/layout.tsx` | nav: `bg-white` → `bg-card`, `border-gray-100` → `border-border`, colores de texto |
-| `app/admin/finanzas/ingresos/page.tsx` | tabla, headers, rows, filtros |
-| `app/admin/finanzas/egresos/page.tsx` | tabla, headers, rows, Sheet |
-| `app/admin/finanzas/reportes/page.tsx` | `<select>` nativos → `<Select>` de shadcn, tablas |
-| `app/admin/finanzas/caja/page.tsx` | si aplica |
-| `features/admin/finanzas/components/TiposEgresoManager.tsx` | tabla interna |
-| `features/cajero/components/MovimientosTable.tsx` | tabla |
+| Archivo                                                     | Cambios                                                                            |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `app/admin/finanzas/layout.tsx`                             | nav: `bg-white` → `bg-card`, `border-gray-100` → `border-border`, colores de texto |
+| `app/admin/finanzas/ingresos/page.tsx`                      | tabla, headers, rows, filtros                                                      |
+| `app/admin/finanzas/egresos/page.tsx`                       | tabla, headers, rows, Sheet                                                        |
+| `app/admin/finanzas/reportes/page.tsx`                      | `<select>` nativos → `<Select>` de shadcn, tablas                                  |
+| `app/admin/finanzas/caja/page.tsx`                          | si aplica                                                                          |
+| `features/admin/finanzas/components/TiposEgresoManager.tsx` | tabla interna                                                                      |
+| `features/cajero/components/MovimientosTable.tsx`           | tabla                                                                              |
 
 **`globals.css`:** Una vez migrados, los overrides `!important` existentes se pueden mantener como fallback o eliminar progresivamente — no rompen nada.
 
@@ -238,21 +251,21 @@ Alcance: solo las páginas y componentes dentro de `features/admin/finanzas` y `
 
 ## Resumen de fases y archivos
 
-| Fase | Archivos | Descripción |
-|---|---|---|
-| **A.1** | `ingresos/page.tsx` | URL state (desde, hasta, page, tipo, medio, origen) + filtros UI |
-| **A.2** | `egresos/page.tsx` | URL state (desde, hasta, page, tipo, recurrente, q) + filtros UI |
-| **A.3** | `reportes/page.tsx` | URL state (tab, anio, mes, desde, hasta) |
-| **B.1** | `TiposIngresoManager.tsx` (nuevo) | Manager con búsqueda y stats |
-| **B.2** | `TiposEgresoManager.tsx` (modificar) | + búsqueda, + stats, + columna código |
-| **B.3** | `ingresos/page.tsx` | Botón → Sheet con TiposIngresoManager |
-| **B.4** | `egresos/page.tsx` | Botón → Sheet con TiposEgresoManager |
-| **C.1** | `layout.tsx` | Tokens semánticos en nav |
-| **C.2** | `ingresos/page.tsx` | Tokens semánticos en tabla y filtros |
-| **C.3** | `egresos/page.tsx` | Tokens semánticos |
-| **C.4** | `reportes/page.tsx` | Tokens semánticos + `<Select>` en vez de `<select>` nativo |
-| **C.5** | `TiposEgresoManager.tsx` | Tokens semánticos |
-| **C.6** | `MovimientosTable.tsx` | Tokens semánticos |
+| Fase    | Archivos                             | Descripción                                                      |
+| ------- | ------------------------------------ | ---------------------------------------------------------------- |
+| **A.1** | `ingresos/page.tsx`                  | URL state (desde, hasta, page, tipo, medio, origen) + filtros UI |
+| **A.2** | `egresos/page.tsx`                   | URL state (desde, hasta, page, tipo, recurrente, q) + filtros UI |
+| **A.3** | `reportes/page.tsx`                  | URL state (tab, anio, mes, desde, hasta)                         |
+| **B.1** | `TiposIngresoManager.tsx` (nuevo)    | Manager con búsqueda y stats                                     |
+| **B.2** | `TiposEgresoManager.tsx` (modificar) | + búsqueda, + stats, + columna código                            |
+| **B.3** | `ingresos/page.tsx`                  | Botón → Sheet con TiposIngresoManager                            |
+| **B.4** | `egresos/page.tsx`                   | Botón → Sheet con TiposEgresoManager                             |
+| **C.1** | `layout.tsx`                         | Tokens semánticos en nav                                         |
+| **C.2** | `ingresos/page.tsx`                  | Tokens semánticos en tabla y filtros                             |
+| **C.3** | `egresos/page.tsx`                   | Tokens semánticos                                                |
+| **C.4** | `reportes/page.tsx`                  | Tokens semánticos + `<Select>` en vez de `<select>` nativo       |
+| **C.5** | `TiposEgresoManager.tsx`             | Tokens semánticos                                                |
+| **C.6** | `MovimientosTable.tsx`               | Tokens semánticos                                                |
 
 ---
 

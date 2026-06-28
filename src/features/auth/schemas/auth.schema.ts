@@ -1,5 +1,11 @@
 import { z } from 'zod'
-import { nombreField, correoField, telefonoField, dniOpcionalField, contrasenaSeguraField } from '@/lib/validations/campos'
+import {
+  nombreField,
+  correoField,
+  telefonoField,
+  dniOpcionalField,
+  contrasenaSeguraField,
+} from '@/lib/validations/campos'
 
 export const loginSchema = z.object({
   correo: correoField,
@@ -31,7 +37,10 @@ export const registroSchema = z
 export type RegistroFormValues = z.infer<typeof registroSchema>
 
 export const recuperarSchema = z.object({
-  email: z.string().min(1, 'El correo es obligatorio').email('Ingresa un correo válido'),
+  email: z
+    .string()
+    .min(1, 'El correo es obligatorio')
+    .email('Ingresa un correo válido'),
 })
 
 export type RecuperarFormValues = z.infer<typeof recuperarSchema>

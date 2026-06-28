@@ -1,5 +1,13 @@
 import { useMemo } from 'react'
-import { History, Ticket, CheckCircle2, XCircle, Clock, Star, PartyPopper } from 'lucide-react'
+import {
+  History,
+  Ticket,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Star,
+  PartyPopper,
+} from 'lucide-react'
 import { parseISO, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Reserva, EventoPrivado } from '../../../shared/types'
@@ -30,24 +38,83 @@ function formatRelativo(fecha: string): string {
   }
 }
 
-function buildTimeline(reservas: Reserva[], eventos: EventoPrivado[]): TimelineItem[] {
-  const reservaConfig: Record<string, { titulo: string; iconColor: string; bgColor: string; Icon: any }> = {
-    PENDIENTE:    { titulo: 'Reserva creada',       iconColor: 'text-amber-600',   bgColor: 'bg-amber-50',   Icon: Ticket },
-    CONFIRMADA:   { titulo: 'Reserva confirmada',   iconColor: 'text-green-600',   bgColor: 'bg-green-50',   Icon: CheckCircle2 },
-    COMPLETADA:   { titulo: 'Visita realizada',     iconColor: 'text-brand-azul',  bgColor: 'bg-brand-azul/10', Icon: CheckCircle2 },
-    CANCELADA:    { titulo: 'Reserva cancelada',    iconColor: 'text-red-500',     bgColor: 'bg-red-50',     Icon: XCircle },
-    REPROGRAMADA: { titulo: 'Reserva reprogramada', iconColor: 'text-purple-600',  bgColor: 'bg-purple-50',  Icon: Clock },
+function buildTimeline(
+  reservas: Reserva[],
+  eventos: EventoPrivado[]
+): TimelineItem[] {
+  const reservaConfig: Record<
+    string,
+    { titulo: string; iconColor: string; bgColor: string; Icon: any }
+  > = {
+    PENDIENTE: {
+      titulo: 'Reserva creada',
+      iconColor: 'text-amber-600',
+      bgColor: 'bg-amber-50',
+      Icon: Ticket,
+    },
+    CONFIRMADA: {
+      titulo: 'Reserva confirmada',
+      iconColor: 'text-green-600',
+      bgColor: 'bg-green-50',
+      Icon: CheckCircle2,
+    },
+    COMPLETADA: {
+      titulo: 'Visita realizada',
+      iconColor: 'text-brand-azul',
+      bgColor: 'bg-brand-azul/10',
+      Icon: CheckCircle2,
+    },
+    CANCELADA: {
+      titulo: 'Reserva cancelada',
+      iconColor: 'text-red-500',
+      bgColor: 'bg-red-50',
+      Icon: XCircle,
+    },
+    REPROGRAMADA: {
+      titulo: 'Reserva reprogramada',
+      iconColor: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      Icon: Clock,
+    },
   }
-  const eventoConfig: Record<string, { titulo: string; iconColor: string; bgColor: string; Icon: any }> = {
-    SOLICITADA:  { titulo: 'Evento solicitado',  iconColor: 'text-brand-rosa',  bgColor: 'bg-brand-rosa/10', Icon: PartyPopper },
-    CONFIRMADA:  { titulo: 'Evento confirmado',  iconColor: 'text-green-600',   bgColor: 'bg-green-50',   Icon: CheckCircle2 },
-    COMPLETADA:  { titulo: 'Evento completado',  iconColor: 'text-amber-500',   bgColor: 'bg-amber-50',   Icon: Star },
-    CANCELADA:   { titulo: 'Evento cancelado',   iconColor: 'text-red-500',     bgColor: 'bg-red-50',     Icon: XCircle },
+  const eventoConfig: Record<
+    string,
+    { titulo: string; iconColor: string; bgColor: string; Icon: any }
+  > = {
+    SOLICITADA: {
+      titulo: 'Evento solicitado',
+      iconColor: 'text-brand-rosa',
+      bgColor: 'bg-brand-rosa/10',
+      Icon: PartyPopper,
+    },
+    CONFIRMADA: {
+      titulo: 'Evento confirmado',
+      iconColor: 'text-green-600',
+      bgColor: 'bg-green-50',
+      Icon: CheckCircle2,
+    },
+    COMPLETADA: {
+      titulo: 'Evento completado',
+      iconColor: 'text-amber-500',
+      bgColor: 'bg-amber-50',
+      Icon: Star,
+    },
+    CANCELADA: {
+      titulo: 'Evento cancelado',
+      iconColor: 'text-red-500',
+      bgColor: 'bg-red-50',
+      Icon: XCircle,
+    },
   }
 
   const items: TimelineItem[] = [
     ...reservas.slice(0, 10).map((r) => {
-      const c = reservaConfig[r.estado] ?? { titulo: r.estado, iconColor: 'text-gray-500', bgColor: 'bg-gray-50', Icon: Ticket }
+      const c = reservaConfig[r.estado] ?? {
+        titulo: r.estado,
+        iconColor: 'text-gray-500',
+        bgColor: 'bg-gray-50',
+        Icon: Ticket,
+      }
       return {
         id: `r-${r.id}`,
         titulo: c.titulo,
@@ -59,7 +126,12 @@ function buildTimeline(reservas: Reserva[], eventos: EventoPrivado[]): TimelineI
       }
     }),
     ...eventos.slice(0, 10).map((e) => {
-      const c = eventoConfig[e.estado] ?? { titulo: e.estado, iconColor: 'text-gray-500', bgColor: 'bg-gray-50', Icon: PartyPopper }
+      const c = eventoConfig[e.estado] ?? {
+        titulo: e.estado,
+        iconColor: 'text-gray-500',
+        bgColor: 'bg-gray-50',
+        Icon: PartyPopper,
+      }
       return {
         id: `e-${e.id}`,
         titulo: c.titulo,
@@ -77,8 +149,14 @@ function buildTimeline(reservas: Reserva[], eventos: EventoPrivado[]): TimelineI
     .slice(0, 8)
 }
 
-export function ActividadReciente({ reservas, eventos }: ActividadRecienteProps) {
-  const items = useMemo(() => buildTimeline(reservas, eventos), [reservas, eventos])
+export function ActividadReciente({
+  reservas,
+  eventos,
+}: ActividadRecienteProps) {
+  const items = useMemo(
+    () => buildTimeline(reservas, eventos),
+    [reservas, eventos]
+  )
 
   if (items.length === 0) {
     return (
@@ -98,13 +176,22 @@ export function ActividadReciente({ reservas, eventos }: ActividadRecienteProps)
             {idx < items.length - 1 && (
               <div className="absolute left-4 top-8 bottom-0 w-px bg-gray-100" />
             )}
-            <div className={cn('w-8 h-8 rounded-xl flex items-center justify-center shrink-0 z-10', item.bgColor)}>
+            <div
+              className={cn(
+                'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 z-10',
+                item.bgColor
+              )}
+            >
               <item.Icon className={cn('h-3.5 w-3.5', item.iconColor)} />
             </div>
             <div className="pb-4 flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900">{item.titulo}</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {item.titulo}
+              </p>
               <p className="text-xs text-gray-500 truncate">{item.subtitulo}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">{formatRelativo(item.fecha)}</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">
+                {formatRelativo(item.fecha)}
+              </p>
             </div>
           </div>
         ))}

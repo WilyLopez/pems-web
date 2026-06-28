@@ -47,7 +47,10 @@ export function RecuperarContrasenaView() {
             <p className="text-xl font-black text-gray-900">Revisa tu correo</p>
             <p className="text-sm text-gray-500 mt-2">
               Te enviamos un enlace para restablecer tu contraseña a{' '}
-              <span className="font-semibold text-gray-700">{emailEnviado}</span>.
+              <span className="font-semibold text-gray-700">
+                {emailEnviado}
+              </span>
+              .
             </p>
             <p className="text-xs text-gray-400 mt-2">
               Si no ves el correo, revisa tu carpeta de spam.
@@ -103,7 +106,9 @@ export function RecuperarContrasenaView() {
           </div>
 
           <div>
-            <h1 className="text-3xl font-black text-gray-900">Recuperar contraseña</h1>
+            <h1 className="text-3xl font-black text-gray-900">
+              Recuperar contraseña
+            </h1>
             <p className="text-gray-500 mt-1 text-sm">
               Ingresa tu correo y te enviaremos un enlace para restablecerla.
             </p>
@@ -125,7 +130,9 @@ export function RecuperarContrasenaView() {
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-destructive">{errors.email.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 

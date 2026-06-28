@@ -2,14 +2,32 @@
 
 import React, { useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { Controller, useFieldArray, useFormState, useWatch, type Control } from 'react-hook-form'
+import {
+  Controller,
+  useFieldArray,
+  useFormState,
+  useWatch,
+  type Control,
+} from 'react-hook-form'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select'
 import { formatCurrency, cn } from '@/lib/utils'
 import { PagoLinea } from '../../types'
-import { METODOS_PAGO, type VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
-import { calcularResumenPagos, DENOMINACIONES_EFECTIVO } from '../../utils/ventas.utils'
+import {
+  METODOS_PAGO,
+  type VentaMostradorFormValues,
+} from '../../schema/ventaMostrador.schema'
+import {
+  calcularResumenPagos,
+  DENOMINACIONES_EFECTIVO,
+} from '../../utils/ventas.utils'
 
 interface PagoPosFormProps {
   control: Control<VentaMostradorFormValues>
@@ -27,10 +45,16 @@ const METODOS: { value: (typeof METODOS_PAGO)[number]; label: string }[] = [
 export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
   const { fields, append, remove } = useFieldArray({ control, name: 'pagos' })
   const pagos = useWatch({ control, name: 'pagos' }) as PagoLinea[]
-  const efectivoRecibido = useWatch({ control, name: 'efectivoRecibido' }) as number
+  const efectivoRecibido = useWatch({
+    control,
+    name: 'efectivoRecibido',
+  }) as number
   const [otroMonto, setOtroMonto] = useState('')
 
-  const { errors } = useFormState({ control, name: ['pagos', 'efectivoRecibido'] })
+  const { errors } = useFormState({
+    control,
+    name: ['pagos', 'efectivoRecibido'],
+  })
 
   const addPago = () => {
     const usados = new Set(pagos?.map((p) => p.medioPago) || [])
@@ -39,16 +63,25 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
     append({ medioPago: disponible.value, monto: 0 })
   }
 
-  const { sumaPagos, vuelto, saldo } = calcularResumenPagos(pagos || [], efectivoRecibido || 0, total)
+  const { sumaPagos, vuelto, saldo } = calcularResumenPagos(
+    pagos || [],
+    efectivoRecibido || 0,
+    total
+  )
 
-  const tieneEfectivo = pagos.some((p) => p.medioPago === 'EFECTIVO' && p.monto > 0)
-  const efectivoMonto = pagos.find((p) => p.medioPago === 'EFECTIVO')?.monto ?? 0
+  const tieneEfectivo = pagos.some(
+    (p) => p.medioPago === 'EFECTIVO' && p.monto > 0
+  )
+  const efectivoMonto =
+    pagos.find((p) => p.medioPago === 'EFECTIVO')?.monto ?? 0
   const todosUsados = (pagos?.length ?? 0) >= METODOS.length
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Pagos</Label>
+        <Label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">
+          Pagos
+        </Label>
         {!todosUsados && (
           <button
             type="button"
@@ -92,8 +125,13 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                       type="number"
                       placeholder="0.00"
                       value={f.value || ''}
-                      onChange={(e) => f.onChange(parseFloat(e.target.value) || 0)}
-                      className={cn('h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700', errorMonto && 'border-red-400 dark:border-red-600')}
+                      onChange={(e) =>
+                        f.onChange(parseFloat(e.target.value) || 0)
+                      }
+                      className={cn(
+                        'h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+                        errorMonto && 'border-red-400 dark:border-red-600'
+                      )}
                     />
                   )}
                 />
@@ -107,7 +145,11 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                   </button>
                 )}
               </div>
-              {errorMonto && <p className="text-[10px] text-red-500 dark:text-red-400 pl-1">{errorMonto}</p>}
+              {errorMonto && (
+                <p className="text-[10px] text-red-500 dark:text-red-400 pl-1">
+                  {errorMonto}
+                </p>
+              )}
             </div>
           )
         })}
@@ -116,8 +158,12 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
       {tieneEfectivo && (
         <div className="p-3 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Efectivo recibido</Label>
-            <span className="text-xs font-bold text-brand-azul">{formatCurrency(efectivoRecibido)}</span>
+            <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">
+              Efectivo recibido
+            </Label>
+            <span className="text-xs font-bold text-brand-azul">
+              {formatCurrency(efectivoRecibido)}
+            </span>
           </div>
 
           <Controller
@@ -188,8 +234,12 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
 
           {vuelto > 0 && (
             <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
-              <span className="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase">Vuelto</span>
-              <span className="text-sm font-black text-green-600 dark:text-green-400">{formatCurrency(vuelto)}</span>
+              <span className="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase">
+                Vuelto
+              </span>
+              <span className="text-sm font-black text-green-600 dark:text-green-400">
+                {formatCurrency(vuelto)}
+              </span>
             </div>
           )}
         </div>
@@ -197,7 +247,9 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
 
       {sumaPagos > 0 && Math.abs(sumaPagos - total) > 0.01 && (
         <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 text-center">
-          {sumaPagos < total ? `Falta cobrar ${formatCurrency(saldo)}` : `Sobra ${formatCurrency(sumaPagos - total)}`}
+          {sumaPagos < total
+            ? `Falta cobrar ${formatCurrency(saldo)}`
+            : `Sobra ${formatCurrency(sumaPagos - total)}`}
         </p>
       )}
     </div>

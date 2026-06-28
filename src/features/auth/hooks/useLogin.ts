@@ -3,7 +3,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/lib/store/auth.store'
 import { authService } from '@/services/auth.service'
-import { getDashboardUrl, COOKIE_TIPO_PERFIL, COOKIE_MAX_AGE } from '@/lib/auth-utils'
+import {
+  getDashboardUrl,
+  COOKIE_TIPO_PERFIL,
+  COOKIE_MAX_AGE,
+} from '@/lib/auth-utils'
 import { toast } from 'sonner'
 import { LoginFormValues } from '../schemas/auth.schema'
 
@@ -36,7 +40,9 @@ export function useLogin() {
 
       if (!res.ok) {
         await supabase.auth.signOut()
-        throw new Error('Tu cuenta no tiene acceso al sistema. Contacta al administrador.')
+        throw new Error(
+          'Tu cuenta no tiene acceso al sistema. Contacta al administrador.'
+        )
       }
 
       const meData = await res.json()
@@ -46,11 +52,22 @@ export function useLogin() {
       }
     },
     onSuccess: ({ loginData, meData }) => {
-      const { tipoPerfil, roles, permisos, perfilCompleto, nombre, correo, sedeId, clientePerfilId } = meData
+      const {
+        tipoPerfil,
+        roles,
+        permisos,
+        perfilCompleto,
+        nombre,
+        correo,
+        sedeId,
+        clientePerfilId,
+      } = meData
 
       document.cookie = `${COOKIE_TIPO_PERFIL}=${tipoPerfil}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`
 
-      useAuthStore.getState().setAuth({ user: loginData.user as any, token: loginData.access_token })
+      useAuthStore
+        .getState()
+        .setAuth({ user: loginData.user as any, token: loginData.access_token })
       useAuthStore.getState().setPermisos({
         roles,
         permisos,

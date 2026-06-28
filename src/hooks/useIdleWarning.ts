@@ -9,7 +9,9 @@ const AVISO_MS = 90_000
 export function useIdleWarning() {
   const { isAuthenticated, isAdmin } = useAuth()
   const { setAvisoExpiracion } = useSesionStore()
-  const timerAviso = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const timerAviso = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  )
 
   const idleMs = isAdmin ? 7_200_000 : 2_700_000
 
@@ -25,7 +27,13 @@ export function useIdleWarning() {
       }, idleMs - AVISO_MS)
     }
 
-    const eventos = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'] as const
+    const eventos = [
+      'mousedown',
+      'keydown',
+      'scroll',
+      'touchstart',
+      'click',
+    ] as const
     eventos.forEach((e) => window.addEventListener(e, reiniciar))
     reiniciar()
 

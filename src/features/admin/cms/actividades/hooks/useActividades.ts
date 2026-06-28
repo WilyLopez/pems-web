@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { comercialService } from '@/services/comercial.service'
 import { CMS_QUERY_KEYS } from '@/features/admin/cms/shared/queryKeys'
-import { ActividadLocal, CrearActividadPayload, ActualizarActividadPayload } from '@/types/comercial.types'
+import {
+  ActividadLocal,
+  CrearActividadPayload,
+  ActualizarActividadPayload,
+} from '@/types/comercial.types'
 
 export function useActividadesAdmin() {
   return useQuery({
@@ -28,21 +32,36 @@ export function useActividadMutations() {
   }
 
   const crear = useMutation({
-    mutationFn: (payload: CrearActividadPayload) => comercialService.actividades.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Actividad creada') },
+    mutationFn: (payload: CrearActividadPayload) =>
+      comercialService.actividades.crear(payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Actividad creada')
+    },
     onError: () => toast.error('Error al crear la actividad'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ActualizarActividadPayload }) =>
-      comercialService.actividades.actualizar(id, payload),
-    onSuccess: () => { invalidar(); toast.success('Actividad actualizada') },
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ActualizarActividadPayload
+    }) => comercialService.actividades.actualizar(id, payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Actividad actualizada')
+    },
     onError: () => toast.error('Error al actualizar la actividad'),
   })
 
   const eliminar = useMutation({
     mutationFn: (id: number) => comercialService.actividades.eliminar(id),
-    onSuccess: () => { invalidar(); toast.success('Actividad eliminada') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Actividad eliminada')
+    },
     onError: () => toast.error('Error al eliminar la actividad'),
   })
 
@@ -56,13 +75,21 @@ export function useActividadMutations() {
   const toggleActivo = useMutation({
     mutationFn: (a: ActividadLocal) =>
       comercialService.actividades.actualizar(a.id, {
-        nombre: a.nombre, descripcion: a.descripcion,
-        imagenUrl: a.imagenUrl, idZona: a.idZona,
-        esEspecial: a.esEspecial, fechaInicio: a.fechaInicio,
-        fechaFin: a.fechaFin, activa: !a.activa,
-        destacada: a.destacada, orden: a.orden,
+        nombre: a.nombre,
+        descripcion: a.descripcion,
+        imagenUrl: a.imagenUrl,
+        idZona: a.idZona,
+        esEspecial: a.esEspecial,
+        fechaInicio: a.fechaInicio,
+        fechaFin: a.fechaFin,
+        activa: !a.activa,
+        destacada: a.destacada,
+        orden: a.orden,
       }),
-    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Estado actualizado')
+    },
     onError: () => toast.error('No se pudo cambiar el estado'),
   })
 

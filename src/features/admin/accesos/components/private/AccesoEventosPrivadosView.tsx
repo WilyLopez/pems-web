@@ -11,7 +11,8 @@ export const AccesoEventosPrivadosView = () => {
         </div>
         <h3 className="text-lg font-bold text-gray-700">En Desarrollo</h3>
         <p className="text-sm text-gray-500 max-w-sm mx-auto">
-          El módulo de control de acceso para invitados a eventos privados se encuentra en construcción y estará disponible próximamente.
+          El módulo de control de acceso para invitados a eventos privados se
+          encuentra en construcción y estará disponible próximamente.
         </p>
       </CardContent>
     </Card>

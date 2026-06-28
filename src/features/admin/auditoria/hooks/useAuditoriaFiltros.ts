@@ -44,5 +44,12 @@ export function useAuditoriaFiltros() {
     filtros.idUsuario
   )
 
-  return { filtros, page, setPage, actualizarFiltro, limpiar, tieneFiltrosActivos }
+  return {
+    filtros,
+    page,
+    setPage,
+    actualizarFiltro,
+    limpiar,
+    tieneFiltrosActivos,
+  }
 }

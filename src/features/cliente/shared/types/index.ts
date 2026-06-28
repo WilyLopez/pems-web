@@ -11,10 +11,7 @@ export type {
   SolicitarEventoPayload,
 } from '@/types/evento.types'
 
-export type {
-  Cliente,
-  ActualizarClientePayload,
-} from '@/types/cliente.types'
+export type { Cliente, ActualizarClientePayload } from '@/types/cliente.types'
 
 export type TipoEvento = string
 export type Camino = 'paquete' | 'cotizacion' | null
@@ -31,5 +28,3 @@ export interface CrearReservaPayload {
 }
 
 export * from '../constants'
-
-

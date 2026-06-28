@@ -28,9 +28,12 @@ export function CompletarPerfilView() {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-black text-gray-900">Bienvenido a Kiki y Lala</h1>
+          <h1 className="text-2xl font-black text-gray-900">
+            Bienvenido a Kiki y Lala
+          </h1>
           <p className="text-sm text-gray-500">
-            Tu cuenta fue creada exitosamente. Completa tus datos personales para una mejor experiencia y acceder a todos los beneficios.
+            Tu cuenta fue creada exitosamente. Completa tus datos personales
+            para una mejor experiencia y acceder a todos los beneficios.
           </p>
         </div>
 

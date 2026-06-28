@@ -1,5 +1,10 @@
 export type OrigenCliente = 'WEB' | 'MOSTRADOR' | 'ADMIN' | 'IMPORTACION'
-export type SegmentoCliente = 'NUEVO' | 'FRECUENTE' | 'VIP' | 'CORPORATIVO' | 'INACTIVO'
+export type SegmentoCliente =
+  | 'NUEVO'
+  | 'FRECUENTE'
+  | 'VIP'
+  | 'CORPORATIVO'
+  | 'INACTIVO'
 
 export type FiltroCliente =
   | 'todos'

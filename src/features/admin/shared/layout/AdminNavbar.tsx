@@ -168,38 +168,47 @@ function GlobalSearch() {
 /* ─── Notificaciones ─────────────────────────────────────────────────────────── */
 
 const TIPO_ICON: Record<TipoVisual, LucideIcon> = {
-  reserva:  Ticket,
-  evento:   PartyPopper,
-  pago:     Wallet,
+  reserva: Ticket,
+  evento: PartyPopper,
+  pago: Wallet,
   contrato: FileText,
-  caja:     ShoppingBag,
-  sistema:  Info,
+  caja: ShoppingBag,
+  sistema: Info,
 }
 
 const TIPO_BADGE: Record<TipoVisual, string> = {
-  reserva:  'bg-brand-azul/10 text-brand-azul',
-  evento:   'bg-brand-rosa/10 text-brand-rosa',
-  pago:     'bg-amber-50 text-amber-600',
+  reserva: 'bg-brand-azul/10 text-brand-azul',
+  evento: 'bg-brand-rosa/10 text-brand-rosa',
+  pago: 'bg-amber-50 text-amber-600',
   contrato: 'bg-green-50 text-green-600',
-  caja:     'bg-orange-50 text-orange-600',
-  sistema:  'bg-gray-100 text-gray-500',
+  caja: 'bg-orange-50 text-orange-600',
+  sistema: 'bg-gray-100 text-gray-500',
 }
 
 const DOT_COLOR: Record<TipoVisual, string> = {
-  reserva:  'bg-brand-azul',
-  evento:   'bg-brand-rosa',
-  pago:     'bg-amber-500',
+  reserva: 'bg-brand-azul',
+  evento: 'bg-brand-rosa',
+  pago: 'bg-amber-500',
   contrato: 'bg-green-500',
-  caja:     'bg-orange-500',
-  sistema:  'bg-gray-400',
+  caja: 'bg-orange-500',
+  sistema: 'bg-gray-400',
 }
 
 const NotificacionesMenu = memo(function NotificacionesMenu() {
-  const { notificaciones, noLeidas, fetchNotificaciones, marcarLeida, marcarTodasLeidas } =
-    useNotificacionesStore()
+  const {
+    notificaciones,
+    noLeidas,
+    fetchNotificaciones,
+    marcarLeida,
+    marcarTodasLeidas,
+  } = useNotificacionesStore()
 
   return (
-    <DropdownMenu onOpenChange={(open) => { if (open) fetchNotificaciones() }}>
+    <DropdownMenu
+      onOpenChange={(open) => {
+        if (open) fetchNotificaciones()
+      }}
+    >
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -218,7 +227,9 @@ const NotificacionesMenu = memo(function NotificacionesMenu() {
         className="w-80 p-0 rounded-2xl overflow-hidden shadow-card-hover"
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-          <span className="font-bold text-sm text-gray-900">Notificaciones</span>
+          <span className="font-bold text-sm text-gray-900">
+            Notificaciones
+          </span>
           {noLeidas > 0 && (
             <div className="flex items-center gap-2">
               <Badge className="bg-brand-rosa text-white text-[10px] h-5 px-2 rounded-full">
@@ -253,27 +264,49 @@ const NotificacionesMenu = memo(function NotificacionesMenu() {
                     !n.leida && 'bg-brand-azul/[0.03]'
                   )}
                 >
-                  <div className={cn('mt-0.5 h-2 w-2 rounded-full shrink-0 mt-2',
-                    !n.leida ? DOT_COLOR[n.tipo] : 'bg-transparent'
-                  )} />
+                  <div
+                    className={cn(
+                      'mt-0.5 h-2 w-2 rounded-full shrink-0 mt-2',
+                      !n.leida ? DOT_COLOR[n.tipo] : 'bg-transparent'
+                    )}
+                  />
                   <div className="flex-1 min-w-0">
-                    <p className={cn(
-                      'text-xs leading-snug',
-                      n.leida ? 'text-gray-600' : 'text-gray-900 font-semibold'
-                    )}>
+                    <p
+                      className={cn(
+                        'text-xs leading-snug',
+                        n.leida
+                          ? 'text-gray-600'
+                          : 'text-gray-900 font-semibold'
+                      )}
+                    >
                       {n.titulo}
                     </p>
-                    <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">{n.mensaje}</p>
+                    <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">
+                      {n.mensaje}
+                    </p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[10px] text-gray-400">
-                        {formatDistanceToNow(n.fecha, { addSuffix: true, locale: es })}
+                        {formatDistanceToNow(n.fecha, {
+                          addSuffix: true,
+                          locale: es,
+                        })}
                       </span>
-                      <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full', TIPO_BADGE[n.tipo])}>
+                      <span
+                        className={cn(
+                          'text-[10px] font-semibold px-1.5 py-0.5 rounded-full',
+                          TIPO_BADGE[n.tipo]
+                        )}
+                      >
                         {n.tipo}
                       </span>
                     </div>
                   </div>
-                  <Icon className={cn('h-3.5 w-3.5 shrink-0 mt-1', TIPO_BADGE[n.tipo].split(' ')[1])} />
+                  <Icon
+                    className={cn(
+                      'h-3.5 w-3.5 shrink-0 mt-1',
+                      TIPO_BADGE[n.tipo].split(' ')[1]
+                    )}
+                  />
                 </div>
               )
             })
@@ -292,7 +325,6 @@ const NotificacionesMenu = memo(function NotificacionesMenu() {
     </DropdownMenu>
   )
 })
-
 
 export function AdminNavbar() {
   const { nombre, correo, logout } = useAuth()

@@ -9,25 +9,27 @@ interface IngresoDialogProps {
   numeroTicket?: string
 }
 
-export const IngresoDialog = React.memo(({ open, onClose, reservaId, numeroTicket }: IngresoDialogProps) => {
-  const ingreso = useConfirmarIngreso()
+export const IngresoDialog = React.memo(
+  ({ open, onClose, reservaId, numeroTicket }: IngresoDialogProps) => {
+    const ingreso = useConfirmarIngreso()
 
-  const handleConfirm = () => {
-    if (!reservaId) return
-    ingreso.mutate(reservaId, { onSuccess: onClose })
+    const handleConfirm = () => {
+      if (!reservaId) return
+      ingreso.mutate(reservaId, { onSuccess: onClose })
+    }
+
+    return (
+      <ConfirmDialog
+        open={open}
+        onOpenChange={(v) => !v && onClose()}
+        title="Registrar Ingreso"
+        description={`¿Confirmar el ingreso al local para el ticket ${numeroTicket}?`}
+        confirmLabel="Confirmar ingreso"
+        onConfirm={handleConfirm}
+        loading={ingreso.isPending}
+      />
+    )
   }
-
-  return (
-    <ConfirmDialog
-      open={open}
-      onOpenChange={(v) => !v && onClose()}
-      title="Registrar Ingreso"
-      description={`¿Confirmar el ingreso al local para el ticket ${numeroTicket}?`}
-      confirmLabel="Confirmar ingreso"
-      onConfirm={handleConfirm}
-      loading={ingreso.isPending}
-    />
-  )
-})
+)
 
 IngresoDialog.displayName = 'IngresoDialog'

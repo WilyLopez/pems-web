@@ -2,7 +2,15 @@
 
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Plus, Send, RefreshCw, Loader2, ChevronLeft, ChevronRight, Eye } from 'lucide-react'
+import {
+  Plus,
+  Send,
+  RefreshCw,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+} from 'lucide-react'
 
 import { marketingService } from '@/services/marketing.service'
 import { PageHeader } from '@/components/common/PageHeader'
@@ -26,7 +34,8 @@ export default function CampanasPage() {
     queryFn: () => marketingService.listarCampanas(page, 15),
   })
 
-  const invalidar = () => queryClient.invalidateQueries({ queryKey: ['campanas'] })
+  const invalidar = () =>
+    queryClient.invalidateQueries({ queryKey: ['campanas'] })
 
   return (
     <div className="space-y-5">
@@ -75,40 +84,61 @@ export default function CampanasPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                {['Nombre', 'Plantilla', 'Estado', 'Destinatarios', 'Enviados', 'Fallidos', 'Programada', ''].map(
-                  (h) => (
-                    <th
-                      key={h}
-                      className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-400"
-                    >
-                      {h}
-                    </th>
-                  )
-                )}
+                {[
+                  'Nombre',
+                  'Plantilla',
+                  'Estado',
+                  'Destinatarios',
+                  'Enviados',
+                  'Fallidos',
+                  'Programada',
+                  '',
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-400"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {data.content.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50/50 transition-colors">
+                <tr
+                  key={c.id}
+                  className="hover:bg-gray-50/50 transition-colors"
+                >
                   <td className="px-4 py-3.5 font-semibold text-gray-900">
                     {c.nombre}
                     {c.descripcion && (
-                      <p className="text-xs text-gray-400 font-normal">{c.descripcion}</p>
+                      <p className="text-xs text-gray-400 font-normal">
+                        {c.descripcion}
+                      </p>
                     )}
                   </td>
-                  <td className="px-4 py-3.5 text-gray-600 text-xs">{c.plantillaNombre}</td>
+                  <td className="px-4 py-3.5 text-gray-600 text-xs">
+                    {c.plantillaNombre}
+                  </td>
                   <td className="px-4 py-3.5">
                     <EstadoCampanaBadge estado={c.estado} />
                   </td>
-                  <td className="px-4 py-3.5 text-gray-700 font-medium">{c.totalDestinatarios}</td>
-                  <td className="px-4 py-3.5 text-emerald-700 font-medium">{c.totalEnviados}</td>
-                  <td className="px-4 py-3.5 text-red-600 font-medium">{c.totalFallidos}</td>
+                  <td className="px-4 py-3.5 text-gray-700 font-medium">
+                    {c.totalDestinatarios}
+                  </td>
+                  <td className="px-4 py-3.5 text-emerald-700 font-medium">
+                    {c.totalEnviados}
+                  </td>
+                  <td className="px-4 py-3.5 text-red-600 font-medium">
+                    {c.totalFallidos}
+                  </td>
                   <td className="px-4 py-3.5 text-xs text-gray-500">
                     {c.fechaProgramada ? formatDate(c.fechaProgramada) : '—'}
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-1.5">
-                      {(c.estado === 'BORRADOR' || c.estado === 'PROGRAMADA') && (
+                      {(c.estado === 'BORRADOR' ||
+                        c.estado === 'PROGRAMADA') && (
                         <Button
                           size="sm"
                           variant="outline"

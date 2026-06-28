@@ -4,14 +4,20 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 interface Props {
-  nombre:      string
+  nombre: string
   descripcion: string
-  edadMin?:    number | null
-  edadMax?:    number | null
-  imagenes:    string[]
+  edadMin?: number | null
+  edadMax?: number | null
+  imagenes: string[]
 }
 
-export function ZonaPreview({ nombre, descripcion, edadMin, edadMax, imagenes }: Props) {
+export function ZonaPreview({
+  nombre,
+  descripcion,
+  edadMin,
+  edadMax,
+  imagenes,
+}: Props) {
   const [imgActiva, setImgActiva] = useState(0)
   const imagenMostrada = imagenes[imgActiva] ?? null
 
@@ -24,7 +30,11 @@ export function ZonaPreview({ nombre, descripcion, edadMin, edadMax, imagenes }:
         <div className="aspect-video bg-gray-100 relative">
           {imagenMostrada ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={imagenMostrada} alt={nombre} className="w-full h-full object-cover" />
+            <img
+              src={imagenMostrada}
+              alt={nombre}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <p className="text-xs text-gray-300">Sin imagen</p>

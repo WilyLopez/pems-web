@@ -3,7 +3,11 @@
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { arqueoSchema, useArqueoMutations, AperturaCaja } from '@/features/admin/finanzas'
+import {
+  arqueoSchema,
+  useArqueoMutations,
+  AperturaCaja,
+} from '@/features/admin/finanzas'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -27,10 +31,17 @@ interface Props {
 export function RegistrarArqueoModal({ open, onOpenChange, caja }: Props) {
   const { registrar } = useArqueoMutations()
 
-  const saldoEsperado = caja.saldoEsperado
-    ?? (caja.saldoInicial + caja.totalIngresos - caja.totalEgresos)
+  const saldoEsperado =
+    caja.saldoEsperado ??
+    caja.saldoInicial + caja.totalIngresos - caja.totalEgresos
 
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(arqueoSchema),
     defaultValues: { saldoContado: 0 },
   })
@@ -43,7 +54,12 @@ export function RegistrarArqueoModal({ open, onOpenChange, caja }: Props) {
   function onSubmit(v: FormValues) {
     registrar.mutate(
       { idApertura: caja.id, payload: v },
-      { onSuccess: () => { reset(); onOpenChange(false) } },
+      {
+        onSuccess: () => {
+          reset()
+          onOpenChange(false)
+        },
+      }
     )
   }
 
@@ -57,7 +73,9 @@ export function RegistrarArqueoModal({ open, onOpenChange, caja }: Props) {
         <div className="bg-gray-50 rounded-xl p-3 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-500">Saldo esperado</span>
-            <span className="font-black text-gray-900">{formatCurrency(saldoEsperado)}</span>
+            <span className="font-black text-gray-900">
+              {formatCurrency(saldoEsperado)}
+            </span>
           </div>
         </div>
 
@@ -72,17 +90,26 @@ export function RegistrarArqueoModal({ open, onOpenChange, caja }: Props) {
               {...register('saldoContado')}
             />
             {errors.saldoContado && (
-              <p className="text-xs text-red-500">{errors.saldoContado.message}</p>
+              <p className="text-xs text-red-500">
+                {errors.saldoContado.message}
+              </p>
             )}
           </div>
 
           {hayValor && (
-            <div className={cn(
-              'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold',
-              diferencia >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600',
-            )}>
+            <div
+              className={cn(
+                'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold',
+                diferencia >= 0
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : 'bg-red-50 text-red-600'
+              )}
+            >
               <span>Diferencia</span>
-              <span>{diferencia >= 0 ? '+' : ''}{formatCurrency(diferencia)}</span>
+              <span>
+                {diferencia >= 0 ? '+' : ''}
+                {formatCurrency(diferencia)}
+              </span>
             </div>
           )}
 
@@ -92,7 +119,12 @@ export function RegistrarArqueoModal({ open, onOpenChange, caja }: Props) {
           </div>
 
           <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button

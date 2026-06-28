@@ -20,13 +20,33 @@ interface FiltroEnvio {
 }
 
 const FILTROS: { key: keyof FiltroEnvio; label: string; desc: string }[] = [
-  { key: 'soloVip',           label: 'Solo VIP',              desc: 'Clientes con descuento VIP activo' },
-  { key: 'soloFrecuentes',    label: 'Solo frecuentes',       desc: 'Segmento FRECUENTE' },
-  { key: 'soloNuevos',        label: 'Solo nuevos',           desc: 'Segmento NUEVO' },
-  { key: 'soloInactivos',     label: 'Solo inactivos',        desc: 'Segmento INACTIVO' },
-  { key: 'soloCorporativos',  label: 'Solo corporativos',     desc: 'Segmento CORPORATIVO' },
-  { key: 'soloConAccesoWeb',  label: 'Solo con acceso web',   desc: 'tieneAccesoWeb = true' },
-  { key: 'soloPresenciales',  label: 'Solo presenciales',     desc: 'Origen PRESENCIAL' },
+  {
+    key: 'soloVip',
+    label: 'Solo VIP',
+    desc: 'Clientes con descuento VIP activo',
+  },
+  {
+    key: 'soloFrecuentes',
+    label: 'Solo frecuentes',
+    desc: 'Segmento FRECUENTE',
+  },
+  { key: 'soloNuevos', label: 'Solo nuevos', desc: 'Segmento NUEVO' },
+  { key: 'soloInactivos', label: 'Solo inactivos', desc: 'Segmento INACTIVO' },
+  {
+    key: 'soloCorporativos',
+    label: 'Solo corporativos',
+    desc: 'Segmento CORPORATIVO',
+  },
+  {
+    key: 'soloConAccesoWeb',
+    label: 'Solo con acceso web',
+    desc: 'tieneAccesoWeb = true',
+  },
+  {
+    key: 'soloPresenciales',
+    label: 'Solo presenciales',
+    desc: 'Origen PRESENCIAL',
+  },
 ]
 
 interface Props {
@@ -49,7 +69,9 @@ export function EnviarCampanaDialog({ campana, onClose, onSent }: Props) {
   const enviar = useMutation({
     mutationFn: () => marketingService.enviarCampana(campana!.id, filtro),
     onSuccess: () => {
-      toast.success('Campaña iniciada. Los envíos se procesarán en segundo plano.')
+      toast.success(
+        'Campaña iniciada. Los envíos se procesarán en segundo plano.'
+      )
       onSent()
       onClose()
     },
@@ -63,23 +85,35 @@ export function EnviarCampanaDialog({ campana, onClose, onSent }: Props) {
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+        onClick={onClose}
+      />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
             <div>
               <h2 className="font-bold text-gray-900">Enviar campaña</h2>
-              <p className="text-sm text-gray-500 mt-0.5 truncate max-w-xs">{campana.nombre}</p>
+              <p className="text-sm text-gray-500 mt-0.5 truncate max-w-xs">
+                {campana.nombre}
+              </p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-xl">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="rounded-xl"
+            >
               <X className="h-5 w-5" />
             </Button>
           </div>
 
           <div className="p-5 space-y-4">
             <p className="text-sm text-gray-600">
-              Selecciona los segmentos de destinatarios. Si no seleccionas ninguno, se enviará a{' '}
-              <span className="font-semibold">todos los clientes activos</span> que aceptan comunicaciones y tienen correo.
+              Selecciona los segmentos de destinatarios. Si no seleccionas
+              ninguno, se enviará a{' '}
+              <span className="font-semibold">todos los clientes activos</span>{' '}
+              que aceptan comunicaciones y tienen correo.
             </p>
 
             <div className="space-y-2">
@@ -95,7 +129,9 @@ export function EnviarCampanaDialog({ campana, onClose, onSent }: Props) {
                     className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-azul focus:ring-brand-azul/30"
                   />
                   <div>
-                    <p className="text-sm font-semibold text-gray-800">{label}</p>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {label}
+                    </p>
                     <p className="text-xs text-gray-400">{desc}</p>
                   </div>
                 </label>
@@ -103,12 +139,18 @@ export function EnviarCampanaDialog({ campana, onClose, onSent }: Props) {
             </div>
 
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-700">
-              El envío se procesa en lotes de 50 correos por minuto. Los resultados se actualizarán en tiempo real.
+              El envío se procesa en lotes de 50 correos por minuto. Los
+              resultados se actualizarán en tiempo real.
             </div>
           </div>
 
           <div className="flex justify-end gap-3 px-5 pb-5 border-t border-gray-100 pt-4">
-            <Button variant="outline" type="button" onClick={onClose} className="rounded-xl">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={onClose}
+              className="rounded-xl"
+            >
               Cancelar
             </Button>
             <Button

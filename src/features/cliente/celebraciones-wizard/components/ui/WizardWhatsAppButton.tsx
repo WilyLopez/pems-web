@@ -25,7 +25,9 @@ function buildMessage(props: Omit<Props, 'className'>): string {
   if (props.tipoEventoLabel) lines.push(`• Tipo: ${props.tipoEventoLabel}`)
 
   if (props.camino === 'paquete' && props.paquete) {
-    lines.push(`• Paquete: ${props.paquete.nombre} (${formatCurrency(props.paquete.precio)})`)
+    lines.push(
+      `• Paquete: ${props.paquete.nombre} (${formatCurrency(props.paquete.precio)})`
+    )
   } else if (props.camino === 'cotizacion') {
     lines.push('• Modalidad: Cotización personalizada')
   }
@@ -33,7 +35,9 @@ function buildMessage(props: Omit<Props, 'className'>): string {
   if (props.fecha) lines.push(`• Fecha tentativa: ${formatDate(props.fecha)}`)
 
   if (props.turno) {
-    lines.push(`• Turno: ${props.turno.nombre} (${props.turno.horaInicio} – ${props.turno.horaFin})`)
+    lines.push(
+      `• Turno: ${props.turno.nombre} (${props.turno.horaInicio} – ${props.turno.horaFin})`
+    )
   }
 
   if (props.invitados && props.invitados > 0) {
@@ -41,7 +45,9 @@ function buildMessage(props: Omit<Props, 'className'>): string {
   }
 
   if (props.presupuestoCliente && props.presupuestoCliente > 0) {
-    lines.push(`• Presupuesto aprox.: ${formatCurrency(props.presupuestoCliente)}`)
+    lines.push(
+      `• Presupuesto aprox.: ${formatCurrency(props.presupuestoCliente)}`
+    )
   }
 
   lines.push('\n¿Podría recibir más información?')

@@ -1,15 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { MessageSquare, Wallet, Lock, AlertCircle, CheckCircle2, ChevronRight, LucideIcon } from 'lucide-react'
+import {
+  MessageSquare,
+  Wallet,
+  Lock,
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DashboardAdmin } from '@/types/dashboard.types'
 
 interface Accion {
-  icon:  LucideIcon
+  icon: LucideIcon
   color: string
   texto: string
-  href:  string
+  href: string
 }
 
 interface Props {
@@ -22,29 +30,29 @@ export function AccionesPendientes({ data }: Props) {
   if (data.solicitudesEventoSinResponder > 0) {
     const n = data.solicitudesEventoSinResponder
     acciones.push({
-      icon:  MessageSquare,
+      icon: MessageSquare,
       color: 'text-blue-600 bg-blue-50 border-blue-200',
       texto: `${n} solicitud${n > 1 ? 'es' : ''} de evento sin responder`,
-      href:  '/admin/eventos?estado=SOLICITADA',
+      href: '/admin/eventos?estado=SOLICITADA',
     })
   }
 
   if (data.eventosSaldoPendiente > 0) {
     const n = data.eventosSaldoPendiente
     acciones.push({
-      icon:  Wallet,
+      icon: Wallet,
       color: 'text-red-600 bg-red-50 border-red-200',
       texto: `${n} evento${n > 1 ? 's' : ''} con saldo pendiente`,
-      href:  '/admin/eventos?estado=CONFIRMADA',
+      href: '/admin/eventos?estado=CONFIRMADA',
     })
   }
 
   if (!data.cajaAbierta) {
     acciones.push({
-      icon:  Lock,
+      icon: Lock,
       color: 'text-amber-600 bg-amber-50 border-amber-200',
       texto: 'Caja sin abrir para hoy',
-      href:  '/admin/finanzas/caja',
+      href: '/admin/finanzas/caja',
     })
   }
 

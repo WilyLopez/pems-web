@@ -10,14 +10,14 @@ export default function NotFound() {
   const homeHref = pathname?.startsWith('/admin')
     ? '/admin'
     : pathname?.startsWith('/cliente')
-    ? '/cliente'
-    : '/'
+      ? '/cliente'
+      : '/'
 
   const homeLabel = pathname?.startsWith('/admin')
     ? 'Ir al panel de administración'
     : pathname?.startsWith('/cliente')
-    ? 'Ir a mi panel'
-    : 'Volver al inicio'
+      ? 'Ir a mi panel'
+      : 'Volver al inicio'
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

@@ -5,7 +5,10 @@ import { Plus, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { useTiposIngreso, useTipoIngresoMutations } from '@/features/admin/finanzas'
+import {
+  useTiposIngreso,
+  useTipoIngresoMutations,
+} from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -41,7 +44,12 @@ export default function TiposIngresoPage() {
   const { data: tipos = [], isLoading } = useTiposIngreso()
   const { crear, desactivar } = useTipoIngresoMutations()
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(crearSchema),
     defaultValues: { nombre: '', descripcion: '' },
   })
@@ -51,8 +59,17 @@ export default function TiposIngresoPage() {
 
   function onSubmit(values: FormValues) {
     crear.mutate(
-      { codigo: generarCodigo(values.nombre), nombre: values.nombre, descripcion: values.descripcion },
-      { onSuccess: () => { reset(); setModal(false) } }
+      {
+        codigo: generarCodigo(values.nombre),
+        nombre: values.nombre,
+        descripcion: values.descripcion,
+      },
+      {
+        onSuccess: () => {
+          reset()
+          setModal(false)
+        },
+      }
     )
   }
 
@@ -96,46 +113,62 @@ export default function TiposIngresoPage() {
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={i}>{Array.from({ length: 3 }).map((_, j) => (
-                    <td key={j} className="px-4 py-3">
-                      <div className="h-4 bg-gray-100 rounded animate-pulse" />
-                    </td>
-                  ))}</tr>
+                  <tr key={i}>
+                    {Array.from({ length: 3 }).map((_, j) => (
+                      <td key={j} className="px-4 py-3">
+                        <div className="h-4 bg-gray-100 rounded animate-pulse" />
+                      </td>
+                    ))}
+                  </tr>
                 ))
               ) : tipos.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-10 text-center text-sm text-gray-400">
+                  <td
+                    colSpan={3}
+                    className="py-10 text-center text-sm text-gray-400"
+                  >
                     Sin tipos de ingreso registrados.
                   </td>
                 </tr>
-              ) : tipos.map((t) => (
-                <tr
-                  key={t.codigo}
-                  className={cn('hover:bg-gray-50 transition-colors', !t.activo && 'opacity-50')}
-                >
-                  <td className="px-4 py-3 font-medium text-gray-900">{t.nombre}</td>
-                  <td className="px-4 py-3">
-                    <span className={cn(
-                      'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                      t.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
-                    )}>
-                      {t.activo ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {t.activo && !t.esSistema && (
-                      <button
-                        type="button"
-                        onClick={() => setConfirmCodigo(t.codigo)}
-                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                        title="Desactivar"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
+              ) : (
+                tipos.map((t) => (
+                  <tr
+                    key={t.codigo}
+                    className={cn(
+                      'hover:bg-gray-50 transition-colors',
+                      !t.activo && 'opacity-50'
                     )}
-                  </td>
-                </tr>
-              ))}
+                  >
+                    <td className="px-4 py-3 font-medium text-gray-900">
+                      {t.nombre}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          'text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
+                          t.activo
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-gray-100 text-gray-500'
+                        )}
+                      >
+                        {t.activo ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {t.activo && !t.esSistema && (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmCodigo(t.codigo)}
+                          className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                          title="Desactivar"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -159,11 +192,25 @@ export default function TiposIngresoPage() {
               )}
             </div>
             <div className="space-y-1.5">
-              <Label>Descripción <span className="text-gray-400 font-normal">(opcional)</span></Label>
-              <Input {...register('descripcion')} placeholder="Descripción breve…" />
+              <Label>
+                Descripción{' '}
+                <span className="text-gray-400 font-normal">(opcional)</span>
+              </Label>
+              <Input
+                {...register('descripcion')}
+                placeholder="Descripción breve…"
+              />
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button type="button" variant="outline" size="sm" onClick={() => { reset(); setModal(false) }}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  reset()
+                  setModal(false)
+                }}
+              >
                 Cancelar
               </Button>
               <Button
@@ -179,16 +226,24 @@ export default function TiposIngresoPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={confirmCodigo !== null} onOpenChange={() => setConfirmCodigo(null)}>
+      <Dialog
+        open={confirmCodigo !== null}
+        onOpenChange={() => setConfirmCodigo(null)}
+      >
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Desactivar tipo de ingreso</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600 py-2">
-            Los ingresos existentes no se verán afectados. No podrás registrar nuevos ingresos con este tipo.
+            Los ingresos existentes no se verán afectados. No podrás registrar
+            nuevos ingresos con este tipo.
           </p>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => setConfirmCodigo(null)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmCodigo(null)}
+            >
               Cancelar
             </Button>
             <Button
@@ -197,7 +252,9 @@ export default function TiposIngresoPage() {
               disabled={desactivar.isPending}
               onClick={() => {
                 if (confirmCodigo) {
-                  desactivar.mutate(confirmCodigo, { onSuccess: () => setConfirmCodigo(null) })
+                  desactivar.mutate(confirmCodigo, {
+                    onSuccess: () => setConfirmCodigo(null),
+                  })
                 }
               }}
             >

@@ -101,7 +101,9 @@ export const clienteService = {
   },
 
   eliminarFoto: async (id: number): Promise<Cliente> => {
-    const { data } = await api.delete<ApiResponse<Cliente>>(`/clientes/${id}/foto`)
+    const { data } = await api.delete<ApiResponse<Cliente>>(
+      `/clientes/${id}/foto`
+    )
     return data.data
   },
 

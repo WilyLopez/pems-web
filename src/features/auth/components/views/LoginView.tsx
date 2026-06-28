@@ -59,13 +59,16 @@ export function LoginView() {
           <div className="text-white space-y-2">
             <h2 className="text-3xl font-black">Bienvenido de vuelta</h2>
             <p className="text-white/60 text-sm max-w-xs mx-auto">
-              Inicia sesión para ver tus entradas, reservas y acceder a beneficios exclusivos.
+              Inicia sesión para ver tus entradas, reservas y acceder a
+              beneficios exclusivos.
             </p>
           </div>
           <div className="flex justify-center gap-8 pt-2">
             <div className="text-center">
               <div className="flex items-center justify-center gap-1">
-                <span className="text-2xl font-black text-brand-amarillo">+500</span>
+                <span className="text-2xl font-black text-brand-amarillo">
+                  +500
+                </span>
               </div>
               <div className="text-xs text-white/50 flex items-center gap-1 justify-center">
                 <Users className="h-3 w-3" />
@@ -98,8 +101,12 @@ export function LoginView() {
           </div>
 
           <div>
-            <h1 className="text-3xl font-black text-gray-900">Iniciar sesión</h1>
-            <p className="text-gray-500 mt-1 text-sm">Accede a tu cuenta para continuar</p>
+            <h1 className="text-3xl font-black text-gray-900">
+              Iniciar sesión
+            </h1>
+            <p className="text-gray-500 mt-1 text-sm">
+              Accede a tu cuenta para continuar
+            </p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -115,7 +122,9 @@ export function LoginView() {
                 {...register('correo')}
               />
               {errors.correo && (
-                <p className="text-xs text-destructive">{errors.correo.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.correo.message}
+                </p>
               )}
             </div>
 
@@ -144,11 +153,17 @@ export function LoginView() {
                   onClick={() => setShowPass(!showPass)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPass ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
               {errors.contrasena && (
-                <p className="text-xs text-destructive">{errors.contrasena.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.contrasena.message}
+                </p>
               )}
             </div>
 
@@ -171,7 +186,9 @@ export function LoginView() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-white px-3 text-gray-400">o continuar con</span>
+              <span className="bg-white px-3 text-gray-400">
+                o continuar con
+              </span>
             </div>
           </div>
 
@@ -203,13 +220,19 @@ export function LoginView() {
 
           <p className="text-center text-sm text-gray-500">
             ¿No tienes cuenta?{' '}
-            <Link href="/auth/registro" className="font-bold text-brand-rosa hover:underline">
+            <Link
+              href="/auth/registro"
+              className="font-bold text-brand-rosa hover:underline"
+            >
               Regístrate gratis
             </Link>
           </p>
 
           <div className="text-center">
-            <Link href="/" className="text-xs text-gray-400 hover:text-brand-azul transition-colors">
+            <Link
+              href="/"
+              className="text-xs text-gray-400 hover:text-brand-azul transition-colors"
+            >
               Volver al inicio
             </Link>
           </div>

@@ -9,8 +9,14 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { BlockEditor } from '@/components/admin/marketing/BlockEditor'
-import { bloquesContienenVariablesBloqueadas, parsearBloques } from '@/types/emailBlocks.types'
-import { useCorreoMarketing, useActualizarCorreo } from '@/hooks/useMarketingEmails'
+import {
+  bloquesContienenVariablesBloqueadas,
+  parsearBloques,
+} from '@/types/emailBlocks.types'
+import {
+  useCorreoMarketing,
+  useActualizarCorreo,
+} from '@/hooks/useMarketingEmails'
 import { toast } from 'sonner'
 
 export default function EditarCorreoPage() {
@@ -18,7 +24,9 @@ export default function EditarCorreoPage() {
   const { id } = useParams<{ id: string }>()
   const correoId = Number(id)
 
-  const { data: correo, isLoading } = useCorreoMarketing(Number.isFinite(correoId) ? correoId : null)
+  const { data: correo, isLoading } = useCorreoMarketing(
+    Number.isFinite(correoId) ? correoId : null
+  )
   const actualizar = useActualizarCorreo(correoId)
 
   const [nombre, setNombre] = useState('')
@@ -51,7 +59,9 @@ export default function EditarCorreoPage() {
     }
     const varBloqueada = bloquesContienenVariablesBloqueadas(bloques)
     if (varBloqueada) {
-      toast.error(`La variable {{${varBloqueada}}} está reservada para correos del sistema.`)
+      toast.error(
+        `La variable {{${varBloqueada}}} está reservada para correos del sistema.`
+      )
       return
     }
 
@@ -125,8 +135,13 @@ export default function EditarCorreoPage() {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-3">
-          <p className="text-sm font-semibold text-gray-800">Contenido del correo</p>
-          <BlockEditor value={contenidoBloques} onChange={setContenidoBloques} />
+          <p className="text-sm font-semibold text-gray-800">
+            Contenido del correo
+          </p>
+          <BlockEditor
+            value={contenidoBloques}
+            onChange={setContenidoBloques}
+          />
         </div>
 
         <div className="flex items-center justify-end gap-3">

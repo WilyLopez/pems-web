@@ -14,7 +14,7 @@ export const AccesosLayoutView = () => {
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Control de acceso' }]} />
-      
+
       <PageHeader
         title="Control de acceso"
         description="Escaneo de tickets y registro de ingreso al establecimiento"

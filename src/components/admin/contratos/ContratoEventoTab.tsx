@@ -54,24 +54,24 @@ interface ContratoEventoTabProps {
 }
 
 export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
-  const qc         = useQueryClient()
+  const qc = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { data: contrato, isLoading } = useContratoPorEvento(idEvento)
 
-  const generar       = useGenerarContrato()
-  const actualizar    = useActualizarContrato()
-  const firmar        = useFirmarContrato()
+  const generar = useGenerarContrato()
+  const actualizar = useActualizarContrato()
+  const firmar = useFirmarContrato()
   const cambiarEstado = useCambiarEstadoContrato()
-  const subirDoc      = useSubirDocumento()
+  const subirDoc = useSubirDocumento()
 
-  const [contenido, setContenido]   = useState<string | null>(null)
-  const [editando, setEditando]     = useState(false)
-  const [dialog, setDialog]         = useState<DialogType>(null)
-  const subirInputRef               = useRef<HTMLInputElement>(null)
+  const [contenido, setContenido] = useState<string | null>(null)
+  const [editando, setEditando] = useState(false)
+  const [dialog, setDialog] = useState<DialogType>(null)
+  const subirInputRef = useRef<HTMLInputElement>(null)
 
   const textoActual = contenido ?? contrato?.contenidoTexto ?? ''
-  const esEditable  = contrato?.esEditable ?? false
+  const esEditable = contrato?.esEditable ?? false
 
   function invalidarContrato() {
     qc.invalidateQueries({ queryKey: contratosKeys.porEvento(idEvento) })
@@ -84,7 +84,10 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
   function handleSubir(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !contrato) return
-    subirDoc.mutate({ id: contrato.id, archivo: file }, { onSuccess: () => invalidarContrato() })
+    subirDoc.mutate(
+      { id: contrato.id, archivo: file },
+      { onSuccess: () => invalidarContrato() }
+    )
     e.target.value = ''
   }
 
@@ -109,7 +112,12 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
     if (!contrato || contenido === null) return
     actualizar.mutate(
       { id: contrato.id, payload: { contenidoTexto: contenido } },
-      { onSuccess: () => { setEditando(false); setContenido(null) } }
+      {
+        onSuccess: () => {
+          setEditando(false)
+          setContenido(null)
+        },
+      }
     )
   }
 
@@ -138,9 +146,12 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
             <FileText className="h-7 w-7 text-gray-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-900">Sin contrato asociado</h3>
+            <h3 className="text-sm font-bold text-gray-900">
+              Sin contrato asociado
+            </h3>
             <p className="text-sm text-gray-400 mt-1 max-w-xs">
-              Crea un borrador para redactar el contrato, o sube directamente el PDF firmado.
+              Crea un borrador para redactar el contrato, o sube directamente el
+              PDF firmado.
             </p>
           </div>
           <div className="flex gap-2">
@@ -151,9 +162,11 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
               onClick={handleCrear}
               disabled={generar.isPending || subirDoc.isPending}
             >
-              {generar.isPending && !subirDoc.isPending
-                ? <Loader2 className="h-4 w-4 animate-spin" />
-                : <Plus className="h-4 w-4" />}
+              {generar.isPending && !subirDoc.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
               Crear borrador
             </Button>
             <label className="cursor-pointer">
@@ -164,9 +177,11 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
                 asChild
               >
                 <span>
-                  {subirDoc.isPending || generar.isPending
-                    ? <Loader2 className="h-4 w-4 animate-spin" />
-                    : <Upload className="h-4 w-4" />}
+                  {subirDoc.isPending || generar.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
                   Subir PDF firmado
                 </span>
               </Button>
@@ -189,7 +204,10 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <ContratoBadgeEstado estado={contrato.estado} />
-          <Badge variant="outline" className="text-[10px] font-mono text-gray-400">
+          <Badge
+            variant="outline"
+            className="text-[10px] font-mono text-gray-400"
+          >
             v{contrato.version}
           </Badge>
           {contrato.archivoPdfUrl && (
@@ -253,9 +271,11 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
                   asChild
                 >
                   <span>
-                    {subirDoc.isPending
-                      ? <Loader2 className="h-4 w-4 animate-spin" />
-                      : <Upload className="h-4 w-4" />}
+                    {subirDoc.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
                     Adjuntar
                   </span>
                 </Button>
@@ -275,7 +295,10 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
                 variant="outline"
                 size="sm"
                 className="rounded-xl"
-                onClick={() => { setEditando(false); setContenido(null) }}
+                onClick={() => {
+                  setEditando(false)
+                  setContenido(null)
+                }}
               >
                 Cancelar
               </Button>
@@ -285,7 +308,9 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
                 onClick={handleGuardar}
                 disabled={actualizar.isPending}
               >
-                {actualizar.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                {actualizar.isPending && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
                 Guardar cambios
               </Button>
             </>
@@ -315,7 +340,9 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
 
       {contrato.documentos && contrato.documentos.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-          <h3 className="text-sm font-bold text-gray-900">Documentos asociados</h3>
+          <h3 className="text-sm font-bold text-gray-900">
+            Documentos asociados
+          </h3>
           <ContratoDocumentos documentos={contrato.documentos} />
         </div>
       )}
@@ -337,7 +364,10 @@ export function ContratoEventoTab({ idEvento }: ContratoEventoTabProps) {
         description="Se generará el PDF y se marcará el contrato como firmado. Esta acción no puede revertirse."
         confirmLabel="Confirmar firma"
         loading={firmar.isPending}
-        onConfirm={() => contrato && firmar.mutate(contrato.id, { onSuccess: () => setDialog(null) })}
+        onConfirm={() =>
+          contrato &&
+          firmar.mutate(contrato.id, { onSuccess: () => setDialog(null) })
+        }
       />
       <ConfirmDialog
         open={dialog === 'enviar'}

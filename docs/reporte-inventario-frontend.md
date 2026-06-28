@@ -10,9 +10,11 @@
 ## 1. Estructura General del Proyecto
 
 ### Ubicación
+
 `d:\Aplicaciones\gestion-eventos\pems-web`
 
 ### Identificación del Proyecto
+
 - **Nombre:** `Kiki y Lala-pems-web`
 - **Next.js:** `^16.2.4`
 - **React:** `18.3.1`
@@ -20,14 +22,15 @@
 - **Patrón de enrutamiento:** **App Router** (`src/app/`) — NO Pages Router
 
 ### Estadísticas
-| Métrica | Valor |
-|---------|-------|
-| Total archivos `.tsx` + `.ts` | **359** |
-| Componentes React | **152** |
-| Archivos de servicio | **28** |
-| Hooks personalizados | **34** |
-| Archivos de tipos | **28** |
-| Líneas de código (aprox.) | **~46 664** |
+
+| Métrica                       | Valor       |
+| ----------------------------- | ----------- |
+| Total archivos `.tsx` + `.ts` | **359**     |
+| Componentes React             | **152**     |
+| Archivos de servicio          | **28**      |
+| Hooks personalizados          | **34**      |
+| Archivos de tipos             | **28**      |
+| Líneas de código (aprox.)     | **~46 664** |
 
 ### Estructura de Carpetas — Primer y Segundo Nivel
 
@@ -82,6 +85,7 @@ src/
 ```
 
 ### Carpeta `public/`
+
 - `logo-principal.png` (129.9 KB)
 - `logo-secundario.png` (96.7 KB)
 
@@ -90,16 +94,18 @@ src/
 ## 2. Arquitectura de Rutas y Páginas
 
 ### Layouts Compartidos
-| Layout | Ruta | Descripción |
-|--------|------|-------------|
-| `src/app/layout.tsx` | Raíz | Root layout con providers |
-| `src/app/(public)/layout.tsx` | Públicas | Navbar público + footer |
-| `src/app/admin/layout.tsx` | Admin | Sidebar + navbar admin + verificación sesión |
-| `src/app/cliente/layout.tsx` | Cliente | Sidebar + navbar cliente |
-| `src/app/(wizard)/layout.tsx` | Wizard | Layout minimalista para flujo solicitud |
-| `src/app/admin/finanzas/layout.tsx` | Admin > Finanzas | Sub-layout finanzas |
+
+| Layout                              | Ruta             | Descripción                                  |
+| ----------------------------------- | ---------------- | -------------------------------------------- |
+| `src/app/layout.tsx`                | Raíz             | Root layout con providers                    |
+| `src/app/(public)/layout.tsx`       | Públicas         | Navbar público + footer                      |
+| `src/app/admin/layout.tsx`          | Admin            | Sidebar + navbar admin + verificación sesión |
+| `src/app/cliente/layout.tsx`        | Cliente          | Sidebar + navbar cliente                     |
+| `src/app/(wizard)/layout.tsx`       | Wizard           | Layout minimalista para flujo solicitud      |
+| `src/app/admin/finanzas/layout.tsx` | Admin > Finanzas | Sub-layout finanzas                          |
 
 ### Middleware de Autenticación
+
 **Archivo:** `src/middleware.ts`  
 **Matcher:** `/admin/:path*`, `/cliente/:path*`
 
@@ -117,29 +123,29 @@ Además, `src/app/admin/layout.tsx` hace verificación server-side con `getServe
 
 ### Rutas Públicas — `src/app/(public)/`
 
-| Ruta | Página | Clasificación |
-|------|--------|---------------|
-| `/` | `(public)/page.tsx` | Pública |
-| `/zona-de-juegos` | `zona-de-juegos/page.tsx` | Pública |
-| `/eventos` | `eventos/page.tsx` | Pública |
-| `/reservar` | `reservar/page.tsx` (**848 líneas**) | Pública |
-| `/reservar/[fecha]` | `reservar/[fecha]/page.tsx` | Pública |
-| `/promociones` | `promociones/page.tsx` | Pública |
-| `/celebraciones` | `celebraciones/page.tsx` | Pública |
-| `/eventos-privados` | `eventos-privados/page.tsx` | Pública |
-| `/faq` | `faq/page.tsx` | Pública |
-| `/nosotros` | `nosotros/page.tsx` | Pública |
-| `/legal/[tipo]` | `legal/[tipo]/page.tsx` | Pública |
+| Ruta                | Página                               | Clasificación |
+| ------------------- | ------------------------------------ | ------------- |
+| `/`                 | `(public)/page.tsx`                  | Pública       |
+| `/zona-de-juegos`   | `zona-de-juegos/page.tsx`            | Pública       |
+| `/eventos`          | `eventos/page.tsx`                   | Pública       |
+| `/reservar`         | `reservar/page.tsx` (**848 líneas**) | Pública       |
+| `/reservar/[fecha]` | `reservar/[fecha]/page.tsx`          | Pública       |
+| `/promociones`      | `promociones/page.tsx`               | Pública       |
+| `/celebraciones`    | `celebraciones/page.tsx`             | Pública       |
+| `/eventos-privados` | `eventos-privados/page.tsx`          | Pública       |
+| `/faq`              | `faq/page.tsx`                       | Pública       |
+| `/nosotros`         | `nosotros/page.tsx`                  | Pública       |
+| `/legal/[tipo]`     | `legal/[tipo]/page.tsx`              | Pública       |
 
 ---
 
 ### Rutas de Autenticación — `src/app/auth/`
 
-| Ruta | Página | Líneas |
-|------|--------|--------|
-| `/auth/login` | `login/page.tsx` | — |
-| `/auth/registro` | `registro/page.tsx` | **526** |
-| `/auth/cambiar-contrasena` | `cambiar-contrasena/page.tsx` | — |
+| Ruta                       | Página                        | Líneas  |
+| -------------------------- | ----------------------------- | ------- |
+| `/auth/login`              | `login/page.tsx`              | —       |
+| `/auth/registro`           | `registro/page.tsx`           | **526** |
+| `/auth/cambiar-contrasena` | `cambiar-contrasena/page.tsx` | —       |
 
 **API route:** `src/app/api/auth/[...nextauth]/route.ts`
 
@@ -147,22 +153,22 @@ Además, `src/app/admin/layout.tsx` hace verificación server-side con `getServe
 
 ### Rutas Wizard — `src/app/(wizard)/`
 
-| Ruta | Página | Líneas |
-|------|--------|--------|
+| Ruta                       | Página                             | Líneas  |
+| -------------------------- | ---------------------------------- | ------- |
 | `/celebraciones/solicitar` | `celebraciones/solicitar/page.tsx` | **930** |
 
 ---
 
 ### Rutas Cliente — `src/app/cliente/` (requiere `rol=CLIENTE`)
 
-| Ruta | Página | Líneas |
-|------|--------|--------|
-| `/cliente` | `page.tsx` (redirect) | — |
-| `/cliente/mi-cuenta` | `mi-cuenta/page.tsx` | **1 170** |
-| `/cliente/mis-reservas` | `mis-reservas/page.tsx` | — |
-| `/cliente/mis-eventos` | `mis-eventos/page.tsx` | — |
-| `/cliente/mis-eventos/[id]` | `mis-eventos/[id]/page.tsx` | — |
-| `/cliente/mis-entradas` | `mis-entradas/page.tsx` | — |
+| Ruta                        | Página                      | Líneas    |
+| --------------------------- | --------------------------- | --------- |
+| `/cliente`                  | `page.tsx` (redirect)       | —         |
+| `/cliente/mi-cuenta`        | `mi-cuenta/page.tsx`        | **1 170** |
+| `/cliente/mis-reservas`     | `mis-reservas/page.tsx`     | —         |
+| `/cliente/mis-eventos`      | `mis-eventos/page.tsx`      | —         |
+| `/cliente/mis-eventos/[id]` | `mis-eventos/[id]/page.tsx` | —         |
+| `/cliente/mis-entradas`     | `mis-entradas/page.tsx`     | —         |
 
 ---
 
@@ -240,48 +246,63 @@ Además, `src/app/admin/layout.tsx` hace verificación server-side con `getServe
 #### 3.1 Componentes Admin (organizados por subdirectorio)
 
 **`admin/auditoria/`**
+
 - `AccionBadge.tsx`, `AuditoriaFiltros.tsx`, `LogDetalleModal.tsx`, `NivelBadge.tsx`
 
 **`admin/banners/`**
+
 - `BannerEstadoBadge.tsx`, `BannerFormDrawer.tsx`, `BannerPreview.tsx`, `BannerTipoSelector.tsx`
 
 **`admin/calendario/`** ← Componentes complejos
+
 - `CalendarioAcciones.tsx`, `CalendarioCelda.tsx`, `CalendarioDayDrawer.tsx` (**515 líneas**), `CalendarioDia.tsx`, `CalendarioLeyenda.tsx`, `CalendarioSemana.tsx`, `ConfigurarCalendarioModal.tsx`
 
 **`admin/clientes/`**
+
 - `ClienteAvatar.tsx`, `ClienteBadges.tsx`, `ClienteDrawer.tsx`, `ClienteFiltros.tsx`, `NuevoClienteModal.tsx`
 
 **`admin/cms/`**
+
 - `BannerFormDialog.tsx`, `ActividadPreview.tsx`, `NovedadPreview.tsx`, `PaquetePreview.tsx`, `QuickToggle.tsx`, `ZonaPreview.tsx`
 
 **`admin/configuracion/`** (tabs de configuración)
+
 - `CatalogosTab.tsx`, `EventosTab.tsx`, `OperacionTab.tsx`, `PagosTab.tsx`, `ReservasTab.tsx`, `SedeTab.tsx`, `SeguridadTab.tsx`, `SistemaCard.tsx`
 
 **`admin/contratos/`**
+
 - `ContratoBadgeEstado.tsx`, `ContratoDocumentos.tsx`, `ContratoEditor.tsx`, `ContratoEventoTab.tsx`, `ContratoFinanzas.tsx`, `ContratoTimeline.tsx`
 
 **`admin/dashboard/`**
+
 - `AccionesPendientes.tsx`, `AgendaDelDia.tsx`, `DashboardSkeleton.tsx`, `DisponibilidadSemana.tsx`, `KpisDelDia.tsx`, `TendenciaReservas.tsx`
 
 **`admin/eventos/`** ← Componente grande
+
 - `BotonTurno.tsx`, `ConfirmarEventoModal.tsx` (**579 líneas**), `DesgloseTiposEgreso.tsx`, `GastosEventoPanel.tsx`, `GastosOperativosDia.tsx`, `GraficaLineaDiaria.tsx`, `MetricasReservasSection.tsx`, `PresupuestoEventoSection.tsx`, `RegistrarEgresoModal.tsx`, `ResumenMensualCards.tsx`, `TiposEgresoManager.tsx`
 
 **`admin/legal/`**
+
 - `LegalFormatToolbar.tsx`, `LegalNuevoDocumentoModal.tsx`, `LegalPreviewPanel.tsx`
 
 **`admin/marketing/`**
+
 - `CrearCampanaDialog.tsx`, `CrearPlantillaDialog.tsx`, `EnviarCampanaDialog.tsx`, `EstadoCampanaBadge.tsx`, `PlantillaPreviewCard.tsx`, `TiposEmailManager.tsx`, `TiposEmailModal.tsx`
 
 **`admin/perfil/`**
+
 - `ActividadReciente.tsx`, `CambiarContrasenaForm.tsx`, `InfoPersonalForm.tsx`, `PerfilHeader.tsx`, `SeguridadInfo.tsx`
 
 **`admin/preferences/`** (secciones de preferencias)
+
 - `AnimationsSection.tsx`, `AppearanceSection.tsx`, `BehaviorSection.tsx`, `DashboardSection.tsx`, `LayoutSection.tsx`, `LocalizationSection.tsx`, `NotificationSection.tsx`, `PreviewPanel.tsx`, `TypographySection.tsx`
 
 **`admin/reservas/`**
+
 - `ReservaDrawer.tsx`
 
 **`admin/usuarios/`**
+
 - `CrearUsuarioModal.tsx`, `EstadoBadge.tsx`, `RolBadge.tsx`, `UsuariosTable.tsx`
 
 #### 3.2 Otros Grupos de Componentes
@@ -310,10 +331,10 @@ Además, `src/app/admin/layout.tsx` hace verificación server-side con `getServe
 
 ### 3.3 Componentes con Posible Duplicación
 
-| Grupo | Archivos | Veredicto |
-|-------|---------|-----------|
-| `EstadoBadge.tsx` | `admin/usuarios/` y `cliente/` | Diferenciados por contexto — OK |
-| `MediaUploader.tsx` + `MediaUploaderMulti.tsx` | `common/` | Distinción single/multi — OK |
+| Grupo                                          | Archivos                       | Veredicto                       |
+| ---------------------------------------------- | ------------------------------ | ------------------------------- |
+| `EstadoBadge.tsx`                              | `admin/usuarios/` y `cliente/` | Diferenciados por contexto — OK |
+| `MediaUploader.tsx` + `MediaUploaderMulti.tsx` | `common/`                      | Distinción single/multi — OK    |
 
 No se detectaron duplicados reales a eliminar.
 
@@ -321,17 +342,17 @@ No se detectaron duplicados reales a eliminar.
 
 ### 3.4 Componentes Candidatos a Descomposición (>500 líneas)
 
-| Archivo | Líneas | Razón |
-|---------|--------|-------|
-| `src/app/cliente/mi-cuenta/page.tsx` | **1 170** | Múltiples tabs + secciones independientes |
-| `src/app/admin/promociones/page.tsx` | **1 013** | Listado + creación + edición inline + stats |
-| `src/app/(wizard)/celebraciones/solicitar/page.tsx` | **930** | Wizard multi-paso con mucha lógica acoplada |
-| `src/app/admin/accesos/entradas/page.tsx` | **907** | Tabla + QR scanner + acciones |
-| `src/app/(public)/reservar/page.tsx` | **848** | Formulario complejo |
-| `src/app/admin/cms/configuracion-publica/page.tsx` | **646** | Formulario multi-sección |
-| `src/app/admin/eventos/[id]/page.tsx` | **547** | Formulario + estado + extras |
-| `src/components/admin/eventos/ConfirmarEventoModal.tsx` | **579** | Modal con múltiples sub-formularios |
-| `src/components/admin/calendario/CalendarioDayDrawer.tsx` | **515** | Drawer con lógica compleja |
+| Archivo                                                   | Líneas    | Razón                                       |
+| --------------------------------------------------------- | --------- | ------------------------------------------- |
+| `src/app/cliente/mi-cuenta/page.tsx`                      | **1 170** | Múltiples tabs + secciones independientes   |
+| `src/app/admin/promociones/page.tsx`                      | **1 013** | Listado + creación + edición inline + stats |
+| `src/app/(wizard)/celebraciones/solicitar/page.tsx`       | **930**   | Wizard multi-paso con mucha lógica acoplada |
+| `src/app/admin/accesos/entradas/page.tsx`                 | **907**   | Tabla + QR scanner + acciones               |
+| `src/app/(public)/reservar/page.tsx`                      | **848**   | Formulario complejo                         |
+| `src/app/admin/cms/configuracion-publica/page.tsx`        | **646**   | Formulario multi-sección                    |
+| `src/app/admin/eventos/[id]/page.tsx`                     | **547**   | Formulario + estado + extras                |
+| `src/components/admin/eventos/ConfirmarEventoModal.tsx`   | **579**   | Modal con múltiples sub-formularios         |
+| `src/components/admin/calendario/CalendarioDayDrawer.tsx` | **515**   | Drawer con lógica compleja                  |
 
 ---
 
@@ -352,6 +373,7 @@ const api = axios.create({
 ```
 
 **Interceptores configurados:**
+
 - **Request:** Inyecta `Authorization: Bearer {token}` de sesión NextAuth
 - **Response 401:**
   - Mutex pattern para evitar múltiples refresh simultáneos
@@ -361,40 +383,41 @@ const api = axios.create({
 
 ### 4.2 Capa de Servicios (28 archivos en `src/services/`)
 
-| Archivo | Estado | Descripción |
-|---------|--------|-------------|
-| `api.ts` | ✓ | Re-export de instancia axios |
-| `auth.service.ts` | ✓ | Registro cliente y verificación email |
-| `banner.service.ts` | ✓ | CRUD banners |
-| `calendario.service.ts` | ✓ | Disponibilidad y turnos |
-| `cliente.service.ts` | ✓ | CRUD clientes |
-| `comercial.service.ts` | ✓ | Paquetes, actividades, zonas, novedades |
-| `comprobante.service.ts` | ✓ | Comprobantes |
-| `configuracion-publica.service.ts` | ✓ | Config pública del sitio |
-| `contrato.service.ts` | ✓ | Contratos de eventos |
-| `dashboard.service.ts` | ✓ | Métricas KPI |
-| `evento.service.ts` | ✓ | Eventos privados (CRUD + flujo) |
-| `faq.service.ts` | ✓ | FAQ |
-| `finanzas.service.ts` | ✓ | Ingresos, egresos, caja, reportes |
-| `galeria.service.ts` | ✓ | Galería de imágenes |
-| `legal.service.ts` | ✓ | Documentos legales |
-| `marketing.service.ts` | ✓ | Campañas email y plantillas |
-| `media.service.ts` | ✓ | Upload de archivos |
-| `pago.service.ts` | ✓ | Pagos |
-| `preferencias.service.ts` | ✓ | Preferencias de usuario |
-| `promocion.service.ts` | ✓ | Promociones |
-| `proveedor.service.ts` | ✓ | Proveedores |
-| `resena.service.ts` | ✓ | Reseñas |
-| `reserva.service.ts` | ✓ | Reservas (admin + cliente) |
-| `seccion-web.service.ts` | ✓ | Secciones del sitio web |
-| `venta.service.ts` | ✓ | Ventas |
-| `ventaPresencial.service.ts` | ✓ | Ventas presenciales |
-| **`auditoria.service.ts`** | **VACÍO** | Sin implementar |
-| **`usuario-admin.service.ts`** | **VACÍO** | Sin implementar |
+| Archivo                            | Estado    | Descripción                             |
+| ---------------------------------- | --------- | --------------------------------------- |
+| `api.ts`                           | ✓         | Re-export de instancia axios            |
+| `auth.service.ts`                  | ✓         | Registro cliente y verificación email   |
+| `banner.service.ts`                | ✓         | CRUD banners                            |
+| `calendario.service.ts`            | ✓         | Disponibilidad y turnos                 |
+| `cliente.service.ts`               | ✓         | CRUD clientes                           |
+| `comercial.service.ts`             | ✓         | Paquetes, actividades, zonas, novedades |
+| `comprobante.service.ts`           | ✓         | Comprobantes                            |
+| `configuracion-publica.service.ts` | ✓         | Config pública del sitio                |
+| `contrato.service.ts`              | ✓         | Contratos de eventos                    |
+| `dashboard.service.ts`             | ✓         | Métricas KPI                            |
+| `evento.service.ts`                | ✓         | Eventos privados (CRUD + flujo)         |
+| `faq.service.ts`                   | ✓         | FAQ                                     |
+| `finanzas.service.ts`              | ✓         | Ingresos, egresos, caja, reportes       |
+| `galeria.service.ts`               | ✓         | Galería de imágenes                     |
+| `legal.service.ts`                 | ✓         | Documentos legales                      |
+| `marketing.service.ts`             | ✓         | Campañas email y plantillas             |
+| `media.service.ts`                 | ✓         | Upload de archivos                      |
+| `pago.service.ts`                  | ✓         | Pagos                                   |
+| `preferencias.service.ts`          | ✓         | Preferencias de usuario                 |
+| `promocion.service.ts`             | ✓         | Promociones                             |
+| `proveedor.service.ts`             | ✓         | Proveedores                             |
+| `resena.service.ts`                | ✓         | Reseñas                                 |
+| `reserva.service.ts`               | ✓         | Reservas (admin + cliente)              |
+| `seccion-web.service.ts`           | ✓         | Secciones del sitio web                 |
+| `venta.service.ts`                 | ✓         | Ventas                                  |
+| `ventaPresencial.service.ts`       | ✓         | Ventas presenciales                     |
+| **`auditoria.service.ts`**         | **VACÍO** | Sin implementar                         |
+| **`usuario-admin.service.ts`**     | **VACÍO** | Sin implementar                         |
 
 ### 4.3 Muestra de Endpoints Consumidos
 
 **Reservas:**
+
 ```
 GET  /reservas/admin
 GET  /reservas/admin/metricas
@@ -406,6 +429,7 @@ POST /reservas/{id}/confirmar-pago
 ```
 
 **Eventos privados:**
+
 ```
 GET  /eventos-privados/admin
 POST /eventos-privados/clientes/{idCliente}/sedes/{idSede}
@@ -417,6 +441,7 @@ POST /eventos-privados/{id}/checklist/{idChecklist}/completar
 ```
 
 **Clientes:**
+
 ```
 GET  /clientes
 POST /clientes
@@ -426,6 +451,7 @@ GET  /clientes/verificar
 ```
 
 **Finanzas:**
+
 ```
 GET  /tipos-egreso
 POST /tipos-egreso
@@ -439,6 +465,7 @@ POST /caja/cierre
 ### 4.4 Manejo de Errores
 
 **Formato esperado desde el backend (definido en `axios.ts`):**
+
 ```typescript
 type ApiError = {
   status: number
@@ -491,8 +518,11 @@ interface AuthUser {
 // Session extendida (next-auth.d.ts)
 interface Session {
   user: {
-    id: string; name: string; email: string
-    token: string; refreshToken: string
+    id: string
+    name: string
+    email: string
+    token: string
+    refreshToken: string
     rol: 'ADMIN' | 'CLIENTE'
     idSede?: number
   }
@@ -509,11 +539,11 @@ interface Session {
 
 ### 5.5 Protección de Rutas
 
-| Mecanismo | Archivo | Cobertura |
-|-----------|---------|-----------|
-| Middleware Next.js | `src/middleware.ts` | `/admin/*`, `/cliente/*` |
-| Server-side session | `src/app/admin/layout.tsx` | Segunda capa admin |
-| Hook `useAuth()` | `src/hooks/useAuth.ts` | Componentes cliente |
+| Mecanismo           | Archivo                    | Cobertura                |
+| ------------------- | -------------------------- | ------------------------ |
+| Middleware Next.js  | `src/middleware.ts`        | `/admin/*`, `/cliente/*` |
+| Server-side session | `src/app/admin/layout.tsx` | Segunda capa admin       |
+| Hook `useAuth()`    | `src/hooks/useAuth.ts`     | Componentes cliente      |
 
 ### 5.6 Providers de Autenticación
 
@@ -536,18 +566,19 @@ interface Session {
 
 ### 6.1 Zustand Stores (8 archivos en `src/lib/store/`)
 
-| Store | Responsabilidad |
-|-------|----------------|
-| `auth.store.ts` | Sede seleccionada (`idSede`) |
-| `admin-preferences.store.ts` | Tema, layout, idioma, tipografía |
-| `borrador.store.ts` | Estado temporal del wizard de eventos |
-| `cart.store.ts` | Carrito de venta presencial |
-| `notificaciones.store.ts` | Sistema de notificaciones UI |
-| `sesion.store.ts` | Estado del modal sesión expirada |
-| `sidebar.store.ts` | Estado abierto/cerrado del sidebar |
-| `theme.store.ts` | Tema claro/oscuro |
+| Store                        | Responsabilidad                       |
+| ---------------------------- | ------------------------------------- |
+| `auth.store.ts`              | Sede seleccionada (`idSede`)          |
+| `admin-preferences.store.ts` | Tema, layout, idioma, tipografía      |
+| `borrador.store.ts`          | Estado temporal del wizard de eventos |
+| `cart.store.ts`              | Carrito de venta presencial           |
+| `notificaciones.store.ts`    | Sistema de notificaciones UI          |
+| `sesion.store.ts`            | Estado del modal sesión expirada      |
+| `sidebar.store.ts`           | Estado abierto/cerrado del sidebar    |
+| `theme.store.ts`             | Tema claro/oscuro                     |
 
 **Cart Store (ejemplo de estructura):**
+
 ```typescript
 interface CartState {
   items: CartItem[]
@@ -575,7 +606,7 @@ useMutation({
     queryClient.invalidateQueries({ queryKey: [KEY] })
     toast.success('Creado correctamente.')
   },
-  onError: (err) => toast.error(err?.message ?? 'Error')
+  onError: (err) => toast.error(err?.message ?? 'Error'),
 })
 ```
 
@@ -590,72 +621,102 @@ La arquitectura prioriza Zustand + React Query sobre Context.
 
 ### 7.1 Archivos de Tipos (28 archivos en `src/types/`)
 
-| Archivo | Líneas aprox. |
-|---------|---------------|
-| `enums.ts` | ~90 |
-| `evento.types.ts` | ~150 |
-| `finanzas.types.ts` | ~200 |
-| `contrato.types.ts` | ~150 |
-| `calendario.types.ts` | ~120 |
-| `cliente.types.ts` | ~90 |
-| `reserva.types.ts` | ~80 |
-| `comercial.types.ts` | ~80 |
-| `preferencias.types.ts` | ~60 |
-| `legal.types.ts` | ~60 |
-| `marketing.types.ts` | ~60 |
-| `ventaPresencial.types.ts` | ~60 |
-| `contrato.types.ts` | ~150 |
-| *(resto)* | <50 c/u |
+| Archivo                    | Líneas aprox. |
+| -------------------------- | ------------- |
+| `enums.ts`                 | ~90           |
+| `evento.types.ts`          | ~150          |
+| `finanzas.types.ts`        | ~200          |
+| `contrato.types.ts`        | ~150          |
+| `calendario.types.ts`      | ~120          |
+| `cliente.types.ts`         | ~90           |
+| `reserva.types.ts`         | ~80           |
+| `comercial.types.ts`       | ~80           |
+| `preferencias.types.ts`    | ~60           |
+| `legal.types.ts`           | ~60           |
+| `marketing.types.ts`       | ~60           |
+| `ventaPresencial.types.ts` | ~60           |
+| `contrato.types.ts`        | ~150          |
+| _(resto)_                  | <50 c/u       |
 
 ### 7.2 Tipos Principales
 
 **Cliente:**
+
 ```typescript
 interface Cliente {
   id: number
-  nombre: string; correo: string; telefono?: string | null
-  dni?: string | null; ruc?: string | null; razonSocial?: string | null
+  nombre: string
+  correo: string
+  telefono?: string | null
+  dni?: string | null
+  ruc?: string | null
+  razonSocial?: string | null
   fotoPerfil?: string | null
   tipoCliente?: 'PERSONA' | 'EMPRESA' | null
-  esVip: boolean; descuentoVip?: number | null
-  contadorVisitas: number; correoVerificado: boolean; activo: boolean
+  esVip: boolean
+  descuentoVip?: number | null
+  contadorVisitas: number
+  correoVerificado: boolean
+  activo: boolean
   origenRegistro: 'WEB' | 'PRESENCIAL' | 'ADMIN'
-  tieneAccesoWeb: boolean; aceptaComunicaciones: boolean
+  tieneAccesoWeb: boolean
+  aceptaComunicaciones: boolean
   segmentoCliente: 'NUEVO' | 'FRECUENTE' | 'VIP' | 'CORPORATIVO' | 'INACTIVO'
-  fechaCreacion: string   // ISO string — verificar si es OffsetDateTime del backend
+  fechaCreacion: string // ISO string — verificar si es OffsetDateTime del backend
 }
 ```
 
 **Reserva:**
+
 ```typescript
 interface Reserva {
   id: number
-  idCliente: number; nombreCliente?: string
-  idSede: number; estado: EstadoReserva
+  idCliente: number
+  nombreCliente?: string
+  idSede: number
+  estado: EstadoReserva
   tipoDia: 'SEMANA' | 'FIN_SEMANA_FERIADO'
-  fechaEvento: string; numeroTicket: string
-  precioHistorico: number; descuentoAplicado: number; totalPagado: number
-  nombreNino: string; edadNino: number
-  nombreAcompanante: string; dniAcompanante?: string
-  firmoConsentimiento: boolean; esReprogramacion: boolean
+  fechaEvento: string
+  numeroTicket: string
+  precioHistorico: number
+  descuentoAplicado: number
+  totalPagado: number
+  nombreNino: string
+  edadNino: number
+  nombreAcompanante: string
+  dniAcompanante?: string
+  firmoConsentimiento: boolean
+  esReprogramacion: boolean
   vecesReprogramada: number
   medioPago?: 'YAPE' | 'CAJA' | string
-  referenciaPago?: string; fechaCreacion: string
+  referenciaPago?: string
+  fechaCreacion: string
 }
 ```
 
 **Evento Privado:**
+
 ```typescript
 interface EventoPrivado {
-  id: number; idCliente: number; nombreCliente: string
-  idSede: number; estado: EstadoEvento
-  idTurno: number; turno: string
-  horaInicio: string; horaFin: string; fechaEvento: string
-  tipoEvento: string; aforoDeclarado?: number
-  precioTotalContrato?: number; montoAdelanto?: number; montoSaldo?: number
+  id: number
+  idCliente: number
+  nombreCliente: string
+  idSede: number
+  estado: EstadoEvento
+  idTurno: number
+  turno: string
+  horaInicio: string
+  horaFin: string
+  fechaEvento: string
+  tipoEvento: string
+  aforoDeclarado?: number
+  precioTotalContrato?: number
+  montoAdelanto?: number
+  montoSaldo?: number
   medioPagoAdelanto?: string
   checklistCompleto: boolean
-  checklist?: ChecklistItem[]; extras?: EventoExtra[]
+  checklist?: ChecklistItem[]
+  extras?: EventoExtra[]
   fechaCreacion: string
 }
 ```
@@ -671,12 +732,12 @@ interface EventoPrivado {
 
 ### 7.4 Métricas de Calidad de Tipos
 
-| Métrica | Resultado |
-|---------|-----------|
-| Uso de `: any` | **0** |
-| Uso de `as any` | **0** |
-| Tipos centralizados | **Sí** (`src/types/`) |
-| Tipos dispersos en componentes | No detectados |
+| Métrica                        | Resultado             |
+| ------------------------------ | --------------------- |
+| Uso de `: any`                 | **0**                 |
+| Uso de `as any`                | **0**                 |
+| Tipos centralizados            | **Sí** (`src/types/`) |
+| Tipos dispersos en componentes | No detectados         |
 
 ### 7.5 Advertencia — Campos `fechaCreacion` Post-Migración
 
@@ -688,16 +749,16 @@ El backend migró a `OffsetDateTime` en la Fase 4G-1. Los tipos del frontend usa
 
 ### 8.1 Stack de Estilos
 
-| Tecnología | Versión | Uso |
-|-----------|---------|-----|
-| Tailwind CSS | 3.4.17 | Framework principal |
-| shadcn/ui | 4.7.0 | Componentes base |
-| Radix UI | Múltiples | Primitivas accesibles |
-| Lucide React | 0.542.0 | Iconografía |
-| class-variance-authority | 0.7.1 | Variantes de componentes |
-| tailwind-merge | 3.5.0 | Fusión de clases |
-| tailwindcss-animate | 1.0.7 | Animaciones |
-| tw-animate-css | 1.4.0 | Animaciones adicionales |
+| Tecnología               | Versión   | Uso                      |
+| ------------------------ | --------- | ------------------------ |
+| Tailwind CSS             | 3.4.17    | Framework principal      |
+| shadcn/ui                | 4.7.0     | Componentes base         |
+| Radix UI                 | Múltiples | Primitivas accesibles    |
+| Lucide React             | 0.542.0   | Iconografía              |
+| class-variance-authority | 0.7.1     | Variantes de componentes |
+| tailwind-merge           | 3.5.0     | Fusión de clases         |
+| tailwindcss-animate      | 1.0.7     | Animaciones              |
+| tw-animate-css           | 1.4.0     | Animaciones adicionales  |
 
 ### 8.2 Componentes shadcn/ui Instalados (20+)
 
@@ -781,14 +842,14 @@ El backend migró a `OffsetDateTime` en la Fase 4G-1. Los tipos del frontend usa
 
 ### 9.2 Análisis de Dependencias
 
-| Hallazgo | Detalle |
-|----------|---------|
-| **Supabase ausente** | `@supabase/supabase-js` NO instalado. Si el backend usa Supabase Auth, hay que instalarlo. |
-| `radix-ui` (paquete global) + paquetes individuales `@radix-ui/*` | Posible redundancia — verificar si `radix-ui` v1 es el bundle o un alias |
-| `tw-animate-css` + `tailwindcss-animate` | Dos librerías de animación similares — revisar si ambas se usan |
-| `clsx` + `tailwind-merge` | Ambas necesarias — `cn()` las combina internamente |
-| Sin framework de testing | No hay `jest`, `vitest`, `@testing-library` |
-| Sin Supabase `@supabase/ssr` | Necesario si se migra auth a Supabase |
+| Hallazgo                                                          | Detalle                                                                                    |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **Supabase ausente**                                              | `@supabase/supabase-js` NO instalado. Si el backend usa Supabase Auth, hay que instalarlo. |
+| `radix-ui` (paquete global) + paquetes individuales `@radix-ui/*` | Posible redundancia — verificar si `radix-ui` v1 es el bundle o un alias                   |
+| `tw-animate-css` + `tailwindcss-animate`                          | Dos librerías de animación similares — revisar si ambas se usan                            |
+| `clsx` + `tailwind-merge`                                         | Ambas necesarias — `cn()` las combina internamente                                         |
+| Sin framework de testing                                          | No hay `jest`, `vitest`, `@testing-library`                                                |
+| Sin Supabase `@supabase/ssr`                                      | Necesario si se migra auth a Supabase                                                      |
 
 ---
 
@@ -797,6 +858,7 @@ El backend migró a `OffsetDateTime` en la Fase 4G-1. Los tipos del frontend usa
 ### 10.1 Variables Actuales
 
 **`.env.local` (actual):**
+
 ```
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=cambia_este_secreto_en_produccion_min_32_chars
@@ -805,6 +867,7 @@ NEXT_PUBLIC_APP_NAME=PlayZone PEMS
 ```
 
 **`.env.example` (plantilla):**
+
 ```
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=cambia_este_secreto_en_produccion_min_32_chars
@@ -817,14 +880,14 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ### 10.2 Observaciones
 
-| Observación | Detalle |
-|------------|---------|
-| `NEXT_PUBLIC_APP_NAME` diferente en `.env.local` | `.env.local` dice "PlayZone PEMS", `.env.example` dice "Kiki y Lala PEMS" — inconsistente |
-| `NEXT_PUBLIC_API_URL` apunta a `localhost:8080` | Correcto para desarrollo local con Spring Boot |
-| Falta `NEXT_PUBLIC_SUPABASE_URL` | Si backend usa Supabase, hay que añadir |
-| Falta `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Ídem |
-| Fallback en código: `?? 'http://localhost:8080/api/v1'` | Riesgo: si env var no existe en prod, usará localhost |
-| `NEXTAUTH_SECRET` con texto default | **No cambiar esto en commits. Sí en producción.** |
+| Observación                                             | Detalle                                                                                   |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_APP_NAME` diferente en `.env.local`        | `.env.local` dice "PlayZone PEMS", `.env.example` dice "Kiki y Lala PEMS" — inconsistente |
+| `NEXT_PUBLIC_API_URL` apunta a `localhost:8080`         | Correcto para desarrollo local con Spring Boot                                            |
+| Falta `NEXT_PUBLIC_SUPABASE_URL`                        | Si backend usa Supabase, hay que añadir                                                   |
+| Falta `NEXT_PUBLIC_SUPABASE_ANON_KEY`                   | Ídem                                                                                      |
+| Fallback en código: `?? 'http://localhost:8080/api/v1'` | Riesgo: si env var no existe en prod, usará localhost                                     |
+| `NEXTAUTH_SECRET` con texto default                     | **No cambiar esto en commits. Sí en producción.**                                         |
 
 ---
 
@@ -832,43 +895,44 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ### 11.1 Métricas de Limpieza
 
-| Indicador | Cantidad | Evaluación |
-|-----------|---------|------------|
-| `console.log/error/warn` | **0** | Excelente |
-| `TODO / FIXME / HACK` | **0** | Excelente |
-| `: any` / `as any` | **0** | Excelente |
-| Código comentado extenso | No detectado | Excelente |
+| Indicador                | Cantidad     | Evaluación |
+| ------------------------ | ------------ | ---------- |
+| `console.log/error/warn` | **0**        | Excelente  |
+| `TODO / FIXME / HACK`    | **0**        | Excelente  |
+| `: any` / `as any`       | **0**        | Excelente  |
+| Código comentado extenso | No detectado | Excelente  |
 
 ### 11.2 Top 12 Archivos más Grandes
 
-| Archivo | Líneas | Candidato a dividir |
-|---------|--------|---------------------|
-| `src/app/cliente/mi-cuenta/page.tsx` | **1 170** | Sí — múltiples tabs |
-| `src/app/admin/promociones/page.tsx` | **1 013** | Sí — listado + CRUD inline |
-| `src/app/(wizard)/celebraciones/solicitar/page.tsx` | **930** | Sí — wizard multi-paso |
-| `src/app/admin/accesos/entradas/page.tsx` | **907** | Sí — tabla + QR + acciones |
-| `src/app/(public)/reservar/page.tsx` | **848** | Sí — formulario complejo |
-| `src/app/admin/cms/configuracion-publica/page.tsx` | **646** | Sí — formulario multi-sección |
-| `src/components/admin/eventos/ConfirmarEventoModal.tsx` | **579** | Sí — modal con sub-formularios |
-| `src/app/admin/eventos/[id]/page.tsx` | **547** | Posible |
-| `src/app/admin/reservas/page.tsx` | **524** | Posible |
-| `src/app/auth/registro/page.tsx` | **526** | Posible |
-| `src/components/admin/calendario/CalendarioDayDrawer.tsx` | **515** | Posible |
-| `src/app/admin/cms/resenas/page.tsx` | **473** | Aceptable |
+| Archivo                                                   | Líneas    | Candidato a dividir            |
+| --------------------------------------------------------- | --------- | ------------------------------ |
+| `src/app/cliente/mi-cuenta/page.tsx`                      | **1 170** | Sí — múltiples tabs            |
+| `src/app/admin/promociones/page.tsx`                      | **1 013** | Sí — listado + CRUD inline     |
+| `src/app/(wizard)/celebraciones/solicitar/page.tsx`       | **930**   | Sí — wizard multi-paso         |
+| `src/app/admin/accesos/entradas/page.tsx`                 | **907**   | Sí — tabla + QR + acciones     |
+| `src/app/(public)/reservar/page.tsx`                      | **848**   | Sí — formulario complejo       |
+| `src/app/admin/cms/configuracion-publica/page.tsx`        | **646**   | Sí — formulario multi-sección  |
+| `src/components/admin/eventos/ConfirmarEventoModal.tsx`   | **579**   | Sí — modal con sub-formularios |
+| `src/app/admin/eventos/[id]/page.tsx`                     | **547**   | Posible                        |
+| `src/app/admin/reservas/page.tsx`                         | **524**   | Posible                        |
+| `src/app/auth/registro/page.tsx`                          | **526**   | Posible                        |
+| `src/components/admin/calendario/CalendarioDayDrawer.tsx` | **515**   | Posible                        |
+| `src/app/admin/cms/resenas/page.tsx`                      | **473**   | Aceptable                      |
 
 ### 11.3 Implementaciones Vacías (código muerto potencial)
 
-| Archivo | Estado |
-|---------|--------|
-| `src/services/auditoria.service.ts` | **VACÍO** |
-| `src/services/usuario-admin.service.ts` | **VACÍO** |
-| `src/hooks/useComprobantes.ts` | Posiblemente vacío |
-| `src/hooks/useConfirm.ts` | Posiblemente vacío |
-| `src/features/*/index.ts` (8 archivos) | Solo stubs vacíos |
+| Archivo                                 | Estado             |
+| --------------------------------------- | ------------------ |
+| `src/services/auditoria.service.ts`     | **VACÍO**          |
+| `src/services/usuario-admin.service.ts` | **VACÍO**          |
+| `src/hooks/useComprobantes.ts`          | Posiblemente vacío |
+| `src/hooks/useConfirm.ts`               | Posiblemente vacío |
+| `src/features/*/index.ts` (8 archivos)  | Solo stubs vacíos  |
 
 ### 11.4 Lógica Duplicada en Hooks
 
 En `src/hooks/useReservas.ts` hay dos pares de hooks paralelos:
+
 - `useReprogramarReserva()` (admin) vs `useReprogramarReservaCliente()` (cliente)
 - `useCancelarReserva()` (admin) vs `useCancelarReservaCliente()` (cliente)
 
@@ -886,18 +950,18 @@ El frontend PEMS es un proyecto Next.js 16 con App Router, escrito en TypeScript
 
 ### B. Problemas Principales (Ordenados por Impacto)
 
-| # | Problema | Impacto | Prioridad |
-|---|---------|---------|-----------|
-| 1 | **Auth no alineada con Supabase** — Frontend usa NextAuth+JWT propio; si el backend migró a Supabase Auth, todo el flujo de autenticación debe reemplazarse con `@supabase/supabase-js` | **CRÍTICO** — bloquea sesiones | Alta |
-| 2 | **Servicios vacíos** — `auditoria.service.ts` y `usuario-admin.service.ts` están sin implementar | **ALTO** — funcionalidades rotas | Alta |
-| 3 | **Páginas monolíticas** — 5 archivos >800 líneas (máximo: 1170) que combinan lógica de UI, fetching, estado y validación | **ALTO** — mantenibilidad | Media |
-| 4 | **`NEXT_PUBLIC_APP_NAME` inconsistente** — "PlayZone PEMS" en `.env.local` vs "Kiki y Lala PEMS" en `.env.example` | **MEDIO** — branding incorrecto en dev | Alta (quick fix) |
-| 5 | **Tipos de fechas** — Backend usa `OffsetDateTime` post-Fase 4G-1; verificar que `date-fns` parsee correctamente el offset `+05:00` en los campos `fechaCreacion`, `fechaEvento` | **MEDIO** — bugs de hora silenciosos | Media |
-| 6 | **Features directory vacío** — `src/features/` creado con 8 subdirectorios pero todos son stubs vacíos | **BAJO** — confunde la estructura | Baja |
-| 7 | **Lógica duplicada en hooks** — Pares `useReprogramar/useCancelar` admin+cliente con código casi idéntico | **BAJO** — mantenibilidad | Baja |
-| 8 | **Fallback hardcodeado de API URL** — `?? 'http://localhost:8080/api/v1'` en `auth.config.ts` puede apuntar a localhost en producción | **MEDIO** — bug de configuración | Alta (quick fix) |
-| 9 | **Sin suite de testing** | **BAJO** — riesgo a largo plazo | Baja |
-| 10 | **Dependencias duplicadas de animación** — `tw-animate-css` + `tailwindcss-animate` | **BAJO** — bundle size | Baja |
+| #   | Problema                                                                                                                                                                                | Impacto                                | Prioridad        |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ---------------- |
+| 1   | **Auth no alineada con Supabase** — Frontend usa NextAuth+JWT propio; si el backend migró a Supabase Auth, todo el flujo de autenticación debe reemplazarse con `@supabase/supabase-js` | **CRÍTICO** — bloquea sesiones         | Alta             |
+| 2   | **Servicios vacíos** — `auditoria.service.ts` y `usuario-admin.service.ts` están sin implementar                                                                                        | **ALTO** — funcionalidades rotas       | Alta             |
+| 3   | **Páginas monolíticas** — 5 archivos >800 líneas (máximo: 1170) que combinan lógica de UI, fetching, estado y validación                                                                | **ALTO** — mantenibilidad              | Media            |
+| 4   | **`NEXT_PUBLIC_APP_NAME` inconsistente** — "PlayZone PEMS" en `.env.local` vs "Kiki y Lala PEMS" en `.env.example`                                                                      | **MEDIO** — branding incorrecto en dev | Alta (quick fix) |
+| 5   | **Tipos de fechas** — Backend usa `OffsetDateTime` post-Fase 4G-1; verificar que `date-fns` parsee correctamente el offset `+05:00` en los campos `fechaCreacion`, `fechaEvento`        | **MEDIO** — bugs de hora silenciosos   | Media            |
+| 6   | **Features directory vacío** — `src/features/` creado con 8 subdirectorios pero todos son stubs vacíos                                                                                  | **BAJO** — confunde la estructura      | Baja             |
+| 7   | **Lógica duplicada en hooks** — Pares `useReprogramar/useCancelar` admin+cliente con código casi idéntico                                                                               | **BAJO** — mantenibilidad              | Baja             |
+| 8   | **Fallback hardcodeado de API URL** — `?? 'http://localhost:8080/api/v1'` en `auth.config.ts` puede apuntar a localhost en producción                                                   | **MEDIO** — bug de configuración       | Alta (quick fix) |
+| 9   | **Sin suite de testing**                                                                                                                                                                | **BAJO** — riesgo a largo plazo        | Baja             |
+| 10  | **Dependencias duplicadas de animación** — `tw-animate-css` + `tailwindcss-animate`                                                                                                     | **BAJO** — bundle size                 | Baja             |
 
 ---
 
@@ -921,44 +985,45 @@ src/features/users/index.ts             # stub vacío
 
 ### D. Componentes Candidatos a Descomposición
 
-| Archivo | Líneas | Sugerencia de Descomposición |
-|---------|--------|------------------------------|
-| `src/app/cliente/mi-cuenta/page.tsx` | 1 170 | Extraer: `PersonalInfoTab`, `FiscalInfoTab`, `ActividadRecienteSection`, `CambiarContrasenaSection` |
-| `src/app/admin/promociones/page.tsx` | 1 013 | Extraer: `PromocionesTable`, `PromocionFormDrawer`, `PromocionStatsCard` |
-| `src/app/(wizard)/celebraciones/solicitar/page.tsx` | 930 | Extraer: `PasoSeleccionPaquete`, `PasoFechaHora`, `PasoExtras`, `PasoResumen`, `PasoConfirmacion` |
-| `src/app/admin/accesos/entradas/page.tsx` | 907 | Extraer: `EntradasTable`, `QrScannerModal`, `EntradaAccionesMenu` |
-| `src/app/(public)/reservar/page.tsx` | 848 | Extraer: `CalendarioDisponibilidad`, `FormularioNino`, `FormularioAcompanante`, `ResumenPago` |
-| `src/components/admin/eventos/ConfirmarEventoModal.tsx` | 579 | Extraer: `FinancialSection`, `ChecklistSection`, `ExtrasSection` |
-| `src/components/admin/calendario/CalendarioDayDrawer.tsx` | 515 | Extraer: `ReservasList`, `EventosList`, `AccionesDia` |
+| Archivo                                                   | Líneas | Sugerencia de Descomposición                                                                        |
+| --------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------- |
+| `src/app/cliente/mi-cuenta/page.tsx`                      | 1 170  | Extraer: `PersonalInfoTab`, `FiscalInfoTab`, `ActividadRecienteSection`, `CambiarContrasenaSection` |
+| `src/app/admin/promociones/page.tsx`                      | 1 013  | Extraer: `PromocionesTable`, `PromocionFormDrawer`, `PromocionStatsCard`                            |
+| `src/app/(wizard)/celebraciones/solicitar/page.tsx`       | 930    | Extraer: `PasoSeleccionPaquete`, `PasoFechaHora`, `PasoExtras`, `PasoResumen`, `PasoConfirmacion`   |
+| `src/app/admin/accesos/entradas/page.tsx`                 | 907    | Extraer: `EntradasTable`, `QrScannerModal`, `EntradaAccionesMenu`                                   |
+| `src/app/(public)/reservar/page.tsx`                      | 848    | Extraer: `CalendarioDisponibilidad`, `FormularioNino`, `FormularioAcompanante`, `ResumenPago`       |
+| `src/components/admin/eventos/ConfirmarEventoModal.tsx`   | 579    | Extraer: `FinancialSection`, `ChecklistSection`, `ExtrasSection`                                    |
+| `src/components/admin/calendario/CalendarioDayDrawer.tsx` | 515    | Extraer: `ReservasList`, `EventosList`, `AccionesDia`                                               |
 
 ---
 
 ### E. Duplicados a Unificar
 
-| Grupo | Archivos | Acción |
-|-------|---------|--------|
+| Grupo             | Archivos                                                                     | Acción                                                   |
+| ----------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------- |
 | Hooks reprogramar | `useReprogramarReserva()` + `useReprogramarReservaCliente()` (mismo archivo) | Refactorizar: `useReprogramarReserva(queryKey)` genérico |
-| Hooks cancelar | `useCancelarReserva()` + `useCancelarReservaCliente()` (mismo archivo) | Igual: `useCancelarReserva(queryKey)` genérico |
-| `EstadoBadge.tsx` | `admin/usuarios/EstadoBadge.tsx` y `cliente/EstadoBadge.tsx` | Revisar si son idénticos → unificar en `common/` |
+| Hooks cancelar    | `useCancelarReserva()` + `useCancelarReservaCliente()` (mismo archivo)       | Igual: `useCancelarReserva(queryKey)` genérico           |
+| `EstadoBadge.tsx` | `admin/usuarios/EstadoBadge.tsx` y `cliente/EstadoBadge.tsx`                 | Revisar si son idénticos → unificar en `common/`         |
 
 ---
 
 ### F. Desalineación con el Backend Nuevo
 
-| Área | Frontend Actual | Backend Post-Fase 4 | Acción |
-|------|----------------|---------------------|--------|
-| **Autenticación** | NextAuth v4 + JWT Spring Boot | Supabase Auth (si migró) | Reemplazar NextAuth por `@supabase/ssr` o `@supabase/supabase-js` |
-| **Fechas** | Strings ISO simple | `OffsetDateTime` con `+05:00` | Verificar parsing con `date-fns` |
-| **Catálogos** | Campos `id` (número) | `codigo` (string) post-Fase 3 | Auditar cada tipo donde se consume `id` vs `codigo` en catálogos |
-| **`NEXT_PUBLIC_API_URL`** | `http://localhost:8080/api/v1` | Podría ser endpoint Supabase | Actualizar si backend cambió base URL |
-| **Refresh token** | `POST /auth/refresh` custom | Si usa Supabase: Supabase maneja refresh automáticamente | Eliminar lógica de refresh manual si se migra |
-| **Error format** | `{ status, error, codigoError, message, path, timestamp }` | Verificar que Spring Boot siga retornando este formato | Auditar handlers de error en servicios |
+| Área                      | Frontend Actual                                            | Backend Post-Fase 4                                      | Acción                                                            |
+| ------------------------- | ---------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Autenticación**         | NextAuth v4 + JWT Spring Boot                              | Supabase Auth (si migró)                                 | Reemplazar NextAuth por `@supabase/ssr` o `@supabase/supabase-js` |
+| **Fechas**                | Strings ISO simple                                         | `OffsetDateTime` con `+05:00`                            | Verificar parsing con `date-fns`                                  |
+| **Catálogos**             | Campos `id` (número)                                       | `codigo` (string) post-Fase 3                            | Auditar cada tipo donde se consume `id` vs `codigo` en catálogos  |
+| **`NEXT_PUBLIC_API_URL`** | `http://localhost:8080/api/v1`                             | Podría ser endpoint Supabase                             | Actualizar si backend cambió base URL                             |
+| **Refresh token**         | `POST /auth/refresh` custom                                | Si usa Supabase: Supabase maneja refresh automáticamente | Eliminar lógica de refresh manual si se migra                     |
+| **Error format**          | `{ status, error, codigoError, message, path, timestamp }` | Verificar que Spring Boot siga retornando este formato   | Auditar handlers de error en servicios                            |
 
 ---
 
 ### G. Recomendación de Orden de Trabajo
 
 #### Semana 1 — Alineación Crítica
+
 1. **Verificar estado de la auth del backend:** ¿Spring Boot sigue con JWT propio o migró a Supabase Auth?
    - Si JWT propio: el frontend funciona como está. Solo limpiar nombre de app.
    - Si Supabase Auth: instalar `@supabase/ssr`, reemplazar NextAuth, reemplazar axios interceptor.
@@ -967,16 +1032,19 @@ src/features/users/index.ts             # stub vacío
 4. **Verificar parsing de fechas** con `OffsetDateTime` — probar en UI que horas se muestren correctamente.
 
 #### Semana 2 — Implementar Funcionalidades Faltantes
+
 5. Implementar `src/services/auditoria.service.ts`
 6. Implementar `src/services/usuario-admin.service.ts`
 7. Decidir si `src/features/` se usa o se elimina — no dejar stubs vacíos.
 
 #### Semana 3–4 — Refactorización de Páginas Grandes
+
 8. Dividir `mi-cuenta/page.tsx` (1170 líneas) en sub-componentes de tab.
 9. Dividir `solicitar/page.tsx` (930 líneas) en componentes por paso del wizard.
 10. Dividir `accesos/entradas/page.tsx` (907 líneas).
 
 #### Semana 5 — Calidad y Estándares
+
 11. Unificar hooks duplicados (`reprogramar`, `cancelar`).
 12. Evaluar y eliminar duplicados de animación (`tw-animate-css` vs `tailwindcss-animate`).
 13. Añadir `staleTime` apropiados en queries de React Query.
@@ -986,22 +1054,22 @@ src/features/users/index.ts             # stub vacío
 
 ## Apéndice — Archivos Clave de Referencia
 
-| Archivo | Rol |
-|---------|-----|
-| `src/lib/auth.config.ts` | Configuración NextAuth + endpoints de login |
-| `src/lib/axios.ts` | Instancia HTTP + interceptores + refresh token |
-| `src/middleware.ts` | Protección de rutas a nivel Edge |
-| `src/app/admin/layout.tsx` | Verificación server-side de sesión admin |
-| `src/providers/app-provider.tsx` | Árbol de providers de la app |
-| `src/config/routes.ts` | Constantes de rutas |
-| `src/config/permissions.ts` | Matriz de permisos por rol |
-| `src/config/navigation.ts` | Menús de navegación |
-| `src/types/enums.ts` | Enumeraciones compartidas |
-| `src/lib/store/cart.store.ts` | Carrito de venta presencial |
-| `src/lib/store/sesion.store.ts` | Estado modal sesión expirada |
-| `tailwind.config.ts` | Configuración Tailwind + tema |
-| `tsconfig.json` | Config TypeScript strict + paths |
+| Archivo                          | Rol                                            |
+| -------------------------------- | ---------------------------------------------- |
+| `src/lib/auth.config.ts`         | Configuración NextAuth + endpoints de login    |
+| `src/lib/axios.ts`               | Instancia HTTP + interceptores + refresh token |
+| `src/middleware.ts`              | Protección de rutas a nivel Edge               |
+| `src/app/admin/layout.tsx`       | Verificación server-side de sesión admin       |
+| `src/providers/app-provider.tsx` | Árbol de providers de la app                   |
+| `src/config/routes.ts`           | Constantes de rutas                            |
+| `src/config/permissions.ts`      | Matriz de permisos por rol                     |
+| `src/config/navigation.ts`       | Menús de navegación                            |
+| `src/types/enums.ts`             | Enumeraciones compartidas                      |
+| `src/lib/store/cart.store.ts`    | Carrito de venta presencial                    |
+| `src/lib/store/sesion.store.ts`  | Estado modal sesión expirada                   |
+| `tailwind.config.ts`             | Configuración Tailwind + tema                  |
+| `tsconfig.json`                  | Config TypeScript strict + paths               |
 
 ---
 
-*Reporte generado el 2026-06-13. Solo lectura — ningún archivo fue modificado.*
+_Reporte generado el 2026-06-13. Solo lectura — ningún archivo fue modificado._

@@ -53,12 +53,17 @@ export function UsuariosListView() {
                 onClick={() => refetch()}
                 disabled={isRefetching}
               >
-                <RefreshCw className={cn('mr-2 h-4 w-4', isRefetching && 'animate-spin')} />
+                <RefreshCw
+                  className={cn('mr-2 h-4 w-4', isRefetching && 'animate-spin')}
+                />
                 Actualizar
               </Button>
               {dataUpdatedAt > 0 && (
                 <span className="text-[11px] text-muted-foreground">
-                  {formatDistanceToNow(new Date(dataUpdatedAt), { locale: es, addSuffix: true })}
+                  {formatDistanceToNow(new Date(dataUpdatedAt), {
+                    locale: es,
+                    addSuffix: true,
+                  })}
                 </span>
               )}
             </div>

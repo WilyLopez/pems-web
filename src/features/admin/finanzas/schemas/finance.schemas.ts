@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
 export const abrirCajaSchema = z.object({
-  saldoInicial: z.coerce.number().min(0, 'El saldo inicial no puede ser negativo'),
+  saldoInicial: z.coerce
+    .number()
+    .min(0, 'El saldo inicial no puede ser negativo'),
   observaciones: z.string().optional(),
 })
 
@@ -15,7 +17,9 @@ export const movimientoCajaSchema = z.object({
   concepto: z.string().min(2, 'El concepto es obligatorio'),
   monto: z.coerce.number().positive('El monto debe ser mayor a 0'),
   medioPago: z.string().optional(),
-  categoriaRetiro: z.enum(['SERVICIOS', 'PROVEEDORES', 'PERSONAL', 'OPERATIVO', 'OTRO']).optional(),
+  categoriaRetiro: z
+    .enum(['SERVICIOS', 'PROVEEDORES', 'PERSONAL', 'OPERATIVO', 'OTRO'])
+    .optional(),
 })
 
 export const ingresoManualSchema = z.object({
@@ -67,6 +71,8 @@ export const gastoOperativoSchema = z.object({
 })
 
 export const arqueoSchema = z.object({
-  saldoContado: z.coerce.number().min(0, 'El saldo contado no puede ser negativo'),
+  saldoContado: z.coerce
+    .number()
+    .min(0, 'El saldo contado no puede ser negativo'),
   observaciones: z.string().optional(),
 })

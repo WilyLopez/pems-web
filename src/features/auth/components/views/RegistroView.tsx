@@ -73,7 +73,9 @@ export function RegistroView() {
   const [showPass, setShowPass] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
-  const [docAbierto, setDocAbierto] = useState<'TERMINOS' | 'PRIVACIDAD' | null>(null)
+  const [docAbierto, setDocAbierto] = useState<
+    'TERMINOS' | 'PRIVACIDAD' | null
+  >(null)
   const [docCargando, setDocCargando] = useState(false)
   const [docCargado, setDocCargado] = useState<ContenidoLegal | null>(null)
 
@@ -117,7 +119,10 @@ export function RegistroView() {
             } else if (error.campo === 'numeroDocumento') {
               setError('dni', { type: 'manual', message: error.mensaje })
             } else if (error.campo) {
-              setError(error.campo as any, { type: 'manual', message: error.mensaje })
+              setError(error.campo as any, {
+                type: 'manual',
+                message: error.mensaje,
+              })
             }
           })
         }
@@ -154,7 +159,8 @@ export function RegistroView() {
             <div className="text-white space-y-2">
               <h2 className="text-2xl font-black">Únete a nuestra familia</h2>
               <p className="text-white/60 text-sm max-w-xs mx-auto">
-                Crea tu cuenta gratis y gestiona tus entradas, reservas y eventos desde un solo lugar.
+                Crea tu cuenta gratis y gestiona tus entradas, reservas y
+                eventos desde un solo lugar.
               </p>
             </div>
             <div className="grid grid-cols-3 gap-3 pt-2">
@@ -167,7 +173,9 @@ export function RegistroView() {
                   key={n}
                   className="bg-white/8 rounded-xl p-3 text-center border border-white/10"
                 >
-                  <div className="font-black text-brand-amarillo text-sm">{n}</div>
+                  <div className="font-black text-brand-amarillo text-sm">
+                    {n}
+                  </div>
                   <div className="text-white/50 text-xs mt-0.5">{label}</div>
                 </div>
               ))}
@@ -189,7 +197,9 @@ export function RegistroView() {
             </div>
 
             <div>
-              <h1 className="text-3xl font-black text-gray-900">Crea tu cuenta</h1>
+              <h1 className="text-3xl font-black text-gray-900">
+                Crea tu cuenta
+              </h1>
               <p className="text-gray-500 mt-1 text-sm">
                 Regístrate para comprar entradas y gestionar tus eventos
               </p>
@@ -258,7 +268,11 @@ export function RegistroView() {
                       onClick={() => setShowPass(!showPass)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPass ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </Field>
@@ -285,7 +299,11 @@ export function RegistroView() {
                       onClick={() => setShowConfirm(!showConfirm)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showConfirm ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </Field>
@@ -427,7 +445,9 @@ export function RegistroView() {
                 <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-white px-3 text-gray-400">o continuar con</span>
+                <span className="bg-white px-3 text-gray-400">
+                  o continuar con
+                </span>
               </div>
             </div>
 
@@ -462,7 +482,10 @@ export function RegistroView() {
             <div className="flex flex-col items-center gap-3">
               <p className="text-sm text-gray-500">
                 ¿Ya tienes cuenta?{' '}
-                <Link href="/auth/login" className="font-bold text-brand-azul hover:underline">
+                <Link
+                  href="/auth/login"
+                  className="font-bold text-brand-azul hover:underline"
+                >
                   Inicia sesión
                 </Link>
               </p>
@@ -478,14 +501,20 @@ export function RegistroView() {
         </div>
       </div>
 
-      <Dialog open={!!docAbierto} onOpenChange={(open) => !open && setDocAbierto(null)}>
+      <Dialog
+        open={!!docAbierto}
+        onOpenChange={(open) => !open && setDocAbierto(null)}
+      >
         <DialogContent className="max-w-2xl h-[80vh] flex flex-col gap-0 p-0 overflow-hidden">
           <DialogHeader className="px-6 py-4 border-b shrink-0">
             <DialogTitle className="flex items-center gap-2 text-base">
               <FileText className="h-4 w-4 text-brand-azul shrink-0" />
               {docCargando
                 ? 'Cargando...'
-                : docCargado?.titulo ?? (docAbierto === 'TERMINOS' ? 'Términos y Condiciones' : 'Política de Privacidad')}
+                : (docCargado?.titulo ??
+                  (docAbierto === 'TERMINOS'
+                    ? 'Términos y Condiciones'
+                    : 'Política de Privacidad'))}
             </DialogTitle>
             {docCargado && (
               <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
@@ -497,11 +526,14 @@ export function RegistroView() {
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     Actualizado:{' '}
-                    {new Date(docCargado.fechaActualizacion).toLocaleDateString('es-PE', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
+                    {new Date(docCargado.fechaActualizacion).toLocaleDateString(
+                      'es-PE',
+                      {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                      }
+                    )}
                   </span>
                 )}
               </div>
@@ -513,7 +545,9 @@ export function RegistroView() {
               <div className="flex items-center justify-center h-full">
                 <div className="text-center space-y-3">
                   <Loader2 className="h-8 w-8 animate-spin text-brand-azul mx-auto" />
-                  <p className="text-sm text-muted-foreground">Cargando documento...</p>
+                  <p className="text-sm text-muted-foreground">
+                    Cargando documento...
+                  </p>
                 </div>
               </div>
             ) : docCargado ? (

@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { comercialService } from '@/services/comercial.service'
 import { CMS_QUERY_KEYS } from '@/features/admin/cms/shared/queryKeys'
-import { NovedadLocal, CrearNovedadPayload, ActualizarNovedadPayload } from '@/types/comercial.types'
+import {
+  NovedadLocal,
+  CrearNovedadPayload,
+  ActualizarNovedadPayload,
+} from '@/types/comercial.types'
 
 export function useNovedadesAdmin() {
   return useQuery({
@@ -28,32 +32,52 @@ export function useNovedadMutations() {
   }
 
   const crear = useMutation({
-    mutationFn: (payload: CrearNovedadPayload) => comercialService.novedades.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Novedad creada') },
+    mutationFn: (payload: CrearNovedadPayload) =>
+      comercialService.novedades.crear(payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Novedad creada')
+    },
     onError: () => toast.error('Error al crear la novedad'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ActualizarNovedadPayload }) =>
-      comercialService.novedades.actualizar(id, payload),
-    onSuccess: () => { invalidar(); toast.success('Novedad actualizada') },
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ActualizarNovedadPayload
+    }) => comercialService.novedades.actualizar(id, payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Novedad actualizada')
+    },
     onError: () => toast.error('Error al actualizar la novedad'),
   })
 
   const eliminar = useMutation({
     mutationFn: (id: number) => comercialService.novedades.eliminar(id),
-    onSuccess: () => { invalidar(); toast.success('Novedad eliminada') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Novedad eliminada')
+    },
     onError: () => toast.error('Error al eliminar la novedad'),
   })
 
   const toggleActivo = useMutation({
     mutationFn: (n: NovedadLocal) =>
       comercialService.novedades.actualizar(n.id, {
-        titulo: n.titulo, descripcion: n.descripcion,
-        imagenUrl: n.imagenUrl, textoCta: n.textoCta,
-        urlCta: n.urlCta, prioridad: n.prioridad,
-        fechaInicio: n.fechaInicio, fechaFin: n.fechaFin,
-        visibleHome: n.visibleHome, destacada: n.destacada,
+        titulo: n.titulo,
+        descripcion: n.descripcion,
+        imagenUrl: n.imagenUrl,
+        textoCta: n.textoCta,
+        urlCta: n.urlCta,
+        prioridad: n.prioridad,
+        fechaInicio: n.fechaInicio,
+        fechaFin: n.fechaFin,
+        visibleHome: n.visibleHome,
+        destacada: n.destacada,
         activa: !n.activa,
       }),
     onMutate: async (n) => {

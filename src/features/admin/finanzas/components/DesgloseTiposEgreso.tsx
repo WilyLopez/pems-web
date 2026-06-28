@@ -24,7 +24,11 @@ export function DesgloseTiposEgreso({ desglose }: Props) {
   const total = desglose.reduce((acc, d) => acc + d.totalMonto, 0)
 
   if (desglose.length === 0) {
-    return <p className="text-sm text-gray-400 py-4 text-center">Sin egresos registrados.</p>
+    return (
+      <p className="text-sm text-gray-400 py-4 text-center">
+        Sin egresos registrados.
+      </p>
+    )
   }
 
   return (
@@ -35,11 +39,14 @@ export function DesgloseTiposEgreso({ desglose }: Props) {
           <li key={item.nombreTipo} className="space-y-1">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-sm font-medium text-gray-800 truncate">{item.nombreTipo}</span>
+                <span className="text-sm font-medium text-gray-800 truncate">
+                  {item.nombreTipo}
+                </span>
                 <span
                   className={cn(
                     'shrink-0 text-[11px] font-semibold px-1.5 py-0.5 rounded-full',
-                    categoriaBadge[item.categoria] ?? 'bg-gray-100 text-gray-600'
+                    categoriaBadge[item.categoria] ??
+                      'bg-gray-100 text-gray-600'
                   )}
                 >
                   {categoriaLabel[item.categoria] ?? item.categoria}

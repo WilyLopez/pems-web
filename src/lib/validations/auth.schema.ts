@@ -1,23 +1,28 @@
 import { z } from 'zod'
-import { nombreField, correoField, telefonoField, dniOpcionalField } from './campos'
+import {
+  nombreField,
+  correoField,
+  telefonoField,
+  dniOpcionalField,
+} from './campos'
 
 export const loginSchema = z.object({
-  correo:     correoField,
+  correo: correoField,
   contrasena: z.string().min(1, 'Requerido'),
 })
 
 export const registroSchema = z
   .object({
-    nombre:              nombreField,
-    correo:              correoField,
-    contrasena:          z.string().min(8, 'Mínimo 8 caracteres').max(72),
+    nombre: nombreField,
+    correo: correoField,
+    contrasena: z.string().min(8, 'Mínimo 8 caracteres').max(72),
     confirmarContrasena: z.string(),
-    telefono:            telefonoField,
-    dni:                 dniOpcionalField,
-    aceptaTerminos:      z
+    telefono: telefonoField,
+    dni: dniOpcionalField,
+    aceptaTerminos: z
       .boolean()
       .refine((v) => v === true, 'Debes aceptar los Términos y Condiciones'),
-    aceptaPrivacidad:    z
+    aceptaPrivacidad: z
       .boolean()
       .refine((v) => v === true, 'Debes aceptar la Política de Privacidad'),
   })
@@ -26,5 +31,5 @@ export const registroSchema = z
     path: ['confirmarContrasena'],
   })
 
-export type LoginFormValues    = z.infer<typeof loginSchema>
+export type LoginFormValues = z.infer<typeof loginSchema>
 export type RegistroFormValues = z.infer<typeof registroSchema>

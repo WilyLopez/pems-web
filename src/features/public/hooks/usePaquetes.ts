@@ -8,7 +8,8 @@ export function usePaquetes() {
   return useQuery({
     queryKey: PUBLIC_QUERY_KEYS.paquetes,
     queryFn: async () => {
-      const response = await api.get<ApiResponse<PaqueteEvento[]>>('/api/v1/paquetes')
+      const response =
+        await api.get<ApiResponse<PaqueteEvento[]>>('/api/v1/paquetes')
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,

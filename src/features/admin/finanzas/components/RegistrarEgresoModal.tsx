@@ -34,7 +34,12 @@ interface Props {
   egreso?: RegistroEgreso
 }
 
-export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Props) {
+export function RegistrarEgresoModal({
+  open,
+  onOpenChange,
+  idSede,
+  egreso,
+}: Props) {
   const { data: tipos = [] } = useTiposEgreso()
   const { registrar, actualizar } = useEgresoMutations()
   const editando = !!egreso
@@ -116,15 +121,15 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{editando ? 'Editar egreso' : 'Registrar egreso'}</DialogTitle>
+          <DialogTitle>
+            {editando ? 'Editar egreso' : 'Registrar egreso'}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           <div className="space-y-1.5">
             <Label>Tipo de egreso *</Label>
-            <Select
-              onValueChange={(v) => setValue('tipoEgresoCodigo', v)}
-            >
+            <Select onValueChange={(v) => setValue('tipoEgresoCodigo', v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar tipo..." />
               </SelectTrigger>
@@ -139,7 +144,9 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
               </SelectContent>
             </Select>
             {errors.tipoEgresoCodigo && (
-              <p className="text-xs text-destructive">{errors.tipoEgresoCodigo.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.tipoEgresoCodigo.message}
+              </p>
             )}
           </div>
 
@@ -154,7 +161,9 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
                 {...register('monto')}
               />
               {errors.monto && (
-                <p className="text-xs text-destructive">{errors.monto.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.monto.message}
+                </p>
               )}
             </div>
 
@@ -162,7 +171,9 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
               <Label htmlFor="fecha">Fecha *</Label>
               <Input id="fecha" type="date" {...register('fecha')} />
               {errors.fecha && (
-                <p className="text-xs text-destructive">{errors.fecha.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.fecha.message}
+                </p>
               )}
             </div>
           </div>
@@ -173,7 +184,10 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
               checked={esRecurrente}
               onCheckedChange={(v) => setValue('esRecurrente', Boolean(v))}
             />
-            <Label htmlFor="esRecurrente" className="cursor-pointer font-normal">
+            <Label
+              htmlFor="esRecurrente"
+              className="cursor-pointer font-normal"
+            >
               Es egreso recurrente (asignar periodo)
             </Label>
           </div>
@@ -220,12 +234,18 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
               {...register('comprobanteUrl')}
             />
             {errors.comprobanteUrl && (
-              <p className="text-xs text-destructive">{errors.comprobanteUrl.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.comprobanteUrl.message}
+              </p>
             )}
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button
@@ -233,7 +253,11 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede, egreso }: Pro
               disabled={isPending}
               className="bg-brand-azul hover:bg-brand-azul/90 text-white"
             >
-              {isPending ? 'Guardando...' : editando ? 'Guardar cambios' : 'Registrar'}
+              {isPending
+                ? 'Guardando...'
+                : editando
+                  ? 'Guardar cambios'
+                  : 'Registrar'}
             </Button>
           </div>
         </form>

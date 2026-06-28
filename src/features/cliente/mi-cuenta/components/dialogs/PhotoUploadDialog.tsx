@@ -80,20 +80,35 @@ export function PhotoUploadDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) onClose()
+      }}
+    >
       <DialogContent className="max-w-sm w-[calc(100vw-2rem)] sm:w-full rounded-2xl p-0 overflow-hidden">
         <div className="px-5 pt-5 pb-3 border-b border-gray-100">
-          <DialogTitle className="text-base font-black text-gray-900">Foto de perfil</DialogTitle>
-          <p className="text-xs text-gray-500 mt-0.5">JPG, PNG o WebP · Máximo 5 MB</p>
+          <DialogTitle className="text-base font-black text-gray-900">
+            Foto de perfil
+          </DialogTitle>
+          <p className="text-xs text-gray-500 mt-0.5">
+            JPG, PNG o WebP · Máximo 5 MB
+          </p>
         </div>
 
         <div className="p-5 space-y-4">
           <div className="flex flex-col items-center gap-4">
             <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-brand-rosa flex items-center justify-center">
               {imageToShow ? (
-                <img src={imageToShow} alt={cliente.nombreCompleto} className="w-full h-full object-cover" />
+                <img
+                  src={imageToShow}
+                  alt={cliente.nombreCompleto}
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <span className="text-white text-3xl font-black">{getInitials(cliente.nombreCompleto)}</span>
+                <span className="text-white text-3xl font-black">
+                  {getInitials(cliente.nombreCompleto)}
+                </span>
               )}
             </div>
 

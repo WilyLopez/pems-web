@@ -65,7 +65,9 @@ const FAQS = [
 
 export function AyudaWizardSheet() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const whatsappUrl = useWhatsAppUrl('Hola, tengo una consulta sobre mi solicitud de evento privado')
+  const whatsappUrl = useWhatsAppUrl(
+    'Hola, tengo una consulta sobre mi solicitud de evento privado'
+  )
 
   return (
     <Sheet>
@@ -79,7 +81,10 @@ export function AyudaWizardSheet() {
         </button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-full sm:max-w-md flex flex-col h-full">
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-md flex flex-col h-full"
+      >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <HelpCircle className="h-5 w-5 text-brand-rosa shrink-0" />
@@ -103,9 +108,13 @@ export function AyudaWizardSheet() {
                   <div className="space-y-1 pt-1">
                     <div className="flex items-center gap-1.5">
                       <Icon className="h-3.5 w-3.5 text-brand-rosa shrink-0" />
-                      <h3 className="text-sm font-bold text-gray-900">{item.title}</h3>
+                      <h3 className="text-sm font-bold text-gray-900">
+                        {item.title}
+                      </h3>
                     </div>
-                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      {item.desc}
+                    </p>
                   </div>
                 </div>
               )
@@ -113,11 +122,16 @@ export function AyudaWizardSheet() {
           </div>
 
           <div className="border-t border-gray-100 pt-5 space-y-1">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Preguntas frecuentes</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
+              Preguntas frecuentes
+            </p>
             {FAQS.map((faq, idx) => {
               const isOpen = openFaq === idx
               return (
-                <div key={idx} className="border-b border-gray-100 last:border-0 py-2.5">
+                <div
+                  key={idx}
+                  className="border-b border-gray-100 last:border-0 py-2.5"
+                >
                   <button
                     type="button"
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
@@ -132,7 +146,9 @@ export function AyudaWizardSheet() {
                     />
                   </button>
                   {isOpen && (
-                    <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">{faq.a}</p>
+                    <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+                      {faq.a}
+                    </p>
                   )}
                 </div>
               )
@@ -146,8 +162,12 @@ export function AyudaWizardSheet() {
                   <MessageCircle className="h-4 w-4 text-white fill-white" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-900">¿Necesitas más ayuda?</p>
-                  <p className="text-[10px] text-green-800">Soporte por WhatsApp activo</p>
+                  <p className="text-xs font-bold text-gray-900">
+                    ¿Necesitas más ayuda?
+                  </p>
+                  <p className="text-[10px] text-green-800">
+                    Soporte por WhatsApp activo
+                  </p>
                 </div>
               </div>
               <a

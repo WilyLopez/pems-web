@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { contratosApi, ListarContratosParams } from '../services/contratos.api'
-import { ActualizarContratoPayload, CambiarEstadoPayload, GenerarContratoPayload } from '../types'
+import {
+  ActualizarContratoPayload,
+  CambiarEstadoPayload,
+  GenerarContratoPayload,
+} from '../types'
 import { contratosKeys } from '../shared/queryKeys'
 
 export function useContratos(params: ListarContratosParams = {}) {
@@ -43,7 +47,9 @@ export function useGenerarContrato() {
     }) => contratosApi.generar(idEvento, payload),
     onSuccess: (contrato) => {
       qc.invalidateQueries({ queryKey: contratosKeys.lists() })
-      qc.invalidateQueries({ queryKey: contratosKeys.porEvento(contrato.idEventoPrivado) })
+      qc.invalidateQueries({
+        queryKey: contratosKeys.porEvento(contrato.idEventoPrivado),
+      })
       toast.success('Contrato generado correctamente.')
     },
     onError: (err: { message?: string }) =>
@@ -111,7 +117,9 @@ export function useReemplazarContrato() {
     mutationFn: (id: number) => contratosApi.reemplazar(id),
     onSuccess: (contrato) => {
       qc.invalidateQueries({ queryKey: contratosKeys.lists() })
-      qc.invalidateQueries({ queryKey: contratosKeys.porEvento(contrato.idEventoPrivado) })
+      qc.invalidateQueries({
+        queryKey: contratosKeys.porEvento(contrato.idEventoPrivado),
+      })
       qc.setQueryData(contratosKeys.detail(contrato.id), contrato)
       toast.success('Contrato reemplazado. El anterior quedó archivado.')
     },

@@ -8,14 +8,14 @@
 
 ## Estado actual del módulo
 
-| Capa | Archivos existentes | Faltante |
-|------|--------------------|-|
-| Dominio | `Notificacion`, `TipoNotificacion`, `NotificacionEntrega`, `PreferenciaNotificacion` (solo POJOs) | repositorios, excepciones |
-| Infraestructura | 4 entities JPA mapeadas | mapper, JpaRepository, adapter |
-| Aplicación | ninguno | use cases, service, DTOs |
-| Interfaces REST | ninguno | controllers, requests, responses |
-| Scheduler | `EnvioEmailScheduler` (email campañas, no toca notificaciones) | job de limpieza |
-| Frontend | store Zustand con mocks, `NotificacionesPanel` (cliente), `AdminNavbar` desconectado | service API, hook, refactor navbar |
+| Capa            | Archivos existentes                                                                               | Faltante                           |
+| --------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| Dominio         | `Notificacion`, `TipoNotificacion`, `NotificacionEntrega`, `PreferenciaNotificacion` (solo POJOs) | repositorios, excepciones          |
+| Infraestructura | 4 entities JPA mapeadas                                                                           | mapper, JpaRepository, adapter     |
+| Aplicación      | ninguno                                                                                           | use cases, service, DTOs           |
+| Interfaces REST | ninguno                                                                                           | controllers, requests, responses   |
+| Scheduler       | `EnvioEmailScheduler` (email campañas, no toca notificaciones)                                    | job de limpieza                    |
+| Frontend        | store Zustand con mocks, `NotificacionesPanel` (cliente), `AdminNavbar` desconectado              | service API, hook, refactor navbar |
 
 El módulo de email (`CorreoAdapter`, `EnvioEmailScheduler`) ya funciona de forma independiente y no se modifica.
 
@@ -35,61 +35,61 @@ Tipos obligatorios: `LOGIN_IP_NUEVA`, `ADMIN_CUENTA_BLOQUEADA`, `PASSWORD_CAMBIA
 
 Nuevos tipos para ADMIN:
 
-| Codigo | Modulo | Prioridad | Canales |
-|--------|--------|-----------|---------|
-| RESERVA_NUEVA | reserva | NORMAL | IN_APP |
-| RESERVA_CANCELADA_CLIENTE | reserva | NORMAL | IN_APP |
-| RESERVA_PAGO_VERIFICADO | reserva | NORMAL | IN_APP |
-| RESERVA_PAGO_RECHAZADO | reserva | NORMAL | IN_APP |
-| AFORO_AGOTADO | reserva | ALTA | IN_APP |
-| EVENTO_PRESUPUESTO_SOLICITADO | evento | ALTA | IN_APP, EMAIL |
-| EVENTO_ADELANTO_RECIBIDO | evento | NORMAL | IN_APP |
-| EVENTO_SALDO_RECIBIDO | evento | NORMAL | IN_APP |
-| EVENTO_CANCELADO_CLIENTE | evento | ALTA | IN_APP, EMAIL |
-| EVENTO_CHECKLIST_INCOMPLETO | evento | ALTA | IN_APP |
-| CONTRATO_FIRMADO | evento | NORMAL | IN_APP |
-| CONTRATO_VENCIDO_SIN_FIRMA | evento | CRITICA | IN_APP, EMAIL |
-| CAJA_CIERRE_DISCREPANCIA | caja | ALTA | IN_APP, EMAIL |
-| VENTA_MONTO_ALTO | caja | NORMAL | IN_APP |
-| EGRESO_MONTO_ALTO | caja | NORMAL | IN_APP |
-| RESUMEN_DIARIO_CAJA | caja | BAJA | IN_APP, EMAIL |
-| NOVEDAD_PUBLICADA | cms | BAJA | IN_APP |
-| BANNER_EXPIRADO | cms | BAJA | IN_APP |
-| PROMOCION_NUEVA_ACTIVA | marketing | BAJA | IN_APP |
-| REPORTE_EXPORTACION_LISTA | sistema | BAJA | IN_APP |
-| CLIENTE_NUEVO_REGISTRADO | cliente | BAJA | IN_APP |
-| CLIENTE_SIN_ACTIVIDAD | cliente | BAJA | IN_APP |
-| ADMIN_CUENTA_BLOQUEADA | sistema | CRITICA | IN_APP, EMAIL |
-| ERROR_ENVIO_EMAIL | sistema | ALTA | IN_APP |
+| Codigo                        | Modulo    | Prioridad | Canales       |
+| ----------------------------- | --------- | --------- | ------------- |
+| RESERVA_NUEVA                 | reserva   | NORMAL    | IN_APP        |
+| RESERVA_CANCELADA_CLIENTE     | reserva   | NORMAL    | IN_APP        |
+| RESERVA_PAGO_VERIFICADO       | reserva   | NORMAL    | IN_APP        |
+| RESERVA_PAGO_RECHAZADO        | reserva   | NORMAL    | IN_APP        |
+| AFORO_AGOTADO                 | reserva   | ALTA      | IN_APP        |
+| EVENTO_PRESUPUESTO_SOLICITADO | evento    | ALTA      | IN_APP, EMAIL |
+| EVENTO_ADELANTO_RECIBIDO      | evento    | NORMAL    | IN_APP        |
+| EVENTO_SALDO_RECIBIDO         | evento    | NORMAL    | IN_APP        |
+| EVENTO_CANCELADO_CLIENTE      | evento    | ALTA      | IN_APP, EMAIL |
+| EVENTO_CHECKLIST_INCOMPLETO   | evento    | ALTA      | IN_APP        |
+| CONTRATO_FIRMADO              | evento    | NORMAL    | IN_APP        |
+| CONTRATO_VENCIDO_SIN_FIRMA    | evento    | CRITICA   | IN_APP, EMAIL |
+| CAJA_CIERRE_DISCREPANCIA      | caja      | ALTA      | IN_APP, EMAIL |
+| VENTA_MONTO_ALTO              | caja      | NORMAL    | IN_APP        |
+| EGRESO_MONTO_ALTO             | caja      | NORMAL    | IN_APP        |
+| RESUMEN_DIARIO_CAJA           | caja      | BAJA      | IN_APP, EMAIL |
+| NOVEDAD_PUBLICADA             | cms       | BAJA      | IN_APP        |
+| BANNER_EXPIRADO               | cms       | BAJA      | IN_APP        |
+| PROMOCION_NUEVA_ACTIVA        | marketing | BAJA      | IN_APP        |
+| REPORTE_EXPORTACION_LISTA     | sistema   | BAJA      | IN_APP        |
+| CLIENTE_NUEVO_REGISTRADO      | cliente   | BAJA      | IN_APP        |
+| CLIENTE_SIN_ACTIVIDAD         | cliente   | BAJA      | IN_APP        |
+| ADMIN_CUENTA_BLOQUEADA        | sistema   | CRITICA   | IN_APP, EMAIL |
+| ERROR_ENVIO_EMAIL             | sistema   | ALTA      | IN_APP        |
 
 Nuevos tipos para CAJERO:
 
-| Codigo | Modulo | Prioridad | Canales |
-|--------|--------|-----------|---------|
-| RESERVA_EN_CAJA_HOY | caja | BAJA | IN_APP |
-| VENTA_ANULADA | caja | NORMAL | IN_APP |
-| DESCUENTO_REQUIERE_APROBACION | caja | ALTA | IN_APP |
-| TURNO_POR_INICIAR | caja | BAJA | IN_APP |
+| Codigo                        | Modulo | Prioridad | Canales |
+| ----------------------------- | ------ | --------- | ------- |
+| RESERVA_EN_CAJA_HOY           | caja   | BAJA      | IN_APP  |
+| VENTA_ANULADA                 | caja   | NORMAL    | IN_APP  |
+| DESCUENTO_REQUIERE_APROBACION | caja   | ALTA      | IN_APP  |
+| TURNO_POR_INICIAR             | caja   | BAJA      | IN_APP  |
 
 Nuevos tipos para CLIENTE:
 
-| Codigo | Modulo | Prioridad | Canales |
-|--------|--------|-----------|---------|
-| RESERVA_MODIFICADA | reserva | NORMAL | IN_APP, EMAIL |
-| PAGO_CONFIRMADO | reserva | NORMAL | IN_APP, EMAIL |
-| PAGO_RECHAZADO | reserva | ALTA | IN_APP, EMAIL |
-| TICKET_DISPONIBLE | reserva | NORMAL | IN_APP, EMAIL |
-| EVENTO_CONTRATO_LISTO | evento | ALTA | IN_APP, EMAIL |
-| EVENTO_PRESUPUESTO_ENVIADO | evento | NORMAL | IN_APP, EMAIL |
-| EVENTO_CANCELADO_ADMIN | evento | ALTA | IN_APP, EMAIL |
-| EVENTO_RECORDATORIO_3DIAS | evento | NORMAL | IN_APP, EMAIL |
-| PAGO_ADELANTO_CONFIRMADO | evento | NORMAL | IN_APP, EMAIL |
-| DOCUMENTO_LISTO | venta | BAJA | IN_APP, EMAIL |
-| PUNTOS_ACUMULADOS | cliente | BAJA | IN_APP |
-| PUNTOS_POR_VENCER | cliente | NORMAL | IN_APP, EMAIL |
-| PROMOCION_EXCLUSIVA | marketing | BAJA | IN_APP, EMAIL |
-| PASSWORD_CAMBIADO | sistema | CRITICA | EMAIL |
-| RESENA_RESPONDIDA | sitio | BAJA | IN_APP, EMAIL |
+| Codigo                     | Modulo    | Prioridad | Canales       |
+| -------------------------- | --------- | --------- | ------------- |
+| RESERVA_MODIFICADA         | reserva   | NORMAL    | IN_APP, EMAIL |
+| PAGO_CONFIRMADO            | reserva   | NORMAL    | IN_APP, EMAIL |
+| PAGO_RECHAZADO             | reserva   | ALTA      | IN_APP, EMAIL |
+| TICKET_DISPONIBLE          | reserva   | NORMAL    | IN_APP, EMAIL |
+| EVENTO_CONTRATO_LISTO      | evento    | ALTA      | IN_APP, EMAIL |
+| EVENTO_PRESUPUESTO_ENVIADO | evento    | NORMAL    | IN_APP, EMAIL |
+| EVENTO_CANCELADO_ADMIN     | evento    | ALTA      | IN_APP, EMAIL |
+| EVENTO_RECORDATORIO_3DIAS  | evento    | NORMAL    | IN_APP, EMAIL |
+| PAGO_ADELANTO_CONFIRMADO   | evento    | NORMAL    | IN_APP, EMAIL |
+| DOCUMENTO_LISTO            | venta     | BAJA      | IN_APP, EMAIL |
+| PUNTOS_ACUMULADOS          | cliente   | BAJA      | IN_APP        |
+| PUNTOS_POR_VENCER          | cliente   | NORMAL    | IN_APP, EMAIL |
+| PROMOCION_EXCLUSIVA        | marketing | BAJA      | IN_APP, EMAIL |
+| PASSWORD_CAMBIADO          | sistema   | CRITICA   | EMAIL         |
+| RESENA_RESPONDIDA          | sitio     | BAJA      | IN_APP, EMAIL |
 
 ### Sub-fase 1.2 — Funcion de limpieza en PostgreSQL
 
@@ -98,6 +98,7 @@ Nuevos tipos para CLIENTE:
 Crea la funcion `app.limpiar_notificaciones_expiradas()` que retorna `INTEGER` con el total eliminado. El job de Spring la invoca via JDBC nativo, lo que permite que Supabase tambien la ejecute con `pg_cron` si se necesita.
 
 La funcion elimina en dos pasadas dentro de una transaccion:
+
 1. Notificaciones con `expira_at < NOW()` y `leida = TRUE`
 2. Notificaciones con `expira_at < NOW() - INTERVAL '7 days'` (incluso no leidas, margen de seguridad)
 
@@ -348,23 +349,23 @@ Inyectar `CrearNotificacionPort` en cada servicio. Las llamadas no estan en el c
 
 Orden de integracion:
 
-| Servicio | Tipo de notificacion | Punto de disparo |
-|----------|---------------------|-----------------|
-| `EventoPrivadoService` | EVENTO_SOLICITUD | despues de persistir la solicitud |
-| `EventoPrivadoService` | EVENTO_CONFIRMADO | despues de confirmar |
-| `EventoPrivadoService` | EVENTO_CANCELADO_ADMIN | despues de cancelar |
-| `EventoPrivadoService` | EVENTO_ADELANTO_RECIBIDO | al registrar pago de adelanto |
-| `EventoPrivadoService` | EVENTO_SALDO_RECIBIDO | al registrar saldo |
-| `ReservaPublicaService` | RESERVA_NUEVA | despues de persistir la reserva |
-| `ReservaPublicaService` | RESERVA_CONFIRMADA | al confirmar |
-| `ReservaPublicaService` | RESERVA_CANCELADA | al cancelar |
-| `VentaService` | PAGO_CONFIRMADO | al aprobar Yape |
-| `VentaService` | PAGO_RECHAZADO | al rechazar Yape |
-| `ContratoService` | CONTRATO_FIRMADO | al registrar firma |
-| `ContratoService` | EVENTO_CONTRATO_LISTO | al subir el contrato |
-| `ClientePerfilService` | BIENVENIDA | al crear cuenta |
-| `ClientePerfilService` | CLIENTE_NUEVO_REGISTRADO | al crear cuenta (admin) |
-| `CajaService` | CAJA_SIN_CERRAR | desde el scheduler nocturno |
+| Servicio                | Tipo de notificacion     | Punto de disparo                  |
+| ----------------------- | ------------------------ | --------------------------------- |
+| `EventoPrivadoService`  | EVENTO_SOLICITUD         | despues de persistir la solicitud |
+| `EventoPrivadoService`  | EVENTO_CONFIRMADO        | despues de confirmar              |
+| `EventoPrivadoService`  | EVENTO_CANCELADO_ADMIN   | despues de cancelar               |
+| `EventoPrivadoService`  | EVENTO_ADELANTO_RECIBIDO | al registrar pago de adelanto     |
+| `EventoPrivadoService`  | EVENTO_SALDO_RECIBIDO    | al registrar saldo                |
+| `ReservaPublicaService` | RESERVA_NUEVA            | despues de persistir la reserva   |
+| `ReservaPublicaService` | RESERVA_CONFIRMADA       | al confirmar                      |
+| `ReservaPublicaService` | RESERVA_CANCELADA        | al cancelar                       |
+| `VentaService`          | PAGO_CONFIRMADO          | al aprobar Yape                   |
+| `VentaService`          | PAGO_RECHAZADO           | al rechazar Yape                  |
+| `ContratoService`       | CONTRATO_FIRMADO         | al registrar firma                |
+| `ContratoService`       | EVENTO_CONTRATO_LISTO    | al subir el contrato              |
+| `ClientePerfilService`  | BIENVENIDA               | al crear cuenta                   |
+| `ClientePerfilService`  | CLIENTE_NUEVO_REGISTRADO | al crear cuenta (admin)           |
+| `CajaService`           | CAJA_SIN_CERRAR          | desde el scheduler nocturno       |
 
 `EventoPrivadoService` ya tiene `EnviarNotificacionEventoPort` para email. Se inyecta el nuevo `CrearNotificacionPort` en paralelo — ambos se llaman, uno persiste en BD y el otro envia email. No se elimina el puerto existente.
 
@@ -379,6 +380,7 @@ Patron de referencia: `NotificacionesPanel.tsx` (ya correcto, minimos cambios).
 **Archivo:** `pems-web/src/types/notificaciones.types.ts`
 
 Define:
+
 - `TipoNotificacionBD`: union literal con los 55 codigos del catalogo
 - `TipoVisual`: `'reserva' | 'evento' | 'pago' | 'contrato' | 'caja' | 'sistema'`
 - `NotificacionDTO`: mapeo exacto del JSON del API (campos snake_case → camelCase)
@@ -405,6 +407,7 @@ Para el cliente usa rutas bajo `/api/v1/cliente/notificaciones`. Para admin/caje
 **Archivo:** `pems-web/src/lib/store/notificaciones.store.ts`
 
 Reemplaza el seed mock. Agrega:
+
 - `noLeidas: number`
 - `cargando: boolean`
 - `fetchNotificaciones(): Promise<void>` — llama `getMias`
@@ -445,6 +448,7 @@ El hook llama `fetchCount` (payload minimo) en el intervalo. Solo cuando el usua
 **Archivo:** `pems-web/src/features/admin/shared/layout/AdminNavbar.tsx`
 
 Cambios en `NotificacionesMenu`:
+
 - Eliminar la constante `NOTIFICACIONES` hardcodeada
 - Eliminar `tipoBadge` local
 - Importar `useNotificacionesStore` y `TIPO_CONFIG` compartido
@@ -460,6 +464,7 @@ El hook `useNotificaciones` se monta en el layout del admin, no dentro del compo
 **Archivo:** `pems-web/src/features/cliente/shared/components/NotificacionesPanel.tsx`
 
 Cambios minimos:
+
 - Agregar tipo `'caja'` a `TIPO_CONFIG` con icono `ShoppingBag` y color `text-orange-600`
 - Al abrir el popover, llamar `fetchNotificaciones()` si los datos tienen mas de 60s de antiguedad
 - `onMarcarLeida` ya funciona, solo asegurarse de que llame tambien al service API

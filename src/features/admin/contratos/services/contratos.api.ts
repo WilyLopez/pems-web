@@ -19,8 +19,13 @@ export interface ListarContratosParams {
 }
 
 export const contratosApi = {
-  listar: async (params: ListarContratosParams = {}): Promise<PagedResponse<Contrato>> => {
-    const { data } = await api.get<ApiResponse<PagedResponse<Contrato>>>('/contratos', { params })
+  listar: async (
+    params: ListarContratosParams = {}
+  ): Promise<PagedResponse<Contrato>> => {
+    const { data } = await api.get<ApiResponse<PagedResponse<Contrato>>>(
+      '/contratos',
+      { params }
+    )
     return data.data
   },
 
@@ -30,11 +35,16 @@ export const contratosApi = {
   },
 
   obtenerPorEvento: async (idEvento: number): Promise<Contrato> => {
-    const { data } = await api.get<ApiResponse<Contrato>>(`/contratos/eventos/${idEvento}`)
+    const { data } = await api.get<ApiResponse<Contrato>>(
+      `/contratos/eventos/${idEvento}`
+    )
     return data.data
   },
 
-  generar: async (idEvento: number, payload?: GenerarContratoPayload): Promise<Contrato> => {
+  generar: async (
+    idEvento: number,
+    payload?: GenerarContratoPayload
+  ): Promise<Contrato> => {
     const { data } = await api.post<ApiResponse<Contrato>>(
       `/contratos/eventos/${idEvento}`,
       payload ?? {}
@@ -42,27 +52,46 @@ export const contratosApi = {
     return data.data
   },
 
-  actualizar: async (id: number, payload: ActualizarContratoPayload): Promise<Contrato> => {
-    const { data } = await api.put<ApiResponse<Contrato>>(`/contratos/${id}`, payload)
+  actualizar: async (
+    id: number,
+    payload: ActualizarContratoPayload
+  ): Promise<Contrato> => {
+    const { data } = await api.put<ApiResponse<Contrato>>(
+      `/contratos/${id}`,
+      payload
+    )
     return data.data
   },
 
   firmar: async (id: number): Promise<Contrato> => {
-    const { data } = await api.post<ApiResponse<Contrato>>(`/contratos/${id}/firmar`)
+    const { data } = await api.post<ApiResponse<Contrato>>(
+      `/contratos/${id}/firmar`
+    )
     return data.data
   },
 
-  cambiarEstado: async (id: number, payload: CambiarEstadoPayload): Promise<Contrato> => {
-    const { data } = await api.post<ApiResponse<Contrato>>(`/contratos/${id}/estado`, payload)
+  cambiarEstado: async (
+    id: number,
+    payload: CambiarEstadoPayload
+  ): Promise<Contrato> => {
+    const { data } = await api.post<ApiResponse<Contrato>>(
+      `/contratos/${id}/estado`,
+      payload
+    )
     return data.data
   },
 
   reemplazar: async (id: number): Promise<Contrato> => {
-    const { data } = await api.post<ApiResponse<Contrato>>(`/contratos/${id}/reemplazar`)
+    const { data } = await api.post<ApiResponse<Contrato>>(
+      `/contratos/${id}/reemplazar`
+    )
     return data.data
   },
 
-  subirDocumento: async (id: number, archivo: File): Promise<DocumentoContrato> => {
+  subirDocumento: async (
+    id: number,
+    archivo: File
+  ): Promise<DocumentoContrato> => {
     const formData = new FormData()
     formData.append('archivo', archivo)
     const { data } = await api.post<ApiResponse<DocumentoContrato>>(

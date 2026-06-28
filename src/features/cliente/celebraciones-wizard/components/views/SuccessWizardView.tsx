@@ -10,10 +10,22 @@ import { EventoPrivado } from '../../../shared/types'
 import { formatTipoEvento } from '../../../shared/constants'
 
 const ESTADO_CONFIG: Record<string, { label: string; className: string }> = {
-  SOLICITADA: { label: 'Solicitada', className: 'bg-amber-100 text-amber-800 border-amber-200' },
-  CONFIRMADA: { label: 'Confirmada', className: 'bg-green-100 text-green-800 border-green-200' },
-  COMPLETADA: { label: 'Completada', className: 'bg-blue-100 text-blue-800 border-blue-200'   },
-  CANCELADA:  { label: 'Cancelada',  className: 'bg-red-100 text-red-800 border-red-200'      },
+  SOLICITADA: {
+    label: 'Solicitada',
+    className: 'bg-amber-100 text-amber-800 border-amber-200',
+  },
+  CONFIRMADA: {
+    label: 'Confirmada',
+    className: 'bg-green-100 text-green-800 border-green-200',
+  },
+  COMPLETADA: {
+    label: 'Completada',
+    className: 'bg-blue-100 text-blue-800 border-blue-200',
+  },
+  CANCELADA: {
+    label: 'Cancelada',
+    className: 'bg-red-100 text-red-800 border-red-200',
+  },
 }
 
 interface SuccessViewProps {
@@ -21,9 +33,14 @@ interface SuccessViewProps {
 }
 
 export function SuccessWizardView({ evento }: SuccessViewProps) {
-  const whatsappUrl = useWhatsAppUrl('Hola, acabo de solicitar un evento y quiero confirmar los detalles')
+  const whatsappUrl = useWhatsAppUrl(
+    'Hola, acabo de solicitar un evento y quiero confirmar los detalles'
+  )
   const tipoLabel = formatTipoEvento(evento.tipoEvento)
-  const estadoConfig = ESTADO_CONFIG[evento.estado] ?? { label: evento.estado, className: 'bg-gray-100 text-gray-700 border-gray-200' }
+  const estadoConfig = ESTADO_CONFIG[evento.estado] ?? {
+    label: evento.estado,
+    className: 'bg-gray-100 text-gray-700 border-gray-200',
+  }
 
   return (
     <div className="flex flex-col items-center text-center py-16 space-y-6 max-w-md mx-auto">
@@ -33,7 +50,8 @@ export function SuccessWizardView({ evento }: SuccessViewProps) {
       <div className="space-y-2">
         <h2 className="text-2xl font-black text-gray-900">Solicitud enviada</h2>
         <p className="text-gray-500">
-          Nuestro equipo se pondrá en contacto contigo en menos de 24 horas para confirmar los detalles.
+          Nuestro equipo se pondrá en contacto contigo en menos de 24 horas para
+          confirmar los detalles.
         </p>
       </div>
 
@@ -41,18 +59,25 @@ export function SuccessWizardView({ evento }: SuccessViewProps) {
         <CardContent className="p-5 space-y-2.5 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-500">Fecha</span>
-            <span className="font-semibold">{formatDate(evento.fechaEvento)}</span>
+            <span className="font-semibold">
+              {formatDate(evento.fechaEvento)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Turno</span>
-            <span>{evento.turno} · {evento.horaInicio}–{evento.horaFin}</span>
+            <span>
+              {evento.turno} · {evento.horaInicio}–{evento.horaFin}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Tipo</span>
             <span>{tipoLabel}</span>
           </div>
           <Separator />
-          <Badge variant="secondary" className={`${estadoConfig.className} text-xs`}>
+          <Badge
+            variant="secondary"
+            className={`${estadoConfig.className} text-xs`}
+          >
             {estadoConfig.label}
           </Badge>
         </CardContent>
@@ -73,7 +98,10 @@ export function SuccessWizardView({ evento }: SuccessViewProps) {
             WhatsApp
           </a>
         )}
-        <Button asChild className="flex-1 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full gap-2">
+        <Button
+          asChild
+          className="flex-1 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full gap-2"
+        >
           <Link href="/cliente/mis-eventos">
             <PartyPopper className="h-4 w-4" />
             Mis eventos

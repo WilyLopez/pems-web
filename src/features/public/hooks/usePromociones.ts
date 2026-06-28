@@ -8,7 +8,9 @@ export function usePromociones() {
   return useQuery({
     queryKey: PUBLIC_QUERY_KEYS.promociones,
     queryFn: async () => {
-      const response = await api.get<ApiResponse<Promocion[]>>('/api/v1/promociones/publicas')
+      const response = await api.get<ApiResponse<Promocion[]>>(
+        '/api/v1/promociones/publicas'
+      )
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,

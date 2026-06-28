@@ -53,25 +53,35 @@ interface ContratoDetalleViewProps {
 export function ContratoDetalleView({ idContrato }: ContratoDetalleViewProps) {
   const router = useRouter()
 
-  const { data: contrato, isLoading, isError, refetch } = useContrato(idContrato)
+  const {
+    data: contrato,
+    isLoading,
+    isError,
+    refetch,
+  } = useContrato(idContrato)
 
-  const actualizar    = useActualizarContrato()
-  const firmar        = useFirmarContrato()
+  const actualizar = useActualizarContrato()
+  const firmar = useFirmarContrato()
   const cambiarEstado = useCambiarEstadoContrato()
 
-  const [contenido, setContenido]           = useState<string | null>(null)
-  const [editando, setEditando]             = useState(false)
-  const [dialog, setDialog]                 = useState<DialogType>(null)
+  const [contenido, setContenido] = useState<string | null>(null)
+  const [editando, setEditando] = useState(false)
+  const [dialog, setDialog] = useState<DialogType>(null)
   const [reemplazarOpen, setReemplazarOpen] = useState(false)
 
   const textoActual = contenido ?? contrato?.contenidoTexto ?? ''
-  const esEditable  = contrato?.esEditable ?? false
+  const esEditable = contrato?.esEditable ?? false
 
   const handleGuardar = () => {
     if (!contrato || contenido === null) return
     actualizar.mutate(
       { id: contrato.id, payload: { contenidoTexto: contenido } },
-      { onSuccess: () => { setEditando(false); setContenido(null) } }
+      {
+        onSuccess: () => {
+          setEditando(false)
+          setContenido(null)
+        },
+      }
     )
   }
 
@@ -132,20 +142,33 @@ export function ContratoDetalleView({ idContrato }: ContratoDetalleViewProps) {
                   {contrato.tipoEvento ?? 'Contrato'}
                 </h1>
                 <ContratoBadgeEstado estado={contrato.estado} />
-                <Badge variant="outline" className="text-[10px] font-mono text-gray-400">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] font-mono text-gray-400"
+                >
                   v{contrato.version}
                 </Badge>
               </div>
               <p className="text-sm text-gray-500">
                 {contrato.nombreCliente}
-                {contrato.fechaEvento && ` · ${formatDate(contrato.fechaEvento)}`}
+                {contrato.fechaEvento &&
+                  ` · ${formatDate(contrato.fechaEvento)}`}
               </p>
             </div>
 
             <div className="flex flex-wrap gap-2">
               {contrato.archivoPdfUrl && (
-                <Button variant="outline" size="sm" className="rounded-xl gap-1.5" asChild>
-                  <a href={contrato.archivoPdfUrl} target="_blank" rel="noopener noreferrer">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl gap-1.5"
+                  asChild
+                >
+                  <a
+                    href={contrato.archivoPdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <ExternalLink className="h-4 w-4" />
                     Ver PDF
                   </a>
@@ -168,7 +191,10 @@ export function ContratoDetalleView({ idContrato }: ContratoDetalleViewProps) {
                     variant="outline"
                     size="sm"
                     className="rounded-xl"
-                    onClick={() => { setEditando(false); setContenido(null) }}
+                    onClick={() => {
+                      setEditando(false)
+                      setContenido(null)
+                    }}
                   >
                     Cancelar
                   </Button>
@@ -178,7 +204,9 @@ export function ContratoDetalleView({ idContrato }: ContratoDetalleViewProps) {
                     onClick={handleGuardar}
                     disabled={actualizar.isPending}
                   >
-                    {actualizar.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {actualizar.isPending && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
                     Guardar cambios
                   </Button>
                 </>
@@ -251,7 +279,9 @@ export function ContratoDetalleView({ idContrato }: ContratoDetalleViewProps) {
 
               {contrato.documentos && contrato.documentos.length > 0 && (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5 space-y-3">
-                  <h3 className="text-sm font-bold text-gray-900">Documentos asociados</h3>
+                  <h3 className="text-sm font-bold text-gray-900">
+                    Documentos asociados
+                  </h3>
                   <ContratoDocumentos documentos={contrato.documentos} />
                 </div>
               )}
@@ -259,17 +289,52 @@ export function ContratoDetalleView({ idContrato }: ContratoDetalleViewProps) {
 
             <div className="space-y-4">
               <div className="bg-white rounded-2xl border border-gray-100 shadow-card p-5 space-y-4">
-                <h3 className="text-sm font-bold text-gray-900">Informacion del evento</h3>
-                <InfoRow icon={User}        label="Cliente"   value={contrato.nombreCliente} />
-                <InfoRow icon={FileText}    label="Tipo"      value={contrato.tipoEvento} />
-                <InfoRow icon={CalendarDays} label="Fecha"     value={contrato.fechaEvento ? formatDate(contrato.fechaEvento) : null} />
-                <InfoRow icon={Clock}       label="Turno"     value={contrato.turno} />
-                <InfoRow icon={Users}       label="Invitados" value={contrato.aforoDeclarado ? `${contrato.aforoDeclarado} personas` : null} />
+                <h3 className="text-sm font-bold text-gray-900">
+                  Informacion del evento
+                </h3>
+                <InfoRow
+                  icon={User}
+                  label="Cliente"
+                  value={contrato.nombreCliente}
+                />
+                <InfoRow
+                  icon={FileText}
+                  label="Tipo"
+                  value={contrato.tipoEvento}
+                />
+                <InfoRow
+                  icon={CalendarDays}
+                  label="Fecha"
+                  value={
+                    contrato.fechaEvento
+                      ? formatDate(contrato.fechaEvento)
+                      : null
+                  }
+                />
+                <InfoRow icon={Clock} label="Turno" value={contrato.turno} />
+                <InfoRow
+                  icon={Users}
+                  label="Invitados"
+                  value={
+                    contrato.aforoDeclarado
+                      ? `${contrato.aforoDeclarado} personas`
+                      : null
+                  }
+                />
                 {contrato.idEventoPrivado && (
                   <>
                     <Separator />
-                    <Button size="sm" variant="outline" className="w-full rounded-xl gap-1.5 justify-start text-xs" asChild>
-                      <Link href={ADMIN_ROUTES.eventoDetalle(contrato.idEventoPrivado)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full rounded-xl gap-1.5 justify-start text-xs"
+                      asChild
+                    >
+                      <Link
+                        href={ADMIN_ROUTES.eventoDetalle(
+                          contrato.idEventoPrivado
+                        )}
+                      >
                         <FilePen className="h-4 w-4" /> Ver evento asociado
                       </Link>
                     </Button>
@@ -279,8 +344,12 @@ export function ContratoDetalleView({ idContrato }: ContratoDetalleViewProps) {
                   <>
                     <Separator />
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Observaciones</p>
-                      <p className="text-xs text-gray-600 leading-relaxed">{contrato.observaciones}</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">
+                        Observaciones
+                      </p>
+                      <p className="text-xs text-gray-600 leading-relaxed">
+                        {contrato.observaciones}
+                      </p>
                     </div>
                   </>
                 )}
@@ -306,7 +375,10 @@ export function ContratoDetalleView({ idContrato }: ContratoDetalleViewProps) {
         description="Se generará el PDF y se marcará el contrato como firmado. Esta acción no puede revertirse."
         confirmLabel="Confirmar firma"
         loading={firmar.isPending}
-        onConfirm={() => contrato && firmar.mutate(contrato.id, { onSuccess: () => setDialog(null) })}
+        onConfirm={() =>
+          contrato &&
+          firmar.mutate(contrato.id, { onSuccess: () => setDialog(null) })
+        }
       />
       <ConfirmDialog
         open={dialog === 'enviar'}

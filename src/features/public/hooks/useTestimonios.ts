@@ -8,9 +8,12 @@ export function useTestimonios(page = 0, size = 20) {
   return useQuery({
     queryKey: [...PUBLIC_QUERY_KEYS.testimonios, page, size],
     queryFn: async () => {
-      const response = await api.get<ApiResponse<PagedResponse<Resena>>>('/api/v1/resenas/publicas', {
-        params: { page, size },
-      })
+      const response = await api.get<ApiResponse<PagedResponse<Resena>>>(
+        '/api/v1/resenas/publicas',
+        {
+          params: { page, size },
+        }
+      )
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,
@@ -21,7 +24,10 @@ export function useSubmitResena() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (payload: SubmitResenaPayload) => {
-      const response = await api.post<ApiResponse<Resena>>('/api/v1/resenas', payload)
+      const response = await api.post<ApiResponse<Resena>>(
+        '/api/v1/resenas',
+        payload
+      )
       return response.data.data
     },
     onSuccess: () => {

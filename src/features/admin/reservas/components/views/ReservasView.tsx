@@ -65,19 +65,21 @@ export const ReservasView = React.memo(() => {
   )
 
   const cantidadYapePendientes = useMemo(() => {
-    return data?.content.filter(
-      (r) => r.estado === 'PENDIENTE' && r.medioPago === 'YAPE'
-    ).length ?? 0
+    return (
+      data?.content.filter(
+        (r) => r.estado === 'PENDIENTE' && r.medioPago === 'YAPE'
+      ).length ?? 0
+    )
   }, [data])
 
   const activeReserva = useMemo(() => {
     if (!actionId) return undefined
-    return data?.content.find(r => r.id === actionId)
+    return data?.content.find((r) => r.id === actionId)
   }, [data, actionId])
 
   const drawerReserva = useMemo(() => {
     if (!drawerId) return undefined
-    return data?.content.find(r => r.id === drawerId)
+    return data?.content.find((r) => r.id === drawerId)
   }, [data, drawerId])
 
   if (isError) return <ErrorState onRetry={refetch} />
@@ -124,7 +126,7 @@ export const ReservasView = React.memo(() => {
 
       <ReservasMetrics metricas={metricas} />
 
-      <ReservasFilters 
+      <ReservasFilters
         search={search}
         estado={estado}
         fecha={fecha}
@@ -135,7 +137,7 @@ export const ReservasView = React.memo(() => {
         onIngresadoChange={setIngresado}
       />
 
-      <ReservasTable 
+      <ReservasTable
         data={data}
         page={page}
         size={size}
@@ -145,23 +147,23 @@ export const ReservasView = React.memo(() => {
         onActionReserva={openAction}
       />
 
-      <CancelarDialog 
-        open={modal === 'cancelar'} 
-        onClose={closeAll} 
-        reservaId={actionId ?? undefined}
-        numeroTicket={activeReserva?.numeroTicket}
-      />
-      
-      <IngresoDialog 
-        open={modal === 'ingreso'} 
-        onClose={closeAll} 
+      <CancelarDialog
+        open={modal === 'cancelar'}
+        onClose={closeAll}
         reservaId={actionId ?? undefined}
         numeroTicket={activeReserva?.numeroTicket}
       />
 
-      <ValidarPagoDialog 
-        open={modal === 'validar-yape'} 
-        onClose={closeAll} 
+      <IngresoDialog
+        open={modal === 'ingreso'}
+        onClose={closeAll}
+        reservaId={actionId ?? undefined}
+        numeroTicket={activeReserva?.numeroTicket}
+      />
+
+      <ValidarPagoDialog
+        open={modal === 'validar-yape'}
+        onClose={closeAll}
         reservaId={actionId ?? undefined}
         numeroTicket={activeReserva?.numeroTicket}
       />
@@ -172,24 +174,17 @@ export const ReservasView = React.memo(() => {
         reservaId={actionId ?? undefined}
       />
 
-      <FidelizacionConfigModal 
+      <FidelizacionConfigModal
         open={modal === 'fidelizacion'}
         onClose={closeAll}
         idSede={idSede ?? undefined}
       />
 
-      <EstadoReservaInfoModal 
-        open={modal === 'estados'}
-        onClose={closeAll}
-      />
+      <EstadoReservaInfoModal open={modal === 'estados'} onClose={closeAll} />
 
-      <ReservaDrawer 
-        reserva={drawerReserva ?? null} 
-        onClose={closeAll} 
-      />
+      <ReservaDrawer reserva={drawerReserva ?? null} onClose={closeAll} />
     </div>
   )
 })
-
 
 ReservasView.displayName = 'ReservasView'

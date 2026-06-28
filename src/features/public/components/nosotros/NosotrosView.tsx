@@ -75,8 +75,9 @@ export function NosotrosView() {
             <span className="text-brand-rosa">Lala</span>
           </h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed">
-            Más de {metricas.aniosExperiencia.replace(/\D/g, '')} años creando sonrisas, aventuras y recuerdos inolvidables
-            para las familias de Chiclayo.
+            Más de {metricas.aniosExperiencia.replace(/\D/g, '')} años creando
+            sonrisas, aventuras y recuerdos inolvidables para las familias de
+            Chiclayo.
           </p>
         </div>
       </section>
@@ -93,33 +94,59 @@ export function NosotrosView() {
               </h2>
               <div className="space-y-4 text-gray-650 leading-relaxed">
                 <p>
-                  Kiki y Lala nació con una misión clara: crear un espacio donde los niños
-                  pudieran ser completamente libres de jugar, reír y descubrir el mundo de una
-                  manera segura y divertida.
+                  Kiki y Lala nació con una misión clara: crear un espacio donde
+                  los niños pudieran ser completamente libres de jugar, reír y
+                  descubrir el mundo de una manera segura y divertida.
                 </p>
                 <p>
-                  Lo que comenzó como un pequeño local con pocas atracciones, hoy es uno de los
-                  centros de entretenimiento infantil más queridos de Chiclayo, con
-                  más de 15 zonas de juego y cientos de eventos realizados.
+                  Lo que comenzó como un pequeño local con pocas atracciones,
+                  hoy es uno de los centros de entretenimiento infantil más
+                  queridos de Chiclayo, con más de 15 zonas de juego y cientos
+                  de eventos realizados.
                 </p>
                 <p>
-                  Nuestros personajes Kiki y Lala representan la amistad, la diversión y la magia
-                  de la infancia.
+                  Nuestros personajes Kiki y Lala representan la amistad, la
+                  diversión y la magia de la infancia.
                 </p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: Users, n: metricas.familiasFelices, label: 'Familias atendidas', bg: 'bg-brand-azul/10' },
-                { icon: Award, n: metricas.eventosRealizados, label: 'Eventos realizados', bg: 'bg-brand-rosa/10' },
-                { icon: Star, n: metricas.aniosExperiencia, label: 'Años de experiencia', bg: 'bg-brand-amarillo/15' },
-                { icon: Heart, n: metricas.calificacionPromedio, label: 'Calificación promedio', bg: 'bg-brand-menta/20' },
+                {
+                  icon: Users,
+                  n: metricas.familiasFelices,
+                  label: 'Familias atendidas',
+                  bg: 'bg-brand-azul/10',
+                },
+                {
+                  icon: Award,
+                  n: metricas.eventosRealizados,
+                  label: 'Eventos realizados',
+                  bg: 'bg-brand-rosa/10',
+                },
+                {
+                  icon: Star,
+                  n: metricas.aniosExperiencia,
+                  label: 'Años de experiencia',
+                  bg: 'bg-brand-amarillo/15',
+                },
+                {
+                  icon: Heart,
+                  n: metricas.calificacionPromedio,
+                  label: 'Calificación promedio',
+                  bg: 'bg-brand-menta/20',
+                },
               ].map(({ icon: Icon, n, label, bg }) => (
-                <div key={label} className={`${bg} rounded-2xl p-6 text-center shadow-sm`}>
+                <div
+                  key={label}
+                  className={`${bg} rounded-2xl p-6 text-center shadow-sm`}
+                >
                   <Icon className="h-6 w-6 text-brand-azul mx-auto mb-2" />
                   <div className="text-3xl font-black text-gray-900">{n}</div>
-                  <div className="text-xs text-gray-650 mt-1 font-semibold">{label}</div>
+                  <div className="text-xs text-gray-650 mt-1 font-semibold">
+                    {label}
+                  </div>
                 </div>
               ))}
             </div>
@@ -130,7 +157,9 @@ export function NosotrosView() {
       <section className="py-16 bg-gray-50">
         <div className="container max-w-5xl mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-black text-gray-900">Nuestros valores</h2>
+            <h2 className="text-3xl font-black text-gray-900">
+              Nuestros valores
+            </h2>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             {[
@@ -156,8 +185,13 @@ export function NosotrosView() {
                 iconBg: 'bg-brand-amarillo/15',
               },
             ].map(({ icon: Icon, titulo, desc, iconColor, iconBg }) => (
-              <div key={titulo} className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm">
-                <div className={`w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center mb-4`}>
+              <div
+                key={titulo}
+                className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm"
+              >
+                <div
+                  className={`w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center mb-4`}
+                >
                   <Icon className={`h-6 w-6 ${iconColor}`} />
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">{titulo}</h3>
@@ -171,8 +205,12 @@ export function NosotrosView() {
       <section id="faq" className="py-20 bg-white">
         <div className="container max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-2">Preguntas frecuentes</h2>
-            <p className="text-gray-600">Todo lo que necesitas saber antes de visitarnos</p>
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-2">
+              Preguntas frecuentes
+            </h2>
+            <p className="text-gray-600">
+              Todo lo que necesitas saber antes de visitarnos
+            </p>
           </div>
           {loadingFaqs ? (
             <FaqSkeleton />
@@ -258,7 +296,10 @@ export function NosotrosView() {
                     <div>
                       <p className="font-bold">Teléfono / WhatsApp</p>
                       {whatsappUrl ? (
-                        <a href={whatsappUrl} className="text-brand-azul hover:underline text-sm">
+                        <a
+                          href={whatsappUrl}
+                          className="text-brand-azul hover:underline text-sm"
+                        >
                           {telefono ?? config?.whatsapp}
                         </a>
                       ) : (
@@ -275,7 +316,10 @@ export function NosotrosView() {
                     </div>
                     <div>
                       <p className="font-bold">Correo</p>
-                      <a href={`mailto:${correo}`} className="text-brand-azul hover:underline text-sm">
+                      <a
+                        href={`mailto:${correo}`}
+                        className="text-brand-azul hover:underline text-sm"
+                      >
                         {correo}
                       </a>
                     </div>
@@ -285,10 +329,31 @@ export function NosotrosView() {
                 {(config?.instagramUrl || config?.facebookUrl) && (
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-xl bg-brand-rosa/20 flex items-center justify-center shrink-0">
-                      <svg className="h-5 w-5 text-brand-rosa" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <svg
+                        className="h-5 w-5 text-brand-rosa"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect
+                          x="2"
+                          y="2"
+                          width="20"
+                          height="20"
+                          rx="5"
+                          ry="5"
+                        />
                         <circle cx="12" cy="12" r="4" />
-                        <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+                        <circle
+                          cx="17.5"
+                          cy="6.5"
+                          r="0.5"
+                          fill="currentColor"
+                          stroke="none"
+                        />
                       </svg>
                     </div>
                     <div>
@@ -335,7 +400,11 @@ export function NosotrosView() {
                   asChild
                   className="bg-green-550 hover:bg-green-600 text-white rounded-full font-bold gap-2"
                 >
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <MessageCircle className="h-4 w-4" />
                     Escríbenos por WhatsApp
                   </a>

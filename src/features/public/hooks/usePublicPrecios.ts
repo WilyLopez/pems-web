@@ -13,7 +13,9 @@ export function usePublicPrecios(idSede: number) {
   return useQuery({
     queryKey: [...PUBLIC_QUERY_KEYS.precios, idSede],
     queryFn: async () => {
-      const response = await api.get<ApiResponse<PrecioPublicoResponse[]>>(`/api/v1/tarifas/sedes/${idSede}/precios`)
+      const response = await api.get<ApiResponse<PrecioPublicoResponse[]>>(
+        `/api/v1/tarifas/sedes/${idSede}/precios`
+      )
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,

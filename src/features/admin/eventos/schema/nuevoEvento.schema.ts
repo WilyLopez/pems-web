@@ -21,15 +21,9 @@ export interface EventoSchemaConfig {
 export function buildNuevoEventoSchema(config: EventoSchemaConfig) {
   return z
     .object({
-      idTurno: z
-        .number()
-        .int()
-        .positive('El turno es requerido'),
+      idTurno: z.number().int().positive('El turno es requerido'),
       fechaEvento: z.string().min(1, 'La fecha es requerida'),
-      idCliente: z
-        .number()
-        .int()
-        .positive('Selecciona un cliente'),
+      idCliente: z.number().int().positive('Selecciona un cliente'),
       tipoEvento: z
         .string()
         .min(1, 'El tipo de evento es requerido')
@@ -37,7 +31,10 @@ export function buildNuevoEventoSchema(config: EventoSchemaConfig) {
       contactoAdicional: z
         .string()
         .trim()
-        .regex(CONTACTO_ADICIONAL_REGEX, 'Ingresa un celular (9XXXXXXXX) o un correo válido')
+        .regex(
+          CONTACTO_ADICIONAL_REGEX,
+          'Ingresa un celular (9XXXXXXXX) o un correo válido'
+        )
         .optional()
         .or(z.literal('')),
       aforoDeclarado: z
@@ -67,7 +64,11 @@ export function buildNuevoEventoSchema(config: EventoSchemaConfig) {
         .number()
         .min(0, 'Debe ser mayor o igual a 0')
         .optional(),
-      extrasLibres: z.string().max(1000, 'Máximo 1000 caracteres').optional().or(z.literal('')),
+      extrasLibres: z
+        .string()
+        .max(1000, 'Máximo 1000 caracteres')
+        .optional()
+        .or(z.literal('')),
       observaciones: z.string().max(2000).optional().or(z.literal('')),
     })
     .superRefine((data, ctx) => {
@@ -77,7 +78,8 @@ export function buildNuevoEventoSchema(config: EventoSchemaConfig) {
       if (tieneNombre && !tieneEdad) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'La edad es requerida cuando se especifica el nombre del niño',
+          message:
+            'La edad es requerida cuando se especifica el nombre del niño',
           path: ['edadCumple'],
         })
       }

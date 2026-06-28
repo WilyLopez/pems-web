@@ -24,12 +24,12 @@ import { clienteService } from '@/services/cliente.service'
 import { clienteKeys } from '@/features/cliente/shared/queryKeys'
 
 const mainNav = [
-  { href: '/cliente',              label: 'Inicio',       icon: LayoutDashboard, exact: true },
+  { href: '/cliente', label: 'Inicio', icon: LayoutDashboard, exact: true },
   { href: '/cliente/mis-reservas', label: 'Mis reservas', icon: CalendarDays },
-  { href: '/cliente/mis-eventos',  label: 'Mis eventos',  icon: PartyPopper },
-  { href: '/cliente/mi-cuenta',    label: 'Mi cuenta',    icon: User },
-  { href: '/cliente/beneficios',   label: 'Beneficios',   icon: Star },
-  { href: '/cliente/ayuda',        label: 'Ayuda',        icon: HelpCircle },
+  { href: '/cliente/mis-eventos', label: 'Mis eventos', icon: PartyPopper },
+  { href: '/cliente/mi-cuenta', label: 'Mi cuenta', icon: User },
+  { href: '/cliente/beneficios', label: 'Beneficios', icon: Star },
+  { href: '/cliente/ayuda', label: 'Ayuda', icon: HelpCircle },
 ]
 
 export function ClienteSidebar() {
@@ -45,10 +45,13 @@ export function ClienteSidebar() {
   })
 
   const fotoUrl = fileUrl(perfil?.fotoPerfilPath)
-  const nombreMostrar = perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
+  const nombreMostrar =
+    perfil?.nombreCompleto || nombre || correo?.split('@')[0] || ''
 
   const isActive = (href: string, exact?: boolean) =>
-    exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
+    exact
+      ? pathname === href
+      : pathname === href || pathname.startsWith(href + '/')
 
   return (
     <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 bg-white border-r border-gray-100/80">
@@ -94,8 +97,6 @@ export function ClienteSidebar() {
             </Link>
           )
         })}
-
-
       </nav>
 
       <div className="px-3 pb-4">
@@ -133,7 +134,9 @@ export function ClienteSidebar() {
         <p className="text-[11px] text-gray-400 leading-relaxed">
           Creando momentos mágicos para cada celebración.
         </p>
-        <p className="text-[10px] text-gray-300 mt-1.5 font-mono tracking-wide">v 1.0.0</p>
+        <p className="text-[10px] text-gray-300 mt-1.5 font-mono tracking-wide">
+          v 1.0.0
+        </p>
       </div>
     </aside>
   )

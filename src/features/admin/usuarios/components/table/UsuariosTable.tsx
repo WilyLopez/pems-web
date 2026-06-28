@@ -116,7 +116,9 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="truncate font-medium text-sm text-gray-900">{usuario.nombre}</span>
+          <span className="truncate font-medium text-sm text-gray-900">
+            {usuario.nombre}
+          </span>
           <RolBadge rol={usuario.rol} />
           <EstadoBadge estado={estado} />
           {usuario.debeCambiarContrasena && (
@@ -136,7 +138,8 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
           )}
           {usuario.ultimoAcceso && (
             <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" /> {formatDateTime(usuario.ultimoAcceso)}
+              <Clock className="h-3 w-3" />{' '}
+              {formatDateTime(usuario.ultimoAcceso)}
             </span>
           )}
           {estado === 'BLOQUEADO' && usuario.bloqueadoHasta && (
@@ -155,8 +158,8 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        {canToggle && (
-          usuario.activo ? (
+        {canToggle &&
+          (usuario.activo ? (
             <Button
               variant="outline"
               size="sm"
@@ -177,8 +180,7 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
               <UserCheck className="mr-1.5 h-3.5 w-3.5" />
               Activar
             </Button>
-          )
-        )}
+          ))}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -310,7 +312,8 @@ export function UsuariosTable({
           ))}
           <div className="flex items-center justify-between pt-1">
             <p className="text-xs text-muted-foreground">
-              {totalFiltrados} de {totalGeneral} usuario{totalGeneral !== 1 ? 's' : ''}
+              {totalFiltrados} de {totalGeneral} usuario
+              {totalGeneral !== 1 ? 's' : ''}
             </p>
             <PaginacionUsuarios
               pageActual={pageActual}

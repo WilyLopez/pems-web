@@ -8,16 +8,21 @@ export async function generateMetadata(): Promise<Metadata> {
     const baseTitle = config.metaTitle || 'Kiki y Lala'
     return {
       title: `Celebraciones | ${baseTitle}`,
-      description: config.metaDescription || 'Planifica el cumpleaños o evento de tu hijo/a en Kiki y Lala. Conoce nuestros paquetes de celebraciones privadas en Chiclayo.',
+      description:
+        config.metaDescription ||
+        'Planifica el cumpleaños o evento de tu hijo/a en Kiki y Lala. Conoce nuestros paquetes de celebraciones privadas en Chiclayo.',
       openGraph: {
         title: `Celebraciones | ${baseTitle}`,
-        description: config.metaDescription || 'Planifica el cumpleaños o evento de tu hijo/a en Kiki y Lala.',
+        description:
+          config.metaDescription ||
+          'Planifica el cumpleaños o evento de tu hijo/a en Kiki y Lala.',
       },
     }
   } catch {
     return {
       title: 'Celebraciones | Kiki y Lala',
-      description: 'Planifica el cumpleaños o evento de tu hijo/a en Kiki y Lala. Conoce nuestros paquetes de celebraciones privadas en Chiclayo.',
+      description:
+        'Planifica el cumpleaños o evento de tu hijo/a en Kiki y Lala. Conoce nuestros paquetes de celebraciones privadas en Chiclayo.',
     }
   }
 }

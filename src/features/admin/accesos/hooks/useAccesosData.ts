@@ -16,10 +16,15 @@ export function useMarcarEntrada() {
 export function useEditarFechaTicket() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ idReserva, nuevaFecha }: { idReserva: number; nuevaFecha: string }) =>
-      accesosApi.editarFechaTicket(idReserva, nuevaFecha),
+    mutationFn: ({
+      idReserva,
+      nuevaFecha,
+    }: {
+      idReserva: number
+      nuevaFecha: string
+    }) => accesosApi.editarFechaTicket(idReserva, nuevaFecha),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.ADMIN_LIST] })
-    }
+    },
   })
 }

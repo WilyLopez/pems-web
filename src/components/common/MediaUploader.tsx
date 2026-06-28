@@ -12,39 +12,39 @@ const TIPOS_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp']
 
 const ASPECT_CLASSES: Record<string, string> = {
   '16:9': 'aspect-video',
-  '4:3':  'aspect-[4/3]',
-  '1:1':  'aspect-square',
-  libre:  '',
+  '4:3': 'aspect-[4/3]',
+  '1:1': 'aspect-square',
+  libre: '',
 }
 
 interface MediaUploaderProps {
-  value:        MediaValue | null
-  onChange:     (value: MediaValue | null) => void
-  carpeta:      CarpetaMedia
-  accept?:      string
-  maxMb?:       number
+  value: MediaValue | null
+  onChange: (value: MediaValue | null) => void
+  carpeta: CarpetaMedia
+  accept?: string
+  maxMb?: number
   aspectRatio?: '16:9' | '4:3' | '1:1' | 'libre'
   placeholder?: string
-  className?:   string
-  disabled?:    boolean
-  uploading?:   boolean
+  className?: string
+  disabled?: boolean
+  uploading?: boolean
 }
 
 export function MediaUploader({
   value,
   onChange,
   carpeta: _carpeta,
-  accept      = 'image/*',
-  maxMb       = 10,
+  accept = 'image/*',
+  maxMb = 10,
   aspectRatio = 'libre',
   placeholder = 'Arrastra una imagen o haz clic para seleccionar',
   className,
-  disabled  = false,
+  disabled = false,
   uploading = false,
 }: MediaUploaderProps) {
   const [dragOver, setDragOver] = useState(false)
-  const inputRef                = useRef<HTMLInputElement>(null)
-  const aspectClass             = ASPECT_CLASSES[aspectRatio] ?? ''
+  const inputRef = useRef<HTMLInputElement>(null)
+  const aspectClass = ASPECT_CLASSES[aspectRatio] ?? ''
 
   useEffect(() => {}, [value])
 
@@ -88,13 +88,20 @@ export function MediaUploader({
   if (value) {
     return (
       <div className={cn('space-y-2', className)}>
-        <div className={cn('relative rounded-xl overflow-hidden border border-border bg-muted', aspectClass)}>
+        <div
+          className={cn(
+            'relative rounded-xl overflow-hidden border border-border bg-muted',
+            aspectClass
+          )}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value.url}
             alt="Preview"
             className="w-full h-full object-cover"
-            onError={(e) => { e.currentTarget.style.opacity = '0.3' }}
+            onError={(e) => {
+              e.currentTarget.style.opacity = '0.3'
+            }}
           />
 
           {value.esLocal && !uploading && (
@@ -107,7 +114,9 @@ export function MediaUploader({
             <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl">
               <div className="flex flex-col items-center gap-2">
                 <div className="h-7 w-7 rounded-full border-2 border-brand-azul border-t-transparent animate-spin" />
-                <p className="text-xs font-semibold text-brand-azul">Guardando...</p>
+                <p className="text-xs font-semibold text-brand-azul">
+                  Guardando...
+                </p>
               </div>
             </div>
           )}
@@ -140,14 +149,23 @@ export function MediaUploader({
           </p>
         )}
 
-        <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={handleChange} />
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={handleChange}
+        />
       </div>
     )
   }
 
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragOver(true) }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        if (!disabled) setDragOver(true)
+      }}
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
       onClick={() => !disabled && inputRef.current?.click()}
@@ -166,8 +184,16 @@ export function MediaUploader({
         <Upload className="h-5 w-5 text-brand-azul" />
       </div>
       <p className="text-sm text-center text-muted-foreground">{placeholder}</p>
-      <p className="text-xs text-muted-foreground/60">PNG, JPG, WebP · Máx {maxMb} MB</p>
-      <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={handleChange} />
+      <p className="text-xs text-muted-foreground/60">
+        PNG, JPG, WebP · Máx {maxMb} MB
+      </p>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={handleChange}
+      />
     </div>
   )
 }

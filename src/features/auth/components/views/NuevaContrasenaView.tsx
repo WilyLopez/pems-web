@@ -28,12 +28,26 @@ function PasswordStrength({ password }: { password: string }) {
             }`}
           >
             {c.ok && (
-              <svg viewBox="0 0 10 10" className="w-2 h-2 text-white" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M2 5l2.5 2.5L8 3" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                viewBox="0 0 10 10"
+                className="w-2 h-2 text-white"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path
+                  d="M2 5l2.5 2.5L8 3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             )}
           </div>
-          <span className={`text-xs ${c.ok ? 'text-green-600' : 'text-gray-400'}`}>{c.label}</span>
+          <span
+            className={`text-xs ${c.ok ? 'text-green-600' : 'text-gray-400'}`}
+          >
+            {c.label}
+          </span>
         </div>
       ))}
     </div>
@@ -62,7 +76,10 @@ export function NuevaContrasenaView() {
     setErrorMsg(null)
     nuevaMutation.mutate(values, {
       onError: (err: any) => {
-        setErrorMsg(err.message || 'No se pudo actualizar la contraseña. El enlace puede haber expirado.')
+        setErrorMsg(
+          err.message ||
+            'No se pudo actualizar la contraseña. El enlace puede haber expirado.'
+        )
       },
     })
   }
@@ -76,7 +93,9 @@ export function NuevaContrasenaView() {
           </div>
           <div>
             <p className="font-black text-gray-900">Nueva contraseña</p>
-            <p className="text-xs text-gray-500">Kiki y Lala · Restablecer acceso</p>
+            <p className="text-xs text-gray-500">
+              Kiki y Lala · Restablecer acceso
+            </p>
           </div>
         </div>
 
@@ -111,11 +130,17 @@ export function NuevaContrasenaView() {
                 onClick={() => setVerPass((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                {verPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {verPass ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.password.message}
+              </p>
             )}
             {password.length > 0 && <PasswordStrength password={password} />}
           </div>
@@ -138,11 +163,17 @@ export function NuevaContrasenaView() {
                 onClick={() => setVerConfirm((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                {verConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {verConfirm ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.confirmPassword.message}
+              </p>
             )}
           </div>
 

@@ -3,7 +3,11 @@
 import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { usuariosApi, CrearUsuarioPayload, ActualizarUsuarioPayload } from '../services/usuarios.api'
+import {
+  usuariosApi,
+  CrearUsuarioPayload,
+  ActualizarUsuarioPayload,
+} from '../services/usuarios.api'
 import { getEstadoAdmin } from '../types'
 import { useUsuariosNav } from './useUsuariosNav'
 import { PAGE_SIZE, REFETCH_INTERVAL, STALE_TIME } from '../constants'
@@ -47,7 +51,10 @@ export function useUsuariosFiltrados() {
 
   const totalPaginas = Math.max(1, Math.ceil(filtrados.length / PAGE_SIZE))
   const pageActual = Math.min(page, totalPaginas)
-  const paginados = filtrados.slice((pageActual - 1) * PAGE_SIZE, pageActual * PAGE_SIZE)
+  const paginados = filtrados.slice(
+    (pageActual - 1) * PAGE_SIZE,
+    pageActual * PAGE_SIZE
+  )
 
   return {
     todos,
@@ -72,16 +79,26 @@ export function useMutacionesUsuario() {
   }
 
   const crearUsuario = useMutation({
-    mutationFn: ({ idSede, payload }: { idSede: number; payload: CrearUsuarioPayload }) =>
-      usuariosApi.crear(idSede, payload),
+    mutationFn: ({
+      idSede,
+      payload,
+    }: {
+      idSede: number
+      payload: CrearUsuarioPayload
+    }) => usuariosApi.crear(idSede, payload),
     onSuccess: () => {
       invalidarLista()
     },
   })
 
   const actualizarUsuario = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ActualizarUsuarioPayload }) =>
-      usuariosApi.actualizar(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ActualizarUsuarioPayload
+    }) => usuariosApi.actualizar(id, payload),
     onSuccess: () => {
       toast.success('Usuario actualizado.')
       invalidarLista()
@@ -102,7 +119,8 @@ export function useMutacionesUsuario() {
 
   const resetPassword = useMutation({
     mutationFn: (id: number) => usuariosApi.resetPassword(id),
-    onSuccess: () => toast.success('Se envió el email de recuperación de contraseña.'),
+    onSuccess: () =>
+      toast.success('Se envió el email de recuperación de contraseña.'),
     onError: () => toast.error('No se pudo enviar el email de recuperación.'),
   })
 

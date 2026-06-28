@@ -11,14 +11,24 @@ interface Props {
   onVerDetalle: () => void
 }
 
-export function PaqueteCard({ paquete, seleccionado, onSeleccionar, onVerDetalle }: Props) {
+export function PaqueteCard({
+  paquete,
+  seleccionado,
+  onSeleccionar,
+  onVerDetalle,
+}: Props) {
   return (
     <div
       role="button"
       tabIndex={0}
       aria-pressed={seleccionado}
       onClick={onSeleccionar}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSeleccionar() } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSeleccionar()
+        }
+      }}
       className={cn(
         'relative rounded-2xl border-2 flex flex-col gap-3 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa focus-visible:ring-offset-2',
         seleccionado
@@ -48,7 +58,9 @@ export function PaqueteCard({ paquete, seleccionado, onSeleccionar, onVerDetalle
 
         <div>
           <p className="font-black text-gray-900 pr-8">{paquete.nombre}</p>
-          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{paquete.descripcionCorta}</p>
+          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+            {paquete.descripcionCorta}
+          </p>
         </div>
 
         {(paquete.limitepersonas || paquete.duracionMinutos) && (
@@ -73,7 +85,10 @@ export function PaqueteCard({ paquete, seleccionado, onSeleccionar, onVerDetalle
         {paquete.beneficios && paquete.beneficios.length > 0 && (
           <ul className="space-y-1.5">
             {paquete.beneficios.slice(0, 3).map((b, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs text-gray-600 leading-relaxed">
+              <li
+                key={i}
+                className="flex items-start gap-2 text-xs text-gray-600 leading-relaxed"
+              >
                 <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
                   <Check className="h-2.5 w-2.5 text-green-600" />
                 </div>
@@ -90,14 +105,19 @@ export function PaqueteCard({ paquete, seleccionado, onSeleccionar, onVerDetalle
 
         <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
           <div>
-            <p className="text-[10px] text-gray-400 font-medium leading-none mb-0.5">desde</p>
+            <p className="text-[10px] text-gray-400 font-medium leading-none mb-0.5">
+              desde
+            </p>
             <p className="text-lg font-black text-gray-900">
               {formatCurrency(paquete.precio)}
             </p>
           </div>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); onVerDetalle() }}
+            onClick={(e) => {
+              e.stopPropagation()
+              onVerDetalle()
+            }}
             className="flex items-center gap-1.5 text-xs text-brand-azul font-semibold hover:text-brand-azul/80 transition-colors p-2 -mr-1 rounded-lg hover:bg-brand-azul/5 min-h-[44px] min-w-[44px] justify-center"
           >
             <Eye className="h-4 w-4" />

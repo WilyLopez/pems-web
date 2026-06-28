@@ -10,7 +10,10 @@ import {
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { useFidelizacionConfig, useActualizarFidelizacionConfig } from '../../hooks/useFidelizacion'
+import {
+  useFidelizacionConfig,
+  useActualizarFidelizacionConfig,
+} from '../../hooks/useFidelizacion'
 import { Star } from 'lucide-react'
 
 interface FidelizacionConfigModalProps {
@@ -19,7 +22,11 @@ interface FidelizacionConfigModalProps {
   idSede?: number
 }
 
-export const FidelizacionConfigModal = ({ open, onClose, idSede }: FidelizacionConfigModalProps) => {
+export const FidelizacionConfigModal = ({
+  open,
+  onClose,
+  idSede,
+}: FidelizacionConfigModalProps) => {
   const { data: config, isLoading } = useFidelizacionConfig(idSede)
   const actualizar = useActualizarFidelizacionConfig(idSede)
   const [umbral, setUmbral] = useState<number>(6)
@@ -32,7 +39,7 @@ export const FidelizacionConfigModal = ({ open, onClose, idSede }: FidelizacionC
 
   const handleSave = () => {
     actualizar.mutate(umbral, {
-      onSuccess: onClose
+      onSuccess: onClose,
     })
   }
 
@@ -45,7 +52,8 @@ export const FidelizacionConfigModal = ({ open, onClose, idSede }: FidelizacionC
             Configuración de Fidelización
           </DialogTitle>
           <DialogDescription>
-            Establece el número de visitas necesarias para que un cliente obtenga una entrada gratuita.
+            Establece el número de visitas necesarias para que un cliente
+            obtenga una entrada gratuita.
           </DialogDescription>
         </DialogHeader>
 
@@ -61,17 +69,22 @@ export const FidelizacionConfigModal = ({ open, onClose, idSede }: FidelizacionC
               disabled={isLoading || actualizar.isPending}
             />
             <p className="text-[10px] text-gray-500">
-              Actualmente: La visita número {umbral} será gratuita para el cliente.
+              Actualmente: La visita número {umbral} será gratuita para el
+              cliente.
             </p>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={actualizar.isPending}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={actualizar.isPending}
+          >
             Cancelar
           </Button>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={actualizar.isPending || isLoading}
             className="bg-brand-azul hover:bg-brand-azul/90 text-white"
           >

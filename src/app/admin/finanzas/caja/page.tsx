@@ -51,7 +51,10 @@ export default function CajaPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <PageHeader title="Caja" description="Control de apertura, movimientos y cierre por día" />
+        <PageHeader
+          title="Caja"
+          description="Control de apertura, movimientos y cierre por día"
+        />
         <div className="flex items-center gap-2">
           <Input
             type="date"
@@ -76,7 +79,10 @@ export default function CajaPage() {
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 h-28 animate-pulse" />
+            <div
+              key={i}
+              className="bg-white rounded-2xl border border-gray-100 p-5 h-28 animate-pulse"
+            />
           ))}
         </div>
       ) : !caja ? (
@@ -99,14 +105,18 @@ export default function CajaPage() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                   <div className="px-5 py-4 border-b">
-                    <h3 className="text-sm font-semibold text-gray-700">Movimientos</h3>
+                    <h3 className="text-sm font-semibold text-gray-700">
+                      Movimientos
+                    </h3>
                   </div>
                   <MovimientosTable movimientos={movimientos} />
                 </div>
 
                 {arqueos.length > 0 && (
                   <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-4">Arqueos del día</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-4">
+                      Arqueos del día
+                    </h3>
                     <ArqueosPanel arqueos={arqueos} />
                   </div>
                 )}
@@ -123,14 +133,18 @@ export default function CajaPage() {
             <div className="space-y-6">
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="px-5 py-4 border-b">
-                  <h3 className="text-sm font-semibold text-gray-700">Movimientos</h3>
+                  <h3 className="text-sm font-semibold text-gray-700">
+                    Movimientos
+                  </h3>
                 </div>
                 <MovimientosTable movimientos={movimientos} />
               </div>
 
               {arqueos.length > 0 && (
                 <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4">Arqueos del día</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4">
+                    Arqueos del día
+                  </h3>
                   <ArqueosPanel arqueos={arqueos} />
                 </div>
               )}

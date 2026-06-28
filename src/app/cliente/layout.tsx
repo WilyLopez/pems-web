@@ -7,16 +7,20 @@ export default async function ClienteLayout({
   children: React.ReactNode
 }) {
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
     redirect('/auth/login?redirect=/cliente')
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/health/me`,
-    { headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }, cache: 'no-store' }
-  )
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health/me`, {
+    headers: {
+      Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+    },
+    cache: 'no-store',
+  })
 
   if (!res.ok) {
     redirect('/auth/login?redirect=/cliente')

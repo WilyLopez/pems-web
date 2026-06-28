@@ -7,7 +7,12 @@ interface SectionCardProps {
   accion?: React.ReactNode
 }
 
-export function SectionCard({ titulo, icon: Icon, children, accion }: SectionCardProps) {
+export function SectionCard({
+  titulo,
+  icon: Icon,
+  children,
+  accion,
+}: SectionCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100">
       <div className="px-4 sm:px-5 pt-4 sm:pt-5 pb-3 sm:pb-4 flex items-center justify-between gap-3 border-b border-gray-100">

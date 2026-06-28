@@ -9,24 +9,36 @@ interface ReservaCardProps {
 }
 
 export function ReservaCard({ reserva, onVerDetalle }: ReservaCardProps) {
-  const activa = reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA'
+  const activa =
+    reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA'
 
   return (
-    <div className={cn(
-      'bg-white rounded-2xl border overflow-hidden flex flex-col',
-      activa ? 'border-brand-azul/20' : 'border-gray-100'
-    )}>
+    <div
+      className={cn(
+        'bg-white rounded-2xl border overflow-hidden flex flex-col',
+        activa ? 'border-brand-azul/20' : 'border-gray-100'
+      )}
+    >
       <div className={cn('h-1', activa ? 'bg-brand-azul' : 'bg-gray-200')} />
       <div className="p-4 flex flex-col gap-3 flex-1">
         <div className="flex items-start gap-3">
-          <div className={cn(
-            'w-11 h-11 rounded-xl flex items-center justify-center shrink-0',
-            activa ? 'bg-brand-azul/10' : 'bg-gray-100'
-          )}>
-            <QrCode className={cn('h-5 w-5', activa ? 'text-brand-azul' : 'text-gray-400')} />
+          <div
+            className={cn(
+              'w-11 h-11 rounded-xl flex items-center justify-center shrink-0',
+              activa ? 'bg-brand-azul/10' : 'bg-gray-100'
+            )}
+          >
+            <QrCode
+              className={cn(
+                'h-5 w-5',
+                activa ? 'text-brand-azul' : 'text-gray-400'
+              )}
+            />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-xs text-gray-400 truncate">{reserva.numeroTicket}</p>
+            <p className="font-mono text-xs text-gray-400 truncate">
+              {reserva.numeroTicket}
+            </p>
             <EstadoBadge estado={reserva.estado} compact />
           </div>
         </div>
@@ -46,7 +58,9 @@ export function ReservaCard({ reserva, onVerDetalle }: ReservaCardProps) {
         {reserva.estado === 'PENDIENTE' && (
           <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
             <AlertTriangle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-            <p className="text-[11px] text-amber-800 leading-tight">Pago pendiente en caja</p>
+            <p className="text-[11px] text-amber-800 leading-tight">
+              Pago pendiente en caja
+            </p>
           </div>
         )}
 

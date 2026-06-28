@@ -27,7 +27,11 @@ export default function LegalPage() {
   const [tipoAEliminar, setTipoAEliminar] = useState<string | null>(null)
 
   useEffect(() => {
-    if (todos && todos.length > 0 && !todos.find((d) => d.tipo === tipoActivo)) {
+    if (
+      todos &&
+      todos.length > 0 &&
+      !todos.find((d) => d.tipo === tipoActivo)
+    ) {
       setTipoActivo(todos[0].tipo)
     }
   }, [todos, tipoActivo])
@@ -46,7 +50,10 @@ export default function LegalPage() {
         description="Gestiona los documentos legales del sitio. Cada guardado crea una nueva versión."
       />
 
-      <div className="flex-1 rounded-xl border bg-background overflow-hidden flex min-h-0" style={{ minHeight: '600px' }}>
+      <div
+        className="flex-1 rounded-xl border bg-background overflow-hidden flex min-h-0"
+        style={{ minHeight: '600px' }}
+      >
         {isLoading ? (
           <div className="flex-1 p-6 space-y-3">
             <Skeleton className="h-8 w-40 rounded" />
@@ -64,7 +71,8 @@ export default function LegalPage() {
             />
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-              {todos?.find((d) => d.tipo === tipoActivo) !== undefined || true ? (
+              {todos?.find((d) => d.tipo === tipoActivo) !== undefined ||
+              true ? (
                 <LegalEditorSection key={tipoActivo} tipo={tipoActivo} />
               ) : null}
             </div>

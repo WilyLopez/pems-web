@@ -9,14 +9,14 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(date: string | Date, pattern?: string) {
   if (!date) return ''
-  
+
   // Siempre parseamos a Date usando parseISO si es string para evitar desfases de zona horaria
   const d = typeof date === 'string' ? parseISO(date) : date
-  
+
   if (pattern) {
     return fnsFormat(d, pattern, { locale: es })
   }
-  
+
   // Para el formato por defecto, usamos Intl pero asegurando que no haya shift de UTC
   return d.toLocaleDateString('es-ES', {
     day: '2-digit',
@@ -85,7 +85,10 @@ export function exportarCSV(filename: string, rows: Record<string, unknown>[]) {
 export function fileUrl(url: string | null | undefined): string | null {
   if (!url) return null
   if (url.startsWith('/files/')) return url
-  const backendOrigin = process.env.NEXT_PUBLIC_API_URL!.replace(/\/api\/v1\/?$/, '')
+  const backendOrigin = process.env.NEXT_PUBLIC_API_URL!.replace(
+    /\/api\/v1\/?$/,
+    ''
+  )
   if (url.startsWith(backendOrigin)) {
     return url.slice(backendOrigin.length)
   }

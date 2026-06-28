@@ -25,7 +25,12 @@ interface Props {
 
 export function AbrirCajaModal({ open, onOpenChange, idSede, fecha }: Props) {
   const { abrir } = useCajaMutations()
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(abrirCajaSchema),
     defaultValues: { saldoInicial: 0 },
   })
@@ -33,7 +38,12 @@ export function AbrirCajaModal({ open, onOpenChange, idSede, fecha }: Props) {
   function onSubmit(v: FormValues) {
     abrir.mutate(
       { idSede, payload: { ...v, fecha } },
-      { onSuccess: () => { reset(); onOpenChange(false) } },
+      {
+        onSuccess: () => {
+          reset()
+          onOpenChange(false)
+        },
+      }
     )
   }
 
@@ -46,9 +56,16 @@ export function AbrirCajaModal({ open, onOpenChange, idSede, fecha }: Props) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           <div className="space-y-1">
             <Label>Saldo inicial (S/)</Label>
-            <Input type="number" step="0.01" min="0" {...register('saldoInicial')} />
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              {...register('saldoInicial')}
+            />
             {errors.saldoInicial && (
-              <p className="text-xs text-red-500">{errors.saldoInicial.message}</p>
+              <p className="text-xs text-red-500">
+                {errors.saldoInicial.message}
+              </p>
             )}
           </div>
           <div className="space-y-1">
@@ -56,7 +73,12 @@ export function AbrirCajaModal({ open, onOpenChange, idSede, fecha }: Props) {
             <Input {...register('observaciones')} placeholder="Opcional…" />
           </div>
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
             <Button

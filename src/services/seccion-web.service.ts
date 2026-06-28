@@ -25,9 +25,12 @@ export const seccionWebService = {
     clave?: string,
     seccionCodigo?: string
   ): Promise<PagedResponse<ContenidoWeb>> => {
-    const { data } = await api.get<ApiResponse<PagedResponse<ContenidoWeb>>>('/contenido', {
-      params: { page, size, clave: clave || undefined, seccionCodigo },
-    })
+    const { data } = await api.get<ApiResponse<PagedResponse<ContenidoWeb>>>(
+      '/contenido',
+      {
+        params: { page, size, clave: clave || undefined, seccionCodigo },
+      }
+    )
     return data.data
   },
 

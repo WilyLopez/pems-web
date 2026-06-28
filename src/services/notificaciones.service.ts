@@ -1,6 +1,9 @@
 import api from './api'
 import { ApiResponse, PagedResponse } from '@/types/api.types'
-import { NotificacionDTO, ConteoNoLeidasDTO } from '@/types/notificaciones.types'
+import {
+  NotificacionDTO,
+  ConteoNoLeidasDTO,
+} from '@/types/notificaciones.types'
 
 interface FeedParams {
   soloNoLeidas?: boolean
@@ -10,15 +13,18 @@ interface FeedParams {
 
 function makeFeed(base: string) {
   return {
-    feed: async (params: FeedParams = {}): Promise<PagedResponse<NotificacionDTO>> => {
-      const { data } = await api.get<ApiResponse<PagedResponse<NotificacionDTO>>>(
-        `${base}/feed`,
-        { params }
-      )
+    feed: async (
+      params: FeedParams = {}
+    ): Promise<PagedResponse<NotificacionDTO>> => {
+      const { data } = await api.get<
+        ApiResponse<PagedResponse<NotificacionDTO>>
+      >(`${base}/feed`, { params })
       return data.data
     },
     count: async (): Promise<number> => {
-      const { data } = await api.get<ApiResponse<ConteoNoLeidasDTO>>(`${base}/count`)
+      const { data } = await api.get<ApiResponse<ConteoNoLeidasDTO>>(
+        `${base}/count`
+      )
       return data.data.count
     },
     marcarLeida: async (id: number): Promise<void> => {
@@ -30,5 +36,7 @@ function makeFeed(base: string) {
   }
 }
 
-export const notificacionesAdminService  = makeFeed('/notificaciones/admin/me')
-export const notificacionesClienteService = makeFeed('/notificaciones/cliente/me')
+export const notificacionesAdminService = makeFeed('/notificaciones/admin/me')
+export const notificacionesClienteService = makeFeed(
+  '/notificaciones/cliente/me'
+)

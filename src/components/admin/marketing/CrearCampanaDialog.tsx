@@ -64,20 +64,34 @@ export function CrearCampanaDialog({ open, onClose, onCreated }: Props) {
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+        onClick={onClose}
+      />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
             <h2 className="font-bold text-gray-900">Nueva campaña de email</h2>
-            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-xl">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="rounded-xl"
+            >
               <X className="h-5 w-5" />
             </Button>
           </div>
 
-          <form onSubmit={handleSubmit((v) => crear.mutate(v))} className="p-5 space-y-4">
+          <form
+            onSubmit={handleSubmit((v) => crear.mutate(v))}
+            className="p-5 space-y-4"
+          >
             <div className="space-y-1.5">
               <Label>Nombre *</Label>
-              <Input {...register('nombre')} placeholder="Ej: Promo verano 2026" />
+              <Input
+                {...register('nombre')}
+                placeholder="Ej: Promo verano 2026"
+              />
               {errors.nombre && (
                 <p className="text-xs text-red-500">{errors.nombre.message}</p>
               )}
@@ -85,7 +99,10 @@ export function CrearCampanaDialog({ open, onClose, onCreated }: Props) {
 
             <div className="space-y-1.5">
               <Label>Descripción</Label>
-              <Input {...register('descripcion')} placeholder="Descripción interna..." />
+              <Input
+                {...register('descripcion')}
+                placeholder="Descripción interna..."
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -102,7 +119,9 @@ export function CrearCampanaDialog({ open, onClose, onCreated }: Props) {
                 ))}
               </select>
               {errors.idPlantillaEmail && (
-                <p className="text-xs text-red-500">{errors.idPlantillaEmail.message}</p>
+                <p className="text-xs text-red-500">
+                  {errors.idPlantillaEmail.message}
+                </p>
               )}
             </div>
 
@@ -115,11 +134,22 @@ export function CrearCampanaDialog({ open, onClose, onCreated }: Props) {
             </div>
 
             <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-              <Button variant="outline" type="button" onClick={onClose} className="rounded-xl">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={onClose}
+                className="rounded-xl"
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={crear.isPending} className="rounded-xl gap-1.5">
-                {crear.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              <Button
+                type="submit"
+                disabled={crear.isPending}
+                className="rounded-xl gap-1.5"
+              >
+                {crear.isPending && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
                 Crear campaña
               </Button>
             </div>

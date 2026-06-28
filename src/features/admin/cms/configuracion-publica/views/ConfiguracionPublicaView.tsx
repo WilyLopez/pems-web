@@ -19,22 +19,29 @@ import { useConfiguracionPublicaNav } from '../hooks/useConfiguracionPublicaNav'
 import { useConfiguracionPublicaForm } from '../hooks/useConfiguracionPublicaForm'
 import { NAV_ITEMS, type SectionId } from '../types'
 
-function isSectionIncomplete(id: SectionId, config: ReturnType<typeof useConfiguracionAdmin>['data']): boolean {
+function isSectionIncomplete(
+  id: SectionId,
+  config: ReturnType<typeof useConfiguracionAdmin>['data']
+): boolean {
   if (!config) return false
   if (id === 'contacto') return !config.correo && !config.telefono
-  if (id === 'logos')    return !config.logoUrl
-  if (id === 'seo')      return !config.metaTitle || !config.metaDescription
+  if (id === 'logos') return !config.logoUrl
+  if (id === 'seo') return !config.metaTitle || !config.metaDescription
   return false
 }
 
 export function ConfiguracionPublicaView() {
-  const { seccion, navegar }                         = useConfiguracionPublicaNav()
-  const { form, isLoading, isError, refetch,
-          isPending, onSubmit, isDirty }              = useConfiguracionPublicaForm()
-  const [pendingSection, setPendingSection]          = useState<SectionId | null>(null)
-  const { data: config }                             = useConfiguracionAdmin()
+  const { seccion, navegar } = useConfiguracionPublicaNav()
+  const { form, isLoading, isError, refetch, isPending, onSubmit, isDirty } =
+    useConfiguracionPublicaForm()
+  const [pendingSection, setPendingSection] = useState<SectionId | null>(null)
+  const { data: config } = useConfiguracionAdmin()
 
-  const { register, control, formState: { errors } } = form
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = form
 
   function handleNavClick(id: SectionId) {
     if (isDirty && id !== seccion) {
@@ -52,11 +59,15 @@ export function ConfiguracionPublicaView() {
     }
   }
 
-  const activeLabel = NAV_ITEMS.find((n) => n.id === seccion)?.label ?? 'Negocio'
+  const activeLabel =
+    NAV_ITEMS.find((n) => n.id === seccion)?.label ?? 'Negocio'
 
   const breadcrumbs = [
-    { label: 'CMS',                href: '/admin/cms' },
-    { label: 'Configuración Pública', href: '/admin/cms/configuracion-publica' },
+    { label: 'CMS', href: '/admin/cms' },
+    {
+      label: 'Configuración Pública',
+      href: '/admin/cms/configuracion-publica',
+    },
     { label: activeLabel },
   ]
 
@@ -97,10 +108,13 @@ export function ConfiguracionPublicaView() {
       <form id="config-publica-form" onSubmit={onSubmit}>
         <div className="flex gap-5 min-h-[500px]">
           <aside className="w-48 shrink-0">
-            <nav className="space-y-0.5 sticky top-4" aria-label="Secciones de configuración">
+            <nav
+              className="space-y-0.5 sticky top-4"
+              aria-label="Secciones de configuración"
+            >
               {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
                 const incomplete = isSectionIncomplete(id, config)
-                const isActive   = seccion === id
+                const isActive = seccion === id
                 return (
                   <button
                     key={id}
@@ -116,7 +130,10 @@ export function ConfiguracionPublicaView() {
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1">{label}</span>
                     {incomplete && !isActive && (
-                      <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" title="Sección incompleta" />
+                      <span
+                        className="w-2 h-2 rounded-full bg-amber-400 shrink-0"
+                        title="Sección incompleta"
+                      />
                     )}
                   </button>
                 )
@@ -125,12 +142,28 @@ export function ConfiguracionPublicaView() {
           </aside>
 
           <div className="flex-1 min-w-0">
-            {seccion === 'negocio'  && <NegocioSection  register={register} errors={errors} />}
-            {seccion === 'contacto' && <ContactoSection register={register} errors={errors} control={control} />}
-            {seccion === 'logos'    && <LogosSection    control={control} />}
-            {seccion === 'redes'    && <RedesSection    register={register} errors={errors} />}
-            {seccion === 'seo'      && <SeoSection      register={register} control={control} errors={errors} />}
-            {seccion === 'visual'   && <VisualSection   control={control} />}
+            {seccion === 'negocio' && (
+              <NegocioSection register={register} errors={errors} />
+            )}
+            {seccion === 'contacto' && (
+              <ContactoSection
+                register={register}
+                errors={errors}
+                control={control}
+              />
+            )}
+            {seccion === 'logos' && <LogosSection control={control} />}
+            {seccion === 'redes' && (
+              <RedesSection register={register} errors={errors} />
+            )}
+            {seccion === 'seo' && (
+              <SeoSection
+                register={register}
+                control={control}
+                errors={errors}
+              />
+            )}
+            {seccion === 'visual' && <VisualSection control={control} />}
           </div>
         </div>
 

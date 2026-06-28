@@ -25,7 +25,9 @@ export function usePerfilData(targetUserId?: number | null) {
 
   const actualizarPerfilMutation = useMutation({
     mutationFn: (values: { nombre: string; telefono?: string }) =>
-      api.put<ApiResponse<UsuarioAdmin>>(`/usuarios-admin/${id}`, values).then((r) => r.data.data),
+      api
+        .put<ApiResponse<UsuarioAdmin>>(`/usuarios-admin/${id}`, values)
+        .then((r) => r.data.data),
     onSuccess: (updated) => {
       toast.success('Perfil actualizado correctamente.')
       queryClient.setQueryData(['perfil', id], updated)

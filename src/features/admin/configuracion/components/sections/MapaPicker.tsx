@@ -10,12 +10,15 @@ import { AlertTriangle } from 'lucide-react'
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
 
 interface Props {
-  latitud:  number | null | undefined
+  latitud: number | null | undefined
   longitud: number | null | undefined
   onChange: (lat: number, lng: number) => void
 }
 
-interface PendingPos { lat: number; lng: number }
+interface PendingPos {
+  lat: number
+  lng: number
+}
 
 function buildPickerMarkerEl(): HTMLDivElement {
   const el = document.createElement('div')
@@ -42,9 +45,9 @@ const ICONO_UBICACION =
   '</svg>'
 
 class MiUbicacionControl implements mapboxgl.IControl {
-  private _map:       mapboxgl.Map | null   = null
+  private _map: mapboxgl.Map | null = null
   private _container: HTMLDivElement | null = null
-  private _onLocate:  (lat: number, lng: number) => void
+  private _onLocate: (lat: number, lng: number) => void
 
   constructor(onLocate: (lat: number, lng: number) => void) {
     this._onLocate = onLocate
@@ -54,12 +57,13 @@ class MiUbicacionControl implements mapboxgl.IControl {
     this._map = map
     const container = document.createElement('div')
     container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group'
-    this._container     = container
-    const btn           = document.createElement('button')
-    btn.type            = 'button'
-    btn.title           = 'Mi ubicación actual'
-    btn.innerHTML       = ICONO_UBICACION
-    btn.style.cssText   = 'display:flex;align-items:center;justify-content:center;width:29px;height:29px;cursor:pointer'
+    this._container = container
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.title = 'Mi ubicación actual'
+    btn.innerHTML = ICONO_UBICACION
+    btn.style.cssText =
+      'display:flex;align-items:center;justify-content:center;width:29px;height:29px;cursor:pointer'
     btn.addEventListener('click', () => {
       if (!navigator.geolocation) return
       btn.style.opacity = '0.4'
@@ -70,7 +74,9 @@ class MiUbicacionControl implements mapboxgl.IControl {
           this._onLocate(lat, lng)
           btn.style.opacity = ''
         },
-        () => { btn.style.opacity = '' },
+        () => {
+          btn.style.opacity = ''
+        }
       )
     })
     container.appendChild(btn)
@@ -85,15 +91,17 @@ class MiUbicacionControl implements mapboxgl.IControl {
 
 export function MapaPicker({ latitud, longitud, onChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef       = useRef<mapboxgl.Map | null>(null)
-  const markerRef    = useRef<mapboxgl.Marker | null>(null)
-  const onChangeRef  = useRef(onChange)
-  const initRef      = useRef({ latitud, longitud })
+  const mapRef = useRef<mapboxgl.Map | null>(null)
+  const markerRef = useRef<mapboxgl.Marker | null>(null)
+  const onChangeRef = useRef(onChange)
+  const initRef = useRef({ latitud, longitud })
 
-  const [sinPin,     setSinPin]     = useState(latitud == null)
+  const [sinPin, setSinPin] = useState(latitud == null)
   const [pendingPos, setPendingPos] = useState<PendingPos | null>(null)
 
-  useEffect(() => { onChangeRef.current = onChange })
+  useEffect(() => {
+    onChangeRef.current = onChange
+  })
 
   const cancelar = () => {
     if (latitud != null && longitud != null) {
@@ -126,9 +134,9 @@ export function MapaPicker({ latitud, longitud, onChange }: Props) {
 
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style:     'mapbox://styles/mapbox/streets-v12',
-      center:    hasCoords ? [initLng, initLat] : [-79.8409, -6.7714],
-      zoom:      hasCoords ? 15 : 13,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: hasCoords ? [initLng, initLat] : [-79.8409, -6.7714],
+      zoom: hasCoords ? 15 : 13,
       attributionControl: false,
     })
 
@@ -138,7 +146,11 @@ export function MapaPicker({ latitud, longitud, onChange }: Props) {
       if (markerRef.current) {
         markerRef.current.setLngLat([lng, lat])
       } else {
-        const m = new mapboxgl.Marker({ element: buildPickerMarkerEl(), anchor: 'bottom', draggable: true })
+        const m = new mapboxgl.Marker({
+          element: buildPickerMarkerEl(),
+          anchor: 'bottom',
+          draggable: true,
+        })
           .setLngLat([lng, lat])
           .addTo(map)
         m.on('dragend', () => {
@@ -157,24 +169,30 @@ export function MapaPicker({ latitud, longitud, onChange }: Props) {
       setPendingPos({ lat, lng })
     }
 
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
-    map.addControl(new mapboxgl.AttributionControl({ compact: true }),      'bottom-right')
+    map.addControl(
+      new mapboxgl.NavigationControl({ showCompass: false }),
+      'top-right'
+    )
+    map.addControl(
+      new mapboxgl.AttributionControl({ compact: true }),
+      'bottom-right'
+    )
     map.addControl(
       new MiUbicacionControl((lat, lng) => {
         placeMarker(lng, lat)
         setearPendiente(lng, lat)
       }),
-      'top-right',
+      'top-right'
     )
 
     const geocoder = new MapboxGeocoder({
       accessToken: TOKEN,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mapboxgl:    mapboxgl as any,
+      mapboxgl: mapboxgl as any,
       placeholder: 'Buscar dirección...',
-      countries:   'pe',
-      language:    'es',
-      marker:      false,
+      countries: 'pe',
+      language: 'es',
+      marker: false,
     })
     map.addControl(geocoder, 'top-left')
 
@@ -196,7 +214,7 @@ export function MapaPicker({ latitud, longitud, onChange }: Props) {
 
     return () => {
       map.remove()
-      mapRef.current    = null
+      mapRef.current = null
       markerRef.current = null
     }
   }, [])
@@ -221,16 +239,28 @@ export function MapaPicker({ latitud, longitud, onChange }: Props) {
       <div style={{ position: 'relative' }}>
         <div ref={containerRef} style={{ height: 300, width: '100%' }} />
         {sinPin && !pendingPos && (
-          <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            pointerEvents: 'none',
-          }}>
-            <div style={{
-              background: 'white', borderRadius: 10, padding: '9px 18px',
-              fontSize: 13, fontWeight: 600, color: '#334155',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.14)', letterSpacing: '0.01em',
-            }}>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+            }}
+          >
+            <div
+              style={{
+                background: 'white',
+                borderRadius: 10,
+                padding: '9px 18px',
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#334155',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.14)',
+                letterSpacing: '0.01em',
+              }}
+            >
               Haz clic en el mapa para colocar tu local
             </div>
           </div>

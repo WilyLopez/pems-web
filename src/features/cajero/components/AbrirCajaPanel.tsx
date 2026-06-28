@@ -19,7 +19,12 @@ interface Props {
 
 export function AbrirCajaPanel({ idSede, fecha, onSuccess }: Props) {
   const { abrir } = useCajaMutations()
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(abrirCajaSchema),
     defaultValues: { saldoInicial: 0 },
   })
@@ -27,7 +32,12 @@ export function AbrirCajaPanel({ idSede, fecha, onSuccess }: Props) {
   function onSubmit(v: FormValues) {
     abrir.mutate(
       { idSede, payload: { ...v, fecha } },
-      { onSuccess: () => { reset(); onSuccess?.() } },
+      {
+        onSuccess: () => {
+          reset()
+          onSuccess?.()
+        },
+      }
     )
   }
 
@@ -39,7 +49,9 @@ export function AbrirCajaPanel({ idSede, fecha, onSuccess }: Props) {
         </div>
         <div>
           <h3 className="text-base font-bold text-gray-900">Abrir caja</h3>
-          <p className="text-xs text-gray-500 mt-0.5">Registra el saldo inicial para comenzar el día</p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Registra el saldo inicial para comenzar el día
+          </p>
         </div>
       </div>
 
@@ -54,7 +66,9 @@ export function AbrirCajaPanel({ idSede, fecha, onSuccess }: Props) {
             {...register('saldoInicial')}
           />
           {errors.saldoInicial && (
-            <p className="text-xs text-red-500">{errors.saldoInicial.message}</p>
+            <p className="text-xs text-red-500">
+              {errors.saldoInicial.message}
+            </p>
           )}
         </div>
         <div className="space-y-1">

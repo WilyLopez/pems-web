@@ -42,23 +42,23 @@ const TURNO_DISP: Record<string, (d: Disponibilidad) => boolean> = {
 
 export function NuevoEventoView() {
   const searchParams = useSearchParams()
-  const router       = useRouter()
-  const { idSede }   = useAuth()
+  const router = useRouter()
+  const { idSede } = useAuth()
 
-  const { data: config }  = useConfiguracionCalendario(idSede ?? 0)
+  const { data: config } = useConfiguracionCalendario(idSede ?? 0)
   const { data: turnos, isLoading: loadingTurnos } = useTurnos(idSede ?? 0)
 
   const diasMin = config?.diasMinEventoPrivado ?? 15
   const diasMax = config?.diasMaxEventoPrivado ?? 365
 
-  const fechaParam   = searchParams.get('fecha')
+  const fechaParam = searchParams.get('fecha')
   const idTurnoParam = searchParams.get('idTurno')
 
   const [currentDate, setCurrentDate] = useState(() => {
     if (fechaParam) return parseISO(fechaParam)
     return addDays(new Date(), diasMin)
   })
-  const [fechaSel,   setFechaSel]   = useState<string | null>(fechaParam)
+  const [fechaSel, setFechaSel] = useState<string | null>(fechaParam)
   const [idTurnoSel, setIdTurnoSel] = useState<number | null>(
     idTurnoParam ? parseInt(idTurnoParam) : null
   )
@@ -66,16 +66,28 @@ export function NuevoEventoView() {
   const minDate = format(addDays(new Date(), diasMin), 'yyyy-MM-dd')
   const maxDate = format(addDays(new Date(), diasMax), 'yyyy-MM-dd')
 
-  const inicio = format(startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 }), 'yyyy-MM-dd')
-  const fin    = format(endOfWeek(endOfMonth(currentDate),   { weekStartsOn: 0 }), 'yyyy-MM-dd')
+  const inicio = format(
+    startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 }),
+    'yyyy-MM-dd'
+  )
+  const fin = format(
+    endOfWeek(endOfMonth(currentDate), { weekStartsOn: 0 }),
+    'yyyy-MM-dd'
+  )
 
-  const { data: disponibilidades, isLoading: loadingDisp } = useDisponibilidadRango(idSede ?? 0, inicio, fin)
+  const { data: disponibilidades, isLoading: loadingDisp } =
+    useDisponibilidadRango(idSede ?? 0, inicio, fin)
 
   if (!idSede) {
-    return <ErrorState message="No tienes sede asignada. Contacta al administrador." />
+    return (
+      <ErrorState message="No tienes sede asignada. Contacta al administrador." />
+    )
   }
 
-  const days        = eachDayOfInterval({ start: startOfMonth(currentDate), end: endOfMonth(currentDate) })
+  const days = eachDayOfInterval({
+    start: startOfMonth(currentDate),
+    end: endOfMonth(currentDate),
+  })
   const startOffset = getDay(startOfMonth(currentDate))
 
   const getDisp = (day: Date): Disponibilidad | undefined =>
@@ -89,11 +101,15 @@ export function NuevoEventoView() {
     return disp.turnoT1Disponible || disp.turnoT2Disponible
   }
 
-  const dispSel = fechaSel ? disponibilidades?.find((d) => d.fecha === fechaSel) : undefined
+  const dispSel = fechaSel
+    ? disponibilidades?.find((d) => d.fecha === fechaSel)
+    : undefined
 
   const handleContinuar = () => {
     if (!fechaSel || !idTurnoSel) return
-    router.push(`/admin/eventos/nuevo/formulario?fecha=${fechaSel}&idTurno=${idTurnoSel}`)
+    router.push(
+      `/admin/eventos/nuevo/formulario?fecha=${fechaSel}&idTurno=${idTurnoSel}`
+    )
   }
 
   return (
@@ -137,14 +153,24 @@ export function NuevoEventoView() {
 
           {config && (
             <p className="text-xs text-gray-400 dark:text-gray-500">
-              Disponible desde {format(addDays(new Date(), diasMin), "d 'de' MMMM", { locale: es })} hasta{' '}
-              {format(addDays(new Date(), diasMax), "d 'de' MMMM yyyy", { locale: es })}.
+              Disponible desde{' '}
+              {format(addDays(new Date(), diasMin), "d 'de' MMMM", {
+                locale: es,
+              })}{' '}
+              hasta{' '}
+              {format(addDays(new Date(), diasMax), "d 'de' MMMM yyyy", {
+                locale: es,
+              })}
+              .
             </p>
           )}
 
           <div className="grid grid-cols-7 gap-px mb-1">
             {DAYS_HEADER.map((d) => (
-              <div key={d} className="text-center text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 py-1">
+              <div
+                key={d}
+                className="text-center text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 py-1"
+              >
                 {d}
               </div>
             ))}
@@ -159,27 +185,36 @@ export function NuevoEventoView() {
           ) : (
             <div className="grid grid-cols-7 gap-1">
               {Array.from({ length: startOffset }).map((_, i) => (
-                <div key={`e-${i}`} className="h-12 rounded-xl bg-gray-50/40 dark:bg-gray-800/40" />
+                <div
+                  key={`e-${i}`}
+                  className="h-12 rounded-xl bg-gray-50/40 dark:bg-gray-800/40"
+                />
               ))}
               {days.map((day) => {
-                const habilitado   = esFechaHabilitada(day)
-                const f            = format(day, 'yyyy-MM-dd')
+                const habilitado = esFechaHabilitada(day)
+                const f = format(day, 'yyyy-MM-dd')
                 const seleccionado = fechaSel === f
-                const hoy          = isToday(day)
+                const hoy = isToday(day)
 
                 return (
                   <button
                     key={day.toISOString()}
                     disabled={!habilitado}
-                    onClick={() => { setFechaSel(f); setIdTurnoSel(null) }}
+                    onClick={() => {
+                      setFechaSel(f)
+                      setIdTurnoSel(null)
+                    }}
                     className={cn(
                       'h-12 w-full rounded-xl border text-sm font-bold transition-all',
                       seleccionado
                         ? 'bg-brand-rosa text-white border-brand-rosa'
                         : habilitado
-                        ? 'border-gray-200 hover:border-brand-rosa/50 hover:bg-brand-rosa/5 text-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:border-brand-rosa/50 dark:hover:bg-brand-rosa/10'
-                        : 'border-transparent bg-gray-50/60 text-gray-300 cursor-not-allowed dark:bg-gray-800/60 dark:text-gray-600',
-                      hoy && !seleccionado && habilitado && 'border-brand-azul/40 dark:border-brand-azul/50'
+                          ? 'border-gray-200 hover:border-brand-rosa/50 hover:bg-brand-rosa/5 text-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:border-brand-rosa/50 dark:hover:bg-brand-rosa/10'
+                          : 'border-transparent bg-gray-50/60 text-gray-300 cursor-not-allowed dark:bg-gray-800/60 dark:text-gray-600',
+                      hoy &&
+                        !seleccionado &&
+                        habilitado &&
+                        'border-brand-azul/40 dark:border-brand-azul/50'
                     )}
                   >
                     {day.getDate()}
@@ -194,14 +229,20 @@ export function NuevoEventoView() {
           {fechaSel && (
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Fecha seleccionada</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                  Fecha seleccionada
+                </p>
                 <p className="font-black text-gray-900 dark:text-gray-100 capitalize mt-1">
-                  {format(parseISO(fechaSel), "EEEE d 'de' MMMM yyyy", { locale: es })}
+                  {format(parseISO(fechaSel), "EEEE d 'de' MMMM yyyy", {
+                    locale: es,
+                  })}
                 </p>
               </div>
 
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Selecciona el turno</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">
+                  Selecciona el turno
+                </p>
                 {loadingTurnos ? (
                   <div className="space-y-2">
                     <Skeleton className="h-16 rounded-2xl" />
@@ -210,7 +251,9 @@ export function NuevoEventoView() {
                 ) : (
                   <div className="space-y-2">
                     {(turnos ?? []).map((turno) => {
-                      const disponible = dispSel ? (TURNO_DISP[turno.codigo]?.(dispSel) ?? false) : false
+                      const disponible = dispSel
+                        ? (TURNO_DISP[turno.codigo]?.(dispSel) ?? false)
+                        : false
                       return (
                         <BotonTurno
                           key={turno.id}
@@ -233,7 +276,8 @@ export function NuevoEventoView() {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 flex flex-col items-center justify-center gap-2 min-h-[160px]">
               <PartyPopper className="h-8 w-8 text-gray-300 dark:text-gray-600" />
               <p className="text-sm text-gray-400 dark:text-gray-500 text-center">
-                Selecciona una fecha en el calendario para ver los turnos disponibles.
+                Selecciona una fecha en el calendario para ver los turnos
+                disponibles.
               </p>
             </div>
           )}

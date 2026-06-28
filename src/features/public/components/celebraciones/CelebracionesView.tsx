@@ -24,19 +24,63 @@ import { Skeleton } from '../shared/Skeletons'
 import { formatCurrency } from '@/lib/utils'
 
 const tiposEventos = [
-  { icon: Cake, nombre: 'Cumpleaños infantiles', desc: 'El clásico que nunca falla. Personaliza cada detalle.' },
-  { icon: Baby, nombre: 'Baby shower', desc: 'Celebra la llegada del nuevo integrante de la familia.' },
-  { icon: GraduationCap, nombre: 'Fin de año escolar', desc: 'Premia a los niños con una fiesta increíble.' },
-  { icon: Star, nombre: 'Eventos temáticos', desc: 'Superhéroes, princesas, dinosaurios y más.' },
-  { icon: Building2, nombre: 'Salidas escolares', desc: 'Grupos de hasta 60 niños con actividades dirigidas.' },
-  { icon: CalendarDays, nombre: 'Celebraciones familiares', desc: 'Reuniones y eventos con zona infantil.' },
+  {
+    icon: Cake,
+    nombre: 'Cumpleaños infantiles',
+    desc: 'El clásico que nunca falla. Personaliza cada detalle.',
+  },
+  {
+    icon: Baby,
+    nombre: 'Baby shower',
+    desc: 'Celebra la llegada del nuevo integrante de la familia.',
+  },
+  {
+    icon: GraduationCap,
+    nombre: 'Fin de año escolar',
+    desc: 'Premia a los niños con una fiesta increíble.',
+  },
+  {
+    icon: Star,
+    nombre: 'Eventos temáticos',
+    desc: 'Superhéroes, princesas, dinosaurios y más.',
+  },
+  {
+    icon: Building2,
+    nombre: 'Salidas escolares',
+    desc: 'Grupos de hasta 60 niños con actividades dirigidas.',
+  },
+  {
+    icon: CalendarDays,
+    nombre: 'Celebraciones familiares',
+    desc: 'Reuniones y eventos con zona infantil.',
+  },
 ]
 
 const pasosPorDefecto = [
-  { n: '1', icon: Star, titulo: 'Elige el paquete', desc: 'Selecciona el que mejor se adapte' },
-  { n: '2', icon: CalendarDays, titulo: 'Elige fecha y turno', desc: 'Verifica disponibilidad' },
-  { n: '3', icon: Check, titulo: 'Paga el adelanto', desc: 'Confirma con un adelanto del 30%' },
-  { n: '4', icon: PartyPopper, titulo: 'A celebrar', desc: 'Nosotros nos encargamos del resto' },
+  {
+    n: '1',
+    icon: Star,
+    titulo: 'Elige el paquete',
+    desc: 'Selecciona el que mejor se adapte',
+  },
+  {
+    n: '2',
+    icon: CalendarDays,
+    titulo: 'Elige fecha y turno',
+    desc: 'Verifica disponibilidad',
+  },
+  {
+    n: '3',
+    icon: Check,
+    titulo: 'Paga el adelanto',
+    desc: 'Confirma con un adelanto del 30%',
+  },
+  {
+    n: '4',
+    icon: PartyPopper,
+    titulo: 'A celebrar',
+    desc: 'Nosotros nos encargamos del resto',
+  },
 ]
 
 export function CelebracionesView() {
@@ -108,7 +152,9 @@ export function CelebracionesView() {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900">{nombre}</h3>
-                  <p className="text-sm text-gray-500 mt-1 leading-relaxed">{desc}</p>
+                  <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                    {desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -119,7 +165,9 @@ export function CelebracionesView() {
       <section id="paquetes" className="py-20 bg-gray-50">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-black text-gray-900 mb-3">Elige tu paquete</h2>
+            <h2 className="text-4xl font-black text-gray-900 mb-3">
+              Elige tu paquete
+            </h2>
             <p className="text-gray-600">
               Todos incluyen coordinación completa y acceso exclusivo al local
             </p>
@@ -138,7 +186,10 @@ export function CelebracionesView() {
                   ? `${whatsappUrl}?text=${encodeURIComponent(`Hola! Me interesa el ${paquete.nombre}`)}`
                   : null
                 return (
-                  <div key={paquete.id} className="bg-white rounded-3xl border-2 border-gray-100 overflow-hidden shadow-sm hover:shadow-brand transition-all hover:-translate-y-1 relative flex flex-col justify-between">
+                  <div
+                    key={paquete.id}
+                    className="bg-white rounded-3xl border-2 border-gray-100 overflow-hidden shadow-sm hover:shadow-brand transition-all hover:-translate-y-1 relative flex flex-col justify-between"
+                  >
                     {paquete.badge && (
                       <div className="absolute top-4 right-4 bg-brand-rosa text-white text-xs font-bold px-3 py-1 rounded-full z-10">
                         {paquete.badge}
@@ -147,8 +198,12 @@ export function CelebracionesView() {
 
                     <div className="bg-gradient-to-br from-brand-rosa/10 to-brand-amarillo/10 p-6">
                       <PartyPopper className="h-7 w-7 text-brand-azul mb-2" />
-                      <h3 className="text-xl font-black text-gray-900">{paquete.nombre}</h3>
-                      <p className="text-sm text-gray-650 mt-1 line-clamp-2 leading-relaxed">{paquete.descripcionCorta}</p>
+                      <h3 className="text-xl font-black text-gray-900">
+                        {paquete.nombre}
+                      </h3>
+                      <p className="text-sm text-gray-650 mt-1 line-clamp-2 leading-relaxed">
+                        {paquete.descripcionCorta}
+                      </p>
                       <div className="flex items-end gap-1 mt-3">
                         <span className="text-4xl font-black text-brand-azul">
                           {formatCurrency(paquete.precio)}
@@ -158,7 +213,10 @@ export function CelebracionesView() {
                         {paquete.duracionMinutos && (
                           <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5 text-brand-azul" />
-                            {Math.round(paquete.duracionMinutos / 60)}h {paquete.duracionMinutos % 60 > 0 ? `${paquete.duracionMinutos % 60}min` : ''}
+                            {Math.round(paquete.duracionMinutos / 60)}h{' '}
+                            {paquete.duracionMinutos % 60 > 0
+                              ? `${paquete.duracionMinutos % 60}min`
+                              : ''}
                           </span>
                         )}
                         {paquete.limitepersonas && (
@@ -174,11 +232,16 @@ export function CelebracionesView() {
                       {paquete.beneficios && paquete.beneficios.length > 0 && (
                         <ul className="space-y-2.5 flex-grow">
                           {paquete.beneficios.map((item) => (
-                            <li key={item} className="flex items-start gap-2.5 text-sm">
+                            <li
+                              key={item}
+                              className="flex items-start gap-2.5 text-sm"
+                            >
                               <div className="w-5 h-5 rounded-full bg-brand-menta/30 flex items-center justify-center shrink-0 mt-0.5">
                                 <Check className="h-3 w-3 text-emerald-600" />
                               </div>
-                              <span className="text-gray-700 leading-relaxed">{item}</span>
+                              <span className="text-gray-700 leading-relaxed">
+                                {item}
+                              </span>
                             </li>
                           ))}
                         </ul>
@@ -200,7 +263,11 @@ export function CelebracionesView() {
                             size="sm"
                             className="w-full text-gray-500 gap-1 rounded-xl"
                           >
-                            <a href={waBadge} target="_blank" rel="noopener noreferrer">
+                            <a
+                              href={waBadge}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
                               <MessageCircle className="h-3.5 w-3.5" />
                               Consultar por WhatsApp
                             </a>
@@ -215,10 +282,19 @@ export function CelebracionesView() {
           ) : (
             <div className="text-center py-16 text-gray-500">
               <PartyPopper className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p className="font-medium">Próximamente mostraremos nuestros paquetes aquí.</p>
+              <p className="font-medium">
+                Próximamente mostraremos nuestros paquetes aquí.
+              </p>
               {whatsappUrl && (
-                <Button asChild className="mt-4 bg-brand-rosa text-white rounded-full gap-2 px-6">
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                <Button
+                  asChild
+                  className="mt-4 bg-brand-rosa text-white rounded-full gap-2 px-6"
+                >
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <MessageCircle className="h-4 w-4" />
                     Consultar disponibilidad
                   </a>
@@ -253,7 +329,8 @@ export function CelebracionesView() {
         <div className="container max-w-3xl mx-auto px-4 text-center space-y-5">
           <h2 className="text-3xl font-black">¿Tienes alguna duda?</h2>
           <p className="text-white/80">
-            Nuestro equipo está listo para ayudarte a planificar la celebración perfecta.
+            Nuestro equipo está listo para ayudarte a planificar la celebración
+            perfecta.
           </p>
           {whatsappUrl ? (
             <Button

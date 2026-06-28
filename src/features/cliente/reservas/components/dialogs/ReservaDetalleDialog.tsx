@@ -28,7 +28,9 @@ export function ReservaDetalleDialog({
   onCancelar,
   isCancelando = false,
 }: ReservaDetalleDialogProps) {
-  const [vista, setVista] = useState<'detalle' | 'reprogramar' | 'cancelar'>('detalle')
+  const [vista, setVista] = useState<'detalle' | 'reprogramar' | 'cancelar'>(
+    'detalle'
+  )
 
   function handleClose() {
     onClose()
@@ -41,7 +43,12 @@ export function ReservaDetalleDialog({
   const tieneCancelar = !!onCancelar
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) handleClose()
+      }}
+    >
       <DialogContent className="max-w-md w-[calc(100vw-2rem)] sm:w-full rounded-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
         {vista === 'detalle' && (
           <DetalleReserva
@@ -56,7 +63,10 @@ export function ReservaDetalleDialog({
           <ReprogramarReserva
             reserva={reserva}
             onVolver={() => setVista('detalle')}
-            onExito={() => { setVista('detalle'); handleClose() }}
+            onExito={() => {
+              setVista('detalle')
+              handleClose()
+            }}
             onReprogramar={onReprogramar}
             isReprogramando={isReprogramando}
           />
@@ -65,7 +75,10 @@ export function ReservaDetalleDialog({
           <CancelarReserva
             reserva={reserva}
             onVolver={() => setVista('detalle')}
-            onExito={() => { setVista('detalle'); handleClose() }}
+            onExito={() => {
+              setVista('detalle')
+              handleClose()
+            }}
             onCancelar={onCancelar}
             isCancelando={isCancelando}
           />
@@ -75,11 +88,19 @@ export function ReservaDetalleDialog({
   )
 }
 
-function FilaDetalle({ label, valor }: { label: string; valor: React.ReactNode }) {
+function FilaDetalle({
+  label,
+  valor,
+}: {
+  label: string
+  valor: React.ReactNode
+}) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="text-sm text-gray-500">{label}</span>
-      <span className="text-sm font-semibold text-gray-900 text-right">{valor}</span>
+      <span className="text-sm font-semibold text-gray-900 text-right">
+        {valor}
+      </span>
     </div>
   )
 }
@@ -123,11 +144,16 @@ function DetalleReserva({
           width={180}
           height={180}
         />
-        <p className="font-mono text-sm font-bold text-gray-700">{reserva.numeroTicket}</p>
+        <p className="font-mono text-sm font-bold text-gray-700">
+          {reserva.numeroTicket}
+        </p>
       </div>
 
       <div className="px-5 py-4 space-y-3">
-        <FilaDetalle label="Estado" valor={<EstadoBadge estado={reserva.estado} />} />
+        <FilaDetalle
+          label="Estado"
+          valor={<EstadoBadge estado={reserva.estado} />}
+        />
         <FilaDetalle
           label="Fecha"
           valor={formatDate(reserva.fechaEvento, "d 'de' MMMM yyyy")}
@@ -221,7 +247,9 @@ function SelectorFechaCompacto({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold text-gray-600">Selecciona la nueva fecha</p>
+      <p className="text-xs font-semibold text-gray-600">
+        Selecciona la nueva fecha
+      </p>
       <div className="flex gap-2 overflow-x-auto pb-1 snap-x scrollbar-hide">
         {dias.map((dia) => {
           const fechaStr = format(dia, 'yyyy-MM-dd')
@@ -241,8 +269,12 @@ function SelectorFechaCompacto({
               <span className="text-[10px] uppercase font-semibold">
                 {format(dia, 'EEE', { locale: es })}
               </span>
-              <span className="text-lg font-black leading-tight">{format(dia, 'd')}</span>
-              <span className="text-[10px]">{format(dia, 'MMM', { locale: es })}</span>
+              <span className="text-lg font-black leading-tight">
+                {format(dia, 'd')}
+              </span>
+              <span className="text-[10px]">
+                {format(dia, 'MMM', { locale: es })}
+              </span>
             </button>
           )
         })}
@@ -273,7 +305,11 @@ function ReprogramarReserva({
   return (
     <div className="flex flex-col">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center gap-2">
-        <button onClick={onVolver} className="text-gray-400 hover:text-gray-600" type="button">
+        <button
+          onClick={onVolver}
+          className="text-gray-400 hover:text-gray-600"
+          type="button"
+        >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <DialogTitle className="text-lg font-black text-gray-900">
@@ -342,7 +378,10 @@ function CancelarReserva({
 
   async function confirmar() {
     try {
-      await onCancelar({ id: reserva.id, motivo: motivo.trim() || (null as any) })
+      await onCancelar({
+        id: reserva.id,
+        motivo: motivo.trim() || (null as any),
+      })
       onExito()
     } catch {
       // toast is managed inside the hook
@@ -352,7 +391,11 @@ function CancelarReserva({
   return (
     <div className="flex flex-col">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center gap-2">
-        <button onClick={onVolver} className="text-gray-400 hover:text-gray-600" type="button">
+        <button
+          onClick={onVolver}
+          className="text-gray-400 hover:text-gray-600"
+          type="button"
+        >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <DialogTitle className="text-lg font-black text-gray-900">
@@ -364,9 +407,12 @@ function CancelarReserva({
         <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-3">
           <AlertTriangle className="h-5 w-5 text-red-600 shrink-0" />
           <div>
-            <p className="text-sm font-bold text-red-800">¿Seguro que deseas cancelar?</p>
+            <p className="text-sm font-bold text-red-800">
+              ¿Seguro que deseas cancelar?
+            </p>
             <p className="text-xs text-red-700 mt-0.5">
-              Esta acción no se puede deshacer. El cupo quedará disponible para otros clientes.
+              Esta acción no se puede deshacer. El cupo quedará disponible para
+              otros clientes.
             </p>
           </div>
         </div>
@@ -376,12 +422,15 @@ function CancelarReserva({
             {formatDate(reserva.fechaEvento, "EEEE d 'de' MMMM")}
           </p>
           <p className="text-xs text-gray-500">
-            Visita de {reserva.nombreNino} · {formatCurrency(reserva.totalPagado)}
+            Visita de {reserva.nombreNino} ·{' '}
+            {formatCurrency(reserva.totalPagado)}
           </p>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-gray-600">Motivo (opcional)</label>
+          <label className="text-xs font-semibold text-gray-600">
+            Motivo (opcional)
+          </label>
           <Textarea
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}

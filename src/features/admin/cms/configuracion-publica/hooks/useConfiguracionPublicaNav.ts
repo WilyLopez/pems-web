@@ -8,11 +8,13 @@ export function useConfiguracionPublicaNav() {
   const router = useRouter()
   const params = useParams<{ seccion?: string }>()
 
-  const seccion = ((params.seccion as SectionId | undefined) ?? DEFAULT_SECTION) as SectionId
+  const seccion = ((params.seccion as SectionId | undefined) ??
+    DEFAULT_SECTION) as SectionId
 
   const navegar = useCallback(
-    (s: SectionId) => router.push(`/admin/cms/configuracion-publica/${s}`, { scroll: false }),
-    [router],
+    (s: SectionId) =>
+      router.push(`/admin/cms/configuracion-publica/${s}`, { scroll: false }),
+    [router]
   )
 
   return { seccion, navegar }

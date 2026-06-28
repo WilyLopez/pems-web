@@ -17,11 +17,18 @@ interface WizardHeaderProps {
   className?: string
 }
 
-const phaseStyles: Record<TimerPhase, { bar: string; text: string; icon: string }> = {
-  safe:     { bar: 'bg-green-500',  text: 'text-green-700',  icon: 'text-green-600' },
-  warning:  { bar: 'bg-amber-400',  text: 'text-amber-700',  icon: 'text-amber-600' },
-  critical: { bar: 'bg-red-500',    text: 'text-red-700',    icon: 'text-red-600'   },
-  expired:  { bar: 'bg-red-600',    text: 'text-red-800',    icon: 'text-red-700'   },
+const phaseStyles: Record<
+  TimerPhase,
+  { bar: string; text: string; icon: string }
+> = {
+  safe: { bar: 'bg-green-500', text: 'text-green-700', icon: 'text-green-600' },
+  warning: {
+    bar: 'bg-amber-400',
+    text: 'text-amber-700',
+    icon: 'text-amber-600',
+  },
+  critical: { bar: 'bg-red-500', text: 'text-red-700', icon: 'text-red-600' },
+  expired: { bar: 'bg-red-600', text: 'text-red-800', icon: 'text-red-700' },
 }
 
 export function WizardHeader({
@@ -40,13 +47,18 @@ export function WizardHeader({
   const showDots = paso !== undefined && total !== undefined
 
   return (
-    <div className={cn('sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm', className)}>
+    <div
+      className={cn(
+        'sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm',
+        className
+      )}
+    >
       <div className="h-1 w-full bg-gray-100 overflow-hidden">
         <div
           className={cn(
             'h-full transition-all duration-1000 ease-linear',
             styles.bar,
-            timerPhase === 'critical' && 'animate-pulse',
+            timerPhase === 'critical' && 'animate-pulse'
           )}
           style={{ width: `${timerProgress * 100}%` }}
         />
@@ -63,7 +75,9 @@ export function WizardHeader({
             style={{ width: 'auto', height: 'auto' }}
           />
           <div className="hidden sm:block h-5 w-px bg-gray-200" />
-          <span className="hidden sm:block text-sm font-semibold text-gray-600">{titulo}</span>
+          <span className="hidden sm:block text-sm font-semibold text-gray-600">
+            {titulo}
+          </span>
         </div>
 
         {showDots && (
@@ -77,28 +91,52 @@ export function WizardHeader({
                     i < paso!
                       ? 'bg-brand-rosa w-6'
                       : i === paso! - 1
-                      ? 'bg-brand-rosa w-8'
-                      : 'bg-gray-200 w-4',
+                        ? 'bg-brand-rosa w-8'
+                        : 'bg-gray-200 w-4'
                   )}
                 />
               ))}
             </div>
-            <span className="text-xs text-gray-400 shrink-0">{paso} / {total}</span>
+            <span className="text-xs text-gray-400 shrink-0">
+              {paso} / {total}
+            </span>
           </div>
         )}
 
         <div className="flex items-center gap-3">
-          <div className={cn('hidden sm:flex items-center gap-1.5 text-xs font-bold', styles.text)}>
+          <div
+            className={cn(
+              'hidden sm:flex items-center gap-1.5 text-xs font-bold',
+              styles.text
+            )}
+          >
             {showWarning ? (
-              <AlertTriangle className={cn('h-3.5 w-3.5 shrink-0', styles.icon, timerPhase === 'critical' && 'animate-pulse')} />
+              <AlertTriangle
+                className={cn(
+                  'h-3.5 w-3.5 shrink-0',
+                  styles.icon,
+                  timerPhase === 'critical' && 'animate-pulse'
+                )}
+              />
             ) : (
               <Clock className={cn('h-3.5 w-3.5 shrink-0', styles.icon)} />
             )}
             <span>{timerDisplay}</span>
           </div>
           {showWarning && (
-            <div className={cn('flex sm:hidden items-center gap-1 text-xs font-bold', styles.text)}>
-              <AlertTriangle className={cn('h-3.5 w-3.5', styles.icon, timerPhase === 'critical' && 'animate-pulse')} />
+            <div
+              className={cn(
+                'flex sm:hidden items-center gap-1 text-xs font-bold',
+                styles.text
+              )}
+            >
+              <AlertTriangle
+                className={cn(
+                  'h-3.5 w-3.5',
+                  styles.icon,
+                  timerPhase === 'critical' && 'animate-pulse'
+                )}
+              />
               <span>{timerDisplay}</span>
             </div>
           )}

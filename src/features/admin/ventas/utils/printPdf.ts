@@ -1,7 +1,9 @@
 import api from '@/services/api'
 
 export async function imprimirTicket(idReserva: number): Promise<void> {
-  const response = await api.get(`/reservas/${idReserva}/ticket`, { responseType: 'blob' })
+  const response = await api.get(`/reservas/${idReserva}/ticket`, {
+    responseType: 'blob',
+  })
   const blob = new Blob([response.data], { type: 'application/pdf' })
   const url = URL.createObjectURL(blob)
   const iframe = document.createElement('iframe')

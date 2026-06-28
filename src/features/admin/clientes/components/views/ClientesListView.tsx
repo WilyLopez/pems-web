@@ -104,7 +104,10 @@ export function ClientesListView() {
 
       <ClienteDrawer cliente={selectedCliente} onClose={closeDrawer} />
 
-      <NuevoClienteModal open={modal === 'nuevo'} onOpenChange={(open) => open ? openNuevoModal() : closeNuevoModal()} />
+      <NuevoClienteModal
+        open={modal === 'nuevo'}
+        onOpenChange={(open) => (open ? openNuevoModal() : closeNuevoModal())}
+      />
     </div>
   )
 }

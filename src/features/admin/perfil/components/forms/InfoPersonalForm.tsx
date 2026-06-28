@@ -53,7 +53,10 @@ interface InfoPersonalFormProps {
   canEdit?: boolean
 }
 
-export function InfoPersonalForm({ admin, canEdit = true }: InfoPersonalFormProps) {
+export function InfoPersonalForm({
+  admin,
+  canEdit = true,
+}: InfoPersonalFormProps) {
   const { actualizarPerfil } = usePerfilData(admin.id)
 
   const {
@@ -80,7 +83,9 @@ export function InfoPersonalForm({ admin, canEdit = true }: InfoPersonalFormProp
           <div>
             <h3 className="font-bold text-gray-900">Información personal</h3>
             <p className="text-xs text-gray-500">
-              {canEdit ? 'Actualiza tu nombre y datos de contacto' : 'Información detallada de la cuenta'}
+              {canEdit
+                ? 'Actualiza tu nombre y datos de contacto'
+                : 'Información detallada de la cuenta'}
             </p>
           </div>
         </div>
@@ -126,7 +131,9 @@ export function InfoPersonalForm({ admin, canEdit = true }: InfoPersonalFormProp
             icon={Mail}
             label="Correo electrónico"
             value={admin.correo}
-            hint={canEdit ? 'El correo no puede modificarse desde aquí.' : undefined}
+            hint={
+              canEdit ? 'El correo no puede modificarse desde aquí.' : undefined
+            }
           />
 
           <FieldWrapper>

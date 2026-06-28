@@ -18,7 +18,8 @@ export function useSedesPublicas() {
   const { data: sedes = [], isLoading } = useQuery({
     queryKey: PUBLIC_QUERY_KEYS.sedes,
     queryFn: async () => {
-      const response = await api.get<ApiResponse<SedePublica[]>>('/api/v1/sedes')
+      const response =
+        await api.get<ApiResponse<SedePublica[]>>('/api/v1/sedes')
       return response.data.data
     },
     staleTime: 10 * 60 * 1000,

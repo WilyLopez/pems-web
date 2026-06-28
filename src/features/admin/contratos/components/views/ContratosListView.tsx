@@ -27,35 +27,41 @@ import { formatDate, formatCurrency, cn } from '@/lib/utils'
 import { ADMIN_ROUTES } from '@/config/routes'
 
 const ESTADOS: { value: EstadoContrato | ''; label: string }[] = [
-  { value: '',              label: 'Todos los estados' },
-  { value: 'BORRADOR',     label: 'Borrador' },
-  { value: 'ENVIADO',      label: 'Enviado' },
+  { value: '', label: 'Todos los estados' },
+  { value: 'BORRADOR', label: 'Borrador' },
+  { value: 'ENVIADO', label: 'Enviado' },
   { value: 'PENDIENTE_FIRMA', label: 'Pendiente de firma' },
-  { value: 'FIRMADO',      label: 'Firmado' },
-  { value: 'VENCIDO',      label: 'Vencido' },
-  { value: 'CANCELADO',    label: 'Cancelado' },
-  { value: 'ARCHIVADO',    label: 'Archivado' },
+  { value: 'FIRMADO', label: 'Firmado' },
+  { value: 'VENCIDO', label: 'Vencido' },
+  { value: 'CANCELADO', label: 'Cancelado' },
+  { value: 'ARCHIVADO', label: 'Archivado' },
 ]
 
 export function ContratosListView() {
   const router = useRouter()
-  const [page,   setPage]   = useState(0)
+  const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
   const [estado, setEstado] = useState<EstadoContrato | ''>('')
-  const [fecha,  setFecha]  = useState('')
+  const [fecha, setFecha] = useState('')
 
   const debouncedSearch = useDebounce(search, 350)
 
   const { data, isLoading, isError, refetch } = useContratos({
     page,
     size: 15,
-    search:      debouncedSearch || undefined,
-    estado:      estado          || undefined,
-    fechaEvento: fecha           || undefined,
+    search: debouncedSearch || undefined,
+    estado: estado || undefined,
+    fechaEvento: fecha || undefined,
   })
 
-  const handleSearch = (v: string) => { setSearch(v); setPage(0) }
-  const handleEstado = (v: string) => { setEstado(v as EstadoContrato); setPage(0) }
+  const handleSearch = (v: string) => {
+    setSearch(v)
+    setPage(0)
+  }
+  const handleEstado = (v: string) => {
+    setEstado(v as EstadoContrato)
+    setPage(0)
+  }
 
   const columns: ColumnDef<Contrato>[] = [
     {
@@ -93,41 +99,58 @@ export function ContratosListView() {
     {
       accessorKey: 'fechaEvento',
       header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase">Fecha evento</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase">
+          Fecha evento
+        </span>
       ),
       cell: ({ row }) => (
         <span className="text-sm text-gray-700">
-          {row.original.fechaEvento ? formatDate(row.original.fechaEvento) : '—'}
+          {row.original.fechaEvento
+            ? formatDate(row.original.fechaEvento)
+            : '—'}
         </span>
       ),
     },
     {
       accessorKey: 'estado',
       header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase">Estado</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase">
+          Estado
+        </span>
       ),
       cell: ({ row }) => <ContratoBadgeEstado estado={row.original.estado} />,
     },
     {
       accessorKey: 'precioTotalContrato',
       header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase">Total</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase">
+          Total
+        </span>
       ),
       cell: ({ row }) => (
         <span className="text-sm font-semibold text-gray-900">
-          {row.original.precioTotalContrato ? formatCurrency(row.original.precioTotalContrato) : '—'}
+          {row.original.precioTotalContrato
+            ? formatCurrency(row.original.precioTotalContrato)
+            : '—'}
         </span>
       ),
     },
     {
       accessorKey: 'saldoPendiente',
       header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase">Saldo</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase">
+          Saldo
+        </span>
       ),
       cell: ({ row }) => {
         const saldo = row.original.saldoPendiente ?? 0
         return (
-          <span className={cn('text-sm font-semibold', saldo > 0 ? 'text-amber-700' : 'text-green-700')}>
+          <span
+            className={cn(
+              'text-sm font-semibold',
+              saldo > 0 ? 'text-amber-700' : 'text-green-700'
+            )}
+          >
             {saldo > 0 ? formatCurrency(saldo) : 'Pagado'}
           </span>
         )
@@ -136,7 +159,9 @@ export function ContratosListView() {
     {
       accessorKey: 'version',
       header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase">Ver.</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase">
+          Ver.
+        </span>
       ),
       cell: ({ row }) => (
         <Badge variant="outline" className="text-[10px] font-mono">
@@ -147,10 +172,14 @@ export function ContratosListView() {
     {
       accessorKey: 'fechaCreacion',
       header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase">Creado</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase">
+          Creado
+        </span>
       ),
       cell: ({ row }) => (
-        <span className="text-xs text-gray-400">{formatDate(row.original.fechaCreacion)}</span>
+        <span className="text-xs text-gray-400">
+          {formatDate(row.original.fechaCreacion)}
+        </span>
       ),
     },
     {
@@ -182,7 +211,12 @@ export function ContratosListView() {
         title="Contratos"
         description="Gestion de contratos de eventos privados"
         actions={
-          <Button variant="outline" size="sm" onClick={() => refetch()} className="rounded-xl gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            className="rounded-xl gap-1.5"
+          >
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
@@ -212,12 +246,18 @@ export function ContratosListView() {
           <Input
             type="date"
             value={fecha}
-            onChange={(e) => { setFecha(e.target.value); setPage(0) }}
+            onChange={(e) => {
+              setFecha(e.target.value)
+              setPage(0)
+            }}
             className="h-10 rounded-xl border-gray-200 w-44 pr-8"
           />
           {fecha && (
             <button
-              onClick={() => { setFecha(''); setPage(0) }}
+              onClick={() => {
+                setFecha('')
+                setPage(0)
+              }}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <X className="h-4 w-4" />
@@ -242,7 +282,10 @@ export function ContratosListView() {
         </div>
 
         {data?.totalElements !== undefined && (
-          <Badge variant="secondary" className="bg-gray-100 text-gray-600 h-10 px-3 text-sm self-start sm:self-auto">
+          <Badge
+            variant="secondary"
+            className="bg-gray-100 text-gray-600 h-10 px-3 text-sm self-start sm:self-auto"
+          >
             {data.totalElements} contratos
           </Badge>
         )}
@@ -254,7 +297,9 @@ export function ContratosListView() {
           data={data?.content ?? []}
           isLoading={isLoading}
           emptyMessage="No se encontraron contratos con los filtros aplicados."
-          onRowClick={(contrato) => router.push(ADMIN_ROUTES.contratoDetalle(contrato.id))}
+          onRowClick={(contrato) =>
+            router.push(ADMIN_ROUTES.contratoDetalle(contrato.id))
+          }
         />
       </div>
 

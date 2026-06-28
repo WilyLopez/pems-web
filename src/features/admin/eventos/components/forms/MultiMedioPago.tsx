@@ -14,10 +14,10 @@ import { cn, formatCurrency } from '@/lib/utils'
 import { PagoItem } from '../../types'
 
 const MEDIOS_PAGO = [
-  { value: 'EFECTIVO',      label: 'Efectivo' },
-  { value: 'YAPE',          label: 'Yape' },
+  { value: 'EFECTIVO', label: 'Efectivo' },
+  { value: 'YAPE', label: 'Yape' },
   { value: 'TRANSFERENCIA', label: 'Transferencia' },
-  { value: 'TARJETA',       label: 'Tarjeta' },
+  { value: 'TARJETA', label: 'Tarjeta' },
 ]
 
 interface Props {
@@ -27,9 +27,15 @@ interface Props {
   disabled?: boolean
 }
 
-export function MultiMedioPago({ value, onChange, totalEsperado, disabled }: Props) {
+export function MultiMedioPago({
+  value,
+  onChange,
+  totalEsperado,
+  disabled,
+}: Props) {
   const total = value.reduce((sum, p) => sum + (p.monto || 0), 0)
-  const coincide = totalEsperado === undefined || Math.abs(total - totalEsperado) < 0.01
+  const coincide =
+    totalEsperado === undefined || Math.abs(total - totalEsperado) < 0.01
 
   function agregar() {
     onChange([...value, { medioPago: '', monto: 0 }])

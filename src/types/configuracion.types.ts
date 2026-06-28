@@ -36,6 +36,9 @@ export interface ConfiguracionCalendario {
   rangoMaxBloqueo: number
 }
 
-export type ActualizarConfiguracionCalendarioRequest = Omit<ConfiguracionCalendario, 'idSede'>
+export type ActualizarConfiguracionCalendarioRequest = Omit<
+  ConfiguracionCalendario,
+  'idSede'
+>
 
 export type ConfiguracionMap = Record<string, string>

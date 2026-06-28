@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { comercialService } from '@/services/comercial.service'
 import { CMS_QUERY_KEYS } from '@/features/admin/cms/shared/queryKeys'
-import { ZonaJuego, CrearZonaPayload, ActualizarZonaPayload } from '@/types/comercial.types'
+import {
+  ZonaJuego,
+  CrearZonaPayload,
+  ActualizarZonaPayload,
+} from '@/types/comercial.types'
 
 export function useZonasAdmin() {
   return useQuery({
@@ -35,21 +39,36 @@ export function useZonaMutations() {
   const invalidar = () => qc.invalidateQueries({ queryKey: key })
 
   const crear = useMutation({
-    mutationFn: (payload: CrearZonaPayload) => comercialService.zonas.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Zona creada') },
+    mutationFn: (payload: CrearZonaPayload) =>
+      comercialService.zonas.crear(payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Zona creada')
+    },
     onError: () => toast.error('Error al crear la zona'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ActualizarZonaPayload }) =>
-      comercialService.zonas.actualizar(id, payload),
-    onSuccess: () => { invalidar(); toast.success('Zona actualizada') },
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ActualizarZonaPayload
+    }) => comercialService.zonas.actualizar(id, payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Zona actualizada')
+    },
     onError: () => toast.error('Error al actualizar la zona'),
   })
 
   const eliminar = useMutation({
     mutationFn: (id: number) => comercialService.zonas.eliminar(id),
-    onSuccess: () => { invalidar(); toast.success('Zona eliminada') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Zona eliminada')
+    },
     onError: () => toast.error('Error al eliminar la zona'),
   })
 
@@ -77,7 +96,9 @@ export function useZonaMutations() {
       await qc.cancelQueries({ queryKey: key })
       const prev = qc.getQueryData<ZonaJuego[]>(key)
       qc.setQueryData<ZonaJuego[]>(key, (old = []) =>
-        old.map((item) => (item.id === z.id ? { ...item, activa: !item.activa } : item))
+        old.map((item) =>
+          item.id === z.id ? { ...item, activa: !item.activa } : item
+        )
       )
       return { prev }
     },

@@ -8,7 +8,7 @@ import type { FormValues } from '../../types'
 
 interface Props {
   register: UseFormRegister<FormValues>
-  errors:   FieldErrors<FormValues>
+  errors: FieldErrors<FormValues>
 }
 
 export function NegocioSection({ register, errors }: Props) {
@@ -17,15 +17,31 @@ export function NegocioSection({ register, errors }: Props) {
       <CardContent className="pt-6 space-y-4">
         <SectionTitle icon={Building2} label="Identidad del negocio" />
         <div className="grid sm:grid-cols-2 gap-4">
-          <FormField label="Nombre del negocio *" id="nombreNegocio" error={errors.nombreNegocio?.message}>
-            <Input id="nombreNegocio" {...register('nombreNegocio')} placeholder="Kiki y Lala" />
+          <FormField
+            label="Nombre del negocio *"
+            id="nombreNegocio"
+            error={errors.nombreNegocio?.message}
+          >
+            <Input
+              id="nombreNegocio"
+              {...register('nombreNegocio')}
+              placeholder="Kiki y Lala"
+            />
           </FormField>
           <FormField label="Slogan" id="slogan">
-            <Input id="slogan" {...register('slogan')} placeholder="El espacio favorito de los niños" />
+            <Input
+              id="slogan"
+              {...register('slogan')}
+              placeholder="El espacio favorito de los niños"
+            />
           </FormField>
         </div>
         <FormField label="Texto de copyright" id="copyrightTexto">
-          <Input id="copyrightTexto" {...register('copyrightTexto')} placeholder="© 2025 Kiki y Lala. Todos los derechos reservados." />
+          <Input
+            id="copyrightTexto"
+            {...register('copyrightTexto')}
+            placeholder="© 2025 Kiki y Lala. Todos los derechos reservados."
+          />
         </FormField>
       </CardContent>
     </Card>

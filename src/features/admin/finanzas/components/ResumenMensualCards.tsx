@@ -37,7 +37,9 @@ export function ResumenMensualCards({ resumen }: Props) {
       value: formatCurrency(resumen.utilidadNeta),
       sub: positivo ? 'Resultado positivo' : 'Resultado negativo',
       icon: DollarSign,
-      color: positivo ? 'bg-brand-azul/10 text-brand-azul' : 'bg-red-100 text-red-600',
+      color: positivo
+        ? 'bg-brand-azul/10 text-brand-azul'
+        : 'bg-red-100 text-red-600',
       valueClass: positivo ? 'text-brand-azul' : 'text-red-600',
     },
     {
@@ -56,11 +58,23 @@ export function ResumenMensualCards({ resumen }: Props) {
           key={label}
           className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3"
         >
-          <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', color)}>
+          <div
+            className={cn(
+              'w-10 h-10 rounded-xl flex items-center justify-center',
+              color
+            )}
+          >
             <Icon className="h-5 w-5" />
           </div>
           <div>
-            <p className={cn('text-2xl font-black', valueClass ?? 'text-gray-900')}>{value}</p>
+            <p
+              className={cn(
+                'text-2xl font-black',
+                valueClass ?? 'text-gray-900'
+              )}
+            >
+              {value}
+            </p>
             <p className="text-sm font-semibold text-gray-700">{label}</p>
             {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
           </div>

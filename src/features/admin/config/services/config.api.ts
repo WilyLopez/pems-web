@@ -4,7 +4,9 @@ import { MedioPago } from '../types'
 
 export const configApi = {
   getMediosPago: async (): Promise<MedioPago[]> => {
-    const { data } = await api.get<ApiResponse<MedioPago[]>>('/config/medios-pago')
+    const { data } = await api.get<ApiResponse<MedioPago[]>>(
+      '/config/medios-pago'
+    )
     return data.data
   },
 }

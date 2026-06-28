@@ -38,7 +38,9 @@ export interface ListarEventosParams {
 }
 
 export const eventosApi = {
-  listar: async (params: ListarEventosParams): Promise<PagedResponse<EventoPrivado>> => {
+  listar: async (
+    params: ListarEventosParams
+  ): Promise<PagedResponse<EventoPrivado>> => {
     const { data } = await api.get<ApiResponse<PagedResponse<EventoPrivado>>>(
       '/eventos-privados',
       { params }
@@ -46,7 +48,9 @@ export const eventosApi = {
     return data.data
   },
 
-  buscarAdmin: async (params: BuscarEventosParams): Promise<PagedResponse<EventoPrivado>> => {
+  buscarAdmin: async (
+    params: BuscarEventosParams
+  ): Promise<PagedResponse<EventoPrivado>> => {
     const { data } = await api.get<ApiResponse<PagedResponse<EventoPrivado>>>(
       '/eventos-privados/admin',
       { params }
@@ -63,7 +67,9 @@ export const eventosApi = {
   },
 
   obtener: async (id: number): Promise<EventoPrivado> => {
-    const { data } = await api.get<ApiResponse<EventoPrivado>>(`/eventos-privados/${id}`)
+    const { data } = await api.get<ApiResponse<EventoPrivado>>(
+      `/eventos-privados/${id}`
+    )
     return data.data
   },
 
@@ -79,7 +85,10 @@ export const eventosApi = {
     return data.data
   },
 
-  confirmar: async (id: number, payload: ConfirmarEventoPayload): Promise<EventoPrivado> => {
+  confirmar: async (
+    id: number,
+    payload: ConfirmarEventoPayload
+  ): Promise<EventoPrivado> => {
     const { data } = await api.post<ApiResponse<EventoPrivado>>(
       `/eventos-privados/${id}/confirmar`,
       {
@@ -109,7 +118,9 @@ export const eventosApi = {
   },
 
   completar: async (id: number): Promise<EventoPrivado> => {
-    const { data } = await api.post<ApiResponse<EventoPrivado>>(`/eventos-privados/${id}/completar`)
+    const { data } = await api.post<ApiResponse<EventoPrivado>>(
+      `/eventos-privados/${id}/completar`
+    )
     return data.data
   },
 
@@ -140,21 +151,30 @@ export const eventosApi = {
     return data.data
   },
 
-  completarTarea: async (idEvento: number, idChecklist: number): Promise<ChecklistItem> => {
+  completarTarea: async (
+    idEvento: number,
+    idChecklist: number
+  ): Promise<ChecklistItem> => {
     const { data } = await api.post<ApiResponse<ChecklistItem>>(
       `/eventos-privados/${idEvento}/checklist/${idChecklist}/completar`
     )
     return data.data
   },
 
-  descompletarTarea: async (idEvento: number, idChecklist: number): Promise<ChecklistItem> => {
+  descompletarTarea: async (
+    idEvento: number,
+    idChecklist: number
+  ): Promise<ChecklistItem> => {
     const { data } = await api.post<ApiResponse<ChecklistItem>>(
       `/eventos-privados/${idEvento}/checklist/${idChecklist}/descompletar`
     )
     return data.data
   },
 
-  agregarTarea: async (idEvento: number, tarea: string): Promise<ChecklistItem> => {
+  agregarTarea: async (
+    idEvento: number,
+    tarea: string
+  ): Promise<ChecklistItem> => {
     const { data } = await api.post<ApiResponse<ChecklistItem>>(
       `/eventos-privados/${idEvento}/checklist`,
       { tarea }
@@ -162,22 +182,31 @@ export const eventosApi = {
     return data.data
   },
 
-  eliminarTarea: async (idEvento: number, idChecklist: number): Promise<void> => {
+  eliminarTarea: async (
+    idEvento: number,
+    idChecklist: number
+  ): Promise<void> => {
     await api.delete(`/eventos-privados/${idEvento}/checklist/${idChecklist}`)
   },
 
   listarExtrasPaquete: async (idPaquete: number): Promise<ExtraPaquete[]> => {
-    const { data } = await api.get<ApiResponse<ExtraPaquete[]>>(`/paquetes/${idPaquete}/extras`)
+    const { data } = await api.get<ApiResponse<ExtraPaquete[]>>(
+      `/paquetes/${idPaquete}/extras`
+    )
     return data.data
   },
 
   listarTurnos: async (idSede: number): Promise<Turno[]> => {
-    const { data } = await api.get<ApiResponse<Turno[]>>(`/calendario/sedes/${idSede}/turnos`)
+    const { data } = await api.get<ApiResponse<Turno[]>>(
+      `/calendario/sedes/${idSede}/turnos`
+    )
     return data.data
   },
 
   listarServiciosCotizacion: async (): Promise<ServicioCotizacion[]> => {
-    const { data } = await api.get<ApiResponse<ServicioCotizacion[]>>('/servicios-cotizacion')
+    const { data } = await api.get<ApiResponse<ServicioCotizacion[]>>(
+      '/servicios-cotizacion'
+    )
     return data.data
   },
 }

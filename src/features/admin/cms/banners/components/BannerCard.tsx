@@ -14,25 +14,45 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { Switch } from '@/components/ui/Switch'
 import { BannerEstadoBadge } from '@/components/admin/banners/BannerEstadoBadge'
-import {
-  useToggleBanner,
-  useDuplicarBanner,
-} from '../hooks/useBanners'
+import { useToggleBanner, useDuplicarBanner } from '../hooks/useBanners'
 import { Banner } from '@/types/banner.types'
 import { cn, formatDate } from '@/lib/utils'
 
 const TIPO_CONFIG: Record<string, { label: string; cls: string }> = {
-  HERO:        { label: 'Hero',        cls: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20'  },
-  PROMOCION:   { label: 'Promocion',   cls: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20'  },
-  EVENTO:      { label: 'Evento',      cls: 'bg-purple-100 text-purple-700 border-purple-200'        },
-  INFORMATIVO: { label: 'Informativo', cls: 'bg-gray-100 text-gray-600 border-gray-200'              },
-  TEMPORADA:   { label: 'Temporada',   cls: 'bg-green-100 text-green-700 border-green-200'           },
+  HERO: {
+    label: 'Hero',
+    cls: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20',
+  },
+  PROMOCION: {
+    label: 'Promocion',
+    cls: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20',
+  },
+  EVENTO: {
+    label: 'Evento',
+    cls: 'bg-purple-100 text-purple-700 border-purple-200',
+  },
+  INFORMATIVO: {
+    label: 'Informativo',
+    cls: 'bg-gray-100 text-gray-600 border-gray-200',
+  },
+  TEMPORADA: {
+    label: 'Temporada',
+    cls: 'bg-green-100 text-green-700 border-green-200',
+  },
 }
 
 export function TipoBadge({ tipo }: { tipo: string }) {
-  const cfg = TIPO_CONFIG[tipo] ?? { label: tipo, cls: 'bg-gray-100 text-gray-500 border-gray-200' }
+  const cfg = TIPO_CONFIG[tipo] ?? {
+    label: tipo,
+    cls: 'bg-gray-100 text-gray-500 border-gray-200',
+  }
   return (
-    <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border', cfg.cls)}>
+    <span
+      className={cn(
+        'text-[10px] font-bold px-2 py-0.5 rounded-full border',
+        cfg.cls
+      )}
+    >
       {cfg.label}
     </span>
   )
@@ -92,9 +112,13 @@ export function BannerCard({ banner, onEditar, onEliminar }: BannerCardProps) {
       </div>
 
       <div className="p-4">
-        <h3 className="font-bold text-sm text-gray-900 truncate">{banner.titulo}</h3>
+        <h3 className="font-bold text-sm text-gray-900 truncate">
+          {banner.titulo}
+        </h3>
         {banner.descripcion && (
-          <p className="text-xs text-gray-400 truncate mt-0.5">{banner.descripcion}</p>
+          <p className="text-xs text-gray-400 truncate mt-0.5">
+            {banner.descripcion}
+          </p>
         )}
         <div className="flex items-center gap-1.5 mt-2 text-[11px] text-gray-400">
           <CalendarDays className="h-3 w-3 shrink-0" />
@@ -113,10 +137,14 @@ export function BannerCard({ banner, onEditar, onEliminar }: BannerCardProps) {
           <Switch
             checked={banner.activo}
             disabled={toggle.isPending}
-            onCheckedChange={() => toggle.mutate({ id: banner.id, activo: banner.activo })}
+            onCheckedChange={() =>
+              toggle.mutate({ id: banner.id, activo: banner.activo })
+            }
             className="scale-[0.8]"
           />
-          <span className="text-xs text-gray-500">{banner.activo ? 'Activo' : 'Inactivo'}</span>
+          <span className="text-xs text-gray-500">
+            {banner.activo ? 'Activo' : 'Inactivo'}
+          </span>
         </div>
 
         <div className="flex items-center gap-0.5">

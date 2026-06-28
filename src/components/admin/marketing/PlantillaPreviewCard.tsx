@@ -20,7 +20,9 @@ export function PlantillaPreviewCard({ plantilla, actions }: Props) {
       <div className="px-5 py-4 flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-semibold text-gray-900 text-sm truncate">{plantilla.nombre}</p>
+            <p className="font-semibold text-gray-900 text-sm truncate">
+              {plantilla.nombre}
+            </p>
             <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-azul/10 text-brand-azul shrink-0">
               {plantilla.tipoEmailNombre}
             </span>
@@ -53,9 +55,13 @@ export function PlantillaPreviewCard({ plantilla, actions }: Props) {
             className="h-7 text-xs gap-1"
           >
             {showPreview ? (
-              <><EyeOff className="h-3.5 w-3.5" /> Ocultar</>
+              <>
+                <EyeOff className="h-3.5 w-3.5" /> Ocultar
+              </>
             ) : (
-              <><Eye className="h-3.5 w-3.5" /> Vista previa</>
+              <>
+                <Eye className="h-3.5 w-3.5" /> Vista previa
+              </>
             )}
           </Button>
           {actions}
@@ -72,7 +78,10 @@ export function PlantillaPreviewCard({ plantilla, actions }: Props) {
               Actualizado: {plantilla.fechaActualizacion?.split('T')[0]}
             </span>
           </div>
-          <div className="relative w-full overflow-hidden" style={{ height: 420 }}>
+          <div
+            className="relative w-full overflow-hidden"
+            style={{ height: 420 }}
+          >
             <iframe
               srcDoc={plantilla.contenidoHtml}
               title={`Preview ${plantilla.nombre}`}

@@ -19,7 +19,9 @@ export function useCambiarContrasena(options?: Options) {
         nuevoPassword: values.nuevaContrasena,
       })
 
-      const { error } = await supabase.auth.updateUser({ password: values.nuevaContrasena })
+      const { error } = await supabase.auth.updateUser({
+        password: values.nuevaContrasena,
+      })
       if (error) {
         throw new Error(error.message)
       }

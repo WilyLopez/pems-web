@@ -1,6 +1,12 @@
 import { TipoDia } from '@/types/enums'
 
-export type TipoOcupacion = 'LIBRE' | 'PUBLICO' | 'PRIVADO_PARCIAL' | 'PRIVADO_LLENO' | 'BLOQUEADO' | 'FERIADO'
+export type TipoOcupacion =
+  | 'LIBRE'
+  | 'PUBLICO'
+  | 'PRIVADO_PARCIAL'
+  | 'PRIVADO_LLENO'
+  | 'BLOQUEADO'
+  | 'FERIADO'
 
 export interface Disponibilidad {
   idSede: number

@@ -12,7 +12,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/AlertDialog'
 import { useUsuariosNav } from '../../hooks/useUsuariosNav'
-import { useUsuariosList, useMutacionesUsuario } from '../../hooks/useUsuariosData'
+import {
+  useUsuariosList,
+  useMutacionesUsuario,
+} from '../../hooks/useUsuariosData'
 
 export function ResetPasswordDialog() {
   const { modal, userId, closeModal } = useUsuariosNav()
@@ -47,7 +50,10 @@ export function ResetPasswordDialog() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm} disabled={resetPassword.isPending}>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            disabled={resetPassword.isPending}
+          >
             {resetPassword.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando...

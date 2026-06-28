@@ -8,16 +8,19 @@ export async function generateMetadata(): Promise<Metadata> {
     const baseTitle = config.metaTitle || 'Kiki y Lala'
     return {
       title: `Zona de Juegos | ${baseTitle}`,
-      description: 'Conoce nuestras tarifas, horarios, atracciones y reglamento de seguridad para la zona de juegos en Chiclayo.',
+      description:
+        'Conoce nuestras tarifas, horarios, atracciones y reglamento de seguridad para la zona de juegos en Chiclayo.',
       openGraph: {
         title: `Zona de Juegos | ${baseTitle}`,
-        description: 'Conoce nuestras tarifas, horarios, atracciones y reglamento de seguridad.',
+        description:
+          'Conoce nuestras tarifas, horarios, atracciones y reglamento de seguridad.',
       },
     }
   } catch {
     return {
       title: 'Zona de Juegos | Kiki y Lala',
-      description: 'Conoce nuestras tarifas, horarios, atracciones y reglamento de seguridad.',
+      description:
+        'Conoce nuestras tarifas, horarios, atracciones y reglamento de seguridad.',
     }
   }
 }

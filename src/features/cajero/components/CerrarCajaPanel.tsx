@@ -3,7 +3,11 @@
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { cerrarCajaSchema, useCajaMutations, AperturaCaja } from '@/features/admin/finanzas'
+import {
+  cerrarCajaSchema,
+  useCajaMutations,
+  AperturaCaja,
+} from '@/features/admin/finanzas'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -21,10 +25,17 @@ interface Props {
 export function CerrarCajaPanel({ caja, onArqueo }: Props) {
   const { cerrar } = useCajaMutations()
 
-  const saldoEsperado = caja.saldoEsperado
-    ?? (caja.saldoInicial + caja.totalIngresos - caja.totalEgresos)
+  const saldoEsperado =
+    caja.saldoEsperado ??
+    caja.saldoInicial + caja.totalIngresos - caja.totalEgresos
 
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(cerrarCajaSchema),
     defaultValues: { saldoFinal: 0 },
   })
@@ -37,7 +48,7 @@ export function CerrarCajaPanel({ caja, onArqueo }: Props) {
   function onSubmit(v: FormValues) {
     cerrar.mutate(
       { idApertura: caja.id, payload: v },
-      { onSuccess: () => reset() },
+      { onSuccess: () => reset() }
     )
   }
 
@@ -49,26 +60,36 @@ export function CerrarCajaPanel({ caja, onArqueo }: Props) {
         </div>
         <div>
           <h3 className="text-sm font-bold text-gray-900">Cierre de caja</h3>
-          <p className="text-xs text-gray-400">Cuadre el efectivo antes de cerrar</p>
+          <p className="text-xs text-gray-400">
+            Cuadre el efectivo antes de cerrar
+          </p>
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
         <div className="flex justify-between">
           <span className="text-gray-500">Saldo inicial</span>
-          <span className="font-semibold">{formatCurrency(caja.saldoInicial)}</span>
+          <span className="font-semibold">
+            {formatCurrency(caja.saldoInicial)}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">+ Ingresos</span>
-          <span className="font-semibold text-emerald-600">+{formatCurrency(caja.totalIngresos)}</span>
+          <span className="font-semibold text-emerald-600">
+            +{formatCurrency(caja.totalIngresos)}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">- Egresos</span>
-          <span className="font-semibold text-red-500">-{formatCurrency(caja.totalEgresos)}</span>
+          <span className="font-semibold text-red-500">
+            -{formatCurrency(caja.totalEgresos)}
+          </span>
         </div>
         <div className="flex justify-between border-t pt-2 mt-1">
           <span className="font-bold text-gray-700">Saldo esperado</span>
-          <span className="font-black text-gray-900">{formatCurrency(saldoEsperado)}</span>
+          <span className="font-black text-gray-900">
+            {formatCurrency(saldoEsperado)}
+          </span>
         </div>
       </div>
 
@@ -88,12 +109,19 @@ export function CerrarCajaPanel({ caja, onArqueo }: Props) {
         </div>
 
         {hayDiferencia && (
-          <div className={cn(
-            'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold',
-            diferencia >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600',
-          )}>
+          <div
+            className={cn(
+              'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold',
+              diferencia >= 0
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'bg-red-50 text-red-600'
+            )}
+          >
             <span>Diferencia</span>
-            <span>{diferencia >= 0 ? '+' : ''}{formatCurrency(diferencia)}</span>
+            <span>
+              {diferencia >= 0 ? '+' : ''}
+              {formatCurrency(diferencia)}
+            </span>
           </div>
         )}
 

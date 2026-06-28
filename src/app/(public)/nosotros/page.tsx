@@ -8,16 +8,21 @@ export async function generateMetadata(): Promise<Metadata> {
     const baseTitle = config.metaTitle || 'Kiki y Lala'
     return {
       title: `Nosotros | ${baseTitle}`,
-      description: config.metaDescription || 'Conoce nuestra historia, valores y el equipo detrás de Kiki y Lala en Chiclayo.',
+      description:
+        config.metaDescription ||
+        'Conoce nuestra historia, valores y el equipo detrás de Kiki y Lala en Chiclayo.',
       openGraph: {
         title: `Nosotros | ${baseTitle}`,
-        description: config.metaDescription || 'Conoce nuestra historia, valores y el equipo detrás de Kiki y Lala.',
+        description:
+          config.metaDescription ||
+          'Conoce nuestra historia, valores y el equipo detrás de Kiki y Lala.',
       },
     }
   } catch {
     return {
       title: 'Nosotros | Kiki y Lala',
-      description: 'Conoce nuestra historia, valores y el equipo detrás de Kiki y Lala.',
+      description:
+        'Conoce nuestra historia, valores y el equipo detrás de Kiki y Lala.',
     }
   }
 }

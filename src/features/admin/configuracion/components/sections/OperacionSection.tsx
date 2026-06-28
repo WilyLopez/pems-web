@@ -25,54 +25,68 @@ const DIAS = [
 ] as const
 
 function parseDias(str: string): Set<string> {
-  return new Set(str.split(',').map(s => s.trim()).filter(Boolean))
+  return new Set(
+    str
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  )
 }
 
 function serializeDias(selected: Set<string>): string {
-  return DIAS.filter(d => selected.has(d.key)).map(d => d.key).join(',')
+  return DIAS.filter((d) => selected.has(d.key))
+    .map((d) => d.key)
+    .join(',')
 }
 
 function formatDias(str: string): string {
   if (!str) return '—'
   const selected = parseDias(str)
-  const labels = DIAS.filter(d => selected.has(d.key)).map(d => d.label)
+  const labels = DIAS.filter((d) => selected.has(d.key)).map((d) => d.label)
   return labels.length > 0 ? labels.join(' ') : '—'
 }
 
-const schema = z.object({
-  horaApertura:  z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  horaCierre:    z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  aforoMaximo:   z.coerce.number().int().min(1),
-  turnoT1Inicio: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  turnoT1Fin:    z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  turnoT2Inicio: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  turnoT2Fin:    z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
-  diasOperacion: z.string().min(1, 'Selecciona al menos un día de operación'),
-}).refine(
-  d => d.horaApertura < d.horaCierre,
-  { message: 'La apertura debe ser antes del cierre', path: ['horaCierre'] }
-).refine(
-  d => d.turnoT1Inicio < d.turnoT1Fin,
-  { message: 'El fin del turno 1 debe ser posterior al inicio', path: ['turnoT1Fin'] }
-).refine(
-  d => d.turnoT2Inicio < d.turnoT2Fin,
-  { message: 'El fin del turno 2 debe ser posterior al inicio', path: ['turnoT2Fin'] }
-).refine(
-  d => d.turnoT1Fin <= d.turnoT2Inicio,
-  { message: 'El turno 2 debe iniciar al terminar el turno 1 o después', path: ['turnoT2Inicio'] }
-).refine(
-  d => d.turnoT1Inicio >= d.horaApertura,
-  { message: 'El turno 1 no puede iniciar antes de la apertura', path: ['turnoT1Inicio'] }
-).refine(
-  d => d.turnoT2Fin <= d.horaCierre,
-  { message: 'El turno 2 no puede terminar después del cierre', path: ['turnoT2Fin'] }
-)
+const schema = z
+  .object({
+    horaApertura: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+    horaCierre: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+    aforoMaximo: z.coerce.number().int().min(1),
+    turnoT1Inicio: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+    turnoT1Fin: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+    turnoT2Inicio: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+    turnoT2Fin: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+    diasOperacion: z.string().min(1, 'Selecciona al menos un día de operación'),
+  })
+  .refine((d) => d.horaApertura < d.horaCierre, {
+    message: 'La apertura debe ser antes del cierre',
+    path: ['horaCierre'],
+  })
+  .refine((d) => d.turnoT1Inicio < d.turnoT1Fin, {
+    message: 'El fin del turno 1 debe ser posterior al inicio',
+    path: ['turnoT1Fin'],
+  })
+  .refine((d) => d.turnoT2Inicio < d.turnoT2Fin, {
+    message: 'El fin del turno 2 debe ser posterior al inicio',
+    path: ['turnoT2Fin'],
+  })
+  .refine((d) => d.turnoT1Fin <= d.turnoT2Inicio, {
+    message: 'El turno 2 debe iniciar al terminar el turno 1 o después',
+    path: ['turnoT2Inicio'],
+  })
+  .refine((d) => d.turnoT1Inicio >= d.horaApertura, {
+    message: 'El turno 1 no puede iniciar antes de la apertura',
+    path: ['turnoT1Inicio'],
+  })
+  .refine((d) => d.turnoT2Fin <= d.horaCierre, {
+    message: 'El turno 2 no puede terminar después del cierre',
+    path: ['turnoT2Fin'],
+  })
 
 type FormValues = z.infer<typeof schema>
 
 interface Props {
-  config:    ConfiguracionCalendario
-  idSede:    number
+  config: ConfiguracionCalendario
+  idSede: number
   navProps?: SeccionNavProps
 }
 
@@ -88,26 +102,26 @@ function OperacionForm({ config, idSede }: Props) {
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      horaApertura:  config.horaApertura,
-      horaCierre:    config.horaCierre,
-      aforoMaximo:   config.aforoMaximo,
+      horaApertura: config.horaApertura,
+      horaCierre: config.horaCierre,
+      aforoMaximo: config.aforoMaximo,
       turnoT1Inicio: config.turnoT1Inicio,
-      turnoT1Fin:    config.turnoT1Fin,
+      turnoT1Fin: config.turnoT1Fin,
       turnoT2Inicio: config.turnoT2Inicio,
-      turnoT2Fin:    config.turnoT2Fin,
+      turnoT2Fin: config.turnoT2Fin,
       diasOperacion: config.diasOperacion,
     },
   })
 
   useEffect(() => {
     reset({
-      horaApertura:  config.horaApertura,
-      horaCierre:    config.horaCierre,
-      aforoMaximo:   config.aforoMaximo,
+      horaApertura: config.horaApertura,
+      horaCierre: config.horaCierre,
+      aforoMaximo: config.aforoMaximo,
       turnoT1Inicio: config.turnoT1Inicio,
-      turnoT1Fin:    config.turnoT1Fin,
+      turnoT1Fin: config.turnoT1Fin,
       turnoT2Inicio: config.turnoT2Inicio,
-      turnoT2Fin:    config.turnoT2Fin,
+      turnoT2Fin: config.turnoT2Fin,
       diasOperacion: config.diasOperacion,
     })
   }, [config, reset])
@@ -123,8 +137,12 @@ function OperacionForm({ config, idSede }: Props) {
           <Clock className="h-4 w-4 text-brand-azul" />
         </div>
         <div>
-          <p className="font-semibold text-card-foreground">Horarios del local</p>
-          <p className="text-xs text-muted-foreground">Apertura y cierre en formato 24 h</p>
+          <p className="font-semibold text-card-foreground">
+            Horarios del local
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Apertura y cierre en formato 24 h
+          </p>
         </div>
       </div>
 
@@ -132,17 +150,34 @@ function OperacionForm({ config, idSede }: Props) {
         <div className="space-y-1.5">
           <Label htmlFor="horaApertura">Hora de apertura</Label>
           <Input id="horaApertura" type="time" {...register('horaApertura')} />
-          {errors.horaApertura && <p className="text-xs text-destructive">{errors.horaApertura.message}</p>}
+          {errors.horaApertura && (
+            <p className="text-xs text-destructive">
+              {errors.horaApertura.message}
+            </p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="horaCierre">Hora de cierre</Label>
           <Input id="horaCierre" type="time" {...register('horaCierre')} />
-          {errors.horaCierre && <p className="text-xs text-destructive">{errors.horaCierre.message}</p>}
+          {errors.horaCierre && (
+            <p className="text-xs text-destructive">
+              {errors.horaCierre.message}
+            </p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="aforoMaximo">Aforo máximo (personas)</Label>
-          <Input id="aforoMaximo" type="number" min={1} {...register('aforoMaximo')} />
-          {errors.aforoMaximo && <p className="text-xs text-destructive">{errors.aforoMaximo.message}</p>}
+          <Input
+            id="aforoMaximo"
+            type="number"
+            min={1}
+            {...register('aforoMaximo')}
+          />
+          {errors.aforoMaximo && (
+            <p className="text-xs text-destructive">
+              {errors.aforoMaximo.message}
+            </p>
+          )}
         </div>
       </div>
 
@@ -152,8 +187,12 @@ function OperacionForm({ config, idSede }: Props) {
             <CalendarDays className="h-4 w-4 text-brand-azul" />
           </div>
           <div>
-            <p className="font-semibold text-card-foreground">Días de operación</p>
-            <p className="text-xs text-muted-foreground">Días en que el local abre al público</p>
+            <p className="font-semibold text-card-foreground">
+              Días de operación
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Días en que el local abre al público
+            </p>
           </div>
         </div>
         <Controller
@@ -186,7 +225,9 @@ function OperacionForm({ config, idSede }: Props) {
                   ))}
                 </div>
                 {errors.diasOperacion && (
-                  <p className="text-xs text-destructive">{errors.diasOperacion.message}</p>
+                  <p className="text-xs text-destructive">
+                    {errors.diasOperacion.message}
+                  </p>
                 )}
               </div>
             )
@@ -195,40 +236,76 @@ function OperacionForm({ config, idSede }: Props) {
       </div>
 
       <div className="border-t border-border pt-4">
-        <p className="text-sm font-medium text-card-foreground mb-3">Turnos de atención</p>
+        <p className="text-sm font-medium text-card-foreground mb-3">
+          Turnos de atención
+        </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="turnoT1Inicio">Inicio turno 1</Label>
-            <Input id="turnoT1Inicio" type="time" {...register('turnoT1Inicio')} />
-            {errors.turnoT1Inicio && <p className="text-xs text-destructive">{errors.turnoT1Inicio.message}</p>}
+            <Input
+              id="turnoT1Inicio"
+              type="time"
+              {...register('turnoT1Inicio')}
+            />
+            {errors.turnoT1Inicio && (
+              <p className="text-xs text-destructive">
+                {errors.turnoT1Inicio.message}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="turnoT1Fin">Fin turno 1</Label>
             <Input id="turnoT1Fin" type="time" {...register('turnoT1Fin')} />
-            {errors.turnoT1Fin && <p className="text-xs text-destructive">{errors.turnoT1Fin.message}</p>}
+            {errors.turnoT1Fin && (
+              <p className="text-xs text-destructive">
+                {errors.turnoT1Fin.message}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="turnoT2Inicio">Inicio turno 2</Label>
-            <Input id="turnoT2Inicio" type="time" {...register('turnoT2Inicio')} />
-            {errors.turnoT2Inicio && <p className="text-xs text-destructive">{errors.turnoT2Inicio.message}</p>}
+            <Input
+              id="turnoT2Inicio"
+              type="time"
+              {...register('turnoT2Inicio')}
+            />
+            {errors.turnoT2Inicio && (
+              <p className="text-xs text-destructive">
+                {errors.turnoT2Inicio.message}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="turnoT2Fin">Fin turno 2</Label>
             <Input id="turnoT2Fin" type="time" {...register('turnoT2Fin')} />
-            {errors.turnoT2Fin && <p className="text-xs text-destructive">{errors.turnoT2Fin.message}</p>}
+            {errors.turnoT2Fin && (
+              <p className="text-xs text-destructive">
+                {errors.turnoT2Fin.message}
+              </p>
+            )}
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-2">
-          El intervalo entre el fin del turno 1 y el inicio del turno 2 es el tiempo de preparación.
+          El intervalo entre el fin del turno 1 y el inicio del turno 2 es el
+          tiempo de preparación.
         </p>
       </div>
 
       <div className="flex justify-end pt-1">
-        <Button type="submit" disabled={actualizar.isPending || !isDirty} size="sm">
-          {actualizar.isPending
-            ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...</>
-            : <><Save className="mr-2 h-4 w-4" /> Guardar cambios</>
-          }
+        <Button
+          type="submit"
+          disabled={actualizar.isPending || !isDirty}
+          size="sm"
+        >
+          {actualizar.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" /> Guardar cambios
+            </>
+          )}
         </Button>
       </div>
     </form>
@@ -237,15 +314,21 @@ function OperacionForm({ config, idSede }: Props) {
 
 export function OperacionSection({ config, idSede, navProps }: Props) {
   const summary = [
-    { label: 'Apertura',       value: config.horaApertura },
-    { label: 'Cierre',         value: config.horaCierre },
+    { label: 'Apertura', value: config.horaApertura },
+    { label: 'Cierre', value: config.horaCierre },
     { label: 'Días operación', value: formatDias(config.diasOperacion) },
   ]
   const viewItems = [
     ...summary,
     { label: 'Aforo máximo', value: `${config.aforoMaximo} personas` },
-    { label: 'Turno 1',      value: `${config.turnoT1Inicio} – ${config.turnoT1Fin}` },
-    { label: 'Turno 2',      value: `${config.turnoT2Inicio} – ${config.turnoT2Fin}` },
+    {
+      label: 'Turno 1',
+      value: `${config.turnoT1Inicio} – ${config.turnoT1Fin}`,
+    },
+    {
+      label: 'Turno 2',
+      value: `${config.turnoT2Inicio} – ${config.turnoT2Fin}`,
+    },
   ]
 
   return (

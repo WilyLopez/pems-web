@@ -1,6 +1,11 @@
 'use client'
 
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { seccionWebService } from '@/services/seccion-web.service'
 import { ActualizarContenidoWebPayload } from '@/types/cms.types'
@@ -24,7 +29,8 @@ export function useContenidoWeb(
 ) {
   return useQuery({
     queryKey: [...CONTENIDO_KEY, clave, seccionCodigo, page, size],
-    queryFn: () => seccionWebService.listarContenido(page, size, clave, seccionCodigo),
+    queryFn: () =>
+      seccionWebService.listarContenido(page, size, clave, seccionCodigo),
     staleTime: 30_000,
     placeholderData: keepPreviousData,
   })

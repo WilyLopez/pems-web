@@ -2,7 +2,12 @@
 
 import { useState } from 'react'
 import { Loader2, ShieldAlert } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Label } from '@/components/ui/Label'
 import {
@@ -13,7 +18,10 @@ import {
   SelectValue,
 } from '@/components/ui/Select'
 import { useUsuariosNav } from '../../hooks/useUsuariosNav'
-import { useUsuariosList, useMutacionesUsuario } from '../../hooks/useUsuariosData'
+import {
+  useUsuariosList,
+  useMutacionesUsuario,
+} from '../../hooks/useUsuariosData'
 import { getEstadoAdmin } from '../../types'
 import { MAX_ADMINS_FRONTEND, MAX_CAJEROS_FRONTEND } from '../../constants'
 
@@ -54,10 +62,7 @@ export function CambiarRolDialog() {
 
   const handleConfirmar = () => {
     if (!usuario || !nuevoRol) return
-    cambiarRol.mutate(
-      { id: usuario.id, nuevoRol },
-      { onSuccess: handleClose }
-    )
+    cambiarRol.mutate({ id: usuario.id, nuevoRol }, { onSuccess: handleClose })
   }
 
   if (!usuario) return null
@@ -137,7 +142,11 @@ export function CambiarRolDialog() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setPaso('elegir')}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPaso('elegir')}
+              >
                 Atrás
               </Button>
               <Button
@@ -147,7 +156,8 @@ export function CambiarRolDialog() {
               >
                 {cambiarRol.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Cambiando...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
+                    Cambiando...
                   </>
                 ) : (
                   'Confirmar cambio'

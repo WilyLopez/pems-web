@@ -5,7 +5,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Trash2, Plus } from 'lucide-react'
-import { useGastosOperativos, useGastoOperativoMutations } from '../hooks/useFinanceData'
+import {
+  useGastosOperativos,
+  useGastoOperativoMutations,
+} from '../hooks/useFinanceData'
 import { gastoOperativoSchema } from '../schemas/finance.schemas'
 import { formatCurrency } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
@@ -58,7 +61,9 @@ export function GastosOperativosDia({ idSede, fecha }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-gray-500">Total gastos operativos</p>
-          <p className="text-lg font-black text-red-600">{formatCurrency(total)}</p>
+          <p className="text-lg font-black text-red-600">
+            {formatCurrency(total)}
+          </p>
         </div>
         <Button
           size="sm"
@@ -85,7 +90,9 @@ export function GastosOperativosDia({ idSede, fecha }: Props) {
                 {...register('descripcion')}
               />
               {errors.descripcion && (
-                <p className="text-xs text-destructive">{errors.descripcion.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.descripcion.message}
+                </p>
               )}
             </div>
             <div className="space-y-1.5">
@@ -98,7 +105,9 @@ export function GastosOperativosDia({ idSede, fecha }: Props) {
                 {...register('monto')}
               />
               {errors.monto && (
-                <p className="text-xs text-destructive">{errors.monto.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.monto.message}
+                </p>
               )}
             </div>
           </div>
@@ -115,7 +124,10 @@ export function GastosOperativosDia({ idSede, fecha }: Props) {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => { reset(); setShowForm(false) }}
+              onClick={() => {
+                reset()
+                setShowForm(false)
+              }}
             >
               Cancelar
             </Button>
@@ -134,12 +146,19 @@ export function GastosOperativosDia({ idSede, fecha }: Props) {
       {isLoading ? (
         <p className="text-sm text-gray-400">Cargando...</p>
       ) : gastos.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-3">Sin gastos para este dia.</p>
+        <p className="text-sm text-gray-400 text-center py-3">
+          Sin gastos para este dia.
+        </p>
       ) : (
         <ul className="divide-y divide-gray-100">
           {gastos.map((g) => (
-            <li key={g.id} className="flex items-center justify-between py-2.5 gap-2">
-              <p className="text-sm text-gray-800 truncate flex-1">{g.descripcion}</p>
+            <li
+              key={g.id}
+              className="flex items-center justify-between py-2.5 gap-2"
+            >
+              <p className="text-sm text-gray-800 truncate flex-1">
+                {g.descripcion}
+              </p>
               <div className="flex items-center gap-3 shrink-0">
                 <span className="text-sm font-semibold text-red-600">
                   {formatCurrency(g.monto)}

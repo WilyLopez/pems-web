@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { COOKIE_TIPO_PERFIL, COOKIE_MAX_AGE, getDashboardUrl } from '@/lib/auth-utils'
+import {
+  COOKIE_TIPO_PERFIL,
+  COOKIE_MAX_AGE,
+  getDashboardUrl,
+} from '@/lib/auth-utils'
 
 function getRedirectUrl(
   tipoPerfil: string,
@@ -13,7 +17,8 @@ function getRedirectUrl(
     if (tipoPerfil === 'CLIENTE' && next.startsWith('/cliente')) return next
   }
 
-  if (tipoPerfil === 'CLIENTE' && !perfilCompleto) return '/auth/completar-perfil'
+  if (tipoPerfil === 'CLIENTE' && !perfilCompleto)
+    return '/auth/completar-perfil'
 
   return getDashboardUrl(roles, tipoPerfil)
 }
@@ -29,7 +34,8 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createServerSupabaseClient()
-  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+  const { error: exchangeError } =
+    await supabase.auth.exchangeCodeForSession(code)
 
   if (exchangeError) {
     return NextResponse.redirect(`${origin}/auth/login?error=callback_failed`)

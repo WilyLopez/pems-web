@@ -21,15 +21,15 @@ El gap es crítico: la BD puede almacenar notificaciones pero ningún código la
 
 ### 2.1 Tablas existentes (V11_notificaciones_y_marketing.sql)
 
-| Tabla | Propósito | Estado |
-|-------|-----------|--------|
-| `tipo_notificacion` | Catálogo de tipos (definido en V2_catalogos.sql) | ✅ Existe + seed |
-| `notificacion` | Registro de cada notificación generada | ✅ Existe, sin datos reales |
-| `notificacion_entrega` | Tracking por canal (IN_APP, EMAIL, etc.) | ✅ Existe, sin datos reales |
-| `preferencia_notificacion` | Preferencias por usuario/cliente y tipo | ✅ Existe, sin datos reales |
-| `plantilla_email` | Plantillas HTML de email | ✅ Existe |
-| `campana_email` | Campañas masivas de email | ✅ Existe |
-| `envio_email` | Registro de cada email enviado | ✅ Existe |
+| Tabla                      | Propósito                                        | Estado                      |
+| -------------------------- | ------------------------------------------------ | --------------------------- |
+| `tipo_notificacion`        | Catálogo de tipos (definido en V2_catalogos.sql) | ✅ Existe + seed            |
+| `notificacion`             | Registro de cada notificación generada           | ✅ Existe, sin datos reales |
+| `notificacion_entrega`     | Tracking por canal (IN_APP, EMAIL, etc.)         | ✅ Existe, sin datos reales |
+| `preferencia_notificacion` | Preferencias por usuario/cliente y tipo          | ✅ Existe, sin datos reales |
+| `plantilla_email`          | Plantillas HTML de email                         | ✅ Existe                   |
+| `campana_email`            | Campañas masivas de email                        | ✅ Existe                   |
+| `envio_email`              | Registro de cada email enviado                   | ✅ Existe                   |
 
 ### 2.2 Estructura de `notificacion` (tabla principal)
 
@@ -55,6 +55,7 @@ CONSTRAINT: exactamente uno de destinatario_usuario_id o destinatario_cliente_id
 ```
 
 **Índices optimizados:**
+
 - `idx_notif_usuario_feed` — feed del admin/cajero (usuario + leida + created_at)
 - `idx_notif_cliente_feed` — feed del cliente (cliente + leida + created_at)
 - `idx_notif_entidad` — búsqueda por entidad relacionada
@@ -67,48 +68,48 @@ CONSTRAINT: exactamente uno de destinatario_usuario_id o destinatario_cliente_id
 
 #### Para ADMIN (panel `/admin`)
 
-| Código | Módulo | Nombre | Canales | Prioridad |
-|--------|--------|--------|---------|-----------|
-| `RESERVA_YAPE_PENDIENTE` | reserva | Yape por validar | IN_APP | ALTA |
-| `EVENTO_SOLICITUD` | evento | Nueva solicitud de evento | IN_APP, EMAIL | ALTA |
-| `EVENTO_CONTRATO_PENDIENTE` | evento | Contrato pendiente | IN_APP, EMAIL | **CRITICA** |
-| `EVENTO_SALDO_PENDIENTE` | evento | Saldo pendiente | IN_APP | ALTA |
-| `CAJA_SIN_CERRAR` | caja | Caja sin cerrar | IN_APP | ALTA |
-| `AFORO_LIMITE` | reserva | Aforo cercano al límite | IN_APP | NORMAL |
-| `RESENA_PENDIENTE` | sitio | Reseña pendiente | IN_APP | BAJA |
-| `MENSAJE_NUEVO` | sitio | Mensaje nuevo | IN_APP, EMAIL | NORMAL |
-| `LOGIN_IP_NUEVA` | sistema | Login desde IP nueva | EMAIL | **CRITICA** |
+| Código                      | Módulo  | Nombre                    | Canales       | Prioridad   |
+| --------------------------- | ------- | ------------------------- | ------------- | ----------- |
+| `RESERVA_YAPE_PENDIENTE`    | reserva | Yape por validar          | IN_APP        | ALTA        |
+| `EVENTO_SOLICITUD`          | evento  | Nueva solicitud de evento | IN_APP, EMAIL | ALTA        |
+| `EVENTO_CONTRATO_PENDIENTE` | evento  | Contrato pendiente        | IN_APP, EMAIL | **CRITICA** |
+| `EVENTO_SALDO_PENDIENTE`    | evento  | Saldo pendiente           | IN_APP        | ALTA        |
+| `CAJA_SIN_CERRAR`           | caja    | Caja sin cerrar           | IN_APP        | ALTA        |
+| `AFORO_LIMITE`              | reserva | Aforo cercano al límite   | IN_APP        | NORMAL      |
+| `RESENA_PENDIENTE`          | sitio   | Reseña pendiente          | IN_APP        | BAJA        |
+| `MENSAJE_NUEVO`             | sitio   | Mensaje nuevo             | IN_APP, EMAIL | NORMAL      |
+| `LOGIN_IP_NUEVA`            | sistema | Login desde IP nueva      | EMAIL         | **CRITICA** |
 
 #### Para CAJERO
 
-| Código | Módulo | Nombre | Canales | Prioridad |
-|--------|--------|--------|---------|-----------|
-| `CAJA_SIN_ABRIR` | caja | Caja sin abrir | IN_APP | NORMAL |
+| Código           | Módulo | Nombre         | Canales | Prioridad |
+| ---------------- | ------ | -------------- | ------- | --------- |
+| `CAJA_SIN_ABRIR` | caja   | Caja sin abrir | IN_APP  | NORMAL    |
 
 #### Para CLIENTE (portal `/cliente`)
 
-| Código | Módulo | Nombre | Canales | Prioridad |
-|--------|--------|--------|---------|-----------|
-| `RESERVA_CONFIRMADA` | reserva | Reserva confirmada | IN_APP, EMAIL | NORMAL |
-| `RESERVA_RECORDATORIO` | reserva | Recordatorio de visita | EMAIL, WHATSAPP | NORMAL |
-| `RESERVA_CANCELADA` | reserva | Reserva cancelada | IN_APP, EMAIL | NORMAL |
-| `EVENTO_CONFIRMADO` | evento | Evento confirmado | IN_APP, EMAIL | NORMAL |
-| `EVENTO_RECORDATORIO` | evento | Recordatorio de evento | IN_APP, EMAIL, WHATSAPP | NORMAL |
-| `BIENVENIDA` | cliente | Bienvenida | EMAIL | NORMAL |
-| `CUMPLEANOS_NINO` | cliente | Cumpleaños del niño | EMAIL | NORMAL |
+| Código                 | Módulo  | Nombre                 | Canales                 | Prioridad |
+| ---------------------- | ------- | ---------------------- | ----------------------- | --------- |
+| `RESERVA_CONFIRMADA`   | reserva | Reserva confirmada     | IN_APP, EMAIL           | NORMAL    |
+| `RESERVA_RECORDATORIO` | reserva | Recordatorio de visita | EMAIL, WHATSAPP         | NORMAL    |
+| `RESERVA_CANCELADA`    | reserva | Reserva cancelada      | IN_APP, EMAIL           | NORMAL    |
+| `EVENTO_CONFIRMADO`    | evento  | Evento confirmado      | IN_APP, EMAIL           | NORMAL    |
+| `EVENTO_RECORDATORIO`  | evento  | Recordatorio de evento | IN_APP, EMAIL, WHATSAPP | NORMAL    |
+| `BIENVENIDA`           | cliente | Bienvenida             | EMAIL                   | NORMAL    |
+| `CUMPLEANOS_NINO`      | cliente | Cumpleaños del niño    | EMAIL                   | NORMAL    |
 
 ### 3.2 Mapeo: Tipos BD ↔ Tipos Frontend
 
 La BD usa códigos como `RESERVA_CONFIRMADA`; el frontend usa categorías genéricas `'reserva' | 'evento' | 'pago' | 'contrato' | 'sistema'`.
 
-| Tipo frontend | Tipos BD correspondientes |
-|--------------|--------------------------|
-| `reserva` | RESERVA_CONFIRMADA, RESERVA_CANCELADA, RESERVA_RECORDATORIO, RESERVA_YAPE_PENDIENTE, AFORO_LIMITE |
-| `evento` | EVENTO_SOLICITUD, EVENTO_CONFIRMADO, EVENTO_RECORDATORIO, EVENTO_CONTRATO_PENDIENTE, EVENTO_SALDO_PENDIENTE |
-| `pago` | (ninguno definido en BD — solo existe lógica en reserva/Yape) |
-| `contrato` | EVENTO_CONTRATO_PENDIENTE |
-| `sistema` | LOGIN_IP_NUEVA, BIENVENIDA, CUMPLEANOS_NINO |
-| ❌ sin mapeo | CAJA_SIN_CERRAR, CAJA_SIN_ABRIR, RESENA_PENDIENTE, MENSAJE_NUEVO |
+| Tipo frontend | Tipos BD correspondientes                                                                                   |
+| ------------- | ----------------------------------------------------------------------------------------------------------- |
+| `reserva`     | RESERVA_CONFIRMADA, RESERVA_CANCELADA, RESERVA_RECORDATORIO, RESERVA_YAPE_PENDIENTE, AFORO_LIMITE           |
+| `evento`      | EVENTO_SOLICITUD, EVENTO_CONFIRMADO, EVENTO_RECORDATORIO, EVENTO_CONTRATO_PENDIENTE, EVENTO_SALDO_PENDIENTE |
+| `pago`        | (ninguno definido en BD — solo existe lógica en reserva/Yape)                                               |
+| `contrato`    | EVENTO_CONTRATO_PENDIENTE                                                                                   |
+| `sistema`     | LOGIN_IP_NUEVA, BIENVENIDA, CUMPLEANOS_NINO                                                                 |
+| ❌ sin mapeo  | CAJA_SIN_CERRAR, CAJA_SIN_ABRIR, RESENA_PENDIENTE, MENSAJE_NUEVO                                            |
 
 ---
 
@@ -117,6 +118,7 @@ La BD usa códigos como `RESERVA_CONFIRMADA`; el frontend usa categorías genér
 ### 4.1 Capa de Dominio — Modelos
 
 Existen los modelos de dominio (sin lógica, solo POJO):
+
 - `Notificacion.java` — ✅ Existe
 - `TipoNotificacion.java` — ✅ Existe
 - `NotificacionEntrega.java` — ✅ Existe
@@ -125,6 +127,7 @@ Existen los modelos de dominio (sin lógica, solo POJO):
 ### 4.2 Capa de Infraestructura — Entidades JPA
 
 Las entidades están correctamente mapeadas:
+
 - `NotificacionEntity.java` — ✅ Existe, lazy loading correcto
 - `TipoNotificacionEntity.java` — ✅ Existe
 - `NotificacionEntregaEntity.java` — ✅ Existe
@@ -132,20 +135,21 @@ Las entidades están correctamente mapeadas:
 
 ### 4.3 Lo que FALTA en Backend
 
-| Componente | Estado | Impacto |
-|-----------|--------|---------|
-| `NotificacionRepository` (interfaz dominio) | ❌ No existe | Sin acceso a datos |
-| `NotificacionJpaRepository` (Spring Data) | ❌ No existe | Sin persistencia |
-| `NotificacionPersistenceAdapter` | ❌ No existe | Sin integración |
-| `NotificacionMapper` | ❌ No existe | Sin conversión entity↔domain |
-| `NotificacionService` / use cases | ❌ No existe | Sin lógica de negocio |
-| `NotificacionController` REST | ❌ No existe | Sin endpoints API |
-| `CrearNotificacionUseCase` | ❌ No existe | Sin creación automática |
-| `MarcarLeidaUseCase` | ❌ No existe | Sin acciones del usuario |
+| Componente                                  | Estado       | Impacto                      |
+| ------------------------------------------- | ------------ | ---------------------------- |
+| `NotificacionRepository` (interfaz dominio) | ❌ No existe | Sin acceso a datos           |
+| `NotificacionJpaRepository` (Spring Data)   | ❌ No existe | Sin persistencia             |
+| `NotificacionPersistenceAdapter`            | ❌ No existe | Sin integración              |
+| `NotificacionMapper`                        | ❌ No existe | Sin conversión entity↔domain |
+| `NotificacionService` / use cases           | ❌ No existe | Sin lógica de negocio        |
+| `NotificacionController` REST               | ❌ No existe | Sin endpoints API            |
+| `CrearNotificacionUseCase`                  | ❌ No existe | Sin creación automática      |
+| `MarcarLeidaUseCase`                        | ❌ No existe | Sin acciones del usuario     |
 
 ### 4.4 Lo que SÍ envía notificaciones (Email)
 
 `CorreoAdapter.java` implementa `EnviarNotificacionEventoPort`:
+
 - `notificarSolicitudRecibida()` — al admin cuando llega solicitud
 - `notificarEventoConfirmado()` — al cliente
 - `notificarEventoCancelado()` — al cliente
@@ -210,15 +214,15 @@ El store tiene un array de 4 notificaciones mock como seed. No hay ningún `useE
 
 ### 5.3 Inconsistencia entre AdminNavbar y NotificacionesPanel
 
-| Aspecto | AdminNavbar | NotificacionesPanel |
-|---------|-------------|---------------------|
-| Fuente de datos | Constante local (`NOTIFICACIONES`) | Store Zustand (`useNotificacionesStore`) |
-| Interfaz | `{ id, tipo, texto, tiempo, leida }` | `{ id, tipo, titulo, mensaje, fecha, leida, href }` |
-| Tiempo | String estático ("Hace 5 min") | `formatDistanceToNow(fecha)` dinámico |
-| Icono por tipo | ❌ No tiene | ✅ Tiene `TIPO_CONFIG` con iconos |
-| Marcar leída | ❌ No funciona | ✅ Funciona (en store) |
-| Marcar todas | ❌ No tiene | ✅ Tiene botón |
-| "Ver todas" | Botón sin ruta | — |
+| Aspecto         | AdminNavbar                          | NotificacionesPanel                                 |
+| --------------- | ------------------------------------ | --------------------------------------------------- |
+| Fuente de datos | Constante local (`NOTIFICACIONES`)   | Store Zustand (`useNotificacionesStore`)            |
+| Interfaz        | `{ id, tipo, texto, tiempo, leida }` | `{ id, tipo, titulo, mensaje, fecha, leida, href }` |
+| Tiempo          | String estático ("Hace 5 min")       | `formatDistanceToNow(fecha)` dinámico               |
+| Icono por tipo  | ❌ No tiene                          | ✅ Tiene `TIPO_CONFIG` con iconos                   |
+| Marcar leída    | ❌ No funciona                       | ✅ Funciona (en store)                              |
+| Marcar todas    | ❌ No tiene                          | ✅ Tiene botón                                      |
+| "Ver todas"     | Botón sin ruta                       | —                                                   |
 
 ---
 
@@ -296,15 +300,31 @@ src/
 // types/notificaciones.types.ts
 
 export type TipoNotificacionBD =
-  | 'RESERVA_CONFIRMADA' | 'RESERVA_RECORDATORIO' | 'RESERVA_CANCELADA'
-  | 'RESERVA_YAPE_PENDIENTE' | 'AFORO_LIMITE'
-  | 'EVENTO_SOLICITUD' | 'EVENTO_CONFIRMADO' | 'EVENTO_RECORDATORIO'
-  | 'EVENTO_CONTRATO_PENDIENTE' | 'EVENTO_SALDO_PENDIENTE'
-  | 'CAJA_SIN_CERRAR' | 'CAJA_SIN_ABRIR'
-  | 'RESENA_PENDIENTE' | 'MENSAJE_NUEVO'
-  | 'BIENVENIDA' | 'CUMPLEANOS_NINO' | 'LOGIN_IP_NUEVA'
+  | 'RESERVA_CONFIRMADA'
+  | 'RESERVA_RECORDATORIO'
+  | 'RESERVA_CANCELADA'
+  | 'RESERVA_YAPE_PENDIENTE'
+  | 'AFORO_LIMITE'
+  | 'EVENTO_SOLICITUD'
+  | 'EVENTO_CONFIRMADO'
+  | 'EVENTO_RECORDATORIO'
+  | 'EVENTO_CONTRATO_PENDIENTE'
+  | 'EVENTO_SALDO_PENDIENTE'
+  | 'CAJA_SIN_CERRAR'
+  | 'CAJA_SIN_ABRIR'
+  | 'RESENA_PENDIENTE'
+  | 'MENSAJE_NUEVO'
+  | 'BIENVENIDA'
+  | 'CUMPLEANOS_NINO'
+  | 'LOGIN_IP_NUEVA'
 
-export type TipoVisual = 'reserva' | 'evento' | 'pago' | 'contrato' | 'caja' | 'sistema'
+export type TipoVisual =
+  | 'reserva'
+  | 'evento'
+  | 'pago'
+  | 'contrato'
+  | 'caja'
+  | 'sistema'
 
 export interface NotificacionDTO {
   id: string
@@ -347,16 +367,17 @@ export const TIPO_VISUAL_MAP: Record<TipoNotificacionBD, TipoVisual> = {
 
 export const notificacionesService = {
   getMias: (params?: { soloNoLeidas?: boolean; page?: number }) =>
-    apiClient.get<{ items: NotificacionDTO[]; total: number; noLeidas: number }>(
-      '/notificaciones/mias', { params }
-    ),
-  
-  marcarLeida: (id: string) =>
-    apiClient.patch(`/notificaciones/${id}/leida`),
-  
+    apiClient.get<{
+      items: NotificacionDTO[]
+      total: number
+      noLeidas: number
+    }>('/notificaciones/mias', { params }),
+
+  marcarLeida: (id: string) => apiClient.patch(`/notificaciones/${id}/leida`),
+
   marcarTodasLeidas: () =>
     apiClient.post('/notificaciones/marcar-todas-leidas'),
-  
+
   contarNoLeidas: () =>
     apiClient.get<{ count: number }>('/notificaciones/mias/count'),
 }
@@ -386,7 +407,7 @@ interface NotificacionesState {
 // hooks/useNotificaciones.ts
 export function useNotificaciones(intervaloMs = 30_000) {
   const { fetchNotificaciones } = useNotificacionesStore()
-  
+
   useEffect(() => {
     fetchNotificaciones()
     const id = setInterval(fetchNotificaciones, intervaloMs)
@@ -401,7 +422,8 @@ export function useNotificaciones(intervaloMs = 30_000) {
 // AdminNavbar.tsx — reemplazar NotificacionesMenu()
 
 function NotificacionesMenu() {
-  const { notificaciones, noLeidas, marcarLeida, marcarTodasLeidas } = useNotificacionesStore()
+  const { notificaciones, noLeidas, marcarLeida, marcarTodasLeidas } =
+    useNotificacionesStore()
   // Eliminar NOTIFICACIONES constante hardcodeada
   // Eliminar tipoBadge local
   // Reutilizar TIPO_CONFIG de NotificacionesPanel o crear shared
@@ -478,11 +500,11 @@ Orden sugerido de implementación:
 
 El polling (opción más simple) es suficiente para el MVP. Para tiempo real completo:
 
-| Opción | Complejidad | Descripción |
-|--------|-------------|-------------|
-| **Polling** (recomendado MVP) | Baja | `setInterval` cada 30s en el hook |
-| **SSE** (Server-Sent Events) | Media | Spring's `SseEmitter` — unidireccional, funciona sobre HTTP |
-| **WebSocket** | Alta | STOMP sobre WebSocket, bidireccional, requiere configuración CORS adicional |
+| Opción                        | Complejidad | Descripción                                                                 |
+| ----------------------------- | ----------- | --------------------------------------------------------------------------- |
+| **Polling** (recomendado MVP) | Baja        | `setInterval` cada 30s en el hook                                           |
+| **SSE** (Server-Sent Events)  | Media       | Spring's `SseEmitter` — unidireccional, funciona sobre HTTP                 |
+| **WebSocket**                 | Alta        | STOMP sobre WebSocket, bidireccional, requiere configuración CORS adicional |
 
 Para el MVP: polling. Para producción con >50 admins simultáneos: SSE.
 
@@ -530,29 +552,29 @@ Para el MVP: polling. Para producción con >50 admins simultáneos: SSE.
 
 ### Backend (pems/)
 
-| Archivo | Acción |
-|---------|--------|
-| `domain/notificacion/repository/NotificacionRepository.java` | ✨ Crear |
-| `infrastructure/persistence/notificacion/repository/NotificacionJpaRepository.java` | ✨ Crear |
-| `infrastructure/persistence/notificacion/mapper/NotificacionMapper.java` | ✨ Crear |
-| `infrastructure/persistence/notificacion/adapter/NotificacionPersistenceAdapter.java` | ✨ Crear |
-| `application/notificacion/service/NotificacionService.java` | ✨ Crear |
-| `application/notificacion/usecase/CrearNotificacionUseCase.java` | ✨ Crear |
-| `application/notificacion/usecase/ObtenerNotificacionesUseCase.java` | ✨ Crear |
-| `interfaces/rest/notificacion/NotificacionController.java` | ✨ Crear |
-| `interfaces/rest/notificacion/dto/NotificacionResponse.java` | ✨ Crear |
-| `application/evento/service/EventoPrivadoService.java` | 🔧 Modificar |
-| `infrastructure/external/correo/CorreoAdapter.java` | 🔧 Modificar (registrar en BD al enviar) |
+| Archivo                                                                               | Acción                                   |
+| ------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `domain/notificacion/repository/NotificacionRepository.java`                          | ✨ Crear                                 |
+| `infrastructure/persistence/notificacion/repository/NotificacionJpaRepository.java`   | ✨ Crear                                 |
+| `infrastructure/persistence/notificacion/mapper/NotificacionMapper.java`              | ✨ Crear                                 |
+| `infrastructure/persistence/notificacion/adapter/NotificacionPersistenceAdapter.java` | ✨ Crear                                 |
+| `application/notificacion/service/NotificacionService.java`                           | ✨ Crear                                 |
+| `application/notificacion/usecase/CrearNotificacionUseCase.java`                      | ✨ Crear                                 |
+| `application/notificacion/usecase/ObtenerNotificacionesUseCase.java`                  | ✨ Crear                                 |
+| `interfaces/rest/notificacion/NotificacionController.java`                            | ✨ Crear                                 |
+| `interfaces/rest/notificacion/dto/NotificacionResponse.java`                          | ✨ Crear                                 |
+| `application/evento/service/EventoPrivadoService.java`                                | 🔧 Modificar                             |
+| `infrastructure/external/correo/CorreoAdapter.java`                                   | 🔧 Modificar (registrar en BD al enviar) |
 
 ### Frontend (pems-web/)
 
-| Archivo | Acción |
-|---------|--------|
-| `src/types/notificaciones.types.ts` | ✨ Crear |
-| `src/services/notificaciones.service.ts` | ✨ Crear |
-| `src/hooks/useNotificaciones.ts` | ✨ Crear |
-| `src/lib/store/notificaciones.store.ts` | 🔧 Ampliar |
-| `src/features/admin/shared/layout/AdminNavbar.tsx` | 🔧 Refactorizar |
+| Archivo                                                          | Acción             |
+| ---------------------------------------------------------------- | ------------------ |
+| `src/types/notificaciones.types.ts`                              | ✨ Crear           |
+| `src/services/notificaciones.service.ts`                         | ✨ Crear           |
+| `src/hooks/useNotificaciones.ts`                                 | ✨ Crear           |
+| `src/lib/store/notificaciones.store.ts`                          | 🔧 Ampliar         |
+| `src/features/admin/shared/layout/AdminNavbar.tsx`               | 🔧 Refactorizar    |
 | `src/features/cliente/shared/components/NotificacionesPanel.tsx` | 🔧 Mínimos cambios |
 
 ---
@@ -569,4 +591,4 @@ Mientras el backend se implementa, estos cambios pueden hacerse inmediatamente:
 
 ---
 
-*Reporte generado el 2026-06-27. Próxima revisión: al completar Sprint 1.*
+_Reporte generado el 2026-06-27. Próxima revisión: al completar Sprint 1._

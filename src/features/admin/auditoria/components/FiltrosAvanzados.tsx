@@ -18,7 +18,10 @@ const TAMANOS = [10, 20, 50] as const
 
 interface Props {
   filtros: AuditoriaFiltros
-  onChange: <K extends keyof AuditoriaFiltros>(key: K, value: AuditoriaFiltros[K]) => void
+  onChange: <K extends keyof AuditoriaFiltros>(
+    key: K,
+    value: AuditoriaFiltros[K]
+  ) => void
 }
 
 export function FiltrosAvanzados({ filtros, onChange }: Props) {
@@ -31,7 +34,11 @@ export function FiltrosAvanzados({ filtros, onChange }: Props) {
         onClick={() => setAbierto((p) => !p)}
         className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
-        {abierto ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+        {abierto ? (
+          <ChevronUp className="h-3.5 w-3.5" />
+        ) : (
+          <ChevronDown className="h-3.5 w-3.5" />
+        )}
         Filtros avanzados
       </button>
 
@@ -42,7 +49,9 @@ export function FiltrosAvanzados({ filtros, onChange }: Props) {
             <Input
               placeholder="xxxxxxxx-xxxx-xxxx-..."
               value={filtros.idUsuario ?? ''}
-              onChange={(e) => onChange('idUsuario', e.target.value || undefined)}
+              onChange={(e) =>
+                onChange('idUsuario', e.target.value || undefined)
+              }
               className="w-64 h-9 font-mono text-xs"
             />
           </div>
@@ -58,7 +67,9 @@ export function FiltrosAvanzados({ filtros, onChange }: Props) {
               </SelectTrigger>
               <SelectContent>
                 {TAMANOS.map((t) => (
-                  <SelectItem key={t} value={String(t)}>{t}</SelectItem>
+                  <SelectItem key={t} value={String(t)}>
+                    {t}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>

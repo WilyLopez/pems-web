@@ -30,7 +30,9 @@ function MiCuentaSkeleton() {
     <div className="max-w-6xl mx-auto w-full space-y-5">
       <Skeleton className="h-48 sm:h-52 rounded-2xl" />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-2xl" />
+        ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
         <div className="space-y-4">
@@ -71,11 +73,11 @@ export function MiCuentaView() {
     isDeletingPhoto,
   } = useMiCuentaData(clientePerfilId ?? undefined)
 
-  const { 
-    data: eventosData, 
-    isLoading: isEventosLoading, 
-    isError: isEventosError, 
-    refetch: refetchEventos 
+  const {
+    data: eventosData,
+    isLoading: isEventosLoading,
+    isError: isEventosError,
+    refetch: refetchEventos,
   } = useQuery({
     queryKey: clienteKeys.eventos.list({ page: 0, size: 50 }),
     queryFn: () => eventoService.listar({ page: 0, size: 50 }),
@@ -83,11 +85,11 @@ export function MiCuentaView() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const { 
-    data: reservasData, 
-    isLoading: isReservasLoading, 
-    isError: isReservasError, 
-    refetch: refetchReservas 
+  const {
+    data: reservasData,
+    isLoading: isReservasLoading,
+    isError: isReservasError,
+    refetch: refetchReservas,
   } = useQuery({
     queryKey: clienteKeys.reservas.list({ page: 0, size: 50 }),
     queryFn: () => reservaApi.listar({ page: 0, size: 50 }),
@@ -122,21 +124,59 @@ export function MiCuentaView() {
 
   return (
     <div className="max-w-6xl mx-auto w-full space-y-4 sm:space-y-5">
-      <ProfileHeader cliente={cliente} onAvatarClick={() => setModalFotoAbierto(true)} />
+      <ProfileHeader
+        cliente={cliente}
+        onAvatarClick={() => setModalFotoAbierto(true)}
+      />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { valor: cliente.contadorVisitas, label: 'Visitas', icon: Ticket, color: 'bg-brand-azul/10 text-brand-azul' },
-          { valor: eventos.length, label: 'Eventos', icon: PartyPopper, color: 'bg-brand-rosa/10 text-brand-rosa' },
-          { valor: eventos.filter((e) => e.estado === 'COMPLETADA').length, label: 'Completados', icon: CheckCircle2, color: 'bg-green-100 text-green-600' },
-          { valor: cliente.totalGastado != null ? new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(cliente.totalGastado) : '—', label: 'Total gastado', icon: Wallet, color: 'bg-amber-100 text-amber-600' },
+          {
+            valor: cliente.contadorVisitas,
+            label: 'Visitas',
+            icon: Ticket,
+            color: 'bg-brand-azul/10 text-brand-azul',
+          },
+          {
+            valor: eventos.length,
+            label: 'Eventos',
+            icon: PartyPopper,
+            color: 'bg-brand-rosa/10 text-brand-rosa',
+          },
+          {
+            valor: eventos.filter((e) => e.estado === 'COMPLETADA').length,
+            label: 'Completados',
+            icon: CheckCircle2,
+            color: 'bg-green-100 text-green-600',
+          },
+          {
+            valor:
+              cliente.totalGastado != null
+                ? new Intl.NumberFormat('es-PE', {
+                    style: 'currency',
+                    currency: 'PEN',
+                  }).format(cliente.totalGastado)
+                : '—',
+            label: 'Total gastado',
+            icon: Wallet,
+            color: 'bg-amber-100 text-amber-600',
+          },
         ].map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-2 ${s.color}`}>
+          <div
+            key={s.label}
+            className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4"
+          >
+            <div
+              className={`w-8 h-8 rounded-xl flex items-center justify-center mb-2 ${s.color}`}
+            >
               <s.icon className="h-4 w-4" />
             </div>
-            <p className="text-lg sm:text-2xl font-black text-gray-900 leading-none">{s.valor}</p>
-            <p className="text-[11px] sm:text-xs text-gray-400 mt-1">{s.label}</p>
+            <p className="text-lg sm:text-2xl font-black text-gray-900 leading-none">
+              {s.valor}
+            </p>
+            <p className="text-[11px] sm:text-xs text-gray-400 mt-1">
+              {s.label}
+            </p>
           </div>
         ))}
       </div>
@@ -151,10 +191,18 @@ export function MiCuentaView() {
         <div className="lg:col-span-2 space-y-4 sm:space-y-5">
           <ProximoEvento reservas={reservas} eventos={eventos} />
           <ActividadReciente reservas={reservas} eventos={eventos} />
-          <InfoPersonalForm cliente={cliente} onSave={updateProfileAsync} isSaving={isUpdatingProfile} />
+          <InfoPersonalForm
+            cliente={cliente}
+            onSave={updateProfileAsync}
+            isSaving={isUpdatingProfile}
+          />
           <SeguridadSection />
           <EstadoCuentaSection reservas={reservas} />
-          <PreferenciasForm cliente={cliente} onSave={updatePreferences} isSaving={isUpdatingPreferences} />
+          <PreferenciasForm
+            cliente={cliente}
+            onSave={updatePreferences}
+            isSaving={isUpdatingPreferences}
+          />
         </div>
       </div>
 

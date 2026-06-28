@@ -1,4 +1,11 @@
-import { PartyPopper, ChevronRight, Calendar, Clock, Users, AlertCircle } from 'lucide-react'
+import {
+  PartyPopper,
+  ChevronRight,
+  Calendar,
+  Clock,
+  Users,
+  AlertCircle,
+} from 'lucide-react'
 import Link from 'next/link'
 import { EventoPrivado } from '@/features/cliente/shared/types'
 import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
@@ -26,7 +33,9 @@ export function EventoCard({ evento }: { evento: EventoPrivado }) {
               <PartyPopper className="h-5 w-5 text-brand-rosa" />
             </div>
             <div className="min-w-0">
-              <p className="font-bold text-gray-900 truncate">{formatTipoEvento(evento.tipoEvento)}</p>
+              <p className="font-bold text-gray-900 truncate">
+                {formatTipoEvento(evento.tipoEvento)}
+              </p>
               <EstadoBadge estado={evento.estado} compact />
             </div>
           </div>
@@ -42,7 +51,9 @@ export function EventoCard({ evento }: { evento: EventoPrivado }) {
           <div className="flex items-center gap-2 bg-brand-rosa/5 border border-brand-rosa/20 rounded-xl px-3 py-2">
             <AlertCircle className="h-3.5 w-3.5 text-brand-rosa shrink-0" />
             <p className="text-xs font-semibold text-brand-rosa">
-              {diasRestantes === 0 ? 'Tu evento es hoy' : `Faltan ${diasRestantes} días`}
+              {diasRestantes === 0
+                ? 'Tu evento es hoy'
+                : `Faltan ${diasRestantes} días`}
             </p>
           </div>
         )}

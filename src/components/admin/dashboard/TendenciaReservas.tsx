@@ -19,7 +19,7 @@ interface Props {
 
 export function TendenciaReservas({ data }: Props) {
   const chartData = data.map((d) => ({
-    fecha:    format(parseISO(d.fecha), 'd MMM', { locale: es }),
+    fecha: format(parseISO(d.fecha), 'd MMM', { locale: es }),
     reservas: d.cantidad,
   }))
 
@@ -29,7 +29,9 @@ export function TendenciaReservas({ data }: Props) {
         Reservas — últimos 30 días
       </h3>
       {chartData.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-8">Sin datos en el período.</p>
+        <p className="text-sm text-gray-400 text-center py-8">
+          Sin datos en el período.
+        </p>
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <LineChart

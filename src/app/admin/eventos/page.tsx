@@ -7,7 +7,9 @@ function EventosPageFallback() {
     <div className="space-y-5">
       <Skeleton className="h-8 w-48" />
       <div className="grid grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-2xl" />
+        ))}
       </div>
       <Skeleton className="h-10 w-full rounded-xl" />
       <Skeleton className="h-96 rounded-2xl" />

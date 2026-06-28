@@ -83,11 +83,17 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-                className={[
-                  onRowClick ? 'cursor-pointer hover:bg-muted/50' : '',
-                  getRowClassName ? getRowClassName(row.original) : '',
-                ].filter(Boolean).join(' ') || undefined}
+                onClick={
+                  onRowClick ? () => onRowClick(row.original) : undefined
+                }
+                className={
+                  [
+                    onRowClick ? 'cursor-pointer hover:bg-muted/50' : '',
+                    getRowClassName ? getRowClassName(row.original) : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ') || undefined
+                }
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>

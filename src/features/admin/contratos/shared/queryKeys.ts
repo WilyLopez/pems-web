@@ -4,5 +4,6 @@ export const contratosKeys = {
   list: (params: object) => [...contratosKeys.lists(), params] as const,
   details: () => [...contratosKeys.all, 'detail'] as const,
   detail: (id: number) => [...contratosKeys.details(), id] as const,
-  porEvento: (idEvento: number) => [...contratosKeys.all, 'evento', idEvento] as const,
+  porEvento: (idEvento: number) =>
+    [...contratosKeys.all, 'evento', idEvento] as const,
 } as const

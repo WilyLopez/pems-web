@@ -7,9 +7,9 @@ export const DASHBOARD_ADMIN_KEY = 'dashboard-admin'
 
 export function useDashboardAdmin(idSede?: number) {
   return useQuery({
-    queryKey:  [DASHBOARD_ADMIN_KEY, idSede],
-    queryFn:   () => dashboardService.obtenerResumen(idSede!),
-    enabled:   !!idSede,
+    queryKey: [DASHBOARD_ADMIN_KEY, idSede],
+    queryFn: () => dashboardService.obtenerResumen(idSede!),
+    enabled: !!idSede,
     staleTime: 1000 * 60 * 2,
   })
 }

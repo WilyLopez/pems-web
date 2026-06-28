@@ -2,15 +2,44 @@
 
 import { useState } from 'react'
 import {
-  Cake, PartyPopper, Gift, Heart, Crown, Star, Sparkles, Music, Music2,
-  Zap, Gamepad2, Trophy, Palette, Camera,
-  Utensils, Coffee, Wine, IceCream,
-  Package, Truck, Mic, Headphones, Flower2,
-  Users, Baby, GraduationCap,
-  MapPin, Clock, Calendar, Smile, Tag,
+  Cake,
+  PartyPopper,
+  Gift,
+  Heart,
+  Crown,
+  Star,
+  Sparkles,
+  Music,
+  Music2,
+  Zap,
+  Gamepad2,
+  Trophy,
+  Palette,
+  Camera,
+  Utensils,
+  Coffee,
+  Wine,
+  IceCream,
+  Package,
+  Truck,
+  Mic,
+  Headphones,
+  Flower2,
+  Users,
+  Baby,
+  GraduationCap,
+  MapPin,
+  Clock,
+  Calendar,
+  Smile,
+  Tag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/Popover'
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Cake,
@@ -54,7 +83,11 @@ interface DynamicIconProps {
   fallback?: React.ElementType
 }
 
-export function DynamicIcon({ name, className, fallback: Fallback = Tag }: DynamicIconProps) {
+export function DynamicIcon({
+  name,
+  className,
+  fallback: Fallback = Tag,
+}: DynamicIconProps) {
   const matchedKey = name
     ? Object.keys(ICON_MAP).find((k) => k.toLowerCase() === name.toLowerCase())
     : undefined
@@ -86,7 +119,12 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
           <div className="h-6 w-6 rounded bg-brand-azul/10 text-brand-azul flex items-center justify-center shrink-0">
             <SelectedIcon className="h-3.5 w-3.5" />
           </div>
-          <span className={cn('flex-1 text-left', value ? 'text-foreground' : 'text-muted-foreground')}>
+          <span
+            className={cn(
+              'flex-1 text-left',
+              value ? 'text-foreground' : 'text-muted-foreground'
+            )}
+          >
             {value || 'Seleccionar icono'}
           </span>
         </button>
@@ -101,7 +139,10 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               key={k}
               type="button"
               title={k}
-              onClick={() => { onChange(k); setOpen(false) }}
+              onClick={() => {
+                onChange(k)
+                setOpen(false)
+              }}
               className={cn(
                 'h-9 w-9 rounded-lg flex items-center justify-center transition-colors hover:bg-accent',
                 selectedKey === k

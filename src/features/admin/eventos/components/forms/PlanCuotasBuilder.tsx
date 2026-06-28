@@ -111,10 +111,14 @@ export function PlanCuotasBuilder({
     <div className="space-y-3">
       <div className="flex gap-3">
         <div className="flex-1 space-y-1.5">
-          <Label className="text-xs font-semibold text-gray-700">Número de cuotas</Label>
+          <Label className="text-xs font-semibold text-gray-700">
+            Número de cuotas
+          </Label>
           <Select
             value={String(value.numeroCuotas)}
-            onValueChange={(v) => onChange({ ...value, numeroCuotas: parseInt(v) })}
+            onValueChange={(v) =>
+              onChange({ ...value, numeroCuotas: parseInt(v) })
+            }
             disabled={disabled}
           >
             <SelectTrigger className="h-10 rounded-xl text-sm">
@@ -131,13 +135,17 @@ export function PlanCuotasBuilder({
         </div>
 
         <div className="flex-1 space-y-1.5">
-          <Label className="text-xs font-semibold text-gray-700">Completar pago antes del</Label>
+          <Label className="text-xs font-semibold text-gray-700">
+            Completar pago antes del
+          </Label>
           <Input
             type="date"
             min={hoyIso}
             max={fechaMaxima}
             value={value.fechaLimitePago}
-            onChange={(e) => onChange({ ...value, fechaLimitePago: e.target.value })}
+            onChange={(e) =>
+              onChange({ ...value, fechaLimitePago: e.target.value })
+            }
             disabled={disabled}
             className="h-10 rounded-xl text-sm"
           />
@@ -162,13 +170,17 @@ export function PlanCuotasBuilder({
                   <span
                     className={cn(
                       'w-5 h-5 rounded-full flex items-center justify-center text-xs font-black shrink-0',
-                      c.esAdelanto ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                      c.esAdelanto
+                        ? 'bg-green-500 text-white'
+                        : 'bg-gray-200 text-gray-600'
                     )}
                   >
                     {c.numero}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {c.esAdelanto ? 'Adelanto — hoy' : formatFecha(c.fechaVencimiento)}
+                    {c.esAdelanto
+                      ? 'Adelanto — hoy'
+                      : formatFecha(c.fechaVencimiento)}
                   </span>
                 </div>
                 <span
@@ -189,16 +201,20 @@ export function PlanCuotasBuilder({
         </div>
       )}
 
-      {value.fechaLimitePago && new Date(value.fechaLimitePago) <= new Date() && (
-        <p className="text-xs text-destructive">
-          La fecha límite de pago debe ser posterior a hoy.
-        </p>
-      )}
-      {value.fechaLimitePago && fechaMaxima && new Date(value.fechaLimitePago) > new Date(fechaMaxima) && (
-        <p className="text-xs text-destructive">
-          La fecha límite no puede ser posterior al día del evento ({formatFecha(fechaMaxima)}).
-        </p>
-      )}
+      {value.fechaLimitePago &&
+        new Date(value.fechaLimitePago) <= new Date() && (
+          <p className="text-xs text-destructive">
+            La fecha límite de pago debe ser posterior a hoy.
+          </p>
+        )}
+      {value.fechaLimitePago &&
+        fechaMaxima &&
+        new Date(value.fechaLimitePago) > new Date(fechaMaxima) && (
+          <p className="text-xs text-destructive">
+            La fecha límite no puede ser posterior al día del evento (
+            {formatFecha(fechaMaxima)}).
+          </p>
+        )}
     </div>
   )
 }

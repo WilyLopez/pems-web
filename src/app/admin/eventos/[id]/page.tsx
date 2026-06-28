@@ -12,7 +12,14 @@ function EventoDetalleContent() {
 
 export default function EventoDetallePage() {
   return (
-    <Suspense fallback={<div className="space-y-4 p-4"><Skeleton className="h-12 w-72" /><Skeleton className="h-96 rounded-2xl" /></div>}>
+    <Suspense
+      fallback={
+        <div className="space-y-4 p-4">
+          <Skeleton className="h-12 w-72" />
+          <Skeleton className="h-96 rounded-2xl" />
+        </div>
+      }
+    >
       <EventoDetalleContent />
     </Suspense>
   )

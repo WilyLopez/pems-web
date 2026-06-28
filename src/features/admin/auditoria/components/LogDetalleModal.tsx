@@ -43,7 +43,13 @@ function JsonBlock({ label, value }: { label: string; value?: string }) {
   )
 }
 
-function DetalleContent({ log, onClose }: { log: LogAuditoria; onClose: () => void }) {
+function DetalleContent({
+  log,
+  onClose,
+}: {
+  log: LogAuditoria
+  onClose: () => void
+}) {
   const router = useRouter()
   const ruta = resolverRutaEntidad(log.modulo, log.idEntidad)
 
@@ -107,8 +113,12 @@ function DetalleContent({ log, onClose }: { log: LogAuditoria; onClose: () => vo
         )}
         {log.userAgent && (
           <div className="col-span-2">
-            <p className="text-xs text-muted-foreground">Navegador / Dispositivo</p>
-            <p className="text-xs text-muted-foreground truncate">{log.userAgent}</p>
+            <p className="text-xs text-muted-foreground">
+              Navegador / Dispositivo
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {log.userAgent}
+            </p>
           </div>
         )}
       </div>
@@ -133,7 +143,12 @@ export function LogDetalleModal({ logId, onClose }: Props) {
   const { data: log, isLoading } = useLogDetalle(logId)
 
   return (
-    <Dialog open={logId !== null} onOpenChange={(v) => { if (!v) onClose() }}>
+    <Dialog
+      open={logId !== null}
+      onOpenChange={(v) => {
+        if (!v) onClose()
+      }}
+    >
       <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-base">

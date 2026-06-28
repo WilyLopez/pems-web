@@ -10,7 +10,9 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const supabase = await createServerSupabaseClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
   const user = session?.user
 
   if (!user) {
@@ -18,14 +20,11 @@ export default async function AdminLayout({
   }
 
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/health/me`,
-      {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        cache: 'no-store',
-        next: { revalidate: 0 }
-      }
-    )
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health/me`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      cache: 'no-store',
+      next: { revalidate: 0 },
+    })
 
     if (res.status === 401 || res.status === 403) {
       redirect('/auth/login?redirect=/admin/dashboard')

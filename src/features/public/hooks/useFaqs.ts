@@ -8,7 +8,9 @@ export function useFaqs() {
   return useQuery({
     queryKey: PUBLIC_QUERY_KEYS.faqs,
     queryFn: async () => {
-      const response = await api.get<ApiResponse<Faq[]>>('/api/v1/cms/faqs/publico')
+      const response = await api.get<ApiResponse<Faq[]>>(
+        '/api/v1/cms/faqs/publico'
+      )
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,

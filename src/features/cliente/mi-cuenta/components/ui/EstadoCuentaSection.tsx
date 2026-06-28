@@ -1,4 +1,9 @@
-import { CreditCard, CheckCircle2, AlertTriangle, ChevronRight } from 'lucide-react'
+import {
+  CreditCard,
+  CheckCircle2,
+  AlertTriangle,
+  ChevronRight,
+} from 'lucide-react'
 import Link from 'next/link'
 import { Reserva } from '../../../shared/types'
 import { SectionCard } from '../../../shared/components/SectionCard'
@@ -20,7 +25,9 @@ export function EstadoCuentaSection({ reservas }: EstadoCuentaSectionProps) {
         <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
           <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
           <div>
-            <p className="text-sm font-bold text-green-800">Sin pagos pendientes</p>
+            <p className="text-sm font-bold text-green-800">
+              Sin pagos pendientes
+            </p>
             <p className="text-xs text-green-700">Tu cuenta está al día.</p>
           </div>
         </div>
@@ -33,7 +40,11 @@ export function EstadoCuentaSection({ reservas }: EstadoCuentaSectionProps) {
                 {pendientes.length} pagos pendientes
               </p>
               <p className="text-xs text-amber-700">
-                Total: <span className="font-bold">{formatCurrency(totalPendiente)}</span> · Presenta tu ticket en caja.
+                Total:{' '}
+                <span className="font-bold">
+                  {formatCurrency(totalPendiente)}
+                </span>{' '}
+                · Presenta tu ticket en caja.
               </p>
             </div>
           </div>

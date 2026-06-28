@@ -38,8 +38,8 @@ function PageSkeleton() {
 }
 
 export function DetalleEventoView() {
-  const params  = useParams()
-  const id      = Number(params.id)
+  const params = useParams()
+  const id = Number(params.id)
   const { nombre } = useAuth()
 
   const { data: evento, isLoading, isError } = useDetalleEventoData(id)
@@ -50,19 +50,28 @@ export function DetalleEventoView() {
   const whatsappUrl = useWhatsAppUrl(mensaje)
 
   if (isLoading) return <PageSkeleton />
-  if (isError || !evento) return <ErrorState message="No se encontró el evento." />
+  if (isError || !evento)
+    return <ErrorState message="No se encontró el evento." />
 
-  const diasRestantes = evento.estado === 'CONFIRMADA'
-    ? differenceInDays(startOfDay(parseISO(evento.fechaEvento)), startOfDay(new Date()))
-    : null
+  const diasRestantes =
+    evento.estado === 'CONFIRMADA'
+      ? differenceInDays(
+          startOfDay(parseISO(evento.fechaEvento)),
+          startOfDay(new Date())
+        )
+      : null
 
-  const mostrarRecordatorio = diasRestantes !== null && diasRestantes >= 0 && diasRestantes <= 7
-  const tieneContrato       = ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado)
-  const saldoPendiente      = evento.montoSaldo && evento.montoSaldo > 0
+  const mostrarRecordatorio =
+    diasRestantes !== null && diasRestantes >= 0 && diasRestantes <= 7
+  const tieneContrato = ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado)
+  const saldoPendiente = evento.montoSaldo && evento.montoSaldo > 0
 
   const porcentajePagado =
     evento.precioTotalContrato && evento.montoAdelanto
-      ? Math.min(Math.round((evento.montoAdelanto / evento.precioTotalContrato) * 100), 100)
+      ? Math.min(
+          Math.round((evento.montoAdelanto / evento.precioTotalContrato) * 100),
+          100
+        )
       : 0
 
   return (
@@ -82,8 +91,12 @@ export function DetalleEventoView() {
 
         <div className="flex flex-wrap items-start gap-3">
           <div>
-            <h1 className="text-2xl font-black text-gray-900">{formatTipoEvento(evento.tipoEvento)}</h1>
-            <p className="text-sm text-gray-400 mt-0.5">{formatDate(evento.fechaEvento)}</p>
+            <h1 className="text-2xl font-black text-gray-900">
+              {formatTipoEvento(evento.tipoEvento)}
+            </h1>
+            <p className="text-sm text-gray-400 mt-0.5">
+              {formatDate(evento.fechaEvento)}
+            </p>
           </div>
           <StatusBadge status={evento.estado} />
         </div>
@@ -101,8 +114,10 @@ export function DetalleEventoView() {
             {saldoPendiente && (
               <p className="text-xs text-amber-700 mt-0.5">
                 Saldo pendiente:{' '}
-                <span className="font-semibold">{formatCurrency(evento.montoSaldo!)}</span>.
-                Coordina el pago con el equipo de Kiki y Lala.
+                <span className="font-semibold">
+                  {formatCurrency(evento.montoSaldo!)}
+                </span>
+                . Coordina el pago con el equipo de Kiki y Lala.
               </p>
             )}
           </div>
@@ -127,7 +142,9 @@ export function DetalleEventoView() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-400">Fecha</p>
-                  <p className="font-semibold text-gray-900">{formatDate(evento.fechaEvento)}</p>
+                  <p className="font-semibold text-gray-900">
+                    {formatDate(evento.fechaEvento)}
+                  </p>
                 </div>
               </div>
 
@@ -152,7 +169,9 @@ export function DetalleEventoView() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-400">Invitados</p>
-                    <p className="font-semibold text-gray-900">{evento.aforoDeclarado} personas</p>
+                    <p className="font-semibold text-gray-900">
+                      {evento.aforoDeclarado} personas
+                    </p>
                   </div>
                 </div>
               )}
@@ -162,10 +181,15 @@ export function DetalleEventoView() {
               <>
                 <Separator />
                 <div>
-                  <p className="text-xs font-semibold text-gray-400 mb-2">Extras solicitados</p>
+                  <p className="text-xs font-semibold text-gray-400 mb-2">
+                    Extras solicitados
+                  </p>
                   <div className="flex flex-wrap gap-1.5">
                     {evento.extras.map((ex) => (
-                      <span key={ex.id} className="text-xs bg-brand-rosa/10 text-brand-rosa px-2 py-0.5 rounded-full font-medium">
+                      <span
+                        key={ex.id}
+                        className="text-xs bg-brand-rosa/10 text-brand-rosa px-2 py-0.5 rounded-full font-medium"
+                      >
                         {ex.nombreExtra ?? ex.nombreLibre}
                       </span>
                     ))}
@@ -178,8 +202,12 @@ export function DetalleEventoView() {
               <>
                 <Separator />
                 <div>
-                  <p className="text-xs font-semibold text-gray-400 mb-1">Observaciones</p>
-                  <p className="text-sm text-gray-600">{evento.observaciones}</p>
+                  <p className="text-xs font-semibold text-gray-400 mb-1">
+                    Observaciones
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {evento.observaciones}
+                  </p>
                 </div>
               </>
             )}
@@ -190,7 +218,9 @@ export function DetalleEventoView() {
                 <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-xl px-3 py-2">
                   <CheckCircle2 className="h-4 w-4 shrink-0" />
                   <span className="font-semibold">Contrato generado.</span>
-                  <span className="text-xs text-green-600">El equipo te enviará el documento para firmar.</span>
+                  <span className="text-xs text-green-600">
+                    El equipo te enviará el documento para firmar.
+                  </span>
                 </div>
               </>
             )}
@@ -201,7 +231,9 @@ export function DetalleEventoView() {
           {tieneContrato && evento.precioTotalContrato ? (
             <Card className="border border-gray-100 shadow-card rounded-2xl">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base font-bold">Resumen de pago</CardTitle>
+                <CardTitle className="text-base font-bold">
+                  Resumen de pago
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2 text-sm">
@@ -235,15 +267,20 @@ export function DetalleEventoView() {
                 <Separator />
 
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-gray-900">Saldo pendiente</span>
-                  <span className={`text-lg font-black ${saldoPendiente ? 'text-amber-600' : 'text-green-600'}`}>
+                  <span className="font-bold text-gray-900">
+                    Saldo pendiente
+                  </span>
+                  <span
+                    className={`text-lg font-black ${saldoPendiente ? 'text-amber-600' : 'text-green-600'}`}
+                  >
                     {formatCurrency(evento.montoSaldo ?? 0)}
                   </span>
                 </div>
 
                 {saldoPendiente && (
                   <p className="text-xs text-gray-400">
-                    El saldo debe ser cancelado el día del evento o según lo acordado.
+                    El saldo debe ser cancelado el día del evento o según lo
+                    acordado.
                   </p>
                 )}
 
@@ -261,9 +298,12 @@ export function DetalleEventoView() {
                 <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mx-auto mb-3">
                   <Clock className="h-5 w-5 text-amber-500" />
                 </div>
-                <p className="text-sm font-semibold text-gray-900">Solicitud en revisión</p>
+                <p className="text-sm font-semibold text-gray-900">
+                  Solicitud en revisión
+                </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  El precio y contrato se confirman cuando el equipo aprueba la solicitud.
+                  El precio y contrato se confirman cuando el equipo aprueba la
+                  solicitud.
                 </p>
               </CardContent>
             </Card>
@@ -273,10 +313,13 @@ export function DetalleEventoView() {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-brand-rosa" />
-                <p className="text-xs font-bold text-gray-700">¿Necesitas ayuda?</p>
+                <p className="text-xs font-bold text-gray-700">
+                  ¿Necesitas ayuda?
+                </p>
               </div>
               <p className="text-xs text-gray-400">
-                Contáctanos directamente por WhatsApp para consultas sobre tu evento.
+                Contáctanos directamente por WhatsApp para consultas sobre tu
+                evento.
               </p>
               {whatsappUrl ? (
                 <a

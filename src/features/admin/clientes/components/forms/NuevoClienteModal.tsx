@@ -4,7 +4,12 @@ import { useMutacionesCliente } from '../../hooks/useClientesData'
 import { ClienteForm } from './ClienteForm'
 import { ClienteFormValues } from '../../schema/cliente.schema'
 import { Cliente } from '../../types'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/Dialog'
 
 function parseSearchToDefaults(search: string): Partial<ClienteFormValues> {
   const trimmed = search.trim()
@@ -34,7 +39,12 @@ interface NuevoClienteModalProps {
   initialSearch?: string
 }
 
-export function NuevoClienteModal({ open, onOpenChange, onCreated, initialSearch }: NuevoClienteModalProps) {
+export function NuevoClienteModal({
+  open,
+  onOpenChange,
+  onCreated,
+  initialSearch,
+}: NuevoClienteModalProps) {
   const { crearCliente } = useMutacionesCliente()
 
   const handleSubmit = (values: ClienteFormValues) => {
@@ -46,7 +56,9 @@ export function NuevoClienteModal({ open, onOpenChange, onCreated, initialSearch
     })
   }
 
-  const defaultValues = initialSearch ? parseSearchToDefaults(initialSearch) : undefined
+  const defaultValues = initialSearch
+    ? parseSearchToDefaults(initialSearch)
+    : undefined
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

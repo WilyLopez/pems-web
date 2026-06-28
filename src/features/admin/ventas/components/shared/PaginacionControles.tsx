@@ -66,13 +66,17 @@ export const PaginacionControles = ({
           {desde}–{hasta}
         </span>{' '}
         de{' '}
-        <span className="font-semibold text-gray-700 dark:text-gray-200">{totalElements}</span>{' '}
+        <span className="font-semibold text-gray-700 dark:text-gray-200">
+          {totalElements}
+        </span>{' '}
         registros
       </p>
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">Por página</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">
+            Por página
+          </span>
           <Select
             value={size.toString()}
             onValueChange={(v) => onSizeChange(Number(v))}
@@ -103,7 +107,10 @@ export const PaginacionControles = ({
 
           {pages.map((p, i) =>
             p === '...' ? (
-              <span key={`ellipsis-${i}`} className="w-8 text-center text-xs text-gray-400 dark:text-gray-500 select-none">
+              <span
+                key={`ellipsis-${i}`}
+                className="w-8 text-center text-xs text-gray-400 dark:text-gray-500 select-none"
+              >
                 …
               </span>
             ) : (
@@ -115,7 +122,7 @@ export const PaginacionControles = ({
                   'h-8 w-8 text-xs font-semibold border-gray-200 dark:border-gray-700',
                   p === page
                     ? 'bg-brand-azul text-white border-brand-azul hover:bg-brand-azul/90'
-                    : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300',
+                    : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300'
                 )}
                 onClick={() => onPageChange(p as number)}
               >

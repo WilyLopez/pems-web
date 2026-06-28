@@ -1,10 +1,10 @@
 const TIPO_EVENTO_LABEL: Record<string, string> = {
-  CUMPLEANOS:       'Cumpleaños',
-  BABY_SHOWER:      'Baby shower',
+  CUMPLEANOS: 'Cumpleaños',
+  BABY_SHOWER: 'Baby shower',
   FIN_ANIO_ESCOLAR: 'Fin de año escolar',
-  TEMATICO:         'Evento temático',
-  SALIDA_ESCOLAR:   'Salida escolar',
-  FAMILIAR:         'Celebración familiar',
+  TEMATICO: 'Evento temático',
+  SALIDA_ESCOLAR: 'Salida escolar',
+  FAMILIAR: 'Celebración familiar',
 }
 
 export function formatTipoEvento(codigo: string): string {

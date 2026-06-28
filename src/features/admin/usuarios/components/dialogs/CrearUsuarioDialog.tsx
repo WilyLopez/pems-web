@@ -12,17 +12,32 @@ import {
   Wand2,
   XCircle,
 } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/types/api.types'
 import { useUsuariosNav } from '../../hooks/useUsuariosNav'
 import { useMutacionesUsuario } from '../../hooks/useUsuariosData'
-import { crearUsuarioSchema, CrearUsuarioFormValues, PW_RULES } from '../../schema/usuario.schema'
+import {
+  crearUsuarioSchema,
+  CrearUsuarioFormValues,
+  PW_RULES,
+} from '../../schema/usuario.schema'
 
 interface CrearUsuarioDialogProps {
   idSede: number
@@ -42,7 +57,13 @@ function handleTelefonoChange(
   rHFOnChange(e)
 }
 
-function FieldIcon({ touched, hasError }: { touched: boolean; hasError: boolean }) {
+function FieldIcon({
+  touched,
+  hasError,
+}: {
+  touched: boolean
+  hasError: boolean
+}) {
   if (!touched) return null
   return hasError ? (
     <XCircle className="h-4 w-4 text-red-500 shrink-0" />
@@ -65,7 +86,11 @@ function StrengthIndicator({ password }: { password: string }) {
               ok ? 'text-green-600' : 'text-gray-400'
             )}
           >
-            {ok ? <Check className="h-3 w-3 shrink-0" /> : <XCircle className="h-3 w-3 shrink-0" />}
+            {ok ? (
+              <Check className="h-3 w-3 shrink-0" />
+            ) : (
+              <XCircle className="h-3 w-3 shrink-0" />
+            )}
             {rule.label}
           </li>
         )
@@ -150,10 +175,7 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
     ...nombreRest
   } = register('nombre')
 
-  const {
-    onChange: onTelefonoChange,
-    ...telefonoRest
-  } = register('telefono')
+  const { onChange: onTelefonoChange, ...telefonoRest } = register('telefono')
 
   if (passwordCreado) {
     return (
@@ -196,7 +218,8 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              El usuario deberá cambiar esta contraseña en su primer inicio de sesión.
+              El usuario deberá cambiar esta contraseña en su primer inicio de
+              sesión.
             </p>
 
             <div className="flex justify-end">
@@ -226,20 +249,31 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
                 id="c-nombre"
                 placeholder="María López"
                 className={cn(
-                  touchedFields.nombre && errors.nombre && 'border-red-400 focus-visible:ring-red-300',
-                  touchedFields.nombre && !errors.nombre && 'border-green-400 focus-visible:ring-green-300'
+                  touchedFields.nombre &&
+                    errors.nombre &&
+                    'border-red-400 focus-visible:ring-red-300',
+                  touchedFields.nombre &&
+                    !errors.nombre &&
+                    'border-green-400 focus-visible:ring-green-300'
                 )}
                 {...nombreRest}
                 onChange={onNombreChange}
                 onBlur={(e) => {
-                  setValue('nombre', toTitleCase(e.target.value), { shouldValidate: true })
+                  setValue('nombre', toTitleCase(e.target.value), {
+                    shouldValidate: true,
+                  })
                   onNombreBlur(e)
                 }}
               />
-              <FieldIcon touched={!!touchedFields.nombre} hasError={!!errors.nombre} />
+              <FieldIcon
+                touched={!!touchedFields.nombre}
+                hasError={!!errors.nombre}
+              />
             </div>
             {touchedFields.nombre && errors.nombre && (
-              <p className="text-xs text-destructive">{errors.nombre.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.nombre.message}
+              </p>
             )}
           </div>
 
@@ -252,14 +286,21 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
                 placeholder="usuario@ejemplo.pe"
                 className={cn(
                   errors.correo && 'border-red-400 focus-visible:ring-red-300',
-                  touchedFields.correo && !errors.correo && 'border-green-400 focus-visible:ring-green-300'
+                  touchedFields.correo &&
+                    !errors.correo &&
+                    'border-green-400 focus-visible:ring-green-300'
                 )}
                 {...register('correo')}
               />
-              <FieldIcon touched={!!touchedFields.correo} hasError={!!errors.correo} />
+              <FieldIcon
+                touched={!!touchedFields.correo}
+                hasError={!!errors.correo}
+              />
             </div>
             {errors.correo && (
-              <p className="text-xs text-destructive">{errors.correo.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.correo.message}
+              </p>
             )}
           </div>
 
@@ -290,18 +331,28 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
                   maxLength={9}
                   placeholder="9XXXXXXXX"
                   className={cn(
-                    touchedFields.telefono && errors.telefono && 'border-red-400 focus-visible:ring-red-300',
-                    touchedFields.telefono && !errors.telefono && watch('telefono') && 'border-green-400 focus-visible:ring-green-300'
+                    touchedFields.telefono &&
+                      errors.telefono &&
+                      'border-red-400 focus-visible:ring-red-300',
+                    touchedFields.telefono &&
+                      !errors.telefono &&
+                      watch('telefono') &&
+                      'border-green-400 focus-visible:ring-green-300'
                   )}
                   {...telefonoRest}
                   onChange={(e) => handleTelefonoChange(e, onTelefonoChange)}
                 />
                 {watch('telefono') && (
-                  <FieldIcon touched={!!touchedFields.telefono} hasError={!!errors.telefono} />
+                  <FieldIcon
+                    touched={!!touchedFields.telefono}
+                    hasError={!!errors.telefono}
+                  />
                 )}
               </div>
               {touchedFields.telefono && errors.telefono && (
-                <p className="text-xs text-destructive">{errors.telefono.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.telefono.message}
+                </p>
               )}
             </div>
           </div>
@@ -351,8 +402,12 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
                   placeholder="••••••••"
                   autoComplete="new-password"
                   className={cn(
-                    passwordValue && !PW_RULES.every((r) => r.test(passwordValue)) && 'border-red-400 focus-visible:ring-red-300',
-                    passwordValue && PW_RULES.every((r) => r.test(passwordValue)) && 'border-green-400 focus-visible:ring-green-300'
+                    passwordValue &&
+                      !PW_RULES.every((r) => r.test(passwordValue)) &&
+                      'border-red-400 focus-visible:ring-red-300',
+                    passwordValue &&
+                      PW_RULES.every((r) => r.test(passwordValue)) &&
+                      'border-green-400 focus-visible:ring-green-300'
                   )}
                   {...register('password')}
                 />

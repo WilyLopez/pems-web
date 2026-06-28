@@ -4,16 +4,29 @@ export const contactoSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   correo: z.string().email('Debe ingresar un correo electrónico válido'),
   telefono: z.string().optional().or(z.literal('')),
-  asunto: z.string().max(100, 'El asunto no debe exceder los 100 caracteres').optional().or(z.literal('')),
+  asunto: z
+    .string()
+    .max(100, 'El asunto no debe exceder los 100 caracteres')
+    .optional()
+    .or(z.literal('')),
   mensaje: z.string().min(10, 'El mensaje debe tener al menos 10 caracteres'),
 })
 
 export const resenaSchema = z.object({
-  idEventoPrivado: z.number({ message: 'Debe seleccionar el evento que desea calificar' }),
+  idEventoPrivado: z.number({
+    message: 'Debe seleccionar el evento que desea calificar',
+  }),
   nombreAutor: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-  contenido: z.string().min(5, 'La opinión debe tener al menos 5 caracteres').max(1000, 'La opinión no debe exceder los 1000 caracteres'),
+  contenido: z
+    .string()
+    .min(5, 'La opinión debe tener al menos 5 caracteres')
+    .max(1000, 'La opinión no debe exceder los 1000 caracteres'),
   calificacion: z.number().min(1).max(5),
-  fotoUrl: z.string().url('Debe ser una URL de imagen válida').optional().or(z.literal('')),
+  fotoUrl: z
+    .string()
+    .url('Debe ser una URL de imagen válida')
+    .optional()
+    .or(z.literal('')),
 })
 
 export function getReservationSchema(minAge: number, maxAge: number) {

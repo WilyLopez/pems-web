@@ -11,19 +11,21 @@ import type {
 } from '../types'
 
 export const CONFIGURACION_KEYS = {
-  GLOBAL:     'configuracion',
+  GLOBAL: 'configuracion',
   CALENDARIO: 'configuracion-calendario',
-  SEDE:       'sede',
+  SEDE: 'sede',
 } as const
 
-export function toConfigMap(configs: ConfiguracionSistema[]): Record<string, string> {
+export function toConfigMap(
+  configs: ConfiguracionSistema[]
+): Record<string, string> {
   return Object.fromEntries(configs.map((c) => [c.clave, c.valor]))
 }
 
 export function useConfiguracion() {
   return useQuery({
     queryKey: [CONFIGURACION_KEYS.GLOBAL],
-    queryFn:  configuracionApi.listarGlobal,
+    queryFn: configuracionApi.listarGlobal,
   })
 }
 
@@ -44,8 +46,8 @@ export function useActualizarConfiguracion() {
 export function useConfiguracionCalendario(idSede: number | null) {
   return useQuery({
     queryKey: [CONFIGURACION_KEYS.CALENDARIO, idSede],
-    queryFn:  () => configuracionApi.obtenerCalendario(idSede!),
-    enabled:  !!idSede,
+    queryFn: () => configuracionApi.obtenerCalendario(idSede!),
+    enabled: !!idSede,
   })
 }
 
@@ -56,7 +58,9 @@ export function useActualizarConfiguracionCalendario(idSede: number) {
       configuracionApi.actualizarCalendario(idSede, payload),
     onSuccess: () => {
       toast.success('Configuración guardada correctamente.')
-      qc.invalidateQueries({ queryKey: [CONFIGURACION_KEYS.CALENDARIO, idSede] })
+      qc.invalidateQueries({
+        queryKey: [CONFIGURACION_KEYS.CALENDARIO, idSede],
+      })
       qc.invalidateQueries({ queryKey: ['disponibilidad-rango'] })
     },
     onError: (err: { message?: string }) =>
@@ -67,8 +71,8 @@ export function useActualizarConfiguracionCalendario(idSede: number) {
 export function useSede(idSede: number | null) {
   return useQuery({
     queryKey: [CONFIGURACION_KEYS.SEDE, idSede],
-    queryFn:  () => configuracionApi.obtenerSede(idSede!),
-    enabled:  !!idSede,
+    queryFn: () => configuracionApi.obtenerSede(idSede!),
+    enabled: !!idSede,
   })
 }
 

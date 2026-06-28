@@ -42,13 +42,15 @@ export function ClienteDashboardView() {
   const { nombre, isAuthenticated } = useAuth()
   const userName = nombre?.split(' ')[0] ?? 'Cliente'
   const [reservaDetalle, setReservaDetalle] = useState<Reserva | null>(null)
-  const whatsappUrl = useWhatsAppUrl('Hola, necesito ayuda con mis reservas o eventos') || DEFAULT_WHATSAPP_URL
+  const whatsappUrl =
+    useWhatsAppUrl('Hola, necesito ayuda con mis reservas o eventos') ||
+    DEFAULT_WHATSAPP_URL
 
-  const { 
-    data: reservasData, 
-    isLoading: loadingReservas, 
-    isError: isReservasError, 
-    refetch: refetchReservas 
+  const {
+    data: reservasData,
+    isLoading: loadingReservas,
+    isError: isReservasError,
+    refetch: refetchReservas,
   } = useQuery({
     queryKey: clienteKeys.reservas.list({ page: 0, size: 20 }),
     queryFn: () => reservaApi.listar({ page: 0, size: 20 }),
@@ -56,11 +58,11 @@ export function ClienteDashboardView() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const { 
-    data: eventosData, 
-    isLoading: loadingEventos, 
-    isError: isEventosError, 
-    refetch: refetchEventos 
+  const {
+    data: eventosData,
+    isLoading: loadingEventos,
+    isError: isEventosError,
+    refetch: refetchEventos,
   } = useQuery({
     queryKey: clienteKeys.eventos.list({ page: 0, size: 20 }),
     queryFn: () => eventoService.listar({ page: 0, size: 20 }),
@@ -86,7 +88,8 @@ export function ClienteDashboardView() {
         })
         ?.sort(
           (a: Reserva, b: Reserva) =>
-            parseISO(a.fechaEvento).getTime() - parseISO(b.fechaEvento).getTime()
+            parseISO(a.fechaEvento).getTime() -
+            parseISO(b.fechaEvento).getTime()
         ) ?? []
     )
   }, [reservasData])
@@ -116,7 +119,9 @@ export function ClienteDashboardView() {
         <h1 className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight">
           {saludo()}, {userName}
         </h1>
-        <p className="text-sm text-gray-400 mt-0.5">Bienvenido a tu área personal</p>
+        <p className="text-sm text-gray-400 mt-0.5">
+          Bienvenido a tu área personal
+        </p>
       </div>
 
       {isError ? (
@@ -149,7 +154,9 @@ export function ClienteDashboardView() {
                 href="/cliente/mis-eventos"
               />
               <StatCard
-                valor={totalPendiente > 0 ? formatCurrency(totalPendiente) : 'S/ 0'}
+                valor={
+                  totalPendiente > 0 ? formatCurrency(totalPendiente) : 'S/ 0'
+                }
                 label="Por pagar"
                 icon={Wallet}
                 color="bg-amber-100 text-amber-600"
@@ -189,10 +196,14 @@ export function ClienteDashboardView() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-lg sm:text-xl font-black text-gray-900">
-                          {formatDate(proximaVisita.fechaEvento, "EEEE d 'de' MMMM")}
+                          {formatDate(
+                            proximaVisita.fechaEvento,
+                            "EEEE d 'de' MMMM"
+                          )}
                         </p>
                         <p className="text-sm text-gray-500 mt-0.5">
-                          Visita de {proximaVisita.nombreNino} · {proximaVisita.edadNino} años
+                          Visita de {proximaVisita.nombreNino} ·{' '}
+                          {proximaVisita.edadNino} años
                         </p>
                       </div>
                       <EstadoBadge estado={proximaVisita.estado} />
@@ -200,7 +211,9 @@ export function ClienteDashboardView() {
                     {proximaVisita.estado === 'PENDIENTE' && (
                       <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
                         <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-                        <p className="text-xs text-amber-800">Pago pendiente en caja</p>
+                        <p className="text-xs text-amber-800">
+                          Pago pendiente en caja
+                        </p>
                       </div>
                     )}
                     <button
@@ -236,9 +249,12 @@ export function ClienteDashboardView() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-gray-900 truncate">
-                            {formatDate(r.fechaEvento, 'd MMM')} · Visita de {r.nombreNino}
+                            {formatDate(r.fechaEvento, 'd MMM')} · Visita de{' '}
+                            {r.nombreNino}
                           </p>
-                          <p className="text-xs text-gray-400">{r.numeroTicket}</p>
+                          <p className="text-xs text-gray-400">
+                            {r.numeroTicket}
+                          </p>
                         </div>
                         <EstadoBadge estado={r.estado} compact />
                       </button>
@@ -247,12 +263,16 @@ export function ClienteDashboardView() {
                 </div>
               )}
 
-              {!loadingReservas && proximasReservas.length === 0 && <EmptyReservas />}
+              {!loadingReservas && proximasReservas.length === 0 && (
+                <EmptyReservas />
+              )}
             </div>
 
             <div className="space-y-4">
               <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 shadow-card">
-                <h3 className="font-bold text-gray-900 mb-3">Accesos rápidos</h3>
+                <h3 className="font-bold text-gray-900 mb-3">
+                  Accesos rápidos
+                </h3>
                 <div className="space-y-1">
                   <AccesoRapido
                     href="/cliente/reservar"
@@ -282,7 +302,9 @@ export function ClienteDashboardView() {
               </div>
 
               <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl border border-green-200 p-4 sm:p-5">
-                <h3 className="font-bold text-gray-900 mb-1">¿Necesitas ayuda?</h3>
+                <h3 className="font-bold text-gray-900 mb-1">
+                  ¿Necesitas ayuda?
+                </h3>
                 <p className="text-xs text-gray-600 mb-3">
                   Escríbenos y te respondemos rápido.
                 </p>

@@ -7,8 +7,8 @@ try {
   backendOrigin = new URL(apiUrl.trim()).origin
 } catch (e) {
   if (apiUrl.startsWith('http')) {
-    const match = apiUrl.match(/^https?:\/\/[^\/]+/);
-    if (match) backendOrigin = match[0];
+    const match = apiUrl.match(/^https?:\/\/[^\/]+/)
+    if (match) backendOrigin = match[0]
   }
 }
 

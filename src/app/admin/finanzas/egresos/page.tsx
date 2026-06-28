@@ -3,8 +3,16 @@
 import { useState, useCallback, type ReactNode } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import {
-  Plus, ChevronLeft, ChevronRight, Pencil, X, Tag, Eye,
-  Receipt, CalendarDays, Wrench,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  X,
+  Tag,
+  Eye,
+  Receipt,
+  CalendarDays,
+  Wrench,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import {
@@ -39,7 +47,9 @@ type Tab = 'egresos' | 'gastos-op' | 'gastos-ev'
 function InfoRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-0.5">
-      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">{label}</p>
+      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+        {label}
+      </p>
       <div className="text-sm text-gray-900">{children}</div>
     </div>
   )
@@ -50,13 +60,16 @@ const PAGE_SIZE = 20
 function getPageNums(current: number, total: number): (number | null)[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i)
   if (current <= 3) return [0, 1, 2, 3, null, total - 2, total - 1]
-  if (current >= total - 4) return [0, 1, null, total - 4, total - 3, total - 2, total - 1]
+  if (current >= total - 4)
+    return [0, 1, null, total - 4, total - 3, total - 2, total - 1]
   return [0, null, current - 1, current, current + 1, null, total - 1]
 }
 
 function formatFecha(iso: string) {
   return new Date(iso + 'T00:00:00').toLocaleDateString('es-PE', {
-    day: 'numeric', month: 'short', year: 'numeric',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   })
 }
 
@@ -68,7 +81,7 @@ export default function EgresosPage() {
 
   const tab = (searchParams.get('tab') as Tab) ?? 'egresos'
   const anio = Number(searchParams.get('anio')) || new Date().getFullYear()
-  const mes = Number(searchParams.get('mes')) || (new Date().getMonth() + 1)
+  const mes = Number(searchParams.get('mes')) || new Date().getMonth() + 1
   const desde = searchParams.get('desde') ?? ''
   const hasta = searchParams.get('hasta') ?? ''
   const page = Number(searchParams.get('page') ?? '0')
@@ -78,7 +91,9 @@ export default function EgresosPage() {
 
   const [openModal, setOpenModal] = useState(false)
   const [openTipos, setOpenTipos] = useState(false)
-  const [editandoEgreso, setEditandoEgreso] = useState<RegistroEgreso | undefined>()
+  const [editandoEgreso, setEditandoEgreso] = useState<
+    RegistroEgreso | undefined
+  >()
   const [detailEgreso, setDetailEgreso] = useState<RegistroEgreso | null>(null)
 
   const inicioMes = `${anio}-${String(mes).padStart(2, '0')}-01`
@@ -86,26 +101,35 @@ export default function EgresosPage() {
 
   const filtroActivo = !!desde && !!hasta
 
-  const setParam = useCallback((key: string, value: string) => {
-    const params = new URLSearchParams(searchParams)
-    if (value) params.set(key, value)
-    else params.delete(key)
-    if (key !== 'page') params.delete('page')
-    router.push(`${pathname}?${params}`)
-  }, [searchParams, router, pathname])
+  const setParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams)
+      if (value) params.set(key, value)
+      else params.delete(key)
+      if (key !== 'page') params.delete('page')
+      router.push(`${pathname}?${params}`)
+    },
+    [searchParams, router, pathname]
+  )
 
-  const setTab = useCallback((value: Tab) => {
-    const params = new URLSearchParams(searchParams)
-    params.set('tab', value)
-    router.push(`${pathname}?${params}`)
-  }, [searchParams, router, pathname])
+  const setTab = useCallback(
+    (value: Tab) => {
+      const params = new URLSearchParams(searchParams)
+      params.set('tab', value)
+      router.push(`${pathname}?${params}`)
+    },
+    [searchParams, router, pathname]
+  )
 
-  const setPeriodo = useCallback((newAnio: number, newMes: number) => {
-    const params = new URLSearchParams(searchParams)
-    params.set('anio', String(newAnio))
-    params.set('mes', String(newMes))
-    router.push(`${pathname}?${params}`)
-  }, [searchParams, router, pathname])
+  const setPeriodo = useCallback(
+    (newAnio: number, newMes: number) => {
+      const params = new URLSearchParams(searchParams)
+      params.set('anio', String(newAnio))
+      params.set('mes', String(newMes))
+      router.push(`${pathname}?${params}`)
+    },
+    [searchParams, router, pathname]
+  )
 
   const limpiarFiltro = useCallback(() => {
     const params = new URLSearchParams(searchParams)
@@ -126,28 +150,36 @@ export default function EgresosPage() {
     router.push(`${pathname}?${params}`)
   }, [searchParams, router, pathname])
 
-  const setPage = useCallback((p: number) => {
-    const params = new URLSearchParams(searchParams)
-    if (p > 0) params.set('page', String(p))
-    else params.delete('page')
-    router.push(`${pathname}?${params}`)
-  }, [searchParams, router, pathname])
+  const setPage = useCallback(
+    (p: number) => {
+      const params = new URLSearchParams(searchParams)
+      if (p > 0) params.set('page', String(p))
+      else params.delete('page')
+      router.push(`${pathname}?${params}`)
+    },
+    [searchParams, router, pathname]
+  )
 
   const { data: paginado, isLoading: loadingPag } = useEgresos(
     tab === 'egresos' && !filtroActivo ? (idSede ?? undefined) : undefined,
-    page, 20
+    page,
+    20
   )
   const { data: rangeLista = [], isLoading: loadingRango } = useEgresosPorRango(
     tab === 'egresos' && filtroActivo ? (idSede ?? undefined) : undefined,
-    desde || undefined, hasta || undefined
+    desde || undefined,
+    hasta || undefined
   )
-  const { data: gastosOp = [], isLoading: loadingOp } = useGastosOperativosPorRango(
-    tab === 'gastos-op' ? (idSede ?? undefined) : undefined,
-    inicioMes, finMes
-  )
+  const { data: gastosOp = [], isLoading: loadingOp } =
+    useGastosOperativosPorRango(
+      tab === 'gastos-op' ? (idSede ?? undefined) : undefined,
+      inicioMes,
+      finMes
+    )
   const { data: gastosEv = [], isLoading: loadingEv } = useGastosEventoPorRango(
     tab === 'gastos-ev' ? (idSede ?? undefined) : undefined,
-    inicioMes, finMes
+    inicioMes,
+    finMes
   )
   const { data: tiposEgreso = [] } = useTiposEgreso()
 
@@ -166,7 +198,11 @@ export default function EgresosPage() {
         if (filtroRecurrente === 'no' && e.esRecurrente) return false
         if (q) {
           const search = q.toLowerCase()
-          if (!e.descripcion?.toLowerCase().includes(search) && !e.tipoEgresoCodigo.toLowerCase().includes(search)) return false
+          if (
+            !e.descripcion?.toLowerCase().includes(search) &&
+            !e.tipoEgresoCodigo.toLowerCase().includes(search)
+          )
+            return false
         }
         return true
       })
@@ -175,7 +211,9 @@ export default function EgresosPage() {
   const egresos = filtroActivo
     ? filteredRange.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
     : (paginado?.content ?? [])
-  const totalEgresosResults = filtroActivo ? filteredRange.length : (paginado?.totalElements ?? 0)
+  const totalEgresosResults = filtroActivo
+    ? filteredRange.length
+    : (paginado?.totalElements ?? 0)
   const totalEgresosPagesDisplay = filtroActivo
     ? Math.max(1, Math.ceil(filteredRange.length / PAGE_SIZE))
     : (paginado?.totalPages ?? 1)
@@ -197,9 +235,17 @@ export default function EgresosPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <PageHeader title="Egresos" description="Historial de egresos y gastos de la sede" />
+        <PageHeader
+          title="Egresos"
+          description="Historial de egresos y gastos de la sede"
+        />
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => setOpenTipos(true)} className="gap-1.5">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setOpenTipos(true)}
+            className="gap-1.5"
+          >
             <Tag className="h-4 w-4" />
             Gestionar tipos
           </Button>
@@ -216,7 +262,11 @@ export default function EgresosPage() {
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="space-y-4">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => setTab(v as Tab)}
+        className="space-y-4"
+      >
         <div className="flex items-center justify-between flex-wrap gap-3">
           <TabsList>
             <TabsTrigger value="egresos" className="gap-1.5">
@@ -265,7 +315,12 @@ export default function EgresosPage() {
                 />
               </div>
               {filtroActivo && (
-                <Button size="sm" variant="outline" onClick={limpiarFiltro} className="gap-1.5 h-9">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={limpiarFiltro}
+                  className="gap-1.5 h-9"
+                >
                   <X className="h-4 w-4" />
                   Limpiar filtro
                 </Button>
@@ -280,9 +335,13 @@ export default function EgresosPage() {
                   className="h-8 rounded-lg border border-gray-200 bg-white px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand-azul"
                 >
                   <option value="">Todos los tipos</option>
-                  {tiposEgreso.filter((t) => t.activo).map((t) => (
-                    <option key={t.codigo} value={t.codigo}>{t.nombre}</option>
-                  ))}
+                  {tiposEgreso
+                    .filter((t) => t.activo)
+                    .map((t) => (
+                      <option key={t.codigo} value={t.codigo}>
+                        {t.nombre}
+                      </option>
+                    ))}
                 </select>
 
                 <select
@@ -314,7 +373,12 @@ export default function EgresosPage() {
                 </div>
 
                 {tieneFiltrosSecundarios && (
-                  <Button size="sm" variant="ghost" onClick={limpiarFiltrosSecundarios} className="h-8 gap-1 text-xs text-gray-500 px-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={limpiarFiltrosSecundarios}
+                    className="h-8 gap-1 text-xs text-gray-500 px-2"
+                  >
                     <X className="h-3 w-3" />
                     Limpiar filtros
                   </Button>
@@ -330,7 +394,9 @@ export default function EgresosPage() {
                       <th className="px-4 py-3 font-semibold">Tipo</th>
                       <th className="px-4 py-3 font-semibold">Fecha</th>
                       <th className="px-4 py-3 font-semibold">Periodo</th>
-                      <th className="px-4 py-3 font-semibold text-right">Monto</th>
+                      <th className="px-4 py-3 font-semibold text-right">
+                        Monto
+                      </th>
                       <th className="px-4 py-3" />
                     </tr>
                   </thead>
@@ -347,7 +413,10 @@ export default function EgresosPage() {
                       ))
                     ) : egresos.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-10 text-center text-sm text-gray-400">
+                        <td
+                          colSpan={5}
+                          className="py-10 text-center text-sm text-gray-400"
+                        >
                           {filtroActivo && tieneFiltrosSecundarios
                             ? 'Sin resultados para esos filtros.'
                             : 'Sin egresos registrados.'}
@@ -355,11 +424,18 @@ export default function EgresosPage() {
                       </tr>
                     ) : (
                       egresos.map((e) => (
-                        <tr key={e.id} className="hover:bg-gray-50 transition-colors">
+                        <tr
+                          key={e.id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
                           <td className="px-4 py-3">
-                            <p className="font-medium text-gray-900">{e.tipoEgresoCodigo}</p>
+                            <p className="font-medium text-gray-900">
+                              {e.tipoEgresoCodigo}
+                            </p>
                             {e.descripcion && (
-                              <p className="text-xs text-gray-400 truncate max-w-[200px]">{e.descripcion}</p>
+                              <p className="text-xs text-gray-400 truncate max-w-[200px]">
+                                {e.descripcion}
+                              </p>
                             )}
                           </td>
                           <td className="px-4 py-3 text-gray-600">{e.fecha}</td>
@@ -407,27 +483,53 @@ export default function EgresosPage() {
               {!isLoadingEgresos && totalEgresosResults > 0 && (
                 <div className="flex items-center justify-between px-4 py-3 border-t gap-4 flex-wrap">
                   <p className="text-xs text-gray-400">
-                    {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, totalEgresosResults)} de {totalEgresosResults} registros
+                    {page * PAGE_SIZE + 1}–
+                    {Math.min((page + 1) * PAGE_SIZE, totalEgresosResults)} de{' '}
+                    {totalEgresosResults} registros
                   </p>
                   {totalEgresosPagesDisplay > 1 && (
                     <div className="flex items-center gap-1">
-                      <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)} className="h-7 w-7 p-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={page === 0}
+                        onClick={() => setPage(page - 1)}
+                        className="h-7 w-7 p-0"
+                      >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      {getPageNums(page, totalEgresosPagesDisplay).map((n, i) =>
-                        n === null
-                          ? <span key={`e${i}`} className="w-5 text-center text-gray-400 text-xs select-none">…</span>
-                          : <Button
+                      {getPageNums(page, totalEgresosPagesDisplay).map(
+                        (n, i) =>
+                          n === null ? (
+                            <span
+                              key={`e${i}`}
+                              className="w-5 text-center text-gray-400 text-xs select-none"
+                            >
+                              …
+                            </span>
+                          ) : (
+                            <Button
                               key={n}
                               size="sm"
                               variant="outline"
                               onClick={() => setPage(n)}
-                              className={cn('h-7 w-7 p-0 text-xs', n === page && 'bg-brand-azul text-white hover:bg-brand-azul/90 border-brand-azul')}
+                              className={cn(
+                                'h-7 w-7 p-0 text-xs',
+                                n === page &&
+                                  'bg-brand-azul text-white hover:bg-brand-azul/90 border-brand-azul'
+                              )}
                             >
                               {n + 1}
                             </Button>
+                          )
                       )}
-                      <Button size="sm" variant="outline" disabled={page >= totalEgresosPagesDisplay - 1} onClick={() => setPage(page + 1)} className="h-7 w-7 p-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={page >= totalEgresosPagesDisplay - 1}
+                        onClick={() => setPage(page + 1)}
+                        className="h-7 w-7 p-0"
+                      >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
@@ -447,7 +549,9 @@ export default function EgresosPage() {
                     <th className="px-4 py-3 font-semibold">Descripción</th>
                     <th className="px-4 py-3 font-semibold">Fecha</th>
                     <th className="px-4 py-3 font-semibold">Comprobante</th>
-                    <th className="px-4 py-3 font-semibold text-right">Monto</th>
+                    <th className="px-4 py-3 font-semibold text-right">
+                      Monto
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -463,19 +567,33 @@ export default function EgresosPage() {
                     ))
                   ) : gastosOp.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-10 text-center text-sm text-gray-400">
+                      <td
+                        colSpan={4}
+                        className="py-10 text-center text-sm text-gray-400"
+                      >
                         Sin gastos operativos para este período.
                       </td>
                     </tr>
                   ) : (
                     gastosOp.map((g) => (
-                      <tr key={g.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-4 py-3 text-gray-800">{g.descripcion}</td>
-                        <td className="px-4 py-3 text-gray-600 text-xs">{formatFecha(g.fecha)}</td>
+                      <tr
+                        key={g.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-4 py-3 text-gray-800">
+                          {g.descripcion}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600 text-xs">
+                          {formatFecha(g.fecha)}
+                        </td>
                         <td className="px-4 py-3 text-gray-500 text-xs">
                           {g.comprobanteUrl ? (
-                            <span className="text-brand-azul">{g.comprobanteUrl}</span>
-                          ) : '—'}
+                            <span className="text-brand-azul">
+                              {g.comprobanteUrl}
+                            </span>
+                          ) : (
+                            '—'
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right font-semibold text-red-600">
                           {formatCurrency(g.monto)}
@@ -487,7 +605,10 @@ export default function EgresosPage() {
                 {gastosOp.length > 0 && (
                   <tfoot className="border-t-2 bg-gray-50">
                     <tr>
-                      <td colSpan={3} className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                      >
                         Total
                       </td>
                       <td className="px-4 py-3 text-right font-black text-red-600">
@@ -510,7 +631,9 @@ export default function EgresosPage() {
                     <th className="px-4 py-3 font-semibold">Descripción</th>
                     <th className="px-4 py-3 font-semibold">Fecha evento</th>
                     <th className="px-4 py-3 font-semibold">Comprobante</th>
-                    <th className="px-4 py-3 font-semibold text-right">Monto</th>
+                    <th className="px-4 py-3 font-semibold text-right">
+                      Monto
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -526,21 +649,33 @@ export default function EgresosPage() {
                     ))
                   ) : gastosEv.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-10 text-center text-sm text-gray-400">
+                      <td
+                        colSpan={4}
+                        className="py-10 text-center text-sm text-gray-400"
+                      >
                         Sin gastos de evento para este período.
                       </td>
                     </tr>
                   ) : (
                     gastosEv.map((g) => (
-                      <tr key={g.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-4 py-3 text-gray-800">{g.descripcion}</td>
+                      <tr
+                        key={g.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-4 py-3 text-gray-800">
+                          {g.descripcion}
+                        </td>
                         <td className="px-4 py-3 text-gray-600 text-xs">
                           {g.fechaEvento ? formatFecha(g.fechaEvento) : '—'}
                         </td>
                         <td className="px-4 py-3 text-gray-500 text-xs">
                           {g.comprobanteUrl ? (
-                            <span className="text-brand-azul">{g.comprobanteUrl}</span>
-                          ) : '—'}
+                            <span className="text-brand-azul">
+                              {g.comprobanteUrl}
+                            </span>
+                          ) : (
+                            '—'
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right font-semibold text-red-600">
                           {formatCurrency(g.monto)}
@@ -552,7 +687,10 @@ export default function EgresosPage() {
                 {gastosEv.length > 0 && (
                   <tfoot className="border-t-2 bg-gray-50">
                     <tr>
-                      <td colSpan={3} className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                      >
                         Total
                       </td>
                       <td className="px-4 py-3 text-right font-black text-red-600">
@@ -568,7 +706,10 @@ export default function EgresosPage() {
       </Tabs>
 
       <Sheet open={openTipos} onOpenChange={setOpenTipos}>
-        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-lg overflow-y-auto"
+        >
           <SheetHeader>
             <SheetTitle>Tipos de egreso</SheetTitle>
           </SheetHeader>
@@ -578,8 +719,14 @@ export default function EgresosPage() {
         </SheetContent>
       </Sheet>
 
-      <Sheet open={!!detailEgreso} onOpenChange={(o) => !o && setDetailEgreso(null)}>
-        <SheetContent side="right" className="flex flex-col overflow-hidden sm:max-w-md">
+      <Sheet
+        open={!!detailEgreso}
+        onOpenChange={(o) => !o && setDetailEgreso(null)}
+      >
+        <SheetContent
+          side="right"
+          className="flex flex-col overflow-hidden sm:max-w-md"
+        >
           <SheetHeader>
             <SheetTitle>Detalle del egreso</SheetTitle>
             <SheetCloseButton />
@@ -593,23 +740,28 @@ export default function EgresosPage() {
                 <p className="text-3xl font-black text-red-600 tracking-tight">
                   {formatCurrency(detailEgreso.monto)}
                 </p>
-                <p className="text-sm text-red-500 mt-1.5">{formatFecha(detailEgreso.fecha)}</p>
+                <p className="text-sm text-red-500 mt-1.5">
+                  {formatFecha(detailEgreso.fecha)}
+                </p>
               </div>
 
               <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
                 {detailEgreso.periodoMes && detailEgreso.periodoAnio && (
                   <InfoRow label="Período">
-                    {String(detailEgreso.periodoMes).padStart(2, '0')}/{detailEgreso.periodoAnio}
+                    {String(detailEgreso.periodoMes).padStart(2, '0')}/
+                    {detailEgreso.periodoAnio}
                   </InfoRow>
                 )}
 
                 <InfoRow label="¿Es recurrente?">
-                  <span className={cn(
-                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
-                    detailEgreso.esRecurrente
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-600',
-                  )}>
+                  <span
+                    className={cn(
+                      'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                      detailEgreso.esRecurrente
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-600'
+                    )}
+                  >
                     {detailEgreso.esRecurrente ? 'Sí' : 'No'}
                   </span>
                 </InfoRow>
@@ -628,7 +780,10 @@ export default function EgresosPage() {
 
                 <div className="border-t border-gray-100 pt-4">
                   <p className="text-xs text-gray-400">
-                    Registrado el {new Date(detailEgreso.fechaCreacion).toLocaleString('es-PE')}
+                    Registrado el{' '}
+                    {new Date(detailEgreso.fechaCreacion).toLocaleString(
+                      'es-PE'
+                    )}
                   </p>
                 </div>
               </div>
@@ -651,4 +806,3 @@ export default function EgresosPage() {
     </div>
   )
 }
-

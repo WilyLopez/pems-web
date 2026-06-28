@@ -28,8 +28,13 @@ export function useServicioCotizacionMutations() {
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: Partial<ServicioCotizacion> }) =>
-      comercialService.serviciosCotizacion.actualizar(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: Partial<ServicioCotizacion>
+    }) => comercialService.serviciosCotizacion.actualizar(id, payload),
     onSuccess: () => {
       invalidar()
       toast.success('Servicio actualizado')
@@ -38,7 +43,8 @@ export function useServicioCotizacionMutations() {
   })
 
   const eliminar = useMutation({
-    mutationFn: (id: number) => comercialService.serviciosCotizacion.eliminar(id),
+    mutationFn: (id: number) =>
+      comercialService.serviciosCotizacion.eliminar(id),
     onSuccess: () => {
       invalidar()
       toast.success('Servicio eliminado')

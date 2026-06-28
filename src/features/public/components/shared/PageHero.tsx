@@ -21,14 +21,18 @@ export function PageHero({
   actions,
 }: PageHeroProps) {
   return (
-    <section className={`relative pt-24 pb-16 overflow-hidden ${backgroundClassName}`}>
+    <section
+      className={`relative pt-24 pb-16 overflow-hidden ${backgroundClassName}`}
+    >
       <div className={`absolute top-0 left-0 right-0 h-1 ${accentClassName}`} />
       <div className="container max-w-6xl mx-auto px-4 text-center space-y-5">
         <Badge className={`text-sm px-4 py-1 ${badgeClassName}`}>{badge}</Badge>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 max-w-3xl mx-auto leading-tight">
           {title}
         </h1>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">{description}</p>
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+          {description}
+        </p>
         {actions && (
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             {actions}

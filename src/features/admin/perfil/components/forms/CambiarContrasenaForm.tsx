@@ -233,7 +233,9 @@ export function CambiarContrasenaForm() {
             ) : (
               <ShieldCheck className="h-4 w-4" />
             )}
-            {cambiarContrasena.isPending ? 'Actualizando...' : 'Actualizar contraseña'}
+            {cambiarContrasena.isPending
+              ? 'Actualizando...'
+              : 'Actualizar contraseña'}
           </Button>
         </div>
       </form>

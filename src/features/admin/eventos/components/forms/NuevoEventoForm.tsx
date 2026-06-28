@@ -71,40 +71,52 @@ function loadDraft(key: string): EventoDraft | null {
 }
 
 export function NuevoEventoForm() {
-  const router       = useRouter()
+  const router = useRouter()
   const searchParams = useSearchParams()
-  const { idSede }   = useAuth()
+  const { idSede } = useAuth()
 
-  const fechaParam   = searchParams.get('fecha') ?? ''
+  const fechaParam = searchParams.get('fecha') ?? ''
   const idTurnoParam = searchParams.get('idTurno')
-  const idTurno      = idTurnoParam ? parseInt(idTurnoParam, 10) : null
+  const idTurno = idTurnoParam ? parseInt(idTurnoParam, 10) : null
 
-  const draftKey = fechaParam && idTurno ? `nuevo-evento-draft-${fechaParam}-${idTurno}` : ''
+  const draftKey =
+    fechaParam && idTurno ? `nuevo-evento-draft-${fechaParam}-${idTurno}` : ''
 
   const [initialDraft] = useState<EventoDraft | null>(() =>
     draftKey ? loadDraft(draftKey) : null
   )
 
-  const { data: turnos }      = useTurnos(idSede)
-  const turnoActual            = turnos?.find((t) => t.id === idTurno)
-  const { data: paquetes }    = usePaquetesPublico()
+  const { data: turnos } = useTurnos(idSede)
+  const turnoActual = turnos?.find((t) => t.id === idTurno)
+  const { data: paquetes } = usePaquetesPublico()
   const { data: tiposEvento } = useTiposEventoPublico()
-  const { data: config }      = useConfiguracionCalendario(idSede!)
+  const { data: config } = useConfiguracionCalendario(idSede!)
 
   const aforoMax = config?.aforoMaximo ?? 60
-  const edadMin  = config?.edadMinCumple ?? 0
-  const edadMax  = config?.edadMaxCumple ?? 18
+  const edadMin = config?.edadMinCumple ?? 0
+  const edadMax = config?.edadMaxCumple ?? 18
 
   const schema = useMemo(
-    () => buildNuevoEventoSchema({ aforoMaximo: aforoMax, edadMinCumple: edadMin, edadMaxCumple: edadMax }),
-    [aforoMax, edadMin, edadMax],
+    () =>
+      buildNuevoEventoSchema({
+        aforoMaximo: aforoMax,
+        edadMinCumple: edadMin,
+        edadMaxCumple: edadMax,
+      }),
+    [aforoMax, edadMin, edadMax]
   )
 
-  const [clienteSearch, setClienteSearch]         = useState<string>(() => initialDraft?.clienteSearch ?? '')
-  const [clienteSel, setClienteSel]               = useState<Cliente | null>(() => initialDraft?.clienteSel ?? null)
-  const [showDropdown, setShowDropdown]           = useState(false)
+  const [clienteSearch, setClienteSearch] = useState<string>(
+    () => initialDraft?.clienteSearch ?? ''
+  )
+  const [clienteSel, setClienteSel] = useState<Cliente | null>(
+    () => initialDraft?.clienteSel ?? null
+  )
+  const [showDropdown, setShowDropdown] = useState(false)
   const [modalNuevoCliente, setModalNuevoCliente] = useState(false)
-  const [tipoEventoSel, setTipoEventoSel]         = useState<TipoEvento | null>(() => initialDraft?.tipoEventoSel ?? null)
+  const [tipoEventoSel, setTipoEventoSel] = useState<TipoEvento | null>(
+    () => initialDraft?.tipoEventoSel ?? null
+  )
 
   const { data: clientesPage, isFetching: buscandoClientes } = useQuery({
     queryKey: ['clientes-search', clienteSearch],
@@ -138,17 +150,30 @@ export function NuevoEventoForm() {
 
   useEffect(() => {
     if (!draftKey) return
-    const draft: EventoDraft = { formValues: watchValues, clienteSel, clienteSearch, tipoEventoSel }
+    const draft: EventoDraft = {
+      formValues: watchValues,
+      clienteSel,
+      clienteSearch,
+      tipoEventoSel,
+    }
     sessionStorage.setItem(draftKey, JSON.stringify(draft))
   }, [watchValues, clienteSel, clienteSearch, tipoEventoSel, draftKey])
 
   const paquetesFiltrados = tipoEventoSel
-    ? (paquetes ?? []).filter((p) => !p.tipoEventoCodigo || p.tipoEventoCodigo === tipoEventoSel.codigo)
+    ? (paquetes ?? []).filter(
+        (p) =>
+          !p.tipoEventoCodigo || p.tipoEventoCodigo === tipoEventoSel.codigo
+      )
     : (paquetes ?? [])
 
-  const paqueteSel = paquetesFiltrados.find((p) => p.id === watchValues.idPaquete)
+  const paqueteSel = paquetesFiltrados.find(
+    (p) => p.id === watchValues.idPaquete
+  )
 
-  if (!idSede) return <ErrorState message="No tienes sede asignada. Contacta al administrador." />
+  if (!idSede)
+    return (
+      <ErrorState message="No tienes sede asignada. Contacta al administrador." />
+    )
   if (!fechaParam || !idTurno || isNaN(idTurno) || idTurno <= 0) {
     return <ErrorState message="Parámetros de fecha o turno inválidos." />
   }
@@ -170,7 +195,10 @@ export function NuevoEventoForm() {
           origenContacto: values.origenContacto,
           presupuestoEstimado: values.presupuestoEstimado,
           extrasLibres: values.extrasLibres
-            ? values.extrasLibres.split('\n').map((s) => s.trim()).filter(Boolean)
+            ? values.extrasLibres
+                .split('\n')
+                .map((s) => s.trim())
+                .filter(Boolean)
             : undefined,
           observaciones: values.observaciones || undefined,
         },
@@ -180,7 +208,7 @@ export function NuevoEventoForm() {
           if (draftKey) sessionStorage.removeItem(draftKey)
           router.push(ADMIN_ROUTES.eventoDetalle(evento.id))
         },
-      },
+      }
     )
   }
 
@@ -202,14 +230,17 @@ export function NuevoEventoForm() {
         <div className="flex items-center gap-2 text-sm">
           <CalendarDays className="h-4 w-4 text-brand-azul" />
           <span className="font-semibold text-gray-700 dark:text-gray-200 capitalize">
-            {format(parseISO(fechaParam), "EEEE d 'de' MMMM yyyy", { locale: es })}
+            {format(parseISO(fechaParam), "EEEE d 'de' MMMM yyyy", {
+              locale: es,
+            })}
           </span>
         </div>
         {turnoActual && (
           <div className="flex items-center gap-2 text-sm">
             <Clock className="h-4 w-4 text-brand-azul" />
             <span className="text-gray-600 dark:text-gray-400">
-              {turnoActual.nombre} · {turnoActual.horaInicio}–{turnoActual.horaFin}
+              {turnoActual.nombre} · {turnoActual.horaInicio}–
+              {turnoActual.horaFin}
             </span>
           </div>
         )}
@@ -217,10 +248,11 @@ export function NuevoEventoForm() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Cliente</h2>
+              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                Cliente
+              </h2>
               <Button
                 type="button"
                 variant="outline"
@@ -244,23 +276,35 @@ export function NuevoEventoForm() {
                       value={clienteSearch}
                       onChange={(e) => {
                         setClienteSearch(e.target.value)
-                        if (clienteSel) { setClienteSel(null); field.onChange(undefined) }
+                        if (clienteSel) {
+                          setClienteSel(null)
+                          field.onChange(undefined)
+                        }
                         setShowDropdown(true)
                       }}
-                      onFocus={() => clienteSearch.length >= 2 && setShowDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                      onFocus={() =>
+                        clienteSearch.length >= 2 && setShowDropdown(true)
+                      }
+                      onBlur={() =>
+                        setTimeout(() => setShowDropdown(false), 150)
+                      }
                       placeholder="Nombre o número de documento..."
                       autoComplete="off"
                       readOnly={!!clienteSel}
                       className={cn(
                         'pl-9 pr-8 dark:bg-gray-800 dark:border-gray-700',
-                        fieldState.error && 'border-red-400 focus-visible:ring-red-300',
+                        fieldState.error &&
+                          'border-red-400 focus-visible:ring-red-300'
                       )}
                     />
                     {clienteSel ? (
                       <button
                         type="button"
-                        onClick={() => { setClienteSel(null); setClienteSearch(''); field.onChange(undefined) }}
+                        onClick={() => {
+                          setClienteSel(null)
+                          setClienteSearch('')
+                          field.onChange(undefined)
+                        }}
                         className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                       >
                         <X className="h-4 w-4" />
@@ -285,7 +329,9 @@ export function NuevoEventoForm() {
                           }}
                           className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-50 dark:border-gray-700 last:border-0"
                         >
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{c.nombreCompleto}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {c.nombreCompleto}
+                          </div>
                           <div className="text-xs text-gray-400 dark:text-gray-500">
                             {c.tipoDocumentoCodigo} {c.numeroDocumento}
                             {c.telefono && ` · ${c.telefono}`}
@@ -296,7 +342,9 @@ export function NuevoEventoForm() {
                   )}
 
                   {fieldState.error && (
-                    <p className="text-xs text-red-500 mt-1">{fieldState.error.message}</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      {fieldState.error.message}
+                    </p>
                   )}
                 </div>
               )}
@@ -304,7 +352,9 @@ export function NuevoEventoForm() {
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-4">
-            <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Detalles del evento</h2>
+            <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+              Detalles del evento
+            </h2>
 
             <div className="space-y-1">
               <Label className="dark:text-gray-300">Tipo de evento *</Label>
@@ -317,12 +367,18 @@ export function NuevoEventoForm() {
                       value={field.value ?? ''}
                       onValueChange={(v) => {
                         field.onChange(v)
-                        const tipo = tiposEvento?.find((t) => t.codigo === v) ?? null
+                        const tipo =
+                          tiposEvento?.find((t) => t.codigo === v) ?? null
                         setTipoEventoSel(tipo)
                         setValue('idPaquete', undefined)
                       }}
                     >
-                      <SelectTrigger className={cn('rounded-xl dark:bg-gray-800 dark:border-gray-700', fieldState.error && 'border-red-400')}>
+                      <SelectTrigger
+                        className={cn(
+                          'rounded-xl dark:bg-gray-800 dark:border-gray-700',
+                          fieldState.error && 'border-red-400'
+                        )}
+                      >
                         <SelectValue placeholder="Selecciona el tipo de evento" />
                       </SelectTrigger>
                       <SelectContent>
@@ -334,7 +390,9 @@ export function NuevoEventoForm() {
                       </SelectContent>
                     </Select>
                     {fieldState.error && (
-                      <p className="text-xs text-red-500 mt-1">{fieldState.error.message}</p>
+                      <p className="text-xs text-red-500 mt-1">
+                        {fieldState.error.message}
+                      </p>
                     )}
                   </div>
                 )}
@@ -343,19 +401,29 @@ export function NuevoEventoForm() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="nombreNino" className="dark:text-gray-300">Nombre del niño</Label>
+                <Label htmlFor="nombreNino" className="dark:text-gray-300">
+                  Nombre del niño
+                </Label>
                 <Input
                   id="nombreNino"
                   {...register('nombreNino')}
                   placeholder="Opcional"
-                  className={cn('dark:bg-gray-800 dark:border-gray-700', errors.nombreNino && 'border-red-400 focus-visible:ring-red-300')}
+                  className={cn(
+                    'dark:bg-gray-800 dark:border-gray-700',
+                    errors.nombreNino &&
+                      'border-red-400 focus-visible:ring-red-300'
+                  )}
                 />
                 {errors.nombreNino && (
-                  <p className="text-xs text-red-500">{errors.nombreNino.message}</p>
+                  <p className="text-xs text-red-500">
+                    {errors.nombreNino.message}
+                  </p>
                 )}
               </div>
               <div className="space-y-1">
-                <Label htmlFor="edadCumple" className="dark:text-gray-300">Edad que cumple</Label>
+                <Label htmlFor="edadCumple" className="dark:text-gray-300">
+                  Edad que cumple
+                </Label>
                 <Controller
                   name="edadCumple"
                   control={control}
@@ -371,12 +439,18 @@ export function NuevoEventoForm() {
                         field.onChange(isNaN(v) ? undefined : v)
                       }}
                       placeholder={`${edadMin}–${edadMax}`}
-                      className={cn('dark:bg-gray-800 dark:border-gray-700', errors.edadCumple && 'border-red-400 focus-visible:ring-red-300')}
+                      className={cn(
+                        'dark:bg-gray-800 dark:border-gray-700',
+                        errors.edadCumple &&
+                          'border-red-400 focus-visible:ring-red-300'
+                      )}
                     />
                   )}
                 />
                 {errors.edadCumple && (
-                  <p className="text-xs text-red-500">{errors.edadCumple.message}</p>
+                  <p className="text-xs text-red-500">
+                    {errors.edadCumple.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -406,26 +480,41 @@ export function NuevoEventoForm() {
                         field.onChange(isNaN(v) ? undefined : v)
                       }}
                       placeholder={`Número de invitados`}
-                      className={cn('dark:bg-gray-800 dark:border-gray-700', errors.aforoDeclarado && 'border-red-400 focus-visible:ring-red-300')}
+                      className={cn(
+                        'dark:bg-gray-800 dark:border-gray-700',
+                        errors.aforoDeclarado &&
+                          'border-red-400 focus-visible:ring-red-300'
+                      )}
                     />
                   )}
                 />
                 {errors.aforoDeclarado && (
-                  <p className="text-xs text-red-500">{errors.aforoDeclarado.message}</p>
+                  <p className="text-xs text-red-500">
+                    {errors.aforoDeclarado.message}
+                  </p>
                 )}
               </div>
               <div className="space-y-1">
-                <Label htmlFor="contactoAdicional" className="dark:text-gray-300">
+                <Label
+                  htmlFor="contactoAdicional"
+                  className="dark:text-gray-300"
+                >
                   Teléfono o correo adicional
                 </Label>
                 <Input
                   id="contactoAdicional"
                   {...register('contactoAdicional')}
                   placeholder="9XXXXXXXX o correo@ejemplo.com"
-                  className={cn('dark:bg-gray-800 dark:border-gray-700', errors.contactoAdicional && 'border-red-400 focus-visible:ring-red-300')}
+                  className={cn(
+                    'dark:bg-gray-800 dark:border-gray-700',
+                    errors.contactoAdicional &&
+                      'border-red-400 focus-visible:ring-red-300'
+                  )}
                 />
                 {errors.contactoAdicional && (
-                  <p className="text-xs text-red-500">{errors.contactoAdicional.message}</p>
+                  <p className="text-xs text-red-500">
+                    {errors.contactoAdicional.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -433,7 +522,9 @@ export function NuevoEventoForm() {
 
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-3">
             <div>
-              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Paquete</h2>
+              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                Paquete
+              </h2>
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                 {tipoEventoSel
                   ? `Mostrando paquetes para ${tipoEventoSel.nombre}`
@@ -446,7 +537,9 @@ export function NuevoEventoForm() {
               render={({ field }) => (
                 <Select
                   value={field.value?.toString() ?? ''}
-                  onValueChange={(v) => field.onChange(v ? parseInt(v, 10) : undefined)}
+                  onValueChange={(v) =>
+                    field.onChange(v ? parseInt(v, 10) : undefined)
+                  }
                 >
                   <SelectTrigger className="rounded-xl dark:bg-gray-800 dark:border-gray-700">
                     <SelectValue placeholder="Sin paquete seleccionado" />
@@ -465,7 +558,9 @@ export function NuevoEventoForm() {
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-4">
-            <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Canal y presupuesto</h2>
+            <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+              Canal y presupuesto
+            </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -494,7 +589,10 @@ export function NuevoEventoForm() {
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="presupuestoEstimado" className="dark:text-gray-300">
+                <Label
+                  htmlFor="presupuestoEstimado"
+                  className="dark:text-gray-300"
+                >
                   Presupuesto acordado (S/)
                 </Label>
                 <Controller
@@ -514,37 +612,49 @@ export function NuevoEventoForm() {
                       placeholder="0.00"
                       className={cn(
                         'dark:bg-gray-800 dark:border-gray-700',
-                        errors.presupuestoEstimado && 'border-red-400 focus-visible:ring-red-300',
+                        errors.presupuestoEstimado &&
+                          'border-red-400 focus-visible:ring-red-300'
                       )}
                     />
                   )}
                 />
                 {errors.presupuestoEstimado && (
-                  <p className="text-xs text-red-500">{errors.presupuestoEstimado.message}</p>
+                  <p className="text-xs text-red-500">
+                    {errors.presupuestoEstimado.message}
+                  </p>
                 )}
               </div>
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="extrasLibres" className="dark:text-gray-300">Extras solicitados</Label>
+              <Label htmlFor="extrasLibres" className="dark:text-gray-300">
+                Extras solicitados
+              </Label>
               <Textarea
                 id="extrasLibres"
                 {...register('extrasLibres')}
-                placeholder={"Un extra por línea\nEj: Torta personalizada\nEj: Decoración temática"}
+                placeholder={
+                  'Un extra por línea\nEj: Torta personalizada\nEj: Decoración temática'
+                }
                 rows={3}
                 className="rounded-xl resize-none dark:bg-gray-800 dark:border-gray-700"
               />
               <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                Uno por línea. Servicios adicionales que el cliente solicitó y no están en el paquete.
+                Uno por línea. Servicios adicionales que el cliente solicitó y
+                no están en el paquete.
               </p>
               {errors.extrasLibres && (
-                <p className="text-xs text-red-500">{errors.extrasLibres.message}</p>
+                <p className="text-xs text-red-500">
+                  {errors.extrasLibres.message}
+                </p>
               )}
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-2">
-            <Label htmlFor="observaciones" className="dark:text-gray-300">Observaciones</Label>
+            <Label htmlFor="observaciones" className="dark:text-gray-300">
+              Observaciones
+            </Label>
             <Textarea
               id="observaciones"
               {...register('observaciones')}
@@ -553,7 +663,9 @@ export function NuevoEventoForm() {
               className="rounded-xl resize-none dark:bg-gray-800 dark:border-gray-700"
             />
             {errors.observaciones && (
-              <p className="text-xs text-red-500">{errors.observaciones.message}</p>
+              <p className="text-xs text-red-500">
+                {errors.observaciones.message}
+              </p>
             )}
           </div>
 
@@ -572,7 +684,9 @@ export function NuevoEventoForm() {
               className="bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl px-6 gap-2 disabled:opacity-50"
               disabled={!isValid || solicitar.isPending}
             >
-              {solicitar.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              {solicitar.isPending && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
               Crear evento
             </Button>
           </div>
@@ -580,15 +694,21 @@ export function NuevoEventoForm() {
 
         <div className="space-y-4">
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-4 lg:sticky lg:top-4">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Resumen del evento</h3>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+              Resumen del evento
+            </h3>
 
             <div className="space-y-3">
               <div className="flex items-start gap-2.5">
                 <CalendarDays className="h-4 w-4 text-brand-azul shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Fecha</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                    Fecha
+                  </p>
                   <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">
-                    {format(parseISO(fechaParam), "d 'de' MMMM yyyy", { locale: es })}
+                    {format(parseISO(fechaParam), "d 'de' MMMM yyyy", {
+                      locale: es,
+                    })}
                   </p>
                 </div>
               </div>
@@ -597,9 +717,12 @@ export function NuevoEventoForm() {
                 <div className="flex items-start gap-2.5">
                   <Clock className="h-4 w-4 text-brand-azul shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Turno</p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                      Turno
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      {turnoActual.nombre} · {turnoActual.horaInicio}–{turnoActual.horaFin}
+                      {turnoActual.nombre} · {turnoActual.horaInicio}–
+                      {turnoActual.horaFin}
                     </p>
                   </div>
                 </div>
@@ -610,11 +733,17 @@ export function NuevoEventoForm() {
               <div className="flex items-start gap-2.5">
                 <User className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Cliente</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                    Cliente
+                  </p>
                   {clienteSel ? (
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{clienteSel.nombreCompleto}</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {clienteSel.nombreCompleto}
+                    </p>
                   ) : (
-                    <p className="text-sm text-gray-300 dark:text-gray-600">Sin seleccionar</p>
+                    <p className="text-sm text-gray-300 dark:text-gray-600">
+                      Sin seleccionar
+                    </p>
                   )}
                 </div>
               </div>
@@ -622,11 +751,17 @@ export function NuevoEventoForm() {
               <div className="flex items-start gap-2.5">
                 <PartyPopper className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Tipo de evento</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                    Tipo de evento
+                  </p>
                   {tipoEventoSel ? (
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{tipoEventoSel.nombre}</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {tipoEventoSel.nombre}
+                    </p>
                   ) : (
-                    <p className="text-sm text-gray-300 dark:text-gray-600">Sin seleccionar</p>
+                    <p className="text-sm text-gray-300 dark:text-gray-600">
+                      Sin seleccionar
+                    </p>
                   )}
                 </div>
               </div>
@@ -635,10 +770,16 @@ export function NuevoEventoForm() {
                 <div className="flex items-start gap-2.5">
                   <Package className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Paquete</p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{paqueteSel.nombre}</p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                      Paquete
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {paqueteSel.nombre}
+                    </p>
                     {paqueteSel.precio > 0 && (
-                      <p className="text-xs text-brand-azul font-bold">{formatCurrency(paqueteSel.precio)}</p>
+                      <p className="text-xs text-brand-azul font-bold">
+                        {formatCurrency(paqueteSel.precio)}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -648,10 +789,13 @@ export function NuevoEventoForm() {
                 <div className="flex items-start gap-2.5">
                   <PartyPopper className="h-4 w-4 text-brand-rosa shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Cumpleañero</p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                      Cumpleañero
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {watchValues.nombreNino}
-                      {watchValues.edadCumple !== undefined && ` · ${watchValues.edadCumple} años`}
+                      {watchValues.edadCumple !== undefined &&
+                        ` · ${watchValues.edadCumple} años`}
                     </p>
                   </div>
                 </div>
@@ -661,8 +805,12 @@ export function NuevoEventoForm() {
                 <div className="flex items-start gap-2.5">
                   <Users className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Aforo estimado</p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{watchValues.aforoDeclarado} personas</p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                      Aforo estimado
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {watchValues.aforoDeclarado} personas
+                    </p>
                   </div>
                 </div>
               )}
@@ -671,9 +819,15 @@ export function NuevoEventoForm() {
                 <div className="flex items-start gap-2.5">
                   <Radio className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Canal</p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                      Canal
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      {ORIGENES_CONTACTO.find((o) => o.value === watchValues.origenContacto)?.label}
+                      {
+                        ORIGENES_CONTACTO.find(
+                          (o) => o.value === watchValues.origenContacto
+                        )?.label
+                      }
                     </p>
                   </div>
                 </div>
@@ -683,7 +837,9 @@ export function NuevoEventoForm() {
                 <div className="flex items-start gap-2.5">
                   <Banknote className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Presupuesto acordado</p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                      Presupuesto acordado
+                    </p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {formatCurrency(watchValues.presupuestoEstimado)}
                     </p>
@@ -696,7 +852,15 @@ export function NuevoEventoForm() {
               <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mb-1.5">
                 <span>Campos clave</span>
                 <span className="font-semibold">
-                  {[clienteSel, tipoEventoSel, watchValues.aforoDeclarado, watchValues.origenContacto].filter(Boolean).length}/4
+                  {
+                    [
+                      clienteSel,
+                      tipoEventoSel,
+                      watchValues.aforoDeclarado,
+                      watchValues.origenContacto,
+                    ].filter(Boolean).length
+                  }
+                  /4
                 </span>
               </div>
               <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">

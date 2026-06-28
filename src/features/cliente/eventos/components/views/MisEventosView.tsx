@@ -31,7 +31,8 @@ function EventoCardSkeleton() {
 
 export function MisEventosView() {
   const { isAuthenticated } = useAuth()
-  const { eventos, isLoading, isError, refetch } = useMisEventosData(isAuthenticated)
+  const { eventos, isLoading, isError, refetch } =
+    useMisEventosData(isAuthenticated)
 
   const confirmados = eventos.filter((e) => e.estado === 'CONFIRMADA')
   const solicitudes = eventos.filter((e) => e.estado === 'SOLICITADA')
@@ -51,8 +52,12 @@ export function MisEventosView() {
     <div className="max-w-6xl mx-auto w-full space-y-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900">Mis eventos privados</h1>
-          <p className="text-sm text-gray-500">Solicitudes y eventos organizados</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
+            Mis eventos privados
+          </h1>
+          <p className="text-sm text-gray-500">
+            Solicitudes y eventos organizados
+          </p>
         </div>
         <Link
           href="/eventos-privados"
@@ -65,7 +70,10 @@ export function MisEventosView() {
       </div>
 
       {isError ? (
-        <ErrorState message="No se pudieron cargar tus eventos. Por favor, intenta de nuevo." onRetry={refetch} />
+        <ErrorState
+          message="No se pudieron cargar tus eventos. Por favor, intenta de nuevo."
+          onRetry={refetch}
+        />
       ) : (
         <>
           {proximosConRecordatorio.length > 0 && (
@@ -89,7 +97,8 @@ export function MisEventosView() {
                         {dias === 0 ? '¡hoy!' : `${dias} días!`}
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {formatTipoEvento(e.tipoEvento)} · {formatDate(e.fechaEvento)}
+                        {formatTipoEvento(e.tipoEvento)} ·{' '}
+                        {formatDate(e.fechaEvento)}
                         {e.montoSaldo && e.montoSaldo > 0 ? (
                           <span className="ml-2 text-amber-700 font-semibold">
                             · Saldo pendiente: {formatCurrency(e.montoSaldo)}
@@ -112,7 +121,10 @@ export function MisEventosView() {
 
           <Tabs defaultValue="confirmados">
             <TabsList className="bg-gray-100 rounded-xl h-10">
-              <TabsTrigger value="confirmados" className="rounded-lg text-sm font-semibold gap-1.5">
+              <TabsTrigger
+                value="confirmados"
+                className="rounded-lg text-sm font-semibold gap-1.5"
+              >
                 <PartyPopper className="h-4 w-4" />
                 Confirmados
                 {confirmados.length > 0 && (
@@ -121,7 +133,10 @@ export function MisEventosView() {
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="solicitudes" className="rounded-lg text-sm font-semibold gap-1.5">
+              <TabsTrigger
+                value="solicitudes"
+                className="rounded-lg text-sm font-semibold gap-1.5"
+              >
                 <Clock className="h-4 w-4" />
                 Solicitudes
                 {solicitudes.length > 0 && (
@@ -130,7 +145,10 @@ export function MisEventosView() {
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="historial" className="rounded-lg text-sm font-semibold">
+              <TabsTrigger
+                value="historial"
+                className="rounded-lg text-sm font-semibold"
+              >
                 Historial
               </TabsTrigger>
             </TabsList>
@@ -138,7 +156,9 @@ export function MisEventosView() {
             <TabsContent value="confirmados" className="mt-4">
               {isLoading && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {Array.from({ length: 2 }).map((_, i) => <EventoCardSkeleton key={i} />)}
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <EventoCardSkeleton key={i} />
+                  ))}
                 </div>
               )}
               {!isLoading && confirmados.length === 0 && (
@@ -147,9 +167,12 @@ export function MisEventosView() {
                     <PartyPopper className="h-7 w-7 text-brand-rosa" />
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-gray-900">Sin eventos confirmados</p>
+                    <p className="font-bold text-gray-900">
+                      Sin eventos confirmados
+                    </p>
                     <p className="text-sm text-gray-500 mt-1 max-w-xs">
-                      ¿Quieres celebrar algo especial? Solicita tu evento privado.
+                      ¿Quieres celebrar algo especial? Solicita tu evento
+                      privado.
                     </p>
                   </div>
                   <Link
@@ -163,7 +186,9 @@ export function MisEventosView() {
               )}
               {!isLoading && confirmados.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {confirmados.map((e) => <EventoCard key={e.id} evento={e} />)}
+                  {confirmados.map((e) => (
+                    <EventoCard key={e.id} evento={e} />
+                  ))}
                 </div>
               )}
             </TabsContent>
@@ -171,7 +196,9 @@ export function MisEventosView() {
             <TabsContent value="solicitudes" className="mt-4">
               {isLoading && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {Array.from({ length: 2 }).map((_, i) => <EventoCardSkeleton key={i} />)}
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <EventoCardSkeleton key={i} />
+                  ))}
                 </div>
               )}
               {!isLoading && solicitudes.length === 0 && (
@@ -180,7 +207,9 @@ export function MisEventosView() {
                     <Clock className="h-7 w-7 text-gray-400" />
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-gray-900">Sin solicitudes pendientes</p>
+                    <p className="font-bold text-gray-900">
+                      Sin solicitudes pendientes
+                    </p>
                     <p className="text-sm text-gray-500 mt-1 max-w-xs">
                       Te notificaremos cuando tu solicitud sea revisada.
                     </p>
@@ -199,11 +228,14 @@ export function MisEventosView() {
                   <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5">
                     <Clock className="h-4 w-4 text-blue-600 shrink-0" />
                     <p className="text-xs text-blue-800">
-                      En revisión. Te contactaremos en 24-48 horas con la cotización.
+                      En revisión. Te contactaremos en 24-48 horas con la
+                      cotización.
                     </p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {solicitudes.map((e) => <EventoCard key={e.id} evento={e} />)}
+                    {solicitudes.map((e) => (
+                      <EventoCard key={e.id} evento={e} />
+                    ))}
                   </div>
                 </div>
               )}
@@ -212,7 +244,9 @@ export function MisEventosView() {
             <TabsContent value="historial" className="mt-4">
               {isLoading && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {Array.from({ length: 2 }).map((_, i) => <EventoCardSkeleton key={i} />)}
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <EventoCardSkeleton key={i} />
+                  ))}
                 </div>
               )}
               {!isLoading && historial.length === 0 && (
@@ -230,7 +264,9 @@ export function MisEventosView() {
               )}
               {!isLoading && historial.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {historial.map((e) => <EventoCard key={e.id} evento={e} />)}
+                  {historial.map((e) => (
+                    <EventoCard key={e.id} evento={e} />
+                  ))}
                 </div>
               )}
             </TabsContent>

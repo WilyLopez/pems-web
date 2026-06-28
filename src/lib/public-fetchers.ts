@@ -1,6 +1,10 @@
 import type { ApiResponse } from '@/types/api.types'
 import type { Banner } from '@/types/banner.types'
-import type { NovedadLocal, ZonaJuego, PaqueteEvento } from '@/types/comercial.types'
+import type {
+  NovedadLocal,
+  ZonaJuego,
+  PaqueteEvento,
+} from '@/types/comercial.types'
 import type { ConfiguracionPublica } from '@/types/configuracion-publica.types'
 import type { Sede } from '@/types/configuracion.types'
 import type { Faq } from '@/types/faq.types'
@@ -27,8 +31,7 @@ export const fetchNovedades = (): Promise<NovedadLocal[]> =>
 export const fetchPromociones = (): Promise<Promocion[]> =>
   fetchPublico('/promociones/publicas')
 
-export const fetchZonas = (): Promise<ZonaJuego[]> =>
-  fetchPublico('/zonas')
+export const fetchZonas = (): Promise<ZonaJuego[]> => fetchPublico('/zonas')
 
 export const fetchPaquetes = (): Promise<PaqueteEvento[]> =>
   fetchPublico('/paquetes')
@@ -36,7 +39,9 @@ export const fetchPaquetes = (): Promise<PaqueteEvento[]> =>
 export const fetchConfigPublica = (): Promise<ConfiguracionPublica> =>
   fetchPublico('/cms/configuracion/publica')
 
-export const fetchPublicPrecios = (idSede: number): Promise<PrecioPublicoResponse[]> =>
+export const fetchPublicPrecios = (
+  idSede: number
+): Promise<PrecioPublicoResponse[]> =>
   fetchPublico(`/tarifas/sedes/${idSede}/precios`)
 
 export const fetchSedeActiva = async (): Promise<Sede | null> => {
@@ -44,5 +49,4 @@ export const fetchSedeActiva = async (): Promise<Sede | null> => {
   return sedes.find((s) => s.activo) ?? sedes[0] ?? null
 }
 
-export const fetchFaqs = (): Promise<Faq[]> =>
-  fetchPublico('/cms/faqs/publico')
+export const fetchFaqs = (): Promise<Faq[]> => fetchPublico('/cms/faqs/publico')

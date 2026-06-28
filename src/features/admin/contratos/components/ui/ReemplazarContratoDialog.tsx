@@ -60,14 +60,12 @@ export function ReemplazarContratoDialog({
 
         <div className="space-y-4 pt-1">
           <p className="text-sm text-muted-foreground">
-            El contrato actual quedará archivado en el historial. Se creará un nuevo
-            borrador vacío para este evento.
+            El contrato actual quedará archivado en el historial. Se creará un
+            nuevo borrador vacío para este evento.
           </p>
 
           <div className="space-y-1.5">
-            <Label htmlFor="motivo-reemplazar">
-              Motivo del reemplazo
-            </Label>
+            <Label htmlFor="motivo-reemplazar">Motivo del reemplazo</Label>
             <Textarea
               id="motivo-reemplazar"
               placeholder="Describe el motivo del reemplazo..."

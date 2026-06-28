@@ -46,7 +46,16 @@ export const useAuthStore = create<AuthState>()(
       isLoading: true,
 
       setAuth: ({ user, token }) => set({ user, token, isLoading: false }),
-      setPermisos: ({ roles, permisos, tipoPerfil, nombre, correo, idUsuario, idSede, clientePerfilId }) =>
+      setPermisos: ({
+        roles,
+        permisos,
+        tipoPerfil,
+        nombre,
+        correo,
+        idUsuario,
+        idSede,
+        clientePerfilId,
+      }) =>
         set({
           roles,
           permisos,

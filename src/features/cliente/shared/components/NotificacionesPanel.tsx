@@ -1,7 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { Bell, Ticket, PartyPopper, Wallet, FileText, ShoppingBag, Info, Check } from 'lucide-react'
+import {
+  Bell,
+  Ticket,
+  PartyPopper,
+  Wallet,
+  FileText,
+  ShoppingBag,
+  Info,
+  Check,
+} from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -17,21 +26,37 @@ import {
 } from '@/lib/store/notificaciones.store'
 import type { LucideIcon } from 'lucide-react'
 
-const TIPO_CONFIG: Record<TipoNotificacion, { Icon: LucideIcon; color: string; bg: string }> = {
-  reserva:  { Icon: Ticket,       color: 'text-brand-azul',  bg: 'bg-brand-azul/10' },
-  evento:   { Icon: PartyPopper,  color: 'text-brand-rosa',  bg: 'bg-brand-rosa/10' },
-  pago:     { Icon: Wallet,       color: 'text-amber-600',   bg: 'bg-amber-50' },
-  contrato: { Icon: FileText,     color: 'text-green-600',   bg: 'bg-green-50' },
-  caja:     { Icon: ShoppingBag,  color: 'text-orange-600',  bg: 'bg-orange-50' },
-  sistema:  { Icon: Info,         color: 'text-gray-500',    bg: 'bg-gray-100' },
+const TIPO_CONFIG: Record<
+  TipoNotificacion,
+  { Icon: LucideIcon; color: string; bg: string }
+> = {
+  reserva: { Icon: Ticket, color: 'text-brand-azul', bg: 'bg-brand-azul/10' },
+  evento: {
+    Icon: PartyPopper,
+    color: 'text-brand-rosa',
+    bg: 'bg-brand-rosa/10',
+  },
+  pago: { Icon: Wallet, color: 'text-amber-600', bg: 'bg-amber-50' },
+  contrato: { Icon: FileText, color: 'text-green-600', bg: 'bg-green-50' },
+  caja: { Icon: ShoppingBag, color: 'text-orange-600', bg: 'bg-orange-50' },
+  sistema: { Icon: Info, color: 'text-gray-500', bg: 'bg-gray-100' },
 }
 
 export function NotificacionesPanel() {
-  const { notificaciones, marcarLeida, marcarTodasLeidas, fetchNotificaciones } = useNotificacionesStore()
+  const {
+    notificaciones,
+    marcarLeida,
+    marcarTodasLeidas,
+    fetchNotificaciones,
+  } = useNotificacionesStore()
   const noLeidas = notificaciones.filter((n) => !n.leida).length
 
   return (
-    <Popover onOpenChange={(open) => { if (open) fetchNotificaciones() }}>
+    <Popover
+      onOpenChange={(open) => {
+        if (open) fetchNotificaciones()
+      }}
+    >
       <PopoverTrigger asChild>
         <button
           className="relative w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
@@ -96,7 +121,8 @@ export function NotificacionesPanel() {
 
         <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/50 text-center">
           <p className="text-[11px] text-gray-400">
-            {notificaciones.length} notificacion{notificaciones.length !== 1 ? 'es' : ''}
+            {notificaciones.length} notificacion
+            {notificaciones.length !== 1 ? 'es' : ''}
           </p>
         </div>
       </PopoverContent>
@@ -109,7 +135,10 @@ interface NotificacionItemProps {
   onMarcarLeida: () => void
 }
 
-function NotificacionItem({ notificacion: n, onMarcarLeida }: NotificacionItemProps) {
+function NotificacionItem({
+  notificacion: n,
+  onMarcarLeida,
+}: NotificacionItemProps) {
   const { Icon, color, bg } = TIPO_CONFIG[n.tipo]
 
   const inner = (
@@ -120,7 +149,12 @@ function NotificacionItem({ notificacion: n, onMarcarLeida }: NotificacionItemPr
         !n.leida && 'bg-blue-50/30'
       )}
     >
-      <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5', bg)}>
+      <div
+        className={cn(
+          'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5',
+          bg
+        )}
+      >
         <Icon className={cn('h-4 w-4', color)} />
       </div>
       <div className="flex-1 min-w-0">

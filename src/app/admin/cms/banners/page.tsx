@@ -11,7 +11,10 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/common/Errorstate'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { BannerFormDrawer } from '@/components/admin/banners/BannerFormDrawer'
-import { useBanners, useEliminarBanner } from '@/features/admin/cms/banners/hooks/useBanners'
+import {
+  useBanners,
+  useEliminarBanner,
+} from '@/features/admin/cms/banners/hooks/useBanners'
 import { BannerCard } from '@/features/admin/cms/banners/components/BannerCard'
 import { Banner } from '@/types/banner.types'
 import { cn } from '@/lib/utils'
@@ -26,7 +29,7 @@ export default function BannersPage() {
   const formOpenParam = searchParams.get('open') === 'true'
   const editIdParam = searchParams.get('edit')
 
-  const [confirmOpen,    setConfirmOpen]    = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const [eliminarTarget, setEliminarTarget] = useState<Banner | null>(null)
 
   const { data, isLoading, isError, refetch } = useBanners()
@@ -34,7 +37,7 @@ export default function BannersPage() {
 
   const banners = data?.content ?? []
   const bannerEditando = editIdParam
-    ? banners.find((b) => b.id === Number(editIdParam)) ?? null
+    ? (banners.find((b) => b.id === Number(editIdParam)) ?? null)
     : null
 
   const drawerOpen = formOpenParam || !!bannerEditando
@@ -85,7 +88,8 @@ export default function BannersPage() {
   const filteredBanners = banners.filter((b) => {
     const matchesQuery =
       b.titulo.toLowerCase().includes(query.toLowerCase()) ||
-      (b.descripcion && b.descripcion.toLowerCase().includes(query.toLowerCase()))
+      (b.descripcion &&
+        b.descripcion.toLowerCase().includes(query.toLowerCase()))
     const matchesTipo = tipoFiltro === 'TODOS' || b.tipoBanner === tipoFiltro
     return matchesQuery && matchesTipo
   })
@@ -93,10 +97,7 @@ export default function BannersPage() {
   return (
     <div className="space-y-4">
       <Breadcrumbs
-        items={[
-          { label: 'CMS', href: '/admin/cms' },
-          { label: 'Banners' },
-        ]}
+        items={[{ label: 'CMS', href: '/admin/cms' }, { label: 'Banners' }]}
       />
 
       <PageHeader
@@ -123,7 +124,14 @@ export default function BannersPage() {
             />
           </div>
           <div className="flex flex-wrap gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100 self-stretch sm:self-auto justify-center">
-            {['TODOS', 'HERO', 'PROMOCION', 'EVENTO', 'INFORMATIVO', 'TEMPORADA'].map((t) => (
+            {[
+              'TODOS',
+              'HERO',
+              'PROMOCION',
+              'EVENTO',
+              'INFORMATIVO',
+              'TEMPORADA',
+            ].map((t) => (
               <button
                 key={t}
                 onClick={() => handleSelectTipo(t)}
@@ -134,7 +142,9 @@ export default function BannersPage() {
                     : 'text-gray-500 hover:text-gray-900 border border-transparent'
                 )}
               >
-                {t === 'TODOS' ? 'Todos' : t.charAt(0) + t.slice(1).toLowerCase()}
+                {t === 'TODOS'
+                  ? 'Todos'
+                  : t.charAt(0) + t.slice(1).toLowerCase()}
               </button>
             ))}
           </div>
@@ -144,7 +154,10 @@ export default function BannersPage() {
       {isLoading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-2xl overflow-hidden border border-gray-100">
+            <div
+              key={i}
+              className="rounded-2xl overflow-hidden border border-gray-100"
+            >
               <Skeleton className="aspect-video w-full" />
               <div className="p-4 space-y-2">
                 <Skeleton className="h-4 w-3/4" />
@@ -160,8 +173,14 @@ export default function BannersPage() {
           <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
             <ImageIcon className="h-8 w-8 text-gray-300" />
           </div>
-          <p className="text-sm font-medium text-gray-500">Sin banners creados</p>
-          <Button variant="outline" onClick={abrirCrear} className="rounded-xl gap-1.5">
+          <p className="text-sm font-medium text-gray-500">
+            Sin banners creados
+          </p>
+          <Button
+            variant="outline"
+            onClick={abrirCrear}
+            className="rounded-xl gap-1.5"
+          >
             <Plus className="h-4 w-4" /> Crear primer banner
           </Button>
         </div>
@@ -169,7 +188,9 @@ export default function BannersPage() {
 
       {!isLoading && banners.length > 0 && filteredBanners.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 gap-4 bg-white rounded-2xl border border-gray-100">
-          <p className="text-sm font-medium text-gray-500">No se encontraron banners que coincidan con la búsqueda.</p>
+          <p className="text-sm font-medium text-gray-500">
+            No se encontraron banners que coincidan con la búsqueda.
+          </p>
         </div>
       )}
 

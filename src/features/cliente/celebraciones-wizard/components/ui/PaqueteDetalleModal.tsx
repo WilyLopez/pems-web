@@ -5,7 +5,12 @@ import { Check, PartyPopper, X, Users, Clock } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
 import { fixMediaUrl } from '@/lib/media'
 import { PaqueteEvento } from '@/types/comercial.types'
-import { Dialog, DialogContent, DialogClose, DialogTitle } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogClose,
+  DialogTitle,
+} from '@/components/ui/Dialog'
 import { useGaleria } from '@/features/admin/cms/galeria/hooks/useGaleria'
 
 function GaleriaPaquete({ paquete }: { paquete: PaqueteEvento }) {
@@ -57,11 +62,21 @@ interface Props {
   onElegir: (id: number) => void
 }
 
-export function PaqueteDetalleModal({ paquete, open, onClose, onElegir }: Props) {
+export function PaqueteDetalleModal({
+  paquete,
+  open,
+  onClose,
+  onElegir,
+}: Props) {
   if (!paquete) return null
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) onClose()
+      }}
+    >
       <DialogContent
         className="flex flex-col max-w-lg w-[calc(100vw-2rem)] sm:w-full rounded-2xl p-0 max-h-[90vh] sm:max-h-[85vh] gap-0 [&>button:last-child]:hidden"
         aria-describedby={undefined}
@@ -100,7 +115,9 @@ export function PaqueteDetalleModal({ paquete, open, onClose, onElegir }: Props)
           </div>
 
           <div className="shrink-0 text-right">
-            <p className="text-[10px] text-gray-400 font-medium leading-none">desde</p>
+            <p className="text-[10px] text-gray-400 font-medium leading-none">
+              desde
+            </p>
             <p className="text-2xl font-black text-brand-rosa leading-tight">
               {formatCurrency(paquete.precio)}
             </p>
@@ -133,7 +150,10 @@ export function PaqueteDetalleModal({ paquete, open, onClose, onElegir }: Props)
                 </p>
                 <ul className="grid grid-cols-1 gap-2">
                   {paquete.beneficios.map((b, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 leading-snug">
+                    <li
+                      key={i}
+                      className="flex items-start gap-2.5 text-sm text-gray-700 leading-snug"
+                    >
                       <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
                         <Check className="h-3 w-3 text-green-600" />
                       </div>
@@ -161,7 +181,10 @@ export function PaqueteDetalleModal({ paquete, open, onClose, onElegir }: Props)
         <div className="px-5 py-4 border-t border-gray-100 shrink-0 bg-white">
           <button
             type="button"
-            onClick={() => { onElegir(paquete.id); onClose() }}
+            onClick={() => {
+              onElegir(paquete.id)
+              onClose()
+            }}
             className="w-full py-3.5 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl font-bold text-sm transition-all active:scale-[0.98] shadow-sm shadow-brand-rosa/20"
           >
             Elegir este paquete

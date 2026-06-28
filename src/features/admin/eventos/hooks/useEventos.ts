@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { eventosApi, BuscarEventosParams, KpisEventos } from '../services/eventos.api'
+import {
+  eventosApi,
+  BuscarEventosParams,
+  KpisEventos,
+} from '../services/eventos.api'
 import {
   ChecklistItem,
   ConfirmarEventoPayload,
@@ -95,8 +99,13 @@ export function useSolicitarEvento() {
 export function useConfirmarEvento() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ConfirmarEventoPayload }) =>
-      eventosApi.confirmar(id, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ConfirmarEventoPayload
+    }) => eventosApi.confirmar(id, payload),
     onSuccess: (evento) => {
       qc.invalidateQueries({ queryKey: eventosKeys.lists() })
       qc.setQueryData(eventosKeys.detail(evento.id), evento)
@@ -170,9 +179,15 @@ export function useCompletarTarea() {
     }) => eventosApi.completarTarea(idEvento, idChecklist),
     onMutate: async ({ idEvento, idChecklist }) => {
       await qc.cancelQueries({ queryKey: eventosKeys.checklist(idEvento) })
-      const prev = qc.getQueryData<ChecklistItem[]>(eventosKeys.checklist(idEvento))
-      qc.setQueryData<ChecklistItem[]>(eventosKeys.checklist(idEvento), (old) =>
-        old?.map((t) => (t.id === idChecklist ? { ...t, completada: true } : t)) ?? []
+      const prev = qc.getQueryData<ChecklistItem[]>(
+        eventosKeys.checklist(idEvento)
+      )
+      qc.setQueryData<ChecklistItem[]>(
+        eventosKeys.checklist(idEvento),
+        (old) =>
+          old?.map((t) =>
+            t.id === idChecklist ? { ...t, completada: true } : t
+          ) ?? []
       )
       return { prev }
     },
@@ -199,9 +214,15 @@ export function useDescompletarTarea() {
     }) => eventosApi.descompletarTarea(idEvento, idChecklist),
     onMutate: async ({ idEvento, idChecklist }) => {
       await qc.cancelQueries({ queryKey: eventosKeys.checklist(idEvento) })
-      const prev = qc.getQueryData<ChecklistItem[]>(eventosKeys.checklist(idEvento))
-      qc.setQueryData<ChecklistItem[]>(eventosKeys.checklist(idEvento), (old) =>
-        old?.map((t) => (t.id === idChecklist ? { ...t, completada: false } : t)) ?? []
+      const prev = qc.getQueryData<ChecklistItem[]>(
+        eventosKeys.checklist(idEvento)
+      )
+      qc.setQueryData<ChecklistItem[]>(
+        eventosKeys.checklist(idEvento),
+        (old) =>
+          old?.map((t) =>
+            t.id === idChecklist ? { ...t, completada: false } : t
+          ) ?? []
       )
       return { prev }
     },
@@ -222,8 +243,9 @@ export function useAgregarTarea() {
     mutationFn: ({ idEvento, tarea }: { idEvento: number; tarea: string }) =>
       eventosApi.agregarTarea(idEvento, tarea),
     onSuccess: (item, { idEvento }) => {
-      qc.setQueryData<ChecklistItem[]>(eventosKeys.checklist(idEvento), (old) =>
-        old ? [...old, item] : [item]
+      qc.setQueryData<ChecklistItem[]>(
+        eventosKeys.checklist(idEvento),
+        (old) => (old ? [...old, item] : [item])
       )
     },
     onError: () => toast.error('No se pudo agregar la tarea.'),
@@ -233,13 +255,21 @@ export function useAgregarTarea() {
 export function useEliminarTarea() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ idEvento, idChecklist }: { idEvento: number; idChecklist: number }) =>
-      eventosApi.eliminarTarea(idEvento, idChecklist),
+    mutationFn: ({
+      idEvento,
+      idChecklist,
+    }: {
+      idEvento: number
+      idChecklist: number
+    }) => eventosApi.eliminarTarea(idEvento, idChecklist),
     onMutate: async ({ idEvento, idChecklist }) => {
       await qc.cancelQueries({ queryKey: eventosKeys.checklist(idEvento) })
-      const prev = qc.getQueryData<ChecklistItem[]>(eventosKeys.checklist(idEvento))
-      qc.setQueryData<ChecklistItem[]>(eventosKeys.checklist(idEvento), (old) =>
-        old?.filter((t) => t.id !== idChecklist) ?? []
+      const prev = qc.getQueryData<ChecklistItem[]>(
+        eventosKeys.checklist(idEvento)
+      )
+      qc.setQueryData<ChecklistItem[]>(
+        eventosKeys.checklist(idEvento),
+        (old) => old?.filter((t) => t.id !== idChecklist) ?? []
       )
       return { prev }
     },

@@ -14,7 +14,12 @@ import {
   GripVertical,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { EmailBlock, BlockTipo, parsearBloques, serializarBloques } from '@/types/emailBlocks.types'
+import {
+  EmailBlock,
+  BlockTipo,
+  parsearBloques,
+  serializarBloques,
+} from '@/types/emailBlocks.types'
 import { VariableChips } from './VariableChips'
 import { Button } from '@/components/ui/Button'
 
@@ -30,19 +35,27 @@ interface TipoConfig {
 }
 
 const TIPO_CONFIG: Record<BlockTipo, TipoConfig> = {
-  heading:   { label: 'Título',    icon: Type,              placeholder: 'Escribe el título...' },
-  paragraph: { label: 'Párrafo',   icon: AlignLeft,         placeholder: 'Escribe el contenido...' },
-  image:     { label: 'Imagen',    icon: Image,             placeholder: 'https://...' },
-  button:    { label: 'Botón',     icon: MousePointerClick, placeholder: 'Texto del botón' },
-  divider:   { label: 'Separador', icon: Minus,             placeholder: '' },
+  heading: { label: 'Título', icon: Type, placeholder: 'Escribe el título...' },
+  paragraph: {
+    label: 'Párrafo',
+    icon: AlignLeft,
+    placeholder: 'Escribe el contenido...',
+  },
+  image: { label: 'Imagen', icon: Image, placeholder: 'https://...' },
+  button: {
+    label: 'Botón',
+    icon: MousePointerClick,
+    placeholder: 'Texto del botón',
+  },
+  divider: { label: 'Separador', icon: Minus, placeholder: '' },
 }
 
 const ADD_BUTTONS: { tipo: BlockTipo; label: string; icon: LucideIcon }[] = [
-  { tipo: 'heading',   label: 'Título',    icon: Type },
-  { tipo: 'paragraph', label: 'Texto',     icon: AlignLeft },
-  { tipo: 'image',     label: 'Imagen',    icon: Image },
-  { tipo: 'button',    label: 'Botón',     icon: MousePointerClick },
-  { tipo: 'divider',   label: 'Separador', icon: Minus },
+  { tipo: 'heading', label: 'Título', icon: Type },
+  { tipo: 'paragraph', label: 'Texto', icon: AlignLeft },
+  { tipo: 'image', label: 'Imagen', icon: Image },
+  { tipo: 'button', label: 'Botón', icon: MousePointerClick },
+  { tipo: 'divider', label: 'Separador', icon: Minus },
 ]
 
 function generateId() {
@@ -80,32 +93,53 @@ function BlockItem({
 
   function insertIntoText(variable: string) {
     const el = textRef.current
-    if (!el) { onUpdate({ ...block, texto: (block.texto ?? '') + variable }); return }
+    if (!el) {
+      onUpdate({ ...block, texto: (block.texto ?? '') + variable })
+      return
+    }
     const s = el.selectionStart ?? 0
     const e = el.selectionEnd ?? 0
-    const next = (block.texto ?? '').slice(0, s) + variable + (block.texto ?? '').slice(e)
+    const next =
+      (block.texto ?? '').slice(0, s) + variable + (block.texto ?? '').slice(e)
     onUpdate({ ...block, texto: next })
-    setTimeout(() => { el.focus(); el.setSelectionRange(s + variable.length, s + variable.length) }, 0)
+    setTimeout(() => {
+      el.focus()
+      el.setSelectionRange(s + variable.length, s + variable.length)
+    }, 0)
   }
 
   function insertIntoTextInput(variable: string) {
     const el = textInputRef.current
-    if (!el) { onUpdate({ ...block, texto: (block.texto ?? '') + variable }); return }
+    if (!el) {
+      onUpdate({ ...block, texto: (block.texto ?? '') + variable })
+      return
+    }
     const s = el.selectionStart ?? 0
     const e = el.selectionEnd ?? 0
-    const next = (block.texto ?? '').slice(0, s) + variable + (block.texto ?? '').slice(e)
+    const next =
+      (block.texto ?? '').slice(0, s) + variable + (block.texto ?? '').slice(e)
     onUpdate({ ...block, texto: next })
-    setTimeout(() => { el.focus(); el.setSelectionRange(s + variable.length, s + variable.length) }, 0)
+    setTimeout(() => {
+      el.focus()
+      el.setSelectionRange(s + variable.length, s + variable.length)
+    }, 0)
   }
 
   function insertIntoUrl(variable: string) {
     const el = urlRef.current
-    if (!el) { onUpdate({ ...block, url: (block.url ?? '') + variable }); return }
+    if (!el) {
+      onUpdate({ ...block, url: (block.url ?? '') + variable })
+      return
+    }
     const s = el.selectionStart ?? 0
     const e = el.selectionEnd ?? 0
-    const next = (block.url ?? '').slice(0, s) + variable + (block.url ?? '').slice(e)
+    const next =
+      (block.url ?? '').slice(0, s) + variable + (block.url ?? '').slice(e)
     onUpdate({ ...block, url: next })
-    setTimeout(() => { el.focus(); el.setSelectionRange(s + variable.length, s + variable.length) }, 0)
+    setTimeout(() => {
+      el.focus()
+      el.setSelectionRange(s + variable.length, s + variable.length)
+    }, 0)
   }
 
   return (
@@ -127,7 +161,9 @@ function BlockItem({
           {block.tipo === 'heading' && (
             <select
               value={block.nivel ?? 1}
-              onChange={(e) => onUpdate({ ...block, nivel: Number(e.target.value) as 1 | 2 })}
+              onChange={(e) =>
+                onUpdate({ ...block, nivel: Number(e.target.value) as 1 | 2 })
+              }
               className="text-[11px] border border-gray-200 rounded-md px-1 py-0 text-gray-500 focus:outline-none"
             >
               <option value={1}>H1</option>
@@ -205,7 +241,9 @@ function BlockItem({
               src={block.url}
               alt={block.alt ?? ''}
               className="w-full max-h-32 object-cover rounded-lg border border-gray-100"
-              onError={(e) => { e.currentTarget.style.display = 'none' }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
             />
           )}
         </div>
@@ -245,7 +283,9 @@ function BlockItem({
 }
 
 export function BlockEditor({ value, onChange }: Props) {
-  const [bloques, setBloques] = useState<EmailBlock[]>(() => parsearBloques(value))
+  const [bloques, setBloques] = useState<EmailBlock[]>(() =>
+    parsearBloques(value)
+  )
   const [activeId, setActiveId] = useState<string | null>(null)
   const insertHandlerRef = useRef<((v: string) => void) | null>(null)
 
@@ -342,31 +382,61 @@ export function BlockEditor({ value, onChange }: Props) {
             </p>
             <div className="border border-gray-100 rounded-xl bg-gray-50 p-3 space-y-2 max-h-64 overflow-y-auto">
               {bloques.map((b) => {
-                if (b.tipo === 'divider') return <hr key={b.id} className="border-gray-300" />
-                if (b.tipo === 'heading') return (
-                  <p key={b.id} className={cn('font-black text-gray-900', b.nivel === 2 ? 'text-base' : 'text-lg')}>
-                    {b.texto || <span className="text-gray-300 font-normal italic">Título vacío</span>}
-                  </p>
-                )
-                if (b.tipo === 'paragraph') return (
-                  <p key={b.id} className="text-gray-600 leading-relaxed text-xs">
-                    {b.texto || <span className="text-gray-300 italic">Párrafo vacío</span>}
-                  </p>
-                )
-                if (b.tipo === 'image') return b.url ? (
-                  <img key={b.id} src={b.url} alt={b.alt ?? ''} className="w-full rounded-lg object-cover max-h-20" />
-                ) : (
-                  <div key={b.id} className="w-full h-12 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
-                    Sin imagen
-                  </div>
-                )
-                if (b.tipo === 'button') return (
-                  <div key={b.id} className="flex justify-center">
-                    <span className="px-4 py-1.5 rounded-full bg-brand-azul text-white text-xs font-semibold">
-                      {b.texto || 'Botón'}
-                    </span>
-                  </div>
-                )
+                if (b.tipo === 'divider')
+                  return <hr key={b.id} className="border-gray-300" />
+                if (b.tipo === 'heading')
+                  return (
+                    <p
+                      key={b.id}
+                      className={cn(
+                        'font-black text-gray-900',
+                        b.nivel === 2 ? 'text-base' : 'text-lg'
+                      )}
+                    >
+                      {b.texto || (
+                        <span className="text-gray-300 font-normal italic">
+                          Título vacío
+                        </span>
+                      )}
+                    </p>
+                  )
+                if (b.tipo === 'paragraph')
+                  return (
+                    <p
+                      key={b.id}
+                      className="text-gray-600 leading-relaxed text-xs"
+                    >
+                      {b.texto || (
+                        <span className="text-gray-300 italic">
+                          Párrafo vacío
+                        </span>
+                      )}
+                    </p>
+                  )
+                if (b.tipo === 'image')
+                  return b.url ? (
+                    <img
+                      key={b.id}
+                      src={b.url}
+                      alt={b.alt ?? ''}
+                      className="w-full rounded-lg object-cover max-h-20"
+                    />
+                  ) : (
+                    <div
+                      key={b.id}
+                      className="w-full h-12 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-xs"
+                    >
+                      Sin imagen
+                    </div>
+                  )
+                if (b.tipo === 'button')
+                  return (
+                    <div key={b.id} className="flex justify-center">
+                      <span className="px-4 py-1.5 rounded-full bg-brand-azul text-white text-xs font-semibold">
+                        {b.texto || 'Botón'}
+                      </span>
+                    </div>
+                  )
                 return null
               })}
             </div>

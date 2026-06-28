@@ -45,23 +45,40 @@ export function useTipoEventoMutations() {
   const invalidar = () => qc.invalidateQueries({ queryKey: ['tipos-evento'] })
 
   const crear = useMutation({
-    mutationFn: (payload: CrearTipoEventoPayload) => comercialService.tiposEvento.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Tipo de evento creado') },
+    mutationFn: (payload: CrearTipoEventoPayload) =>
+      comercialService.tiposEvento.crear(payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Tipo de evento creado')
+    },
     onError: () => toast.error('Error al crear el tipo de evento'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ codigo, payload }: { codigo: string; payload: ActualizarTipoEventoPayload }) =>
-      comercialService.tiposEvento.actualizar(codigo, payload),
-    onSuccess: () => { invalidar(); toast.success('Tipo de evento actualizado') },
+    mutationFn: ({
+      codigo,
+      payload,
+    }: {
+      codigo: string
+      payload: ActualizarTipoEventoPayload
+    }) => comercialService.tiposEvento.actualizar(codigo, payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Tipo de evento actualizado')
+    },
     onError: () => toast.error('Error al actualizar el tipo de evento'),
   })
 
   const eliminar = useMutation({
-    mutationFn: (codigo: string) => comercialService.tiposEvento.eliminar(codigo),
-    onSuccess: () => { invalidar(); toast.success('Tipo de evento eliminado') },
+    mutationFn: (codigo: string) =>
+      comercialService.tiposEvento.eliminar(codigo),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Tipo de evento eliminado')
+    },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      const msg = (err as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message
       toast.error(msg ?? 'Error al eliminar el tipo de evento')
     },
   })
@@ -69,10 +86,16 @@ export function useTipoEventoMutations() {
   const toggleActivo = useMutation({
     mutationFn: (t: TipoEvento) =>
       comercialService.tiposEvento.actualizar(t.codigo, {
-        nombre: t.nombre, descripcion: t.descripcion,
-        icono: t.icono, activo: !t.activo, orden: t.orden,
+        nombre: t.nombre,
+        descripcion: t.descripcion,
+        icono: t.icono,
+        activo: !t.activo,
+        orden: t.orden,
       }),
-    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Estado actualizado')
+    },
     onError: () => toast.error('No se pudo cambiar el estado'),
   })
 
@@ -107,20 +130,36 @@ export function useBeneficioMutations(idPaquete: number | undefined) {
   const crear = useMutation({
     mutationFn: (payload: Partial<BeneficioPaquete>) =>
       comercialService.paquetes.beneficios.crear(idPaquete!, payload),
-    onSuccess: () => { invalidar(); toast.success('Beneficio añadido') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Beneficio añadido')
+    },
     onError: () => toast.error('Error al añadir beneficio'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: Partial<BeneficioPaquete> }) =>
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: Partial<BeneficioPaquete>
+    }) =>
       comercialService.paquetes.beneficios.actualizar(idPaquete!, id, payload),
-    onSuccess: () => { invalidar(); toast.success('Beneficio actualizado') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Beneficio actualizado')
+    },
     onError: () => toast.error('Error al actualizar beneficio'),
   })
 
   const eliminar = useMutation({
-    mutationFn: (id: number) => comercialService.paquetes.beneficios.eliminar(idPaquete!, id),
-    onSuccess: () => { invalidar(); toast.success('Beneficio eliminado') },
+    mutationFn: (id: number) =>
+      comercialService.paquetes.beneficios.eliminar(idPaquete!, id),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Beneficio eliminado')
+    },
     onError: () => toast.error('Error al eliminar beneficio'),
   })
 
@@ -145,20 +184,35 @@ export function useServicioCotizacionMutations() {
   const crear = useMutation({
     mutationFn: (payload: Partial<ServicioCotizacion>) =>
       comercialService.serviciosCotizacion.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Servicio creado') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Servicio creado')
+    },
     onError: () => toast.error('Error al crear el servicio'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: Partial<ServicioCotizacion> }) =>
-      comercialService.serviciosCotizacion.actualizar(id, payload),
-    onSuccess: () => { invalidar(); toast.success('Servicio actualizado') },
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: Partial<ServicioCotizacion>
+    }) => comercialService.serviciosCotizacion.actualizar(id, payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Servicio actualizado')
+    },
     onError: () => toast.error('Error al actualizar el servicio'),
   })
 
   const eliminar = useMutation({
-    mutationFn: (id: number) => comercialService.serviciosCotizacion.eliminar(id),
-    onSuccess: () => { invalidar(); toast.success('Servicio eliminado') },
+    mutationFn: (id: number) =>
+      comercialService.serviciosCotizacion.eliminar(id),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Servicio eliminado')
+    },
     onError: () => toast.error('Error al eliminar el servicio'),
   })
 
@@ -189,21 +243,36 @@ export function useZonaMutations() {
   }
 
   const crear = useMutation({
-    mutationFn: (payload: CrearZonaPayload) => comercialService.zonas.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Zona creada') },
+    mutationFn: (payload: CrearZonaPayload) =>
+      comercialService.zonas.crear(payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Zona creada')
+    },
     onError: () => toast.error('Error al crear la zona'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ActualizarZonaPayload }) =>
-      comercialService.zonas.actualizar(id, payload),
-    onSuccess: () => { invalidar(); toast.success('Zona actualizada') },
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ActualizarZonaPayload
+    }) => comercialService.zonas.actualizar(id, payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Zona actualizada')
+    },
     onError: () => toast.error('Error al actualizar la zona'),
   })
 
   const eliminar = useMutation({
     mutationFn: (id: number) => comercialService.zonas.eliminar(id),
-    onSuccess: () => { invalidar(); toast.success('Zona eliminada') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Zona eliminada')
+    },
     onError: () => toast.error('Error al eliminar la zona'),
   })
 
@@ -217,12 +286,20 @@ export function useZonaMutations() {
   const toggleActivo = useMutation({
     mutationFn: (z: ZonaJuego) =>
       comercialService.zonas.actualizar(z.id, {
-        nombre: z.nombre, descripcion: z.descripcion,
-        edadMinima: z.edadMinima, edadMaxima: z.edadMaxima,
-        imagenes: z.imagenes, videos: z.videos,
-        activa: !z.activa, destacada: z.destacada, orden: z.orden,
+        nombre: z.nombre,
+        descripcion: z.descripcion,
+        edadMinima: z.edadMinima,
+        edadMaxima: z.edadMaxima,
+        imagenes: z.imagenes,
+        videos: z.videos,
+        activa: !z.activa,
+        destacada: z.destacada,
+        orden: z.orden,
       }),
-    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Estado actualizado')
+    },
     onError: () => toast.error('No se pudo cambiar el estado'),
   })
 
@@ -253,21 +330,36 @@ export function useActividadMutations() {
   }
 
   const crear = useMutation({
-    mutationFn: (payload: CrearActividadPayload) => comercialService.actividades.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Actividad creada') },
+    mutationFn: (payload: CrearActividadPayload) =>
+      comercialService.actividades.crear(payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Actividad creada')
+    },
     onError: () => toast.error('Error al crear la actividad'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ActualizarActividadPayload }) =>
-      comercialService.actividades.actualizar(id, payload),
-    onSuccess: () => { invalidar(); toast.success('Actividad actualizada') },
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ActualizarActividadPayload
+    }) => comercialService.actividades.actualizar(id, payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Actividad actualizada')
+    },
     onError: () => toast.error('Error al actualizar la actividad'),
   })
 
   const eliminar = useMutation({
     mutationFn: (id: number) => comercialService.actividades.eliminar(id),
-    onSuccess: () => { invalidar(); toast.success('Actividad eliminada') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Actividad eliminada')
+    },
     onError: () => toast.error('Error al eliminar la actividad'),
   })
 
@@ -281,13 +373,21 @@ export function useActividadMutations() {
   const toggleActivo = useMutation({
     mutationFn: (a: ActividadLocal) =>
       comercialService.actividades.actualizar(a.id, {
-        nombre: a.nombre, descripcion: a.descripcion,
-        imagenUrl: a.imagenUrl, idZona: a.idZona,
-        esEspecial: a.esEspecial, fechaInicio: a.fechaInicio,
-        fechaFin: a.fechaFin, activa: !a.activa,
-        destacada: a.destacada, orden: a.orden,
+        nombre: a.nombre,
+        descripcion: a.descripcion,
+        imagenUrl: a.imagenUrl,
+        idZona: a.idZona,
+        esEspecial: a.esEspecial,
+        fechaInicio: a.fechaInicio,
+        fechaFin: a.fechaFin,
+        activa: !a.activa,
+        destacada: a.destacada,
+        orden: a.orden,
       }),
-    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Estado actualizado')
+    },
     onError: () => toast.error('No se pudo cambiar el estado'),
   })
 
@@ -318,35 +418,58 @@ export function useNovedadMutations() {
   }
 
   const crear = useMutation({
-    mutationFn: (payload: CrearNovedadPayload) => comercialService.novedades.crear(payload),
-    onSuccess: () => { invalidar(); toast.success('Novedad creada') },
+    mutationFn: (payload: CrearNovedadPayload) =>
+      comercialService.novedades.crear(payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Novedad creada')
+    },
     onError: () => toast.error('Error al crear la novedad'),
   })
 
   const actualizar = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: ActualizarNovedadPayload }) =>
-      comercialService.novedades.actualizar(id, payload),
-    onSuccess: () => { invalidar(); toast.success('Novedad actualizada') },
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ActualizarNovedadPayload
+    }) => comercialService.novedades.actualizar(id, payload),
+    onSuccess: () => {
+      invalidar()
+      toast.success('Novedad actualizada')
+    },
     onError: () => toast.error('Error al actualizar la novedad'),
   })
 
   const eliminar = useMutation({
     mutationFn: (id: number) => comercialService.novedades.eliminar(id),
-    onSuccess: () => { invalidar(); toast.success('Novedad eliminada') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Novedad eliminada')
+    },
     onError: () => toast.error('Error al eliminar la novedad'),
   })
 
   const toggleActivo = useMutation({
     mutationFn: (n: NovedadLocal) =>
       comercialService.novedades.actualizar(n.id, {
-        titulo: n.titulo, descripcion: n.descripcion,
-        imagenUrl: n.imagenUrl, textoCta: n.textoCta,
-        urlCta: n.urlCta, prioridad: n.prioridad,
-        fechaInicio: n.fechaInicio, fechaFin: n.fechaFin,
-        visibleHome: n.visibleHome, destacada: n.destacada,
+        titulo: n.titulo,
+        descripcion: n.descripcion,
+        imagenUrl: n.imagenUrl,
+        textoCta: n.textoCta,
+        urlCta: n.urlCta,
+        prioridad: n.prioridad,
+        fechaInicio: n.fechaInicio,
+        fechaFin: n.fechaFin,
+        visibleHome: n.visibleHome,
+        destacada: n.destacada,
         activa: !n.activa,
       }),
-    onSuccess: () => { invalidar(); toast.success('Estado actualizado') },
+    onSuccess: () => {
+      invalidar()
+      toast.success('Estado actualizado')
+    },
     onError: () => toast.error('No se pudo cambiar el estado'),
   })
 
