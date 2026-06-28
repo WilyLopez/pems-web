@@ -38,7 +38,7 @@ import { calcularIndicadores, EventoCuota, PagoItem } from '../../types'
 import { EventoEstadoBadge } from '../ui/EventoEstadoBadge'
 import { EventoAlertasBadges } from '../ui/EventoAlertasBadges'
 import { MediosPagoSelect } from '@/features/admin/config/components/MediosPagoSelect'
-import { useResumenEvento, GastosEventoPanel } from '@/features/admin/finance'
+import { useResumenEvento, GastosEventoPanel } from '@/features/admin/finanzas'
 import { usePaquete } from '@/hooks/useComercial'
 import { ConfirmarEventoModal } from '@/components/admin/eventos/ConfirmarEventoModal'
 import { ContratoEventoTab } from '@/components/admin/contratos/ContratoEventoTab'
@@ -76,9 +76,9 @@ interface EventoDetalleViewProps {
 }
 
 export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
-  const router       = useRouter()
+  const router = useRouter()
   const searchParams = useSearchParams()
-  const tabActivo    = searchParams.get('tab') ?? 'resumen'
+  const tabActivo = searchParams.get('tab') ?? 'resumen'
 
   function setTab(tab: string) {
     router.replace(`/admin/eventos/${idEvento}?tab=${tab}`)
@@ -89,30 +89,30 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
   const { data: resumenFinanciero } = useResumenEvento(idEvento)
   const { data: paquete } = usePaquete(evento?.idPaquete ?? undefined)
 
-  const completar         = useCompletarTarea()
-  const descompletar      = useDescompletarTarea()
-  const agregarTarea      = useAgregarTarea()
-  const eliminarTarea     = useEliminarTarea()
-  const completarEvento   = useCompletarEvento()
-  const registrarSaldo    = useRegistrarSaldo()
-  const cancelarEvento    = useCancelarEvento()
-  const registrarCuota    = useRegistrarPagoCuota()
+  const completar = useCompletarTarea()
+  const descompletar = useDescompletarTarea()
+  const agregarTarea = useAgregarTarea()
+  const eliminarTarea = useEliminarTarea()
+  const completarEvento = useCompletarEvento()
+  const registrarSaldo = useRegistrarSaldo()
+  const cancelarEvento = useCancelarEvento()
+  const registrarCuota = useRegistrarPagoCuota()
 
-  const [modalConfirmar, setModalConfirmar]             = useState(false)
-  const [dialogCompletar, setDialogCompletar]           = useState(false)
-  const [dialogCancelar, setDialogCancelar]             = useState(false)
-  const [motivoCancelacion, setMotivoCancelacion]       = useState('')
-  const [montoSaldo, setMontoSaldo]                     = useState('')
-  const [medioPagoSaldo, setMedioPagoSaldo]             = useState('')
-  const [cuotaSeleccionada, setCuotaSeleccionada]       = useState<EventoCuota | null>(null)
-  const [pagosCuota, setPagosCuota]                     = useState<PagoItem[]>([{ medioPago: '', monto: 0 }])
-  const [dialogReprogramar, setDialogReprogramar]       = useState(false)
-  const [nuevaTarea, setNuevaTarea]                     = useState('')
+  const [modalConfirmar, setModalConfirmar] = useState(false)
+  const [dialogCompletar, setDialogCompletar] = useState(false)
+  const [dialogCancelar, setDialogCancelar] = useState(false)
+  const [motivoCancelacion, setMotivoCancelacion] = useState('')
+  const [montoSaldo, setMontoSaldo] = useState('')
+  const [medioPagoSaldo, setMedioPagoSaldo] = useState('')
+  const [cuotaSeleccionada, setCuotaSeleccionada] = useState<EventoCuota | null>(null)
+  const [pagosCuota, setPagosCuota] = useState<PagoItem[]>([{ medioPago: '', monto: 0 }])
+  const [dialogReprogramar, setDialogReprogramar] = useState(false)
+  const [nuevaTarea, setNuevaTarea] = useState('')
 
-  const completadas  = checklist.filter((c) => c.completada).length
+  const completadas = checklist.filter((c) => c.completada).length
   const pctChecklist = checklist.length > 0
     ? Math.round((completadas / checklist.length) * 100) : 0
-  const hoy          = new Date().toISOString().slice(0, 10)
+  const hoy = new Date().toISOString().slice(0, 10)
   const eventoFuturo = !!evento && String(evento.fechaEvento) > hoy
 
   if (isError) return <ErrorState onRetry={refetch} />
@@ -191,10 +191,10 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
             <div className="lg:col-span-2">
               <Tabs value={tabActivo} onValueChange={setTab}>
                 <TabsList className="bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
-                  <TabsTrigger value="resumen"       className="rounded-lg text-xs">Resumen</TabsTrigger>
-                  <TabsTrigger value="pagos"         className="rounded-lg text-xs">Pagos</TabsTrigger>
-                  <TabsTrigger value="rentabilidad"  className="rounded-lg text-xs">Rentabilidad</TabsTrigger>
-                  <TabsTrigger value="checklist"     className="rounded-lg text-xs">
+                  <TabsTrigger value="resumen" className="rounded-lg text-xs">Resumen</TabsTrigger>
+                  <TabsTrigger value="pagos" className="rounded-lg text-xs">Pagos</TabsTrigger>
+                  <TabsTrigger value="rentabilidad" className="rounded-lg text-xs">Rentabilidad</TabsTrigger>
+                  <TabsTrigger value="checklist" className="rounded-lg text-xs">
                     Checklist
                     {pctChecklist < 100 && checklist.length > 0 && (
                       <span className="ml-1 bg-amber-400 text-amber-900 text-[9px] font-black px-1.5 rounded-full">
@@ -202,7 +202,7 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                       </span>
                     )}
                   </TabsTrigger>
-                  <TabsTrigger value="contrato"   className="rounded-lg text-xs">Contrato</TabsTrigger>
+                  <TabsTrigger value="contrato" className="rounded-lg text-xs">Contrato</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="resumen" className="mt-4 space-y-4">
@@ -226,10 +226,10 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                       )}
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <InfoRow icon={User}         label="Cliente"  value={evento.nombreCliente} />
-                      <InfoRow icon={CalendarDays}  label="Fecha"    value={formatDate(evento.fechaEvento)} />
-                      <InfoRow icon={Clock}         label="Turno"    value={`${evento.turno} · ${evento.horaInicio} - ${evento.horaFin}`} />
-                      <InfoRow icon={Users}         label="Aforo"    value={evento.aforoDeclarado ? `${evento.aforoDeclarado} personas` : null} />
+                      <InfoRow icon={User} label="Cliente" value={evento.nombreCliente} />
+                      <InfoRow icon={CalendarDays} label="Fecha" value={formatDate(evento.fechaEvento)} />
+                      <InfoRow icon={Clock} label="Turno" value={`${evento.turno} · ${evento.horaInicio} - ${evento.horaFin}`} />
+                      <InfoRow icon={Users} label="Aforo" value={evento.aforoDeclarado ? `${evento.aforoDeclarado} personas` : null} />
                       {paquete && (
                         <InfoRow icon={Package} label="Paquete" value={paquete.nombre} />
                       )}
@@ -244,8 +244,8 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                       <>
                         <Separator />
                         <div className="grid gap-3 sm:grid-cols-2">
-                          <InfoRow icon={User} label="Nombre del niño"    value={evento.nombreNino} />
-                          <InfoRow icon={User} label="Edad"               value={evento.edadCumple ? `${evento.edadCumple} años` : null} />
+                          <InfoRow icon={User} label="Nombre del niño" value={evento.nombreNino} />
+                          <InfoRow icon={User} label="Edad" value={evento.edadCumple ? `${evento.edadCumple} años` : null} />
                           <InfoRow icon={User} label="Contacto adicional" value={evento.contactoAdicional} />
                         </div>
                       </>
@@ -294,7 +294,7 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                         <Separator />
                         <div className="grid gap-3 sm:grid-cols-2">
                           <InfoRow icon={Clock} label="Inicio real" value={evento.horaInicioReal ? formatDate(evento.horaInicioReal, 'HH:mm') : null} />
-                          <InfoRow icon={Clock} label="Fin real"    value={evento.horaFinReal    ? formatDate(evento.horaFinReal,    'HH:mm') : null} />
+                          <InfoRow icon={Clock} label="Fin real" value={evento.horaFinReal ? formatDate(evento.horaFinReal, 'HH:mm') : null} />
                         </div>
                       </>
                     )}
@@ -308,8 +308,8 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                       <>
                         <div className="space-y-3">
                           {[
-                            { label: 'Total contratado',  value: evento.precioTotalContrato, cls: 'text-gray-900 dark:text-gray-100' },
-                            { label: 'Adelanto recibido', value: evento.montoAdelanto ?? 0,  cls: 'text-green-700 dark:text-green-400' },
+                            { label: 'Total contratado', value: evento.precioTotalContrato, cls: 'text-gray-900 dark:text-gray-100' },
+                            { label: 'Adelanto recibido', value: evento.montoAdelanto ?? 0, cls: 'text-green-700 dark:text-green-400' },
                           ].map(({ label, value, cls }) => (
                             <div key={label} className="flex justify-between items-center">
                               <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>
@@ -350,8 +350,8 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                                       cuota.estado === 'PAGADO'
                                         ? 'bg-green-500 text-white'
                                         : cuota.estado === 'VENCIDO'
-                                        ? 'bg-red-500 text-white'
-                                        : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                                          ? 'bg-red-500 text-white'
+                                          : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                                     )}
                                   >
                                     {cuota.numeroCuota}
@@ -372,8 +372,8 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                                       cuota.estado === 'PAGADO'
                                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                                         : cuota.estado === 'VENCIDO'
-                                        ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                                        : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                                          : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                                     )}
                                   >
                                     {cuota.estado}
@@ -465,10 +465,10 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                             <>
                               <div className="grid grid-cols-2 gap-3">
                                 {[
-                                  { label: 'Ingreso contrato',     value: resumenFinanciero.ingresoContrato,        color: 'text-gray-900 dark:text-gray-100' },
-                                  { label: 'Adelanto recibido',    value: resumenFinanciero.montoAdelanto,           color: 'text-blue-700 dark:text-blue-400' },
-                                  { label: 'Gastos adicionales',   value: resumenFinanciero.totalGastosAdicionales,  color: 'text-orange-600 dark:text-orange-400' },
-                                  { label: 'Utilidad bruta',       value: resumenFinanciero.utilidadBruta,           color: positivo ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' },
+                                  { label: 'Ingreso contrato', value: resumenFinanciero.ingresoContrato, color: 'text-gray-900 dark:text-gray-100' },
+                                  { label: 'Adelanto recibido', value: resumenFinanciero.montoAdelanto, color: 'text-blue-700 dark:text-blue-400' },
+                                  { label: 'Gastos adicionales', value: resumenFinanciero.totalGastosAdicionales, color: 'text-orange-600 dark:text-orange-400' },
+                                  { label: 'Utilidad bruta', value: resumenFinanciero.utilidadBruta, color: positivo ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' },
                                 ].map(({ label, value, color }) => (
                                   <div key={label} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 space-y-0.5">
                                     <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
@@ -618,8 +618,8 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
             <div className="space-y-4">
               <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 space-y-3">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Cliente</h3>
-                <InfoRow icon={User} label="Nombre"   value={evento.nombreCliente} />
-                <InfoRow icon={User} label="Correo"   value={evento.correoCliente} />
+                <InfoRow icon={User} label="Nombre" value={evento.nombreCliente} />
+                <InfoRow icon={User} label="Correo" value={evento.correoCliente} />
                 <InfoRow icon={User} label="Telefono" value={evento.telefonoCliente} />
                 <Button size="sm" variant="outline" className="w-full rounded-xl gap-1.5 justify-start text-xs" asChild>
                   <Link href={`${ADMIN_ROUTES.clientes}?search=${encodeURIComponent(evento.nombreCliente)}`}>
@@ -630,7 +630,7 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
 
               <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 space-y-3">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Información</h3>
-                <InfoRow icon={CalendarDays} label="Solicitado el"  value={evento.fechaCreacion ? formatDate(evento.fechaCreacion) : null} />
+                <InfoRow icon={CalendarDays} label="Solicitado el" value={evento.fechaCreacion ? formatDate(evento.fechaCreacion) : null} />
                 {evento.usuarioGestor && (
                   <InfoRow icon={User} label="Gestionado por" value={evento.usuarioGestor} />
                 )}

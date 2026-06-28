@@ -116,7 +116,7 @@ function AccesoRapidoLink({
 }
 
 export default function PerfilPage() {
-  const { idUsuario, isSuperAdmin } = useAuth()
+  const { user, idUsuario, isSuperAdmin } = useAuth()
   const { tab, userId, setTab, setUserId } = usePerfilNav()
 
   useEffect(() => {
@@ -232,7 +232,7 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            <ActividadReciente idAdmin={targetUserId!} />
+            <ActividadReciente idAdmin={isOwnProfile ? user?.id : undefined} />
           </div>
         </TabsContent>
 
@@ -242,7 +242,7 @@ export default function PerfilPage() {
               <div className="lg:col-span-2">
                 <SeguridadInfo admin={admin} />
               </div>
-              <ActividadReciente idAdmin={targetUserId!} />
+              <ActividadReciente idAdmin={isOwnProfile ? user?.id : undefined} />
             </div>
           </TabsContent>
         )}

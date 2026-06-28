@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { isPast } from '../../utils/date-helpers'
 import { useCalendarNav } from '../../hooks/useCalendarNav'
-import { GastosOperativosDia } from '@/features/admin/finance'
+import { GastosOperativosDia } from '@/features/admin/finanzas'
 import { cn } from '@/lib/utils'
 
 import { DrawerStats } from './DrawerStats'
@@ -49,14 +49,14 @@ function resolveMode(
 }
 
 const BADGE_CONFIG: Record<string, { label: string; cls: string }> = {
-  PASADO:       { label: 'Histórico',          cls: 'bg-gray-100 text-gray-500' },
-  FERIADO:      { label: 'Feriado',            cls: 'bg-red-50 text-red-600' },
-  BLOQUEADO:    { label: 'Bloqueado',          cls: 'bg-gray-200 text-gray-600' },
-  NO_LABORABLE: { label: 'No laborable',       cls: 'bg-orange-50 text-orange-700' },
-  EVENTO:       { label: 'Evento privado',     cls: 'bg-pink-50 text-pink-700' },
-  RESERVA:      { label: 'Reservas activas',   cls: 'bg-blue-50 text-blue-700' },
-  LIBRE_PROG:   { label: 'Disponible',         cls: 'bg-green-50 text-green-700' },
-  LIBRE_NOPROG: { label: 'Sin programar',      cls: 'bg-amber-50 text-amber-700' },
+  PASADO: { label: 'Histórico', cls: 'bg-gray-100 text-gray-500' },
+  FERIADO: { label: 'Feriado', cls: 'bg-red-50 text-red-600' },
+  BLOQUEADO: { label: 'Bloqueado', cls: 'bg-gray-200 text-gray-600' },
+  NO_LABORABLE: { label: 'No laborable', cls: 'bg-orange-50 text-orange-700' },
+  EVENTO: { label: 'Evento privado', cls: 'bg-pink-50 text-pink-700' },
+  RESERVA: { label: 'Reservas activas', cls: 'bg-blue-50 text-blue-700' },
+  LIBRE_PROG: { label: 'Disponible', cls: 'bg-green-50 text-green-700' },
+  LIBRE_NOPROG: { label: 'Sin programar', cls: 'bg-amber-50 text-amber-700' },
 }
 
 function fmtTurno(inicio?: string, fin?: string) {
