@@ -297,6 +297,7 @@ const NotificacionesMenu = memo(function NotificacionesMenu() {
 export function AdminNavbar() {
   const { nombre, correo, logout } = useAuth()
   const { toggleMobile } = useSidebarStore()
+  useNotificaciones()
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 px-4 sm:px-6 glass border-b border-gray-100">

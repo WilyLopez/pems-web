@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Bell, Ticket, PartyPopper, Wallet, FileText, Info, Check } from 'lucide-react'
+import { Bell, Ticket, PartyPopper, Wallet, FileText, ShoppingBag, Info, Check } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -18,19 +18,20 @@ import {
 import type { LucideIcon } from 'lucide-react'
 
 const TIPO_CONFIG: Record<TipoNotificacion, { Icon: LucideIcon; color: string; bg: string }> = {
-  reserva:  { Icon: Ticket,      color: 'text-brand-azul',  bg: 'bg-brand-azul/10' },
-  evento:   { Icon: PartyPopper, color: 'text-brand-rosa',  bg: 'bg-brand-rosa/10' },
-  pago:     { Icon: Wallet,      color: 'text-amber-600',   bg: 'bg-amber-50' },
-  contrato: { Icon: FileText,    color: 'text-green-600',   bg: 'bg-green-50' },
-  sistema:  { Icon: Info,        color: 'text-gray-500',    bg: 'bg-gray-100' },
+  reserva:  { Icon: Ticket,       color: 'text-brand-azul',  bg: 'bg-brand-azul/10' },
+  evento:   { Icon: PartyPopper,  color: 'text-brand-rosa',  bg: 'bg-brand-rosa/10' },
+  pago:     { Icon: Wallet,       color: 'text-amber-600',   bg: 'bg-amber-50' },
+  contrato: { Icon: FileText,     color: 'text-green-600',   bg: 'bg-green-50' },
+  caja:     { Icon: ShoppingBag,  color: 'text-orange-600',  bg: 'bg-orange-50' },
+  sistema:  { Icon: Info,         color: 'text-gray-500',    bg: 'bg-gray-100' },
 }
 
 export function NotificacionesPanel() {
-  const { notificaciones, marcarLeida, marcarTodasLeidas } = useNotificacionesStore()
+  const { notificaciones, marcarLeida, marcarTodasLeidas, fetchNotificaciones } = useNotificacionesStore()
   const noLeidas = notificaciones.filter((n) => !n.leida).length
 
   return (
-    <Popover>
+    <Popover onOpenChange={(open) => { if (open) fetchNotificaciones() }}>
       <PopoverTrigger asChild>
         <button
           className="relative w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"

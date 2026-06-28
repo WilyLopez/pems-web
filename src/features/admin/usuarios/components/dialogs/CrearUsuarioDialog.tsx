@@ -19,12 +19,27 @@ import { Label } from '@/components/ui/Label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { ApiError } from '@/types/api.types'
 import { useUsuariosNav } from '../../hooks/useUsuariosNav'
 import { useMutacionesUsuario } from '../../hooks/useUsuariosData'
 import { crearUsuarioSchema, CrearUsuarioFormValues, PW_RULES } from '../../schema/usuario.schema'
 
 interface CrearUsuarioDialogProps {
   idSede: number
+}
+
+function toTitleCase(value: string): string {
+  return value.trim().replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+function handleTelefonoChange(
+  e: React.ChangeEvent<HTMLInputElement>,
+  rHFOnChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+) {
+  const raw = e.target.value.replace(/\D/g, '').slice(0, 9)
+  if (raw.length > 0 && raw[0] !== '9') return
+  e.target.value = raw
+  rHFOnChange(e)
 }
 
 function FieldIcon({ touched, hasError }: { touched: boolean; hasError: boolean }) {
@@ -63,6 +78,8 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
   const { modal, closeModal } = useUsuariosNav()
   const { crearUsuario } = useMutacionesUsuario()
   const [passwordCreado, setPasswordCreado] = useState<string | null>(null)
+  const [correoCreado, setCorreoCreado] = useState<string>('')
+  const [copiado, setCopiado] = useState(false)
 
   const open = modal === 'nuevo'
 
@@ -72,6 +89,7 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
     reset,
     watch,
     setValue,
+    setError,
     formState: { errors, touchedFields },
   } = useForm<CrearUsuarioFormValues>({
     resolver: zodResolver(crearUsuarioSchema),
@@ -81,11 +99,21 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
 
   const generarPassword = watch('generarPassword')
   const passwordValue = watch('password') ?? ''
+  const correoActual = watch('correo') ?? ''
 
   const handleClose = () => {
     reset()
     setPasswordCreado(null)
+    setCorreoCreado('')
+    setCopiado(false)
     closeModal()
+  }
+
+  const handleCopiar = () => {
+    if (!passwordCreado) return
+    navigator.clipboard.writeText(passwordCreado)
+    setCopiado(true)
+    setTimeout(() => setCopiado(false), 2000)
   }
 
   const onSubmit = (values: CrearUsuarioFormValues) => {
@@ -96,14 +124,36 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
           toast.success('Usuario creado correctamente.')
           toast.info(`Credenciales enviadas a ${values.correo}`)
           if (data?.passwordTemporal) {
+            setCorreoCreado(values.correo)
             setPasswordCreado(data.passwordTemporal)
           } else {
             handleClose()
           }
         },
+        onError: (err) => {
+          const apiError = err as ApiError
+          const errCampos = apiError.erroresCampo ?? apiError.errorsCampo ?? []
+          const correoErr = errCampos.find((c) => c.campo === 'correo')
+          if (correoErr) {
+            setError('correo', { message: correoErr.mensaje })
+          } else {
+            toast.error(apiError.message ?? 'No se pudo crear el usuario.')
+          }
+        },
       }
     )
   }
+
+  const {
+    onBlur: onNombreBlur,
+    onChange: onNombreChange,
+    ...nombreRest
+  } = register('nombre')
+
+  const {
+    onChange: onTelefonoChange,
+    ...telefonoRest
+  } = register('telefono')
 
   if (passwordCreado) {
     return (
@@ -117,8 +167,14 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
 
           <div className="space-y-4 pt-1">
             <p className="text-sm text-muted-foreground">
-              Comparte esta contraseña temporal con el usuario. <strong>Solo se muestra una vez.</strong>
+              Comparte esta contraseña temporal con el usuario.{' '}
+              <strong>Solo se muestra una vez.</strong>
             </p>
+            {correoCreado && (
+              <p className="text-xs text-muted-foreground">
+                También fue enviada a <strong>{correoCreado}</strong>.
+              </p>
+            )}
 
             <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
               <span className="flex-1 font-mono text-base font-bold tracking-widest text-green-800 select-all">
@@ -129,18 +185,18 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-green-700 hover:text-green-900"
-                onClick={() => {
-                  navigator.clipboard.writeText(passwordCreado)
-                  toast.success('Contraseña copiada.')
-                }}
+                onClick={handleCopiar}
               >
-                <Copy className="h-4 w-4" />
+                {copiado ? (
+                  <Check className="h-4 w-4 text-green-600" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
               </Button>
             </div>
 
             <p className="text-xs text-muted-foreground">
               El usuario deberá cambiar esta contraseña en su primer inicio de sesión.
-              Las credenciales también fueron enviadas a su correo electrónico.
             </p>
 
             <div className="flex justify-end">
@@ -173,7 +229,12 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
                   touchedFields.nombre && errors.nombre && 'border-red-400 focus-visible:ring-red-300',
                   touchedFields.nombre && !errors.nombre && 'border-green-400 focus-visible:ring-green-300'
                 )}
-                {...register('nombre')}
+                {...nombreRest}
+                onChange={onNombreChange}
+                onBlur={(e) => {
+                  setValue('nombre', toTitleCase(e.target.value), { shouldValidate: true })
+                  onNombreBlur(e)
+                }}
               />
               <FieldIcon touched={!!touchedFields.nombre} hasError={!!errors.nombre} />
             </div>
@@ -190,14 +251,14 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
                 type="email"
                 placeholder="usuario@ejemplo.pe"
                 className={cn(
-                  touchedFields.correo && errors.correo && 'border-red-400 focus-visible:ring-red-300',
+                  errors.correo && 'border-red-400 focus-visible:ring-red-300',
                   touchedFields.correo && !errors.correo && 'border-green-400 focus-visible:ring-green-300'
                 )}
                 {...register('correo')}
               />
               <FieldIcon touched={!!touchedFields.correo} hasError={!!errors.correo} />
             </div>
-            {touchedFields.correo && errors.correo && (
+            {errors.correo && (
               <p className="text-xs text-destructive">{errors.correo.message}</p>
             )}
           </div>
@@ -224,13 +285,16 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
               <div className="flex items-center gap-2">
                 <Input
                   id="c-telefono"
-                  placeholder="999 999 999"
-                  inputMode="tel"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={9}
+                  placeholder="9XXXXXXXX"
                   className={cn(
                     touchedFields.telefono && errors.telefono && 'border-red-400 focus-visible:ring-red-300',
                     touchedFields.telefono && !errors.telefono && watch('telefono') && 'border-green-400 focus-visible:ring-green-300'
                   )}
-                  {...register('telefono')}
+                  {...telefonoRest}
+                  onChange={(e) => handleTelefonoChange(e, onTelefonoChange)}
                 />
                 {watch('telefono') && (
                   <FieldIcon touched={!!touchedFields.telefono} hasError={!!errors.telefono} />
@@ -275,7 +339,8 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
 
             {generarPassword && (
               <p className="text-xs text-muted-foreground px-1">
-                Se generará una contraseña segura y será enviada al correo del usuario.
+                Se generará una contraseña segura y será enviada a{' '}
+                <strong>{correoActual || 'el correo ingresado'}</strong>.
               </p>
             )}
 

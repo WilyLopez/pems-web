@@ -12,6 +12,20 @@ import { useUsuariosNav } from '../../hooks/useUsuariosNav'
 import { useUsuariosList, useMutacionesUsuario } from '../../hooks/useUsuariosData'
 import { editarUsuarioSchema, EditarUsuarioFormValues } from '../../schema/usuario.schema'
 
+function toTitleCase(value: string): string {
+  return value.trim().replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+function handleTelefonoChange(
+  e: React.ChangeEvent<HTMLInputElement>,
+  rHFOnChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+) {
+  const raw = e.target.value.replace(/\D/g, '').slice(0, 9)
+  if (raw.length > 0 && raw[0] !== '9') return
+  e.target.value = raw
+  rHFOnChange(e)
+}
+
 export function EditarUsuarioDialog() {
   const { modal, userId, closeModal } = useUsuariosNav()
   const { data: usuarios = [] } = useUsuariosList()
@@ -24,6 +38,7 @@ export function EditarUsuarioDialog() {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<EditarUsuarioFormValues>({ resolver: zodResolver(editarUsuarioSchema) })
 
@@ -42,13 +57,20 @@ export function EditarUsuarioDialog() {
     if (!usuario) return
     actualizarUsuario.mutate(
       { id: usuario.id, payload: { nombre: values.nombre, telefono: values.telefono } },
-      {
-        onSuccess: () => {
-          handleClose()
-        },
-      }
+      { onSuccess: () => handleClose() }
     )
   }
+
+  const {
+    onBlur: onNombreBlur,
+    onChange: onNombreChange,
+    ...nombreRest
+  } = register('nombre')
+
+  const {
+    onChange: onTelefonoChange,
+    ...telefonoRest
+  } = register('telefono')
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
@@ -63,7 +85,15 @@ export function EditarUsuarioDialog() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
           <div className="space-y-1.5">
             <Label htmlFor="edit-nombre">Nombre completo</Label>
-            <Input id="edit-nombre" {...register('nombre')} />
+            <Input
+              id="edit-nombre"
+              {...nombreRest}
+              onChange={onNombreChange}
+              onBlur={(e) => {
+                setValue('nombre', toTitleCase(e.target.value), { shouldValidate: true })
+                onNombreBlur(e)
+              }}
+            />
             {errors.nombre && (
               <p className="text-xs text-destructive">{errors.nombre.message}</p>
             )}
@@ -71,7 +101,18 @@ export function EditarUsuarioDialog() {
 
           <div className="space-y-1.5">
             <Label htmlFor="edit-telefono">Teléfono</Label>
-            <Input id="edit-telefono" placeholder="999 999 999" {...register('telefono')} />
+            <Input
+              id="edit-telefono"
+              type="tel"
+              inputMode="numeric"
+              maxLength={9}
+              placeholder="9XXXXXXXX"
+              {...telefonoRest}
+              onChange={(e) => handleTelefonoChange(e, onTelefonoChange)}
+            />
+            {errors.telefono && (
+              <p className="text-xs text-destructive">{errors.telefono.message}</p>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-1">
