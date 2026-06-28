@@ -1,0 +1,18 @@
+export * from './shared/types'
+export { DashboardCard } from './shared/components/DashboardCard'
+export { KpiCard } from './shared/components/KpiCard'
+export { KpiDelta } from './shared/components/KpiDelta'
+export { EmptyState } from './shared/components/EmptyState'
+export { ChartCard } from './shared/components/ChartCard'
+export { DashboardSkeleton } from './shared/components/DashboardSkeleton'
+export { EnVivoIndicator } from './shared/components/EnVivoIndicator'
+export { variacionPct } from './shared/utils/delta'
+
+export { dashboardOperativoApi } from './operativo/services/dashboard-operativo.api'
+export { useDashboardOperativo } from './operativo/hooks/useDashboardOperativo'
+export { DashboardOperativoView } from './operativo/views/DashboardOperativoView'
+export { DASHBOARD_OPERATIVO_QUERY_KEY } from './operativo/config'
+
+export { DashboardFinancieroView } from './financiero/views/DashboardFinancieroView'
+export { FinancieroSkeleton } from './financiero/components/FinancieroSkeleton'
+export { IngresosVsEgresosChart } from './financiero/components/IngresosVsEgresosChart'
