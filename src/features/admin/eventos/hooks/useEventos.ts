@@ -13,6 +13,8 @@ import {
 } from '../types'
 import { eventosKeys } from '../shared/queryKeys'
 
+export const EVENTOS_KEY = 'eventos'
+
 export function useEventos(params: BuscarEventosParams = {}) {
   return useQuery({
     queryKey: eventosKeys.list(params),

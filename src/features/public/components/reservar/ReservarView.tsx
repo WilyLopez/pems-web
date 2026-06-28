@@ -481,11 +481,13 @@ export function ReservarView() {
                       : 'bg-green-100 text-green-800'
                 )}
               >
-                {{
-                  PENDIENTE: 'Pendiente de pago',
-                  CONFIRMADA: 'Confirmada',
-                  CANCELADA: 'Cancelada',
-                }[reservaCreada.estado] ?? reservaCreada.estado}
+                {(
+                  {
+                    PENDIENTE: 'Pendiente de pago',
+                    CONFIRMADA: 'Confirmada',
+                    CANCELADA: 'Cancelada',
+                  } as Record<string, string>
+                )[reservaCreada.estado] ?? reservaCreada.estado}
               </span>
             </div>
             <div className="border-t border-gray-200/80 pt-3 space-y-2.5">

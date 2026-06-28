@@ -136,7 +136,9 @@ class ToggleEstiloControl implements mapboxgl.IControl {
       'color:#333;letter-spacing:0.03em;cursor:pointer'
     btn.addEventListener('click', () => {
       this._satelite = !this._satelite
-      map.setStyle(this._satelite ? ESTILO_SAT : ESTILO_MAPA, { diff: false })
+      map.setStyle(this._satelite ? ESTILO_SAT : ESTILO_MAPA, {
+        diff: false,
+      } as Parameters<typeof map.setStyle>[1])
       btn.textContent = this._satelite ? 'Claro' : 'Terreno'
       map.once('style.load', () => agregar3dEdificios(map))
     })

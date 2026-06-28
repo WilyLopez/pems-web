@@ -74,13 +74,13 @@ export const dniField = z
 export const dniOpcionalField = dniField.optional().or(z.literal(''))
 
 export const montoField = z
-  .number({ invalid_type_error: 'Ingresa un monto válido' })
+  .number({ error: 'Ingresa un monto válido' })
   .positive('El monto debe ser mayor a 0')
   .max(99999.99, 'El monto excede el límite permitido')
   .refine((v) => Number(v.toFixed(2)) === v, 'Máximo 2 decimales')
 
 export const montoCoerceField = z.coerce
-  .number({ invalid_type_error: 'Ingresa un monto válido' })
+  .number({ error: 'Ingresa un monto válido' })
   .positive('El monto debe ser mayor a 0')
   .max(99999.99, 'El monto excede el límite permitido')
   .refine((v) => Number(v.toFixed(2)) === v, 'Máximo 2 decimales')

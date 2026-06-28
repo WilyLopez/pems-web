@@ -7,11 +7,17 @@ export type TipoOcupacion =
   | 'PRIVADO_LLENO'
   | 'BLOQUEADO'
   | 'FERIADO'
+  
+export type TipoDiaCalendario =
+  | 'LABORABLE'
+  | 'NO_LABORABLE'
+  | 'FERIADO'
+  | 'BLOQUEADO'
 
 export interface Disponibilidad {
   idSede: number
   fecha: string
-  tipoDia: TipoDia
+  tipoDia: TipoDiaCalendario
   esFeriado: boolean
   descripcionFeriado?: string
   accesoPublicoActivo: boolean

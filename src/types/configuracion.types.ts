@@ -34,6 +34,8 @@ export interface ConfiguracionCalendario {
   turnoT2Fin: string
   diasOperacion: string
   rangoMaxBloqueo: number
+  edadMinCumple: number
+  edadMaxCumple: number
 }
 
 export type ActualizarConfiguracionCalendarioRequest = Omit<
