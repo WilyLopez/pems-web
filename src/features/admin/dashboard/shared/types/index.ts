@@ -25,9 +25,11 @@ export interface DisponibilidadDia {
   totalEventos: number
 }
 
-export interface DashboardAdmin {
+export interface DashboardOperativo {
   fecha: string
   reservasHoy: number
+  reservasAyer: number
+  ingresosHoy: number
   reservasConfirmadas: number
   pendientesPago: number
   aforoMaximo: number

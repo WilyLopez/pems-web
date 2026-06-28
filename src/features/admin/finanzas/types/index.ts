@@ -281,6 +281,16 @@ export interface DashboardFinanciero {
   reservasCanceladas: number
   ticketPromedio: number
   saldoPendienteEventos: number
+  totalIngresosMesAnterior?: number
+  totalEgresosMesAnterior?: number
+  utilidadMesAnterior?: number
+  serieDiaria?: SerieDiaFinanciera[]
+}
+
+export interface SerieDiaFinanciera {
+  fecha: string
+  ingresos: number
+  egresos: number
 }
 
 export interface CrearTipoIngresoPayload {

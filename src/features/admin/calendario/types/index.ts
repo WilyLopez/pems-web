@@ -7,6 +7,7 @@ export type TipoOcupacion =
   | 'PRIVADO_LLENO'
   | 'BLOQUEADO'
   | 'FERIADO'
+  
 export type TipoDiaCalendario =
   | 'LABORABLE'
   | 'NO_LABORABLE'
