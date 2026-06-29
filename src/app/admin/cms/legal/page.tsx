@@ -8,19 +8,33 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { LegalNuevoDocumentoModal } from '@/components/admin/legal/LegalNuevoDocumentoModal'
 import {
   useContenidoLegalAdmin,
+  useTiposLegal,
   useToggleLegal,
   useEliminarContenidoLegal,
 } from '@/features/admin/cms/legal/hooks/useContenidoLegal'
-import { labelParaTipo } from '@/types/legal.types'
-import { LegalNavSidebar } from '@/features/admin/cms/legal/components/LegalNavSidebar'
+import {
+  LegalNavSidebar,
+  LegalNavItem,
+} from '@/features/admin/cms/legal/components/LegalNavSidebar'
 import { LegalEditorSection } from '@/features/admin/cms/legal/components/LegalEditorSection'
 
 export default function LegalPage() {
   const { data: todos, isLoading } = useContenidoLegalAdmin()
+  const { data: catalogo } = useTiposLegal()
   const toggle = useToggleLegal()
   const eliminar = useEliminarContenidoLegal()
 
-  const tipos = todos?.map((d) => ({ tipo: d.tipo, activo: d.activo })) ?? []
+  const tipos: LegalNavItem[] =
+    todos?.map((d) => {
+      const cat = catalogo?.find((c) => c.codigo === d.tipo)
+      return {
+        tipo: d.tipo,
+        etiqueta: cat?.etiqueta ?? d.tipo,
+        activo: d.activo,
+        esSistema: cat?.esSistema ?? false,
+        requerido: cat?.requerido ?? false,
+      }
+    }) ?? []
 
   const [tipoActivo, setTipoActivo] = useState('TERMINOS')
   const [modalNuevoAbierto, setModalNuevoAbierto] = useState(false)
@@ -90,7 +104,12 @@ export default function LegalPage() {
         open={!!tipoAEliminar}
         onOpenChange={(v) => !v && setTipoAEliminar(null)}
         title="Eliminar documento"
-        description={`¿Eliminar el documento "${tipoAEliminar ? labelParaTipo(tipoAEliminar) : ''}"? Esta acción no se puede deshacer.`}
+        description={`¿Eliminar el documento "${
+          tipoAEliminar
+            ? (tipos.find((t) => t.tipo === tipoAEliminar)?.etiqueta ??
+              tipoAEliminar)
+            : ''
+        }"? Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         destructive
         loading={eliminar.isPending}

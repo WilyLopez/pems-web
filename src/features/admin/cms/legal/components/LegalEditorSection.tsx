@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
-import { Save, Hash, Clock } from 'lucide-react'
+import { Save, Hash, Clock, History } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/Textarea'
 import { ErrorState } from '@/components/common/Errorstate'
 import { LegalFormatToolbar } from '@/components/admin/legal/LegalFormatToolbar'
 import { LegalPreviewPanel } from '@/components/admin/legal/LegalPreviewPanel'
+import { LegalHistorialModal } from '@/components/admin/legal/LegalHistorialModal'
 import {
   useContenidoLegalAdmin,
   useActualizarLegal,
@@ -28,6 +29,7 @@ export function LegalEditorSection({ tipo }: LegalEditorSectionProps) {
   const { data: todos, isLoading, isError, refetch } = useContenidoLegalAdmin()
   const actualizar = useActualizarLegal()
   const [wordCount, setWordCount] = useState(0)
+  const [historialAbierto, setHistorialAbierto] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const doc = todos?.find((d) => d.tipo === tipo)
@@ -113,14 +115,25 @@ export function LegalEditorSection({ tipo }: LegalEditorSectionProps) {
             </>
           )}
         </div>
-        <Button
-          type="submit"
-          disabled={actualizar.isPending || !isDirty}
-          className="bg-brand-azul text-white gap-1.5 h-8 text-xs font-semibold"
-        >
-          <Save className="h-3.5 w-3.5" />
-          {actualizar.isPending ? 'Guardando...' : 'Guardar versión'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setHistorialAbierto(true)}
+            className="gap-1.5 h-8 text-xs font-semibold"
+          >
+            <History className="h-3.5 w-3.5" />
+            Historial
+          </Button>
+          <Button
+            type="submit"
+            disabled={actualizar.isPending || !isDirty}
+            className="bg-brand-azul text-white gap-1.5 h-8 text-xs font-semibold"
+          >
+            <Save className="h-3.5 w-3.5" />
+            {actualizar.isPending ? 'Guardando...' : 'Guardar versión'}
+          </Button>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 flex-1 overflow-hidden">
@@ -184,6 +197,12 @@ export function LegalEditorSection({ tipo }: LegalEditorSectionProps) {
           <LegalPreviewPanel titulo={tituloWatch} contenido={contenidoWatch} />
         </div>
       </div>
+
+      <LegalHistorialModal
+        open={historialAbierto}
+        onClose={() => setHistorialAbierto(false)}
+        tipo={tipo}
+      />
     </form>
   )
 }

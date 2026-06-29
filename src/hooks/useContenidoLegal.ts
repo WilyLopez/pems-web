@@ -18,6 +18,23 @@ export function useContenidoLegalPublico(tipo: string) {
   })
 }
 
+export function useLegalPublicList() {
+  return useQuery({
+    queryKey: [...LEGAL_KEY, 'publico', 'lista'],
+    queryFn: legalService.listarPublico,
+    staleTime: 10 * 60_000,
+  })
+}
+
+export function useLegalPublicBySlug(slug: string) {
+  return useQuery({
+    queryKey: [...LEGAL_KEY, 'publico', 'slug', slug],
+    queryFn: () => legalService.obtenerPublicoPorSlug(slug),
+    enabled: Boolean(slug),
+    staleTime: 10 * 60_000,
+  })
+}
+
 export function useContenidoLegalAdmin() {
   return useQuery({
     queryKey: [...LEGAL_KEY, 'admin'],
