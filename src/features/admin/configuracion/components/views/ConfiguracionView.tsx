@@ -19,6 +19,7 @@ import { ReservasEventosSection } from '../sections/ReservasEventosSection'
 import { SedeSection } from '../sections/SedeSection'
 import { SeguridadSection } from '../sections/SeguridadSection'
 import { SistemaSection } from '../sections/SistemaSection'
+import { IntegracionesSection } from '../sections/IntegracionesSection'
 
 function GridSkeleton() {
   return (
@@ -111,6 +112,10 @@ export function ConfiguracionView() {
             <SistemaSection
               configs={configs}
               navProps={navPropsFor('sistema')}
+            />
+            <IntegracionesSection
+              idSede={idSede}
+              navProps={navPropsFor('integraciones')}
             />
           </div>
         </>

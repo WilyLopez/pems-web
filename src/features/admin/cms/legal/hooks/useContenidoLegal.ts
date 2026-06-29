@@ -33,6 +33,23 @@ export function useContenidoLegalPorTipo(tipo: string) {
   })
 }
 
+export function useTiposLegal() {
+  return useQuery({
+    queryKey: ['legal-tipos'],
+    queryFn: () => legalService.listarTipos(),
+    staleTime: 60_000,
+  })
+}
+
+export function useHistorialLegal(tipo: string, enabled = true) {
+  return useQuery({
+    queryKey: ['legal-historial', tipo],
+    queryFn: () => legalService.listarHistorial(tipo),
+    enabled: enabled && Boolean(tipo),
+    staleTime: 30_000,
+  })
+}
+
 export function useActualizarLegal() {
   const qc = useQueryClient()
   return useMutation({
@@ -60,6 +77,7 @@ export function useCrearContenidoLegal() {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['legal-documentos'] })
       qc.invalidateQueries({ queryKey: ['legal'] })
+      qc.invalidateQueries({ queryKey: ['legal-tipos'] })
       toast.success(`Documento "${data.titulo}" creado.`)
     },
     onError: () => toast.error('No se pudo crear el documento legal.'),
@@ -89,6 +107,7 @@ export function useEliminarContenidoLegal() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['legal-documentos'] })
       qc.invalidateQueries({ queryKey: ['legal'] })
+      qc.invalidateQueries({ queryKey: ['legal-tipos'] })
       toast.success('Documento eliminado.')
     },
     onError: () => toast.error('No se pudo eliminar el documento.'),

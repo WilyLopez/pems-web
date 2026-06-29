@@ -5,10 +5,11 @@ import { format, addDays, isToday, parseISO } from 'date-fns'
 import { toast } from 'sonner'
 import { Controller, useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, CreditCard, AlertCircle, User } from 'lucide-react'
+import { Loader2, CreditCard, AlertCircle, User, Search } from 'lucide-react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import { useAuth } from '@/hooks/useAuth'
+import { consultaService } from '@/services/consulta.service'
 import {
   useConfiguracionCalendario,
   useConfiguracionVenta,
@@ -140,6 +141,42 @@ export const VentaMostradorView = ({
   const idPromocion = watch('idPromocion')
   const pagos = watch('pagos')
   const efectivoRecibido = watch('efectivoRecibido')
+  const acompananteDni = watch('acompanante.dni')
+
+  const [consultandoDni, setConsultandoDni] = useState(false)
+
+  const consultarAcompananteDni = async () => {
+    const dni = acompananteDni?.trim()
+    if (!dni || dni.length !== 8) {
+      toast.error('Ingresa un DNI de 8 dígitos para consultar')
+      return
+    }
+
+    if (!idSede) {
+      toast.error('No se ha detectado una sede activa')
+      return
+    }
+
+    setConsultandoDni(true)
+    try {
+      const data = await consultaService.consultarDni(dni, idSede)
+      if (data && data.nombreCompleto) {
+        setValue('acompanante.nombre', data.nombreCompleto.toUpperCase())
+        toast.success('DNI del acompañante consultado con éxito')
+      } else {
+        toast.error('No se encontraron datos para el DNI del acompañante')
+      }
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.message || 'Error al consultar DNI del acompañante'
+      if (errorMsg === 'LIMIT_EXCEEDED') {
+        toast.error('Lote de consultas mensual agotado para el proveedor seleccionado.')
+      } else {
+        toast.error(errorMsg)
+      }
+    } finally {
+      setConsultandoDni(false)
+    }
+  }
 
   const debouncedFecha = useDebounce(fechaVisita, 400)
 
@@ -522,28 +559,43 @@ export const VentaMostradorView = ({
                           )}
                         />
                         <div className="grid grid-cols-2 gap-2">
-                          <Controller
-                            control={control}
-                            name="acompanante.dni"
-                            render={({ field }) => (
-                              <Input
-                                {...field}
-                                placeholder="DNI"
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      .replace(/\D/g, '')
-                                      .slice(0, 8)
-                                  )
-                                }
-                                className={cn(
-                                  'h-9 text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-                                  errors.acompanante?.dni &&
-                                    'border-red-400 dark:border-red-600'
-                                )}
-                              />
-                            )}
-                          />
+                          <div className="flex gap-1.5">
+                            <Controller
+                              control={control}
+                              name="acompanante.dni"
+                              render={({ field }) => (
+                                <Input
+                                  {...field}
+                                  placeholder="DNI"
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        .replace(/\D/g, '')
+                                        .slice(0, 8)
+                                    )
+                                  }
+                                  className={cn(
+                                    'h-9 text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 flex-1',
+                                    errors.acompanante?.dni &&
+                                      'border-red-400 dark:border-red-600'
+                                  )}
+                                />
+                              )}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={consultandoDni || !acompananteDni || acompananteDni.length !== 8}
+                              onClick={consultarAcompananteDni}
+                              className="px-2 h-9 rounded-xl shrink-0"
+                            >
+                              {consultandoDni ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <Search className="h-3.5 w-3.5" />
+                              )}
+                            </Button>
+                          </div>
                           <Controller
                             control={control}
                             name="acompanante.telefono"

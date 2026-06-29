@@ -29,6 +29,7 @@ import { registroSchema, RegistroFormValues } from '../../schemas/auth.schema'
 import { useRegistro } from '../../hooks/useRegistro'
 import { legalService } from '@/services/legal.service'
 import { ContenidoLegal } from '@/types/legal.types'
+import { sanitizeLegalHtml } from '@/lib/sanitize'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -555,7 +556,9 @@ export function RegistroView() {
                 className="text-sm leading-relaxed text-gray-700"
                 style={{ lineHeight: 1.75 }}
                 dangerouslySetInnerHTML={{
-                  __html: docCargado.contenido.replace(/\n/g, '<br />'),
+                  __html: sanitizeLegalHtml(
+                    docCargado.contenido.replace(/\n/g, '<br />')
+                  ),
                 }}
               />
             ) : null}

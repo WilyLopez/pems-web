@@ -43,6 +43,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Badge } from '@/components/ui/Badge'
+import { Checkbox } from '@/components/ui/Checkbox'
 import { cn, formatDate, formatCurrency } from '@/lib/utils'
 
 import { WizardHeader } from '../ui/WizardHeader'
@@ -270,6 +271,7 @@ export function SolicitarEventoWizardView() {
   // ─── Timer ──────────────────────────────────────────────────────────────
 
   const [timerExpired, setTimerExpired] = useState(false)
+  const [aceptaLegal, setAceptaLegal] = useState(false)
   const prevPasoRef = useRef<1 | 2 | 3 | 4>(1)
 
   const {
@@ -1476,11 +1478,37 @@ export function SolicitarEventoWizardView() {
 
                 <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                   <p className="text-xs text-amber-800">
-                    Al enviar aceptas nuestras condiciones de servicio. El
-                    precio final será confirmado por el equipo según los
+                    El precio final será confirmado por el equipo según los
                     detalles de tu solicitud.
                   </p>
                 </div>
+
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <Checkbox
+                    checked={aceptaLegal}
+                    onCheckedChange={(v) => setAceptaLegal(v === true)}
+                    className="mt-0.5"
+                  />
+                  <span className="text-xs text-gray-700 leading-relaxed">
+                    He leído y acepto los{' '}
+                    <Link
+                      href="/legal/terminos"
+                      target="_blank"
+                      className="text-brand-azul underline font-semibold"
+                    >
+                      Términos y Condiciones
+                    </Link>{' '}
+                    y la{' '}
+                    <Link
+                      href="/legal/privacidad"
+                      target="_blank"
+                      className="text-brand-azul underline font-semibold"
+                    >
+                      Política de Privacidad
+                    </Link>
+                    .
+                  </span>
+                </label>
 
                 <div className="flex gap-3">
                   <Button
@@ -1492,7 +1520,7 @@ export function SolicitarEventoWizardView() {
                   </Button>
                   <Button
                     className="flex-1 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl font-black text-base gap-2 h-12"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !aceptaLegal}
                     onClick={() => solicitar()}
                   >
                     {isSubmitting ? (

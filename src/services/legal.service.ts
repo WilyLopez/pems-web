@@ -2,6 +2,9 @@ import api from './api'
 import { ApiResponse } from '@/types/api.types'
 import {
   ContenidoLegal,
+  ContenidoLegalResumen,
+  ContenidoLegalHistorialItem,
+  TipoLegalCatalogo,
   ActualizarContenidoLegalPayload,
   CrearContenidoLegalPayload,
 } from '@/types/legal.types'
@@ -14,8 +17,36 @@ export const legalService = {
     return data.data
   },
 
+  listarPublico: async (): Promise<ContenidoLegalResumen[]> => {
+    const { data } =
+      await api.get<ApiResponse<ContenidoLegalResumen[]>>('/cms/legal/publico')
+    return data.data
+  },
+
+  obtenerPublicoPorSlug: async (slug: string): Promise<ContenidoLegal> => {
+    const { data } = await api.get<ApiResponse<ContenidoLegal>>(
+      `/cms/legal/publico/slug/${slug}`
+    )
+    return data.data
+  },
+
   listarAdmin: async (): Promise<ContenidoLegal[]> => {
     const { data } = await api.get<ApiResponse<ContenidoLegal[]>>('/cms/legal')
+    return data.data
+  },
+
+  listarTipos: async (): Promise<TipoLegalCatalogo[]> => {
+    const { data } =
+      await api.get<ApiResponse<TipoLegalCatalogo[]>>('/cms/legal/tipos')
+    return data.data
+  },
+
+  listarHistorial: async (
+    tipo: string
+  ): Promise<ContenidoLegalHistorialItem[]> => {
+    const { data } = await api.get<ApiResponse<ContenidoLegalHistorialItem[]>>(
+      `/cms/legal/${tipo}/historial`
+    )
     return data.data
   },
 
