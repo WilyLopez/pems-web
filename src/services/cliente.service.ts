@@ -107,6 +107,24 @@ export const clienteService = {
     return data.data
   },
 
+  completarPerfil: async (
+    payload: {
+      nombres: string
+      apellidoPaterno: string
+      apellidoMaterno?: string
+      tipoDocumento: string
+      numeroDocumento: string
+      telefono?: string
+      aceptaComunicaciones: boolean
+    }
+  ): Promise<Cliente> => {
+    const { data } = await api.post<ApiResponse<Cliente>>(
+      '/clientes/me/completar',
+      payload
+    )
+    return data.data
+  },
+
   buscarPorCorreo: async (correo: string): Promise<Cliente | null> => {
     const { data } = await api.get<ApiResponse<PagedResponse<Cliente>>>(
       '/clientes',

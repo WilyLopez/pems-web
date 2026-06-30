@@ -32,6 +32,7 @@ export const ReservasView = React.memo(() => {
     search,
     estado,
     fecha,
+    medioPago,
     ingresado,
     modal,
     actionId,
@@ -42,6 +43,9 @@ export const ReservasView = React.memo(() => {
     setEstado,
     setFecha,
     setIngresado,
+    setMedioPago,
+    setYapePendiente,
+    clearFilters,
     openAction,
     openDrawer,
     openFidelizacion,
@@ -49,15 +53,33 @@ export const ReservasView = React.memo(() => {
     closeAll,
   } = useReservasNav()
 
-  const { data, isError, refetch } = useReservas({
+
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const esYapePendiente = params.get('medioPago') === 'YAPE' && params.get('estado') === 'PENDIENTE'
+    if (!params.has('fecha') && !esYapePendiente) {
+      const d = new Date()
+      const offset = d.getTimezoneOffset()
+      const local = new Date(d.getTime() - offset * 60 * 1000)
+      const hoyStr = local.toISOString().split('T')[0]
+      setFecha(hoyStr)
+    }
+  }, [setFecha])
+
+
+
+  const { data, isLoading, isError, refetch } = useReservas({
     page,
     size,
     idSede: idSede ?? undefined,
     estado: estado || undefined,
     fecha: fecha || undefined,
     ingresado,
+    medioPago: medioPago || undefined,
     search: search || undefined,
   })
+
 
   const { data: metricas } = useMetricasReservas(
     idSede ?? undefined,
@@ -109,7 +131,7 @@ export const ReservasView = React.memo(() => {
               className="rounded-xl gap-1.5 border-yellow-200 hover:bg-yellow-50 text-yellow-700"
             >
               <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-              Fidelización
+              Fidelizacion
             </Button>
             <Button
               variant="outline"
@@ -131,14 +153,22 @@ export const ReservasView = React.memo(() => {
         estado={estado}
         fecha={fecha}
         ingresado={ingresado}
+        medioPago={medioPago}
+        yapePendienteCount={cantidadYapePendientes}
         onSearchChange={setSearch}
         onEstadoChange={setEstado}
         onFechaChange={setFecha}
         onIngresadoChange={setIngresado}
+        onMedioPagoChange={setMedioPago}
+        onToggleYapePendiente={setYapePendiente}
+        onClearFilters={clearFilters}
       />
+
+
 
       <ReservasTable
         data={data}
+        isLoading={isLoading}
         page={page}
         size={size}
         onPageChange={setPage}
@@ -146,6 +176,7 @@ export const ReservasView = React.memo(() => {
         onViewReserva={openDrawer}
         onActionReserva={openAction}
       />
+
 
       <CancelarDialog
         open={modal === 'cancelar'}
@@ -164,8 +195,7 @@ export const ReservasView = React.memo(() => {
       <ValidarPagoDialog
         open={modal === 'validar-yape'}
         onClose={closeAll}
-        reservaId={actionId ?? undefined}
-        numeroTicket={activeReserva?.numeroTicket}
+        reserva={activeReserva}
       />
 
       <EliminarDialog
@@ -182,7 +212,11 @@ export const ReservasView = React.memo(() => {
 
       <EstadoReservaInfoModal open={modal === 'estados'} onClose={closeAll} />
 
-      <ReservaDrawer reserva={drawerReserva ?? null} onClose={closeAll} />
+      <ReservaDrawer
+        reserva={drawerReserva ?? null}
+        onClose={closeAll}
+        onValidarYape={(id) => openAction('validar-yape', id)}
+      />
     </div>
   )
 })

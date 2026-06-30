@@ -18,8 +18,10 @@ import {
   CheckCircle2,
   AlertCircle,
   Banknote,
+  Plus,
+  X,
 } from 'lucide-react'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
 import { Reserva } from '../../types'
@@ -56,8 +58,8 @@ const cobrarSchema = z.object({
 type CobrarFormValues = z.infer<typeof cobrarSchema>
 
 interface CobrarReservaDrawerProps {
-  reserva: Reserva | null
-  onClose: () => void
+  reserva: any
+  onClose: (success?: boolean) => void
 }
 
 export const CobrarReservaDrawer = ({
@@ -84,6 +86,17 @@ export const CobrarReservaDrawer = ({
 
   const formValues = watch()
 
+  const { fields, append, remove } = useFieldArray({ control, name: 'pagos' })
+
+  const addPago = () => {
+    const usados = new Set(formValues.pagos?.map((p) => p.medioPago) || [])
+    const disponible = METODOS_PAGO.find((m) => !usados.has(m))
+    if (!disponible) return
+    const montoOtrasLineas = (formValues.pagos || []).reduce((s, p) => s + (Number(p.monto) || 0), 0)
+    const saldo = Math.max(0, (reserva?.totalPagado ?? 0) - montoOtrasLineas)
+    append({ medioPago: disponible, monto: saldo })
+  }
+
   const resumen = useMemo(() => {
     if (!reserva) return null
     return calcularResumenVenta(
@@ -107,7 +120,7 @@ export const CobrarReservaDrawer = ({
           notas: data.notas,
         },
       })
-      onClose()
+      onClose(true)
     } catch (err) {
       // Error handled by hook
     }
@@ -116,13 +129,13 @@ export const CobrarReservaDrawer = ({
   if (!reserva) return null
 
   return (
-    <Dialog open={!!reserva} onOpenChange={(v) => !v && onClose()}>
+    <Dialog open={!!reserva} onOpenChange={(v) => !v && onClose(false)}>
       <DialogContent className="sm:max-w-xl p-0 gap-0 overflow-hidden bg-gray-50 border-none shadow-2xl">
         <DialogHeader className="px-6 py-5 bg-white border-b sticky top-0 z-10">
-          <div className="flex items-center gap-2 text-xl font-black text-gray-900">
+          <DialogTitle className="flex items-center gap-2 text-xl font-black text-gray-900">
             <Banknote className="h-5 w-5 text-brand-azul" />
             Cobrar Reserva
-          </div>
+          </DialogTitle>
           <DialogDescription className="text-xs font-medium text-gray-500">
             Ticket {reserva.numeroTicket} &bull; {reserva.nombreNino}
           </DialogDescription>
@@ -163,16 +176,41 @@ export const CobrarReservaDrawer = ({
 
             {/* Formulario de Pago */}
             <section className="space-y-4">
-              <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
-                Medios de Pago
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
+                  Medios de Pago
+                </h3>
+                {fields.length < METODOS_PAGO.length && (
+                  <button
+                    type="button"
+                    onClick={addPago}
+                    className="flex items-center gap-0.5 text-[10px] font-bold text-brand-azul hover:underline"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Split Pago
+                  </button>
+                )}
+              </div>
 
               <div className="space-y-3">
-                {formValues.pagos.map((_, index) => (
+                {fields.map((field, index) => (
                   <div
-                    key={index}
-                    className="bg-white p-4 rounded-2xl border shadow-sm space-y-3"
+                    key={field.id}
+                    className="bg-white p-4 rounded-2xl border shadow-sm space-y-3 relative"
                   >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-black text-gray-400 uppercase">
+                        Línea de pago #{index + 1}
+                      </span>
+                      {fields.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="text-[9px] font-bold text-rose-500 hover:text-rose-600 hover:underline flex items-center gap-0.5"
+                        >
+                          <X className="h-2.5 w-2.5" /> Eliminar
+                        </button>
+                      )}
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label className="text-[10px] font-bold uppercase text-gray-400">
@@ -326,7 +364,7 @@ export const CobrarReservaDrawer = ({
             <Button
               type="button"
               variant="ghost"
-              onClick={onClose}
+              onClick={() => onClose(false)}
               disabled={cobrarMutation.isPending}
               className="w-full text-xs font-bold text-gray-400"
             >

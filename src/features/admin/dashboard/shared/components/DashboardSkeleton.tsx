@@ -2,15 +2,15 @@
 
 import { Skeleton } from '@/components/ui/Skeleton'
 
+const SURFACE =
+  'rounded-2xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900'
+
 export function DashboardSkeleton() {
   return (
     <div className="space-y-5 sm:space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 space-y-3"
-          >
+          <div key={i} className={`${SURFACE} space-y-3 p-3 sm:p-4`}>
             <div className="flex items-center justify-between">
               <Skeleton className="h-3 w-20" />
               <Skeleton className="h-7 w-7 rounded-lg" />
@@ -21,14 +21,14 @@ export function DashboardSkeleton() {
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 space-y-3">
+      <div className={`${SURFACE} space-y-3 p-4 sm:p-5`}>
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-10 w-full rounded-xl" />
         <Skeleton className="h-10 w-full rounded-xl" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 space-y-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
+        <div className={`${SURFACE} space-y-3 p-4 sm:p-5`}>
           <Skeleton className="h-4 w-32" />
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-center justify-between">
@@ -37,7 +37,7 @@ export function DashboardSkeleton() {
             </div>
           ))}
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 space-y-3">
+        <div className={`${SURFACE} space-y-3 p-4 sm:p-5`}>
           <Skeleton className="h-4 w-48" />
           {Array.from({ length: 7 }).map((_, i) => (
             <div key={i} className="flex items-center justify-between">
@@ -51,8 +51,8 @@ export function DashboardSkeleton() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
-        <Skeleton className="h-4 w-44 mb-4" />
+      <div className={`${SURFACE} p-4 sm:p-5`}>
+        <Skeleton className="mb-4 h-4 w-44" />
         <Skeleton className="h-[220px] w-full rounded-xl" />
       </div>
     </div>

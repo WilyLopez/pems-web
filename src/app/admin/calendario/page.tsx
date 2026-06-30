@@ -322,7 +322,7 @@ export default function CalendarioPage() {
                 {Array.from({ length: startOffset }).map((_, i) => (
                   <div
                     key={`empty-${i}`}
-                    className="h-[88px] sm:h-24 rounded-xl bg-gray-50/40"
+                    className="h-[88px] sm:h-24 rounded-xl bg-gray-50/40 dark:bg-gray-800/20"
                   />
                 ))}
                 {days.map((day) => (

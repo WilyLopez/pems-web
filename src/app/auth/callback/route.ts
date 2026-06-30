@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import type { CookieMethodsServer } from '@supabase/ssr'
 import {
   COOKIE_TIPO_PERFIL,
   COOKIE_MAX_AGE,
@@ -17,13 +18,15 @@ function getRedirectUrl(
     if (tipoPerfil === 'CLIENTE' && next.startsWith('/cliente')) return next
   }
 
+  if (tipoPerfil === 'NINGUNO') return '/auth/completar-perfil'
+
   if (tipoPerfil === 'CLIENTE' && !perfilCompleto)
     return '/auth/completar-perfil'
 
   return getDashboardUrl(roles, tipoPerfil)
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const type = searchParams.get('type')
@@ -33,16 +36,40 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/auth/login?error=no_code`)
   }
 
-  const supabase = await createServerSupabaseClient()
-  const { error: exchangeError } =
-    await supabase.auth.exchangeCodeForSession(code)
+  const captured: { name: string; value: string; options: Record<string, unknown> }[] = []
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            captured.push({ name, value, options: options as Record<string, unknown> })
+          )
+        },
+      } as CookieMethodsServer,
+    }
+  )
+
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
   if (exchangeError) {
     return NextResponse.redirect(`${origin}/auth/login?error=callback_failed`)
   }
 
+  function withCookies(response: NextResponse): NextResponse {
+    captured.forEach(({ name, value, options }) =>
+      response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2])
+    )
+    return response
+  }
+
   if (type === 'recovery') {
-    return NextResponse.redirect(`${origin}/auth/nueva-contrasena`)
+    return withCookies(NextResponse.redirect(`${origin}/auth/nueva-contrasena`))
   }
 
   const {
@@ -60,7 +87,9 @@ export async function GET(request: Request) {
     })
 
     if (!res.ok) {
-      const response = NextResponse.redirect(`${origin}/auth/completar-perfil`)
+      const response = withCookies(
+        NextResponse.redirect(`${origin}/auth/completar-perfil`)
+      )
       response.cookies.set(COOKIE_TIPO_PERFIL, 'CLIENTE', {
         path: '/',
         maxAge: COOKIE_MAX_AGE,
@@ -73,7 +102,7 @@ export async function GET(request: Request) {
     const { tipoPerfil, roles, perfilCompleto } = meData.data
 
     const destino = getRedirectUrl(tipoPerfil, roles, perfilCompleto, next)
-    const response = NextResponse.redirect(`${origin}${destino}`)
+    const response = withCookies(NextResponse.redirect(`${origin}${destino}`))
     response.cookies.set(COOKIE_TIPO_PERFIL, tipoPerfil, {
       path: '/',
       maxAge: COOKIE_MAX_AGE,

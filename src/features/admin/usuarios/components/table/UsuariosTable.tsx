@@ -98,7 +98,14 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
   const estado = getEstadoAdmin(usuario)
   const isSelf = currentUserId === usuario.id
   const isSuperadminRow = usuario.rol === 'SUPERADMIN'
-  const canToggle = !isSelf && (!isSuperadminRow || isSuperAdmin)
+  const isAdminRow = usuario.rol === 'ADMIN'
+  
+  // Solo los SuperAdmins pueden modificar a otros Admins/SuperAdmins.
+  // Los Admins normales solo pueden modificarse a sí mismos o a Cajeros.
+  const canManage = isSuperAdmin || isSelf || (!isSuperadminRow && !isAdminRow)
+  
+  // Para activar/desactivar (los usuarios no pueden desactivarse a sí mismos)
+  const canToggle = canManage && !isSelf
 
   return (
     <div
@@ -193,20 +200,20 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
             <DropdownMenuItem onClick={() => openModal('ver', usuario.id)}>
               <Eye className="mr-2 h-4 w-4" /> Ver detalle
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/perfil?userId=${usuario.id}`}>
-                <User className="mr-2 h-4 w-4" /> Ver perfil completo
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => openModal('editar', usuario.id)}>
-              <Pencil className="mr-2 h-4 w-4" /> Editar
-            </DropdownMenuItem>
-            {!isSelf && !isSuperadminRow && (
+            
+            {canManage && (
+              <DropdownMenuItem onClick={() => openModal('editar', usuario.id)}>
+                <Pencil className="mr-2 h-4 w-4" /> Editar
+              </DropdownMenuItem>
+            )}
+
+            {!isSelf && canManage && (
               <DropdownMenuItem onClick={() => openModal('rol', usuario.id)}>
                 <ShieldAlert className="mr-2 h-4 w-4" /> Cambiar rol
               </DropdownMenuItem>
             )}
-            {estado === 'BLOQUEADO' && (
+
+            {estado === 'BLOQUEADO' && canManage && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -217,13 +224,18 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
                 </DropdownMenuItem>
               </>
             )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => openModal('reset', usuario.id)}
-              className="text-amber-600 focus:text-amber-600"
-            >
-              <KeyRound className="mr-2 h-4 w-4" /> Restablecer contraseña
-            </DropdownMenuItem>
+            
+            {canManage && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => openModal('reset', usuario.id)}
+                  className="text-amber-600 focus:text-amber-600"
+                >
+                  <KeyRound className="mr-2 h-4 w-4" /> Restablecer contraseña
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

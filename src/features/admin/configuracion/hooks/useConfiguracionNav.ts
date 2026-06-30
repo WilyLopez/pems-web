@@ -9,6 +9,7 @@ export type SeccionConfig =
   | 'sede'
   | 'seguridad'
   | 'sistema'
+  | 'integraciones'
 
 export interface SeccionNavProps {
   forceModal: 'view' | 'edit' | null
@@ -21,6 +22,7 @@ export const SECCION_LABELS: Record<SeccionConfig, string> = {
   sede: 'Datos de la sede',
   seguridad: 'Seguridad de acceso',
   sistema: 'Sistema e integraciones',
+  integraciones: 'Integración de consultas',
 }
 
 export function useConfiguracionNav() {

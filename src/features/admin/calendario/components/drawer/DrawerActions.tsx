@@ -154,19 +154,6 @@ export const DrawerActions = React.memo(
       )
     }
 
-    if (tipoDia === 'FERIADO') {
-      return (
-        <div className="flex items-center justify-between gap-2 bg-red-50 border border-red-200 rounded-xl px-3.5 py-3">
-          <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-red-400 shrink-0" />
-            <p className="text-xs font-bold text-red-700">
-              {disp?.descripcionFeriado ?? 'Feriado — día cerrado'}
-            </p>
-          </div>
-        </div>
-      )
-    }
-
     if (tipoDia === 'BLOQUEADO') {
       return (
         <div className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-3">

@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { AdminSidebar } from '@/features/admin/shared/layout/AdminSidebar'
 import { AdminNavbar } from '@/features/admin/shared/layout/AdminNavbar'
 import { AdminThemeRoot } from '@/features/admin/shared/layout/AdminThemeRoot'
+import { NotificacionesSheet } from '@/features/admin/shared/components/NotificacionesSheet'
 
 export default async function AdminLayout({
   children,
@@ -51,6 +52,7 @@ export default async function AdminLayout({
           </main>
         </div>
       </div>
+      <NotificacionesSheet />
     </AdminThemeRoot>
   )
 }

@@ -8,6 +8,7 @@ import {
   Download,
   Loader2,
   Trash2,
+  MoreVertical,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Reserva } from '../../types'
@@ -21,6 +22,13 @@ import {
   TooltipContent,
 } from '@/components/ui/Tooltip'
 import { cn } from '@/lib/utils'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/DropdownMenu'
 
 interface RowActionsProps {
   reserva: Reserva
@@ -41,7 +49,7 @@ export const RowActions = React.memo(
       return isBefore(dateLimit, today)
     }, [reserva.fechaEvento])
 
-    const esEstadoValido = ['PENDIENTE', 'CONFIRMADA'].includes(reserva.estado)
+    const esEstadoValido = reserva.estado === 'CONFIRMADA'
     const deshabilitarIngreso = fechaPasada || !esEstadoValido
 
     const handleDescargarTicket = async () => {
@@ -61,107 +69,94 @@ export const RowActions = React.memo(
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 rounded-lg text-gray-400 hover:text-brand-azul hover:bg-brand-azul/5"
+          className="h-7 w-7 rounded-lg text-gray-400 hover:text-brand-azul hover:bg-brand-azul/5 shrink-0"
           title="Ver detalles"
           onClick={() => onView(reserva.id)}
         >
           <Eye className="h-3.5 w-3.5" />
         </Button>
 
-        {necesitaCobro && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-lg text-brand-azul hover:text-brand-azul hover:bg-brand-azul/10"
-            title="Cobrar reserva"
-            onClick={() => onAction('cobrar', reserva.id)}
-          >
-            <Banknote className="h-3.5 w-3.5" />
-          </Button>
-        )}
-
-        {reserva.ventaId !== null && (
-          <Button
-            variant="ghost"
-            size="icon"
-            disabled={descargando}
-            className="h-7 w-7 rounded-lg text-gray-400 hover:text-brand-azul hover:bg-brand-azul/5"
-            title="Descargar ticket"
-            onClick={handleDescargarTicket}
-          >
-            {descargando ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
-            ) : (
-              <Download className="h-3.5 w-3.5" />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-100 shrink-0"
+            >
+              <MoreVertical className="h-3.5 w-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-xl min-w-[150px]">
+            {reserva.ventaId !== null && !reserva.ingresado && reserva.estado === 'CONFIRMADA' && (
+              <DropdownMenuItem
+                disabled={deshabilitarIngreso}
+                onClick={() => onAction('ingreso', reserva.id)}
+                className="text-gray-700 focus:text-green-600 focus:bg-green-50 rounded-lg cursor-pointer"
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                Registrar ingreso
+              </DropdownMenuItem>
             )}
-          </Button>
-        )}
 
-        {esYapePendiente && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-lg text-amber-500 hover:text-amber-600 hover:bg-amber-50"
-            title="Validar pago Yape"
-            onClick={() => onAction('validar-yape', reserva.id)}
-          >
-            <AlertTriangle className="h-3.5 w-3.5" />
-          </Button>
-        )}
 
-        {reserva.ventaId !== null && !reserva.ingresado && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="inline-block">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={deshabilitarIngreso}
-                  className={cn(
-                    'h-7 w-7 rounded-lg transition-colors',
-                    deshabilitarIngreso
-                      ? 'text-gray-300 hover:text-gray-300 hover:bg-transparent cursor-not-allowed'
-                      : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
-                  )}
-                  onClick={() =>
-                    !deshabilitarIngreso && onAction('ingreso', reserva.id)
-                  }
+            {esYapePendiente && (
+              <DropdownMenuItem
+                onClick={() => onAction('validar-yape', reserva.id)}
+                className="text-amber-600 focus:text-amber-700 focus:bg-amber-50 rounded-lg cursor-pointer"
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Validar Yape
+              </DropdownMenuItem>
+            )}
+
+            {necesitaCobro && (
+              <DropdownMenuItem
+                onClick={() => onAction('cobrar', reserva.id)}
+                className="text-brand-azul focus:text-brand-azul focus:bg-brand-azul/5 rounded-lg cursor-pointer"
+              >
+                <Banknote className="h-4 w-4 mr-2" />
+                Cobrar
+              </DropdownMenuItem>
+            )}
+
+            {reserva.ventaId !== null && (
+              <DropdownMenuItem
+                disabled={descargando}
+                onClick={handleDescargarTicket}
+                className="text-gray-700 focus:text-brand-azul focus:bg-brand-azul/5 rounded-lg cursor-pointer"
+              >
+                {descargando ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                Descargar ticket
+              </DropdownMenuItem>
+            )}
+
+            {(cancelable || true) && (
+              <>
+                <DropdownMenuSeparator />
+                {cancelable && (
+                  <DropdownMenuItem
+                    onClick={() => onAction('cancelar', reserva.id)}
+                    className="text-destructive focus:text-destructive focus:bg-red-50 rounded-lg cursor-pointer"
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Cancelar
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() => onAction('eliminar', reserva.id)}
+                  className="text-destructive focus:text-destructive focus:bg-red-50 rounded-lg cursor-pointer"
                 >
-                  <LogIn className="h-3.5 w-3.5" />
-                </Button>
-              </span>
-            </TooltipTrigger>
-            {deshabilitarIngreso && (
-              <TooltipContent side="top">
-                {fechaPasada
-                  ? 'No se puede registrar el ingreso: la fecha del evento ya pasó'
-                  : 'No se puede registrar el ingreso: el estado de la reserva no es válido'}
-              </TooltipContent>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </DropdownMenuItem>
+              </>
             )}
-          </Tooltip>
-        )}
-
-        {cancelable && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-lg text-gray-400 hover:text-destructive hover:bg-red-50"
-            title="Cancelar reserva"
-            onClick={() => onAction('cancelar', reserva.id)}
-          >
-            <XCircle className="h-3.5 w-3.5" />
-          </Button>
-        )}
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 rounded-lg text-gray-400 hover:text-destructive hover:bg-red-50"
-          title="Eliminar reserva"
-          onClick={() => onAction('eliminar', reserva.id)}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     )
   }

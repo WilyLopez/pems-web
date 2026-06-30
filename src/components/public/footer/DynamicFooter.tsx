@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import { MapPin, Clock, Phone, Mail, MessageCircle } from 'lucide-react'
 import { ConfiguracionPublica } from '@/types/configuracion-publica.types'
-import { TIPO_LEGAL_LABELS, SLUG_TO_TIPO } from '@/types/legal.types'
+import { ContenidoLegalResumen } from '@/types/legal.types'
 
 interface DynamicFooterProps {
   config?: ConfiguracionPublica | null
+  legalDocs?: ContenidoLegalResumen[]
 }
 
 const SERVICES_LINKS = [
@@ -15,7 +16,7 @@ const SERVICES_LINKS = [
   { href: '/celebraciones', label: 'Eventos Temáticos' },
 ]
 
-export function DynamicFooter({ config }: DynamicFooterProps) {
+export function DynamicFooter({ config, legalDocs }: DynamicFooterProps) {
   const nombre = config?.nombreNegocio ?? 'Kiki y Lala'
   const slogan =
     config?.slogan ?? 'El espacio de diversión favorito de los niños.'
@@ -30,10 +31,12 @@ export function DynamicFooter({ config }: DynamicFooterProps) {
   const infoLinks = [
     { href: '/nosotros', label: 'Nosotros' },
     { href: '/faq', label: 'Preguntas Frecuentes' },
-    ...Object.entries(SLUG_TO_TIPO).map(([slug, tipo]) => ({
-      href: `/legal/${slug}`,
-      label: TIPO_LEGAL_LABELS[tipo],
-    })),
+    ...(legalDocs ?? [])
+      .filter((doc) => doc.visibleFooter)
+      .map((doc) => ({
+        href: `/legal/${doc.slug}`,
+        label: doc.etiqueta,
+      })),
   ]
 
   const rawCopyright =

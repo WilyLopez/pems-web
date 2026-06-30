@@ -1,25 +1,19 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Landmark, Receipt, Coins, QrCode, CreditCard } from 'lucide-react'
 import {
   Controller,
   useFieldArray,
   useFormState,
   useWatch,
+  useFormContext,
   type Control,
 } from 'react-hook-form'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
 import { formatCurrency, cn } from '@/lib/utils'
-import { PagoLinea } from '../../types'
+import { PagoLinea, MetodoPago } from '../../types'
 import {
   METODOS_PAGO,
   type VentaMostradorFormValues,
@@ -34,15 +28,16 @@ interface PagoPosFormProps {
   total: number
 }
 
-const METODOS: { value: (typeof METODOS_PAGO)[number]; label: string }[] = [
-  { value: 'EFECTIVO', label: 'Efectivo' },
-  { value: 'YAPE', label: 'Yape' },
-  { value: 'PLIN', label: 'Plin' },
-  { value: 'TARJETA', label: 'Tarjeta' },
-  { value: 'TRANSFERENCIA', label: 'Transferencia' },
+const METODOS: { value: (typeof METODOS_PAGO)[number]; label: string; icon: any }[] = [
+  { value: 'EFECTIVO', label: 'Efectivo', icon: Coins },
+  { value: 'YAPE', label: 'Yape', icon: QrCode },
+  { value: 'PLIN', label: 'Plin', icon: QrCode },
+  { value: 'TARJETA', label: 'Tarjeta', icon: CreditCard },
+  { value: 'TRANSFERENCIA', label: 'Transferencia', icon: Landmark },
 ]
 
 export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
+  const { setValue, watch } = useFormContext()
   const { fields, append, remove } = useFieldArray({ control, name: 'pagos' })
   const pagos = useWatch({ control, name: 'pagos' }) as PagoLinea[]
   const efectivoRecibido = useWatch({
@@ -77,76 +72,147 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
   const todosUsados = (pagos?.length ?? 0) >= METODOS.length
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5">
       <div className="flex items-center justify-between">
-        <Label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">
-          Pagos
+        <Label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          Método de Pago
         </Label>
         {!todosUsados && (
           <button
             type="button"
             onClick={addPago}
-            className="flex items-center gap-1 text-[10px] font-bold text-brand-azul hover:underline"
+            className="flex items-center gap-0.5 text-[10px] font-bold text-brand-azul hover:underline"
           >
-            <Plus className="h-3 w-3" /> Dividir pago
+            <Plus className="h-3.5 w-3.5" /> Split Pago
           </button>
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {fields.map((field, i) => {
+          const currentMedio = watch(`pagos.${i}.medioPago`) as MetodoPago
           const errorMonto = errors?.pagos?.[i]?.monto?.message
+
+          const montoOtrasLineas = (pagos || []).reduce(
+            (s, p, idx) => (idx === i ? s : s + (p.monto || 0)),
+            0
+          )
+          const saldoLinea = Math.max(
+            0,
+            Math.round((total - montoOtrasLineas) * 100) / 100
+          )
+
           return (
-            <div key={field.id} className="space-y-1">
-              <div className="flex gap-2">
-                <Controller
-                  control={control}
-                  name={`pagos.${i}.medioPago`}
-                  render={({ field: f }) => (
-                    <Select value={f.value} onValueChange={f.onChange}>
-                      <SelectTrigger className="h-8 text-xs w-32 shrink-0 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {METODOS.map((m) => (
-                          <SelectItem key={m.value} value={m.value}>
-                            {m.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name={`pagos.${i}.monto`}
-                  render={({ field: f }) => (
-                    <Input
-                      type="number"
-                      placeholder="0.00"
-                      value={f.value || ''}
-                      onChange={(e) =>
-                        f.onChange(parseFloat(e.target.value) || 0)
-                      }
-                      className={cn(
-                        'h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-                        errorMonto && 'border-red-400 dark:border-red-600'
-                      )}
-                    />
-                  )}
-                />
+            <div
+              key={field.id}
+              className="p-3 bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-800 rounded-xl space-y-3 relative"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-black text-gray-400 uppercase">
+                  Línea de pago #{i + 1}
+                </span>
                 {fields.length > 1 && (
                   <button
                     type="button"
                     onClick={() => remove(i)}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-red-500 hover:border-red-200 dark:hover:text-red-400 dark:hover:border-red-800 transition-colors"
+                    className="text-[9px] font-bold text-rose-500 hover:text-rose-600 hover:underline flex items-center gap-0.5"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-2.5 w-2.5" /> Eliminar
                   </button>
                 )}
               </div>
+
+              <div className="flex gap-1 flex-wrap">
+                {METODOS.map((m) => {
+                  const IconComponent = m.icon
+                  const isSelected = currentMedio === m.value
+                  return (
+                    <button
+                      key={m.value}
+                      type="button"
+                      onClick={() => {
+                        setValue(`pagos.${i}.medioPago`, m.value, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+                        setValue(`pagos.${i}.referencia`, '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+                        setValue(`pagos.${i}.monto`, saldoLinea, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+                      }}
+                      className={cn(
+                        'px-2.5 py-1 text-[10px] font-bold rounded-lg border flex items-center gap-1 transition-all',
+                        isSelected
+                          ? 'bg-brand-azul text-white border-brand-azul'
+                          : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-800 hover:bg-gray-100'
+                      )}
+                    >
+                      <IconComponent className="h-3 w-3 shrink-0" />
+                      {m.label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className={cn(
+                "grid gap-2.5",
+                currentMedio === 'EFECTIVO' ? "grid-cols-1" : "grid-cols-1 md:grid-cols-[160px_1fr]"
+              )}>
+                <div className={cn("space-y-1", currentMedio === 'EFECTIVO' && "max-w-[160px] w-full")}>
+                  <Label className="text-[9px] font-bold text-gray-500 dark:text-gray-400">
+                    Monto a Cobrar
+                  </Label>
+                  <div className="relative">
+                    <Controller
+                      control={control}
+                      name={`pagos.${i}.monto`}
+                      render={({ field: f }) => (
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          value={f.value || ''}
+                          onChange={(e) =>
+                            f.onChange(parseFloat(e.target.value) || 0)
+                          }
+                          onWheel={(e) => e.currentTarget.blur()}
+                          className={cn(
+                            'h-8 text-xs bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 pr-12 w-full',
+                            errorMonto && 'border-red-400 dark:border-red-600'
+                          )}
+                        />
+                      )}
+                    />
+                    {saldoLinea > 0 && pagos[i]?.monto !== saldoLinea && (
+                      <button
+                        type="button"
+                        onClick={() => setValue(`pagos.${i}.monto`, saldoLinea, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-brand-azul/40 text-[8px] font-black text-brand-azul bg-brand-azul/5 hover:bg-brand-azul/10"
+                      >
+                        Saldo
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {currentMedio !== 'EFECTIVO' && (
+                  <div className="space-y-1">
+                    <Label className="text-[9px] font-bold text-gray-500 dark:text-gray-400">
+                      {currentMedio === 'YAPE' || currentMedio === 'PLIN'
+                        ? 'Nro. de Operación (Opcional)'
+                        : 'Referencia / Operación (Opcional)'}
+                    </Label>
+                    <Controller
+                      control={control}
+                      name={`pagos.${i}.referencia`}
+                      render={({ field: f }) => (
+                        <Input
+                          {...f}
+                          placeholder="Operación"
+                          className="h-8 text-xs bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 w-full"
+                        />
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+
               {errorMonto && (
-                <p className="text-[10px] text-red-500 dark:text-red-400 pl-1">
+                <p className="text-[9px] text-red-500 dark:text-red-400 font-bold">
                   {errorMonto}
                 </p>
               )}
@@ -156,12 +222,12 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
       </div>
 
       {tieneEfectivo && (
-        <div className="p-3 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl space-y-3">
+        <div className="p-3 bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-800 rounded-xl space-y-2.5">
           <div className="flex items-center justify-between">
-            <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">
-              Efectivo recibido
+            <Label className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              Efectivo Recibido
             </Label>
-            <span className="text-xs font-bold text-brand-azul">
+            <span className="text-xs font-black text-brand-azul">
               {formatCurrency(efectivoRecibido)}
             </span>
           </div>
@@ -185,7 +251,7 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                         key={monto}
                         type="button"
                         onClick={() => f.onChange((f.value || 0) + monto)}
-                        className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-600 text-[10px] font-bold bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        className="px-2 py-0.5 rounded border border-gray-200 dark:border-gray-800 text-[10px] font-bold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-100"
                       >
                         S/{monto}
                       </button>
@@ -193,14 +259,14 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                     <button
                       type="button"
                       onClick={() => f.onChange(efectivoMonto)}
-                      className="px-2.5 py-1 rounded-lg border border-brand-azul/40 text-[10px] font-bold text-brand-azul hover:bg-brand-azul/5 dark:hover:bg-brand-azul/10 transition-colors"
+                      className="px-2 py-0.5 rounded border border-brand-azul/40 text-[10px] font-bold text-brand-azul hover:bg-brand-azul/5"
                     >
                       Exacto
                     </button>
                     <button
                       type="button"
                       onClick={() => f.onChange(0)}
-                      className="px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-800 text-[10px] font-bold text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                      className="px-2 py-0.5 rounded border border-rose-200 dark:border-rose-800 text-[10px] font-bold text-rose-500 hover:bg-rose-50"
                     >
                       Limpiar
                     </button>
@@ -211,18 +277,19 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                       placeholder="Otro monto"
                       value={otroMonto}
                       onChange={(e) => setOtroMonto(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
                           agregarOtro()
                         }
                       }}
-                      className="h-7 w-24 text-[10px] px-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+                      className="h-7 w-24 text-[10px] px-2 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
                     />
                     <button
                       type="button"
                       onClick={agregarOtro}
-                      className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-600 text-[10px] font-bold text-brand-azul hover:bg-brand-azul/5 dark:hover:bg-brand-azul/10 transition-colors"
+                      className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-800 text-[10px] font-bold text-brand-azul hover:bg-brand-azul/5"
                     >
                       Agregar
                     </button>
@@ -233,9 +300,9 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
           />
 
           {vuelto > 0 && (
-            <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
-              <span className="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase">
-                Vuelto
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+              <span className="text-[10px] font-black text-green-600 dark:text-green-400 uppercase tracking-wider">
+                Vuelto a Entregar
               </span>
               <span className="text-sm font-black text-green-600 dark:text-green-400">
                 {formatCurrency(vuelto)}
@@ -243,14 +310,6 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
             </div>
           )}
         </div>
-      )}
-
-      {sumaPagos > 0 && Math.abs(sumaPagos - total) > 0.01 && (
-        <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 text-center">
-          {sumaPagos < total
-            ? `Falta cobrar ${formatCurrency(saldo)}`
-            : `Sobra ${formatCurrency(sumaPagos - total)}`}
-        </p>
       )}
     </div>
   )

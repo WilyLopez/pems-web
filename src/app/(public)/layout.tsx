@@ -3,7 +3,9 @@
 import { PublicNavbar } from '@/components/layout/PublicNavbar'
 import { DynamicFooter } from '@/components/public/footer/DynamicFooter'
 import { configuracionPublicaService } from '@/services/configuracion-publica.service'
+import { legalService } from '@/services/legal.service'
 import { ConfiguracionPublica } from '@/types/configuracion-publica.types'
+import { ContenidoLegalResumen } from '@/types/legal.types'
 
 async function getConfig(): Promise<ConfiguracionPublica | null> {
   try {
@@ -13,18 +15,26 @@ async function getConfig(): Promise<ConfiguracionPublica | null> {
   }
 }
 
+async function getLegalDocs(): Promise<ContenidoLegalResumen[]> {
+  try {
+    return await legalService.listarPublico()
+  } catch {
+    return []
+  }
+}
+
 export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const config = await getConfig()
+  const [config, legalDocs] = await Promise.all([getConfig(), getLegalDocs()])
 
   return (
     <div className="min-h-screen flex flex-col bg-white font-poppins">
       <PublicNavbar />
       <main className="flex-1">{children}</main>
-      <DynamicFooter config={config} />
+      <DynamicFooter config={config} legalDocs={legalDocs} />
     </div>
   )
 }

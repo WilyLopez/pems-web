@@ -29,6 +29,8 @@ interface VentaExitosaModalProps {
   venta: VentaMostradorResponse | null
   defaultCorreo: string
   onClose: () => void
+  desdeCaja?: boolean
+  onVolverCaja?: () => void
 }
 
 export const VentaExitosaModal = ({
@@ -36,6 +38,8 @@ export const VentaExitosaModal = ({
   venta,
   defaultCorreo,
   onClose,
+  desdeCaja,
+  onVolverCaja,
 }: VentaExitosaModalProps) => {
   const [correoDestinatario, setCorreoDestinatario] = useState(defaultCorreo)
   const [descargandoNota, setDescargandoNota] = useState(false)
@@ -303,12 +307,30 @@ export const VentaExitosaModal = ({
         </div>
 
         <div className="p-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
-          <Button
-            onClick={onClose}
-            className="w-full rounded-xl font-bold h-11 uppercase text-xs tracking-wider bg-brand-azul hover:bg-brand-azul/90"
-          >
-            Nueva Venta
-          </Button>
+          {desdeCaja ? (
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="flex-1 rounded-xl font-bold h-11 uppercase text-xs tracking-wider border-gray-200 dark:border-gray-700"
+              >
+                Registrar otra
+              </Button>
+              <Button
+                onClick={() => onVolverCaja?.()}
+                className="flex-1 rounded-xl font-bold h-11 uppercase text-xs tracking-wider bg-brand-azul hover:bg-brand-azul/90"
+              >
+                Volver a caja
+              </Button>
+            </div>
+          ) : (
+            <Button
+              onClick={onClose}
+              className="w-full rounded-xl font-bold h-11 uppercase text-xs tracking-wider bg-brand-azul hover:bg-brand-azul/90"
+            >
+              Nueva Venta
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

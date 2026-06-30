@@ -1,7 +1,9 @@
 'use client'
 
 import { cn, formatDate } from '@/lib/utils'
-import { DisponibilidadDia } from '@/types/dashboard.types'
+import { DashboardCard } from '../../shared/components/DashboardCard'
+import { EmptyState } from '../../shared/components/EmptyState'
+import { DisponibilidadDia } from '../../shared/types'
 
 function TurnoChip({
   label,
@@ -13,8 +15,10 @@ function TurnoChip({
   return (
     <span
       className={cn(
-        'w-6 h-6 rounded-lg text-[11px] font-bold flex items-center justify-center',
-        disponible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
+        'flex h-6 w-6 items-center justify-center rounded-lg text-[11px] font-bold',
+        disponible
+          ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+          : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'
       )}
     >
       {label}
@@ -28,14 +32,12 @@ interface Props {
 
 export function DisponibilidadSemana({ data }: Props) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
-      <h3 className="font-bold text-gray-900 mb-4 text-sm sm:text-base">
+    <DashboardCard>
+      <h3 className="mb-4 text-sm font-bold text-gray-900 sm:text-base dark:text-gray-100">
         Disponibilidad de la semana
       </h3>
       {data.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-8">
-          Sin datos de disponibilidad.
-        </p>
+        <EmptyState mensaje="Sin datos de disponibilidad." />
       ) : (
         <div className="space-y-2">
           {data.map((dia) => (
@@ -43,14 +45,14 @@ export function DisponibilidadSemana({ data }: Props) {
               key={dia.fecha}
               className="flex items-center justify-between gap-2 py-1.5"
             >
-              <span className="text-sm font-semibold text-gray-700 capitalize">
+              <span className="text-sm font-semibold capitalize text-gray-700 dark:text-gray-300">
                 {formatDate(dia.fecha, 'EEE d MMM')}
               </span>
               <div className="flex items-center gap-1.5">
                 <TurnoChip label="M" disponible={dia.turnoT1Disponible} />
                 <TurnoChip label="T" disponible={dia.turnoT2Disponible} />
                 {dia.totalEventos > 0 && (
-                  <span className="text-[10px] font-bold text-brand-rosa bg-brand-rosa/10 px-1.5 py-0.5 rounded-full">
+                  <span className="rounded-full bg-brand-rosa/10 px-1.5 py-0.5 text-[10px] font-bold text-brand-rosa">
                     {dia.totalEventos} evento{dia.totalEventos > 1 ? 's' : ''}
                   </span>
                 )}
@@ -59,6 +61,6 @@ export function DisponibilidadSemana({ data }: Props) {
           ))}
         </div>
       )}
-    </div>
+    </DashboardCard>
   )
 }

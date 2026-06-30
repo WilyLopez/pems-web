@@ -1,16 +1,24 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useCaja, useMovimientosCaja } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
+import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 export default function MovimientosCajaPage() {
   const { idSede } = useAuth()
-  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10))
+  const searchParams = useSearchParams()
+  const fechaParam = searchParams.get('fecha')
+  const [fecha, setFecha] = useState(
+    fechaParam || new Date().toISOString().slice(0, 10)
+  )
 
   const { data: caja, isLoading: loadingCaja } = useCaja(
     idSede ?? undefined,
@@ -36,12 +44,20 @@ export default function MovimientosCajaPage() {
           title="Historial de movimientos"
           description="Movimientos registrados en la caja para una fecha"
         />
-        <Input
-          type="date"
-          value={fecha}
-          onChange={(e) => setFecha(e.target.value)}
-          className="h-9 w-40"
-        />
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="outline" className="gap-1.5">
+            <Link href="/admin/finanzas/caja">
+              <ArrowLeft className="h-4 w-4" />
+              Volver a caja
+            </Link>
+          </Button>
+          <Input
+            type="date"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+            className="h-9 w-40"
+          />
+        </div>
       </div>
 
       {!isLoading && !caja && (

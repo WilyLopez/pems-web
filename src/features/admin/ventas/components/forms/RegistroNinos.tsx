@@ -28,38 +28,56 @@ export const RegistroNinos = ({
   const addNino = () => append({ nombreNino: '', edadNino: edadMin })
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">
-          Niños <span className="text-brand-azul">({fields.length})</span>
+        <Label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          Niños / Entradas <span className="text-brand-azul">({fields.length})</span>
         </Label>
         <button
           type="button"
           onClick={addNino}
-          className="flex items-center gap-1 text-[10px] font-bold text-brand-azul hover:underline"
+          className="flex items-center gap-0.5 text-[10px] font-bold text-brand-azul hover:underline"
         >
-          <Plus className="h-3 w-3" /> Agregar
+          <Plus className="h-3.5 w-3.5" /> Agregar entrada
         </button>
       </div>
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto pr-1">
         {fields.map((field, i) => {
           const errorNombre = errors?.ninos?.[i]?.nombreNino?.message
           const errorEdad = errors?.ninos?.[i]?.edadNino?.message
 
           return (
-            <div key={field.id} className="space-y-1">
-              <div className="flex gap-2">
+            <div
+              key={field.id}
+              className="p-2.5 bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-800 rounded-xl space-y-1.5"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-black text-gray-400 uppercase">
+                  Entrada #{i + 1}
+                </span>
+                {fields.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => remove(i)}
+                    className="text-[9px] font-bold text-rose-500 hover:text-rose-600 hover:underline flex items-center gap-0.5"
+                  >
+                    <X className="h-2.5 w-2.5" /> Quitar
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_75px] gap-2">
                 <Controller
                   control={control}
                   name={`ninos.${i}.nombreNino`}
                   render={({ field: f }) => (
                     <Input
                       {...f}
-                      placeholder="Nombre completo"
+                      placeholder="Nombre del niño"
                       onChange={(e) => f.onChange(e.target.value.toUpperCase())}
                       className={cn(
-                        'h-8 text-xs flex-1 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+                        'h-8 text-xs bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800',
                         errorNombre && 'border-red-400 dark:border-red-600'
                       )}
                     />
@@ -80,27 +98,19 @@ export const RegistroNinos = ({
                             : parseInt(e.target.value, 10)
                         )
                       }
+                      onWheel={(e) => e.currentTarget.blur()}
                       min={edadMin}
                       max={edadMax}
                       className={cn(
-                        'h-8 text-xs w-16 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+                        'h-8 text-xs bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800',
                         errorEdad && 'border-red-400 dark:border-red-600'
                       )}
                     />
                   )}
                 />
-                {fields.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => remove(i)}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-red-500 hover:border-red-200 dark:hover:border-red-800 dark:hover:text-red-400 transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                )}
               </div>
               {(errorNombre || errorEdad) && (
-                <p className="text-[10px] text-red-500 dark:text-red-400 pl-1">
+                <p className="text-[9px] text-red-500 dark:text-red-400 font-bold leading-tight">
                   {errorNombre || errorEdad}
                 </p>
               )}

@@ -28,10 +28,12 @@ interface NotificacionesState {
   noLeidas: number
   cargando: boolean
   ultimaActualizacion: number | null
+  panelAbierto: boolean
   fetchNotificaciones: () => Promise<void>
   fetchCount: () => Promise<void>
   marcarLeida: (id: string) => Promise<void>
   marcarTodasLeidas: () => Promise<void>
+  setPanelAbierto: (open: boolean) => void
 }
 
 function getApi() {
@@ -59,6 +61,7 @@ export const useNotificacionesStore = create<NotificacionesState>(
     noLeidas: 0,
     cargando: false,
     ultimaActualizacion: null,
+    panelAbierto: false,
 
     fetchNotificaciones: async () => {
       set({ cargando: true })
@@ -103,6 +106,8 @@ export const useNotificacionesStore = create<NotificacionesState>(
         set({ notificaciones: prevNotifs })
       }
     },
+
+    setPanelAbierto: (open) => set({ panelAbierto: open }),
 
     marcarTodasLeidas: async () => {
       const prevNotifs = get().notificaciones

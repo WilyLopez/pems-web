@@ -3,34 +3,28 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { COOKIE_TIPO_PERFIL } from '@/lib/auth-utils'
 
 export async function proxy(request: NextRequest) {
-  const { user, supabaseResponse } = await updateSession(request)
-  const pathname = request.nextUrl.pathname
-  const searchParams = request.nextUrl.searchParams
-  const tipoPerfil = request.cookies.get(COOKIE_TIPO_PERFIL)?.value
+  const { pathname } = request.nextUrl
 
-  if (pathname.startsWith('/auth')) {
-    if (user && tipoPerfil && !searchParams.has('redirect')) {
-      const dashboardUrl =
-        tipoPerfil === 'STAFF' ? '/admin/dashboard' : '/cliente'
-      return NextResponse.redirect(new URL(dashboardUrl, request.url))
-    }
-    return supabaseResponse
+  const { user, supabaseResponse } = await updateSession(request)
+
+  const isAuthRoute = pathname.startsWith('/auth')
+  const isAdminRoute = pathname.startsWith('/admin')
+  const isClienteRoute = pathname.startsWith('/cliente')
+  const isProtected = isAdminRoute || isClienteRoute
+
+  if (isProtected && !user) {
+    const loginUrl = new URL('/auth/login', request.url)
+    loginUrl.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
-  if (pathname.startsWith('/admin') || pathname.startsWith('/cliente')) {
-    if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/auth/login'
-      url.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(url)
-    }
-
-    if (pathname.startsWith('/admin') && tipoPerfil !== 'STAFF') {
-      return NextResponse.redirect(new URL('/cliente', request.url))
-    }
-
-    if (pathname.startsWith('/cliente') && tipoPerfil !== 'CLIENTE') {
+  if (isAuthRoute && user && !pathname.startsWith('/auth/callback')) {
+    const tipoPerfil = request.cookies.get(COOKIE_TIPO_PERFIL)?.value
+    if (tipoPerfil === 'STAFF') {
       return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    }
+    if (tipoPerfil === 'CLIENTE') {
+      return NextResponse.redirect(new URL('/cliente', request.url))
     }
   }
 
@@ -38,5 +32,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/cliente/:path*', '/auth/:path*'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
