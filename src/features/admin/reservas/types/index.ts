@@ -34,6 +34,7 @@ export interface Reserva {
   fechaIngreso: string | null
   codigoQr: string
   medioPago: string | null
+  referenciaPago?: string | null
   fechaCreacion: string
   nombreCliente?: string | null
   correoCliente?: string | null

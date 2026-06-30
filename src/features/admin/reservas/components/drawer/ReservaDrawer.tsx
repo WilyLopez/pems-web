@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { parseISO, format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -13,15 +13,20 @@ import {
   Mail,
   LogIn,
   Clock,
+  ImageOff,
+  ZoomIn,
+  ShieldCheck,
 } from 'lucide-react'
 import { Reserva } from '../../types'
 import { Button } from '@/components/ui/Button'
 import { formatDateTime, formatCurrency } from '@/lib/utils'
 import { ReservaStatusBadge } from '../shared/ReservaStatusBadge'
+import { reservaHelpers } from '../../utils/reserva-helpers'
 
 interface ReservaDrawerProps {
   reserva: Reserva | null
   onClose: () => void
+  onValidarYape?: (id: number) => void
 }
 
 function Row({
@@ -50,8 +55,13 @@ function Row({
 }
 
 export const ReservaDrawer = React.memo(
-  ({ reserva, onClose }: ReservaDrawerProps) => {
+  ({ reserva, onClose, onValidarYape }: ReservaDrawerProps) => {
     if (!reserva) return null
+
+
+    const esYapePendiente = reservaHelpers.needsYapeValidation(reserva)
+    const tieneComprobante =
+      reserva.referenciaPago && reserva.referenciaPago.startsWith('http')
 
     return (
       <>
@@ -103,7 +113,7 @@ export const ReservaDrawer = React.memo(
 
             <div className="bg-white rounded-2xl border border-gray-100 p-4">
               <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400 mb-2">
-                Niño registrado
+                Nino registrado
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-brand-rosa/10 flex items-center justify-center text-lg font-black text-brand-rosa shrink-0">
@@ -114,7 +124,7 @@ export const ReservaDrawer = React.memo(
                     {reserva.nombreNino}
                   </p>
                   <p className="text-xs text-gray-400">
-                    {reserva.edadNino} años de edad
+                    {reserva.edadNino} anos de edad
                   </p>
                 </div>
               </div>
@@ -128,7 +138,7 @@ export const ReservaDrawer = React.memo(
               <Row icon={Mail} label="Correo" value={reserva.correoCliente} />
               <Row
                 icon={User}
-                label="Acompañante"
+                label="Acompanante"
                 value={reserva.nombreAcompanante}
               />
               <Row
@@ -138,7 +148,7 @@ export const ReservaDrawer = React.memo(
                   reserva.tipoDia === 'FIN_SEMANA_FERIADO'
                     ? 'Fin de Semana / Feriado'
                     : reserva.tipoDia === 'SEMANA'
-                      ? 'Día de Semana'
+                      ? 'Dia de Semana'
                       : reserva.tipoDia
                 }
               />
@@ -198,6 +208,63 @@ export const ReservaDrawer = React.memo(
               )}
             </div>
 
+            {(tieneComprobante || esYapePendiente) && (
+              <div
+                className={`bg-white rounded-2xl border p-4 space-y-3 ${
+                  esYapePendiente
+                    ? 'border-amber-200'
+                    : 'border-green-200'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <p
+                    className={`text-[10px] font-bold uppercase tracking-wide ${
+                      esYapePendiente ? 'text-amber-600' : 'text-green-600'
+                    }`}
+                  >
+                    Comprobante Yape
+                  </p>
+                  {esYapePendiente && onValidarYape && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onValidarYape(reserva.id)}
+                      className="h-7 px-3 text-xs font-bold rounded-xl bg-amber-500 text-white hover:bg-amber-600"
+                    >
+                      <ShieldCheck className="h-3.5 w-3.5 mr-1" />
+                      Validar pago
+                    </Button>
+                  )}
+                </div>
+
+                {tieneComprobante ? (
+                  <a
+                    href={reserva.referenciaPago!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative w-full block group rounded-xl overflow-hidden border border-gray-200 hover:border-amber-400 transition-colors"
+                  >
+                    <img
+                      src={reserva.referenciaPago!}
+                      alt="Comprobante de pago Yape"
+                      className="w-full max-h-48 object-contain bg-gray-50"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                      <ZoomIn className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow" />
+                    </div>
+                  </a>
+
+                ) : (
+                  <div className="flex flex-col items-center gap-2 py-6 rounded-xl border border-dashed border-gray-200 bg-gray-50">
+                    <ImageOff className="h-6 w-6 text-gray-300" />
+                    <p className="text-xs text-gray-400 font-medium">
+                      Sin comprobante adjunto
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {reserva.ingresado && reserva.fechaIngreso && (
               <div className="bg-white border border-green-200 rounded-2xl p-4">
                 <p className="text-[10px] font-bold uppercase tracking-wide text-green-600 mb-1">
@@ -230,9 +297,11 @@ export const ReservaDrawer = React.memo(
             )}
           </div>
         </aside>
+
       </>
     )
   }
 )
+
 
 ReservaDrawer.displayName = 'ReservaDrawer'

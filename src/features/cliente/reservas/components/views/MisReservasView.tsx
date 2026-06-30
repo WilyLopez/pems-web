@@ -56,7 +56,7 @@ export function MisReservasView() {
   )
 
   const historial = reservas.filter((r) =>
-    ['COMPLETADA', 'CANCELADA', 'REPROGRAMADA'].includes(r.estado)
+    ['COMPLETADA', 'CANCELADA', 'REPROGRAMADA', 'EXPIRADA'].includes(r.estado)
   )
 
   const reservasMostradas = tab === 'proximas' ? proximas : historial

@@ -4,6 +4,7 @@ import { Reserva } from '../../types'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import { ReservaStatusBadge } from '../shared/ReservaStatusBadge'
 import { RowActions } from './RowActions'
+import { cn } from '@/lib/utils'
 
 interface GetColumnsProps {
   onView: (id: number) => void
@@ -19,11 +20,19 @@ export const getColumns = ({
     header: () => (
       <span className="text-xs font-bold text-gray-400 uppercase">Ticket</span>
     ),
-    cell: ({ row }) => (
-      <span className="font-mono text-xs font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded-lg">
-        {row.original.numeroTicket}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const ticket = row.original.numeroTicket
+      const parts = ticket.split('-')
+      const ticketCorto = parts.length >= 4 ? `${parts[0]}-${parts[1]}-...-${parts[3]}` : ticket
+      return (
+        <span
+          title={ticket}
+          className="font-mono text-[11px] font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded-lg whitespace-nowrap inline-block cursor-help"
+        >
+          {ticketCorto}
+        </span>
+      )
+    },
   },
   {
     accessorKey: 'fechaEvento',
@@ -44,7 +53,7 @@ export const getColumns = ({
           {row.original.tipoDia === 'FIN_SEMANA_FERIADO'
             ? 'Fin de Semana / Feriado'
             : row.original.tipoDia === 'SEMANA'
-              ? 'Día de Semana'
+              ? 'Dia de Semana'
               : row.original.tipoDia}
         </span>
       </div>
@@ -80,6 +89,7 @@ export const getColumns = ({
       </div>
     ),
   },
+
   {
     accessorKey: 'nombreCliente',
     header: () => (
@@ -105,18 +115,37 @@ export const getColumns = ({
     header: () => (
       <span className="text-xs font-bold text-gray-400 uppercase">Pago</span>
     ),
-    cell: ({ row }) => (
-      <div>
-        <p className="text-sm font-bold text-gray-900">
-          {formatCurrency(row.original.totalPagado)}
-        </p>
-        {row.original.medioPago && (
-          <p className="text-[10px] font-bold text-gray-400 uppercase">
-            {row.original.medioPago}
+    cell: ({ row }) => {
+      const { medioPago, estado, totalPagado } = row.original
+      const esYapePendiente = medioPago === 'YAPE' && estado === 'PENDIENTE'
+      const esYapeConfirmado = medioPago === 'YAPE' && estado !== 'PENDIENTE'
+
+      return (
+        <div>
+          <p className="text-sm font-bold text-gray-900">
+            {formatCurrency(totalPagado)}
           </p>
-        )}
-      </div>
-    ),
+          {medioPago && (
+            <span
+              className={cn(
+                'inline-block text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-md mt-0.5',
+                esYapePendiente
+                  ? 'bg-amber-100 text-amber-700'
+                  : esYapeConfirmado
+                    ? 'bg-green-100 text-green-700'
+                    : 'text-gray-400'
+              )}
+            >
+              {esYapePendiente
+                ? 'Yape pendiente'
+                : esYapeConfirmado
+                  ? 'Yape verificado'
+                  : medioPago}
+            </span>
+          )}
+        </div>
+      )
+    },
   },
   {
     id: 'acciones',

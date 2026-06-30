@@ -314,9 +314,7 @@ export const CalendarioDia = React.memo(
     }
 
     const esPrivado = resumen.totalEventos > 0
-    const bloqueado =
-      resumen.tipoOcupacion === 'BLOQUEADO' ||
-      resumen.tipoOcupacion === 'FERIADO'
+    const bloqueado = resumen.tipoOcupacion === 'BLOQUEADO'
     const aforeoPct =
       resumen.aforoMaximo > 0
         ? Math.round((resumen.aforoPublicoActual / resumen.aforoMaximo) * 100)

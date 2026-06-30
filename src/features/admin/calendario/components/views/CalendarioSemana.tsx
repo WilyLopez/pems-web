@@ -108,7 +108,7 @@ export const CalendarioSemana = React.memo(
           const pasado = isPast(day)
           const selected = !!selectedDate && isSameDay(selectedDate, day)
           const bloqueado = disp?.tipoOcupacion === 'BLOQUEADO'
-          const feriado = disp?.tipoOcupacion === 'FERIADO'
+          const feriado = disp?.esFeriado || disp?.tipoDia === 'FERIADO'
           const esPrivado =
             disp?.tipoOcupacion === 'PRIVADO_PARCIAL' ||
             disp?.tipoOcupacion === 'PRIVADO_LLENO'
@@ -176,7 +176,7 @@ export const CalendarioSemana = React.memo(
                   </div>
                 )}
 
-                {!bloqueado && !feriado && disp && (
+                {!bloqueado && disp && (
                   <>
                     {!esPrivado && tieneReservas && (
                       <div className="px-2 pt-2 space-y-1.5">

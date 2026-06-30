@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { reservasApi } from '../services/reservas.api'
 import { BuscarReservasParams } from '../types'
@@ -13,6 +13,7 @@ export function useReservas(params: BuscarReservasParams = {}) {
   return useQuery({
     queryKey: [RESERVAS_KEYS.ADMIN_LIST, params],
     queryFn: () => reservasApi.buscarAdmin(params),
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -104,6 +105,26 @@ export function useEliminarReserva() {
         err?.response?.data?.mensaje ??
           err?.message ??
           'No se pudo eliminar la reserva.'
+      )
+    },
+  })
+}
+
+export function useRechazarPago() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, motivo }: { id: number; motivo?: string }) =>
+      reservasApi.rechazarPago(id, motivo),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.ADMIN_LIST] })
+      qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
+      toast.success('Pago rechazado. Se ha notificado al cliente.')
+    },
+    onError: (err: any) => {
+      toast.error(
+        err?.response?.data?.mensaje ??
+          err?.message ??
+          'No se pudo rechazar el pago.'
       )
     },
   })

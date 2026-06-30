@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { reservaApi } from '@/features/cliente/shared/services/reserva.api'
+import { getEstadoEfectivo } from '@/features/cliente/shared/utils/reserva'
 import { clienteKeys } from '../../shared/queryKeys'
 import { toast } from 'sonner'
 
@@ -37,7 +38,10 @@ export function useMisReservasData(isAuthenticated: boolean) {
   })
 
   return {
-    reservas: reservasQuery.data?.content ?? [],
+    reservas: (reservasQuery.data?.content ?? []).map((r) => ({
+      ...r,
+      estado: getEstadoEfectivo(r) as any,
+    })),
     isLoading: reservasQuery.isLoading,
     isError: reservasQuery.isError,
     refetch: reservasQuery.refetch,
