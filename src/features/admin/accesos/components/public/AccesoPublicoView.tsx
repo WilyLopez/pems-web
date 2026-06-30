@@ -15,6 +15,7 @@ import {
   Search,
   AlertTriangle,
   LogIn,
+  Banknote,
 } from 'lucide-react'
 
 import { accesosApi } from '../../services/accesos.api'
@@ -30,6 +31,8 @@ import { Label } from '@/components/ui/Label'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Separator } from '@/components/ui/Separator'
 import { formatDate, formatCurrency, cn } from '@/lib/utils'
+import { CobrarReservaDrawer } from '@/features/admin/reservas/components/drawer/CobrarReservaDrawer'
+import { Reserva } from '@/features/admin/reservas/types'
 
 type ScanState = 'idle' | 'scanning' | 'loading' | 'done'
 
@@ -70,19 +73,51 @@ function TicketDetalleCard({
   onReset,
   onMarcarEntrada,
   loadingEntrada,
+  onCobrarExitoso,
 }: {
   ticket: TicketDetalle
   onReset: () => void
   onMarcarEntrada: (id: number) => void
   loadingEntrada: boolean
+  onCobrarExitoso?: () => void
 }) {
   const [editandoFecha, setEditandoFecha] = useState(false)
   const [nuevaFecha, setNuevaFecha] = useState(format(new Date(), 'yyyy-MM-dd'))
   const editarFecha = useEditarFechaTicket()
 
-  const { idSede } = useAuth()
+  const { idSede, tienePermiso } = useAuth()
   const { data: confCal } = useConfiguracionCalendario(idSede ?? null)
   const diasMaxFecha = confCal?.diasMaxReservaPublica ?? 14
+
+  const puedeCobrar = tienePermiso('reserva.confirmar_pago') || tienePermiso('pos.vender')
+  const [showCobrar, setShowCobrar] = useState(false)
+
+  const reservaMapeada: Reserva = {
+    id: ticket.idReserva,
+    ventaId: null,
+    idCliente: 0,
+    idSede: idSede ?? 0,
+    estado: 'PENDIENTE',
+    canalReserva: 'WEB',
+    tipoDia: 'LABORABLE',
+    fechaEvento: ticket.fechaVisita,
+    numeroTicket: ticket.numeroTicket,
+    precioHistorico: ticket.montoPagado,
+    descuentoAplicado: 0,
+    totalPagado: ticket.montoPagado,
+    nombreNino: ticket.nombreNino,
+    edadNino: ticket.edadNino,
+    nombreAcompanante: ticket.nombreAcompanante,
+    dniAcompanante: ticket.dniAcompanante,
+    firmoConsentimiento: false,
+    esReprogramacion: false,
+    vecesReprogramada: 0,
+    ingresado: ticket.yaIngreso,
+    fechaIngreso: ticket.fechaIngreso || null,
+    codigoQr: ticket.codigoQr || '',
+    medioPago: null,
+    fechaCreacion: '',
+  }
 
   const invalido = ['CANCELADA', 'REPROGRAMADA'].includes(ticket.estado)
 
@@ -222,11 +257,35 @@ function TicketDetalleCard({
             </p>
           </div>
         ) : ticket.estado === 'PENDIENTE' ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-            <p className="text-sm text-amber-800">
-              Cobrar en caja antes de permitir el ingreso.
-            </p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+              <p className="text-sm text-amber-800">
+                {puedeCobrar ? 'El ticket requiere cobro antes de ingresar.' : 'Cobrar en caja antes de permitir el ingreso.'}
+              </p>
+            </div>
+            {puedeCobrar && (
+              <>
+                <button
+                  onClick={() => setShowCobrar(true)}
+                  className="w-full flex items-center justify-center gap-2 h-11 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold text-sm transition-colors"
+                >
+                  <Banknote className="h-4 w-4" />
+                  Cobrar en puerta
+                </button>
+                {showCobrar && (
+                  <CobrarReservaDrawer
+                    reserva={reservaMapeada}
+                    onClose={(success) => {
+                      setShowCobrar(false)
+                      if (success && onCobrarExitoso) {
+                        onCobrarExitoso()
+                      }
+                    }}
+                  />
+                )}
+              </>
+            )}
           </div>
         ) : (
           <button
@@ -355,7 +414,7 @@ export const AccesoPublicoView = () => {
 
   if (scanState === 'loading') {
     return (
-      <div className="max-w-sm">
+      <div className="max-w-sm mx-auto">
         <Card>
           <CardContent className="p-10 flex flex-col items-center gap-3">
             <Loader2 className="h-10 w-10 text-primary animate-spin" />
@@ -370,7 +429,7 @@ export const AccesoPublicoView = () => {
 
   if (scanState === 'done' && scanError) {
     return (
-      <div className="max-w-sm space-y-3">
+      <div className="max-w-sm mx-auto space-y-3">
         <Card className="border-destructive/40 bg-destructive/5">
           <CardContent className="p-6 flex flex-col items-center gap-2 text-center">
             <XCircle className="h-8 w-8 text-destructive" />
@@ -393,10 +452,11 @@ export const AccesoPublicoView = () => {
 
   if (scanState === 'done' && ticket) {
     return (
-      <div className="max-w-sm">
+      <div className="max-w-sm mx-auto">
         <TicketDetalleCard
           ticket={ticket}
           onReset={reset}
+          onCobrarExitoso={() => handleTicket(ticket.numeroTicket)}
           onMarcarEntrada={(id) => {
             marcarEntrada.mutate(id, {
               onSuccess: (updated) => setTicket(updated),
@@ -415,7 +475,7 @@ export const AccesoPublicoView = () => {
   }
 
   return (
-    <div className="max-w-sm space-y-4">
+    <div className="max-w-sm mx-auto space-y-4">
       <Card>
         <div className="relative bg-zinc-900 rounded-t-xl overflow-hidden aspect-square flex items-center justify-center">
           <video

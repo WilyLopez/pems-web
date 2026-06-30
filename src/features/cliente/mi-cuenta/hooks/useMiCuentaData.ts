@@ -76,6 +76,21 @@ export function useMiCuentaData(clientePerfilId?: number) {
     },
   })
 
+  const completarPerfilMutation = useMutation({
+    mutationFn: (values: any) => clienteService.completarPerfil(values),
+    onSuccess: () => {
+      toast.success('Perfil completado correctamente.')
+      queryClient.invalidateQueries({
+        queryKey: clienteKeys.perfil(clientePerfilId),
+      })
+    },
+    onError: (err: { message?: string }) => {
+      toast.error(
+        err?.message ?? 'No se pudo completar el perfil.'
+      )
+    },
+  })
+
   return {
     cliente: profileQuery.data,
     isLoading: profileQuery.isLoading,
@@ -84,6 +99,8 @@ export function useMiCuentaData(clientePerfilId?: number) {
     updateProfile: updateProfileMutation.mutate,
     updateProfileAsync: updateProfileMutation.mutateAsync,
     isUpdatingProfile: updateProfileMutation.isPending,
+    completarPerfilAsync: completarPerfilMutation.mutateAsync,
+    isCompletandoPerfil: completarPerfilMutation.isPending,
     updatePreferences: updatePreferencesMutation.mutate,
     isUpdatingPreferences: updatePreferencesMutation.isPending,
     uploadPhoto: uploadPhotoMutation.mutate,
