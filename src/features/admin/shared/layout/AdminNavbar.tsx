@@ -7,13 +7,13 @@ import { useNotificaciones } from '@/hooks/useNotificaciones'
 import { useSidebarStore } from '@/lib/store/sidebar.store'
 import type { TipoVisual } from '@/types/notificaciones.types'
 import { Button } from '@/components/ui/Button'
-import { Avatar, AvatarFallback } from '@/components/ui/Avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar'
 import { Separator } from '@/components/ui/Separator'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu'
-import { cn, getInitials } from '@/lib/utils'
+import { cn, getInitials, fileUrl } from '@/lib/utils'
 import Link from 'next/link'
 import { GlobalSearch } from '../components/GlobalSearch'
 import { NotificacionesMenu } from '../components/NotificacionesMenu'
@@ -47,9 +47,11 @@ export const DOT_COLOR: Record<TipoVisual, string> = {
 }
 
 export function AdminNavbar() {
-  const { nombre, correo, logout } = useAuth()
+  const { nombre, correo, fotoPerfilUrl, logout } = useAuth()
   const { toggleMobile } = useSidebarStore()
   useNotificaciones()
+
+  const avatarUrl = fileUrl(fotoPerfilUrl)
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 px-4 sm:px-6 glass border-b border-gray-100">
@@ -87,6 +89,7 @@ export function AdminNavbar() {
               className="flex items-center gap-2.5 h-9 px-2 rounded-xl hover:bg-gray-100 transition-colors"
             >
               <Avatar className="h-7 w-7">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={nombre ?? ''} />}
                 <AvatarFallback className="text-xs bg-brand-azul text-white font-black">
                   {nombre ? getInitials(nombre) : 'A'}
                 </AvatarFallback>

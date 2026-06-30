@@ -170,26 +170,39 @@ export function ActividadReciente({
 
   return (
     <SectionCard titulo="Actividad reciente" icon={History}>
-      <div className="space-y-0">
+      <div className="flex sm:flex-col overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none gap-4 sm:gap-0 pb-4 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 hide-scrollbar">
         {items.map((item, idx) => (
-          <div key={item.id} className="flex gap-3 relative">
+          <div 
+            key={item.id} 
+            className="flex flex-col sm:flex-row sm:gap-3 relative min-w-[200px] sm:min-w-0 snap-start bg-gray-50 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none border border-gray-100 sm:border-transparent"
+          >
+            {/* Línea vertical para Desktop */}
             {idx < items.length - 1 && (
-              <div className="absolute left-4 top-8 bottom-0 w-px bg-gray-100" />
+              <div className="hidden sm:block absolute left-4 top-8 bottom-0 w-px bg-gray-100" />
             )}
-            <div
-              className={cn(
-                'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 z-10',
-                item.bgColor
-              )}
-            >
-              <item.Icon className={cn('h-3.5 w-3.5', item.iconColor)} />
+            
+            <div className="flex items-center gap-3 sm:block mb-2 sm:mb-0">
+              <div
+                className={cn(
+                  'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 z-10',
+                  item.bgColor
+                )}
+              >
+                <item.Icon className={cn('h-3.5 w-3.5', item.iconColor)} />
+              </div>
+              {/* Fecha visible en mobile junto al icono */}
+              <p className="text-[11px] text-gray-400 sm:hidden">
+                {formatRelativo(item.fecha)}
+              </p>
             </div>
-            <div className="pb-4 flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900">
+
+            <div className="sm:pb-4 flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 leading-tight">
                 {item.titulo}
               </p>
-              <p className="text-xs text-gray-500 truncate">{item.subtitulo}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="text-xs text-gray-500 truncate mt-1 sm:mt-0">{item.subtitulo}</p>
+              {/* Fecha original en desktop */}
+              <p className="hidden sm:block text-[11px] text-gray-400 mt-0.5">
                 {formatRelativo(item.fecha)}
               </p>
             </div>
@@ -199,3 +212,4 @@ export function ActividadReciente({
     </SectionCard>
   )
 }
+

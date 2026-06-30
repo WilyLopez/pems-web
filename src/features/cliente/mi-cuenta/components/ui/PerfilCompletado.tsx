@@ -12,7 +12,7 @@ function calcularCompletitud(cliente: Cliente): {
 } {
   const items = [
     { completo: !!cliente.telefono, label: 'Teléfono' },
-    { completo: !!cliente.correo, label: 'Correo electrónico' },
+    { completo: !!cliente.numeroDocumento, label: 'Nro de documento' },
     { completo: !!cliente.apellidoMaterno, label: 'Apellido materno' },
     { completo: !!cliente.fechaNacimiento, label: 'Fecha de nacimiento' },
   ]

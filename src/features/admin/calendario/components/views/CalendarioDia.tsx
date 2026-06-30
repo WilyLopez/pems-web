@@ -407,7 +407,7 @@ export const CalendarioDia = React.memo(
               )}
             </div>
 
-            {!bloqueado && resumen.totalReservas === 0 && (
+            {!bloqueado && resumen.totalReservas === 0 && !esSemanaBloqueada && (
               <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
                   Turnos

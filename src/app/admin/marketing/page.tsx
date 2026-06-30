@@ -1,5 +1,116 @@
 'use client'
 
+import React from 'react'
+import { Construction, Sparkles, Mail, Layout, TrendingUp, Users, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
+import { PageHeader } from '@/components/common/PageHeader'
+import { Breadcrumbs } from '@/components/common/Breadcrumbs'
+import { Card, CardContent } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+
+export default function MarketingPage() {
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <Breadcrumbs items={[{ label: 'Marketing' }]} />
+
+      <PageHeader
+        title="Marketing & Campañas"
+        description="Módulo de automatización y fidelización de clientes"
+      />
+
+      <Card className="border-brand-azul/20 bg-gradient-to-br from-brand-azul/5 via-white to-brand-rosa/5 overflow-hidden shadow-lg rounded-3xl">
+        <CardContent className="p-8 md:p-12 text-center space-y-6 relative">
+          <div className="absolute top-4 right-4 bg-brand-azul/10 text-brand-azul px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+            <Sparkles className="h-3.5 w-3.5" /> En Desarrollo
+          </div>
+
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-brand-azul/10 text-brand-azul flex items-center justify-center animate-pulse">
+            <Construction className="h-8 w-8" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+              Módulo de Marketing en Desarrollo
+            </h2>
+            <p className="text-sm text-gray-500 max-w-lg mx-auto leading-relaxed">
+              Estamos construyendo una potente herramienta para que puedas crear campañas de correo electrónico masivo, diseñar plantillas personalizadas y fidelizar a tus clientes.
+            </p>
+          </div>
+
+          <div className="w-full max-w-md mx-auto bg-gray-100 rounded-full h-2.5 overflow-hidden dark:bg-gray-800">
+            <div className="bg-brand-azul h-2.5 rounded-full animate-pulse" style={{ width: '65%' }}></div>
+          </div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            Fase de Desarrollo: 65% Completado
+          </p>
+
+          <div className="pt-4">
+            <Button asChild className="rounded-xl px-6 h-10 font-bold gap-1.5 shadow-md">
+              <Link href="/admin/dashboard">
+                <ArrowLeft className="h-4 w-4" />
+                Volver al Dashboard
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-4">
+        <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider">
+          Características Próximamente Disponibles
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            {
+              icon: Mail,
+              title: "Campañas Masivas de Email",
+              desc: "Envío programado de correos a segmentos específicos de clientes (Nuevos, VIPs, Frecuentes).",
+              color: "text-brand-azul bg-brand-azul/10"
+            },
+            {
+              icon: Layout,
+              title: "Editor de Plantillas Visual",
+              desc: "Diseñador interactivo tipo arrastrar y soltar para crear correos impactantes sin escribir HTML.",
+              color: "text-brand-rosa bg-brand-rosa/10"
+            },
+            {
+              icon: TrendingUp,
+              title: "Analíticas de Envío",
+              desc: "Monitoreo en tiempo real de correos entregados, tasas de apertura, clics y rebotes fallidos.",
+              color: "text-emerald-700 bg-emerald-50"
+            },
+            {
+              icon: Users,
+              title: "Segmentación Inteligente",
+              desc: "Filtrado automático de clientes según su historial de visitas, compras y consentimientos registrados.",
+              color: "text-amber-700 bg-amber-50"
+            }
+          ].map((feat, idx) => {
+            const Icon = feat.icon
+            return (
+              <Card key={idx} className="border-gray-100 hover:border-gray-200 transition-colors rounded-2xl">
+                <CardContent className="p-5 flex gap-4 items-start">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${feat.color}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-sm text-gray-900">{feat.title}</h4>
+                    <p className="text-xs text-gray-500 leading-relaxed">{feat.desc}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/*
+// CÓDIGO ORIGINAL COMENTADO PARA REFERENCIA FUTURA
+
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Mail, Send, FileText, XCircle, Settings2 } from 'lucide-react'
@@ -195,3 +306,4 @@ export default function MarketingPage() {
     </div>
   )
 }
+*/

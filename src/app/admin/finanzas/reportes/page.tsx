@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { Download } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useDebounce } from '@/hooks/useDebounce'
 import {
@@ -13,13 +13,14 @@ import {
   DesgloseTiposEgreso,
   GraficaLineaDiaria,
   MetricasReservasSection,
+  GraficoEgresosMensual,
 } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Button } from '@/components/ui/Button'
-import { formatCurrency, exportarCSV } from '@/lib/utils'
+import { formatCurrency, exportarCSV, cn } from '@/lib/utils'
 import { MESES } from '@/lib/finance-constants'
 
 const hoy = new Date()
@@ -84,7 +85,7 @@ function ResumenMensualTab({
   onMes: (v: number) => void
 }) {
   const { idSede } = useAuth()
-  const { data: resumen, isLoading } = useResumenMensual(
+  const { data: resumen, isLoading, refetch, isFetching } = useResumenMensual(
     idSede ?? undefined,
     anio,
     mes
@@ -92,7 +93,19 @@ function ResumenMensualTab({
 
   return (
     <div className="space-y-6">
-      <PeriodoSelector anio={anio} mes={mes} onAnio={onAnio} onMes={onMes} />
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <PeriodoSelector anio={anio} mes={mes} onAnio={onAnio} onMes={onMes} />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => refetch()}
+          disabled={isLoading || isFetching}
+          className="gap-1.5"
+        >
+          <RefreshCw className={cn("h-3.5 w-3.5", isFetching && "animate-spin")} />
+          Actualizar
+        </Button>
+      </div>
 
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -108,9 +121,12 @@ function ResumenMensualTab({
           <ResumenMensualCards resumen={resumen} />
           <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
             <h3 className="text-sm font-semibold text-gray-700">
-              Desglose por tipo de egreso
+              Desglose y composición de egresos
             </h3>
-            <DesgloseTiposEgreso desglose={resumen.desglosePorTipoEgreso} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <GraficoEgresosMensual desglose={resumen.desglosePorTipoEgreso} />
+              <DesgloseTiposEgreso desglose={resumen.desglosePorTipoEgreso} />
+            </div>
           </div>
         </div>
       ) : (
@@ -138,7 +154,7 @@ function ResumenDiarioTab({
   const debouncedDesde = useDebounce(desde, 500)
   const debouncedHasta = useDebounce(hasta, 500)
 
-  const { data: dias = [], isLoading } = useResumenDiario(
+  const { data: dias = [], isLoading, refetch, isFetching } = useResumenDiario(
     idSede ?? null,
     debouncedDesde || null,
     debouncedHasta || null
@@ -181,17 +197,29 @@ function ResumenDiarioTab({
             />
           </div>
         </div>
-        {dias.length > 0 && (
+        <div className="flex items-center gap-2">
           <Button
             size="sm"
             variant="outline"
-            onClick={handleExportar}
+            onClick={() => refetch()}
+            disabled={isLoading || isFetching}
             className="gap-1.5"
           >
-            <Download className="h-4 w-4" />
-            Exportar CSV
+            <RefreshCw className={cn("h-3.5 w-3.5", isFetching && "animate-spin")} />
+            Actualizar
           </Button>
-        )}
+          {dias.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExportar}
+              className="gap-1.5"
+            >
+              <Download className="h-4 w-4" />
+              Exportar CSV
+            </Button>
+          )}
+        </div>
       </div>
 
       {dias.length > 0 && (
@@ -289,7 +317,7 @@ function MetricasReservasTab({
   onMes: (v: number) => void
 }) {
   const { idSede } = useAuth()
-  const { data: metricas, isLoading } = useMetricasReservas(
+  const { data: metricas, isLoading, refetch, isFetching } = useMetricasReservas(
     idSede ?? undefined,
     anio,
     mes
@@ -297,7 +325,19 @@ function MetricasReservasTab({
 
   return (
     <div className="space-y-6">
-      <PeriodoSelector anio={anio} mes={mes} onAnio={onAnio} onMes={onMes} />
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <PeriodoSelector anio={anio} mes={mes} onAnio={onAnio} onMes={onMes} />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => refetch()}
+          disabled={isLoading || isFetching}
+          className="gap-1.5"
+        >
+          <RefreshCw className={cn("h-3.5 w-3.5", isFetching && "animate-spin")} />
+          Actualizar
+        </Button>
+      </div>
 
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

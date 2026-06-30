@@ -178,12 +178,12 @@ export const CalendarioCelda = React.memo(
 
 
     const bgClass = cn(
-      pasado && !selected && 'bg-gray-50/70 border-gray-100 opacity-55',
-      selected && 'bg-brand-azul/10 border-brand-azul ring-1 ring-brand-azul',
+      pasado && !selected && 'bg-gray-50/70 border-gray-100 dark:bg-gray-800/30 dark:border-gray-800 opacity-55',
+      selected && 'bg-brand-azul/10 border-brand-azul ring-1 ring-brand-azul dark:bg-brand-azul/20',
       !selected &&
         !pasado &&
         bloqueado &&
-        'bg-red-50 border-red-200 hover:border-red-300 dark:bg-red-950/30 dark:border-red-900/60',
+        'bg-red-50 border-red-200 hover:border-red-300 dark:bg-red-950/30 dark:border-red-900/60 dark:hover:border-red-800',
       !selected &&
         !pasado &&
         feriado &&
@@ -191,11 +191,11 @@ export const CalendarioCelda = React.memo(
       !selected &&
         !pasado &&
         esPrivadoLleno &&
-        'bg-brand-rosa/8 border-brand-rosa/40',
+        'bg-brand-rosa/8 border-brand-rosa/40 dark:bg-brand-rosa/10 dark:border-brand-rosa/30',
       !selected &&
         !pasado &&
         esPrivadoParcial &&
-        'bg-brand-rosa/4 border-brand-rosa/20',
+        'bg-brand-rosa/4 border-brand-rosa/20 dark:bg-brand-rosa/5 dark:border-brand-rosa/10',
       !selected &&
         !pasado &&
         lleno &&
@@ -235,7 +235,7 @@ export const CalendarioCelda = React.memo(
         pct === 0 &&
         !tieneReservas &&
         hoy &&
-        'bg-brand-azul/5 border-brand-azul/40',
+        'bg-brand-azul/5 border-brand-azul/40 dark:bg-brand-azul/10 dark:border-brand-azul/30',
       !selected &&
         !pasado &&
         !bloqueado &&
@@ -245,7 +245,7 @@ export const CalendarioCelda = React.memo(
         pct === 0 &&
         !tieneReservas &&
         !hoy &&
-        'bg-white border-gray-100 hover:border-brand-azul/40 hover:bg-gray-50/80'
+        'bg-white border-gray-100 hover:border-brand-azul/40 hover:bg-gray-50/80 dark:bg-gray-900 dark:border-gray-800 dark:hover:border-brand-azul/50 dark:hover:bg-gray-800/80'
     )
 
     const cell = (

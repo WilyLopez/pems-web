@@ -7,6 +7,7 @@ interface AuthState {
   token: string | null
   nombre: string | null
   correo: string | null
+  fotoPerfilUrl: string | null
   roles: string[]
   permisos: string[]
   tipoPerfil: 'STAFF' | 'CLIENTE' | null
@@ -22,6 +23,7 @@ interface AuthState {
     tipoPerfil: string
     nombre: string
     correo: string
+    fotoPerfilUrl?: string | null
     idUsuario?: number
     idSede?: number
     clientePerfilId?: number | null
@@ -37,6 +39,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       nombre: null,
       correo: null,
+      fotoPerfilUrl: null,
       roles: [],
       permisos: [],
       tipoPerfil: null,
@@ -52,6 +55,7 @@ export const useAuthStore = create<AuthState>()(
         tipoPerfil,
         nombre,
         correo,
+        fotoPerfilUrl,
         idUsuario,
         idSede,
         clientePerfilId,
@@ -62,6 +66,7 @@ export const useAuthStore = create<AuthState>()(
           tipoPerfil: tipoPerfil as 'STAFF' | 'CLIENTE',
           nombre,
           correo,
+          fotoPerfilUrl: fotoPerfilUrl ?? null,
           ...(idUsuario !== undefined && { idUsuario }),
           ...(idSede !== undefined && { idSede }),
           ...(clientePerfilId !== undefined && { clientePerfilId }),
@@ -73,6 +78,7 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           nombre: null,
           correo: null,
+          fotoPerfilUrl: null,
           roles: [],
           permisos: [],
           tipoPerfil: null,
