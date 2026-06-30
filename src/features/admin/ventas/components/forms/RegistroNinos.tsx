@@ -98,6 +98,7 @@ export const RegistroNinos = ({
                             : parseInt(e.target.value, 10)
                         )
                       }
+                      onWheel={(e) => e.currentTarget.blur()}
                       min={edadMin}
                       max={edadMax}
                       className={cn(

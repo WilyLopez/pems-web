@@ -76,7 +76,7 @@ export function useVentaMostradorForm() {
 
   useEffect(() => {
     if (!tieneMetodoEfectivo) {
-      setValue('efectivoRecibido', 0)
+      setValue('efectivoRecibido', 0, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
     }
   }, [tieneMetodoEfectivo, setValue])
 
@@ -119,13 +119,13 @@ export function useVentaMostradorForm() {
 
   useEffect(() => {
     if (cliente) {
-      setValue('acompanante.nombre', cliente.nombreCompleto.toUpperCase())
-      setValue('acompanante.dni', cliente.numeroDocumento)
-      setValue('acompanante.telefono', cliente.telefono || '')
+      setValue('acompanante.nombre', cliente.nombreCompleto.toUpperCase(), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+      setValue('acompanante.dni', cliente.numeroDocumento, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+      setValue('acompanante.telefono', cliente.telefono || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
     } else {
-      setValue('acompanante.nombre', '')
-      setValue('acompanante.dni', '')
-      setValue('acompanante.telefono', '')
+      setValue('acompanante.nombre', '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+      setValue('acompanante.dni', '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+      setValue('acompanante.telefono', '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
     }
   }, [cliente, setValue])
 
@@ -207,8 +207,8 @@ export function useVentaMostradorForm() {
       const found = localRes.content.find((c: Cliente) => c.numeroDocumento === dni)
       if (found) {
         setCliente(found as any)
-        setValue('acompanante.nombre', found.nombreCompleto.toUpperCase())
-        setValue('acompanante.telefono', found.telefono || '')
+        setValue('acompanante.nombre', found.nombreCompleto.toUpperCase(), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+        setValue('acompanante.telefono', found.telefono || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
         toast.success('Cliente encontrado en la base de datos')
       } else {
         let data
@@ -223,7 +223,7 @@ export function useVentaMostradorForm() {
           if (rData.nombreCompleto || rData.razonSocial) {
             setCliente(null)
             const name = isRuc ? rData.razonSocial : rData.nombreCompleto
-            setValue('acompanante.nombre', name.toUpperCase())
+            setValue('acompanante.nombre', name.toUpperCase(), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
             toast.success(`${tipoDocumento} del acompañante consultado con éxito (nuevo cliente)`)
             setStatusBusqueda('ENCONTRADO')
           } else {

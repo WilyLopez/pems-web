@@ -131,9 +131,9 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                       key={m.value}
                       type="button"
                       onClick={() => {
-                        setValue(`pagos.${i}.medioPago`, m.value)
-                        setValue(`pagos.${i}.referencia`, '')
-                        setValue(`pagos.${i}.monto`, saldoLinea)
+                        setValue(`pagos.${i}.medioPago`, m.value, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+                        setValue(`pagos.${i}.referencia`, '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+                        setValue(`pagos.${i}.monto`, saldoLinea, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
                       }}
                       className={cn(
                         'px-2.5 py-1 text-[10px] font-bold rounded-lg border flex items-center gap-1 transition-all',
@@ -169,6 +169,7 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                           onChange={(e) =>
                             f.onChange(parseFloat(e.target.value) || 0)
                           }
+                          onWheel={(e) => e.currentTarget.blur()}
                           className={cn(
                             'h-8 text-xs bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 pr-12 w-full',
                             errorMonto && 'border-red-400 dark:border-red-600'
@@ -179,7 +180,7 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                     {saldoLinea > 0 && pagos[i]?.monto !== saldoLinea && (
                       <button
                         type="button"
-                        onClick={() => setValue(`pagos.${i}.monto`, saldoLinea)}
+                        onClick={() => setValue(`pagos.${i}.monto`, saldoLinea, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
                         className="absolute right-1 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-brand-azul/40 text-[8px] font-black text-brand-azul bg-brand-azul/5 hover:bg-brand-azul/10"
                       >
                         Saldo
@@ -276,6 +277,7 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                       placeholder="Otro monto"
                       value={otroMonto}
                       onChange={(e) => setOtroMonto(e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault()
