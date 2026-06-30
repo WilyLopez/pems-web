@@ -201,20 +201,23 @@ function TicketDetalleCard({
         </div>
 
         {!ticket.esHoy && !ticket.yaIngreso && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 space-y-2">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
             <p className="text-sm text-amber-800">
               Este ticket es para el{' '}
               <strong>{formatDate(ticket.fechaVisita, "d 'de' MMMM")}</strong>,
               no para hoy.
             </p>
-            {!editandoFecha && (
-              <button
-                onClick={() => setEditandoFecha(true)}
-                className="text-xs font-semibold text-amber-700 underline underline-offset-2"
-              >
-                Cambiar fecha
-              </button>
-            )}
+          </div>
+        )}
+
+        {!ticket.yaIngreso && !editandoFecha && (
+          <div className="flex justify-end">
+            <button
+              onClick={() => setEditandoFecha(true)}
+              className="text-xs font-semibold text-primary hover:text-primary/80 underline underline-offset-2"
+            >
+              Cambiar fecha
+            </button>
           </div>
         )}
 

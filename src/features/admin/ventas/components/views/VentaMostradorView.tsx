@@ -346,21 +346,31 @@ export const VentaMostradorView = ({
                         </div>
                       </div>
 
-                      <Button
-                        type="submit"
-                        className="w-full h-10 rounded-xl font-black uppercase text-xs tracking-wider bg-brand-azul hover:bg-brand-azul/90"
-                        disabled={!puedeRegistrar}
-                      >
-                        {registrar.isPending ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" /> Procesando...
-                          </>
-                        ) : montosCoinciden ? (
-                          `Confirmar venta · ${formatCurrency(total)}`
-                        ) : (
-                          `Completar pago (Falta S/ ${(total - sumaPagos).toFixed(2)})`
-                        )}
-                      </Button>
+                      <div className="grid grid-cols-[100px_1fr] gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={resetVenta}
+                          className="h-10 rounded-xl font-black uppercase text-xs tracking-wider border-gray-200 dark:border-gray-800 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-400"
+                        >
+                          Limpiar
+                        </Button>
+                        <Button
+                          type="submit"
+                          className="h-10 rounded-xl font-black uppercase text-xs tracking-wider bg-brand-azul hover:bg-brand-azul/90 w-full"
+                          disabled={!puedeRegistrar}
+                        >
+                          {registrar.isPending ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" /> Procesando...
+                            </>
+                          ) : montosCoinciden ? (
+                            `Confirmar venta · ${formatCurrency(total)}`
+                          ) : (
+                            `Completar pago (Falta S/ ${(total - sumaPagos).toFixed(2)})`
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
