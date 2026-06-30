@@ -2,7 +2,8 @@
 
 import { useParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { differenceInDays, parseISO, startOfDay } from 'date-fns'
+import { differenceInDays, startOfDay } from 'date-fns'
+import { parseLocalDate } from '@/features/cliente/shared/utils/reserva'
 import {
   PartyPopper,
   Calendar,
@@ -19,7 +20,7 @@ import Link from 'next/link'
 import { useDetalleEventoData } from '../../hooks/useMisEventosData'
 import { useWhatsAppUrl } from '@/hooks/useConfigPublica'
 import { ErrorState } from '@/components/common/Errorstate'
-import { StatusBadge } from '@/components/common/Statusbadge'
+import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -56,7 +57,7 @@ export function DetalleEventoView() {
   const diasRestantes =
     evento.estado === 'CONFIRMADA'
       ? differenceInDays(
-          startOfDay(parseISO(evento.fechaEvento)),
+          parseLocalDate(evento.fechaEvento),
           startOfDay(new Date())
         )
       : null
@@ -98,7 +99,7 @@ export function DetalleEventoView() {
               {formatDate(evento.fechaEvento)}
             </p>
           </div>
-          <StatusBadge status={evento.estado} />
+          <EstadoBadge estado={evento.estado} />
         </div>
       </div>
 
