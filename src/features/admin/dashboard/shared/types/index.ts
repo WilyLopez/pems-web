@@ -38,6 +38,7 @@ export interface DashboardOperativo {
   solicitudesEventoSinResponder: number
   eventosSaldoPendiente: number
   cajaAbierta: boolean
+  yapesPorValidar: number
   reservasHoyDetalle: AgendaReserva[]
   eventosHoyDetalle: AgendaEvento[]
   reservasUltimos30Dias: ReservasDia[]

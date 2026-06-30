@@ -7,6 +7,7 @@ export interface SedeIntegracion {
   apiToken: string
   limiteMensual: number
   activo: boolean
+  consultasRealizadas: number
 }
 
 export const integracionService = {
@@ -20,7 +21,7 @@ export const integracionService = {
   guardar: async (
     idSede: number,
     proveedorCodigo: string,
-    payload: Omit<SedeIntegracion, 'proveedorCodigo'>
+    payload: Omit<SedeIntegracion, 'proveedorCodigo' | 'consultasRealizadas'>
   ): Promise<void> => {
     await api.put(
       `/sedes/${idSede}/integraciones/${proveedorCodigo}`,

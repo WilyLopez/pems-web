@@ -51,6 +51,17 @@ export function AccionesPendientes({ data }: Props) {
     })
   }
 
+  if (data.yapesPorValidar > 0) {
+    const n = data.yapesPorValidar
+    acciones.push({
+      icon: Wallet,
+      color:
+        'text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-900/30 dark:border-amber-800',
+      texto: `${n} pago${n > 1 ? 's' : ''} Yape por validar`,
+      href: RUTA_ACCION.yapesPorValidar,
+    })
+  }
+
   if (!data.cajaAbierta) {
     acciones.push({
       icon: Lock,
@@ -60,6 +71,7 @@ export function AccionesPendientes({ data }: Props) {
       href: RUTA_ACCION.caja,
     })
   }
+
 
   if (acciones.length === 0) {
     return (

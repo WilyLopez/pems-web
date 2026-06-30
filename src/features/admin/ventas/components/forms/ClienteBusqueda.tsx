@@ -9,27 +9,25 @@ interface ClienteBusquedaProps {
   onClienteSelect: (cliente: Cliente | null) => void
 }
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
 export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
-  const [email, setEmail] = useState('')
+  const [searchVal, setSearchVal] = useState('')
   const [buscando, setBuscando] = useState(false)
   const [paso, setPaso] = useState<'inicio' | 'busqueda'>('inicio')
+  const [resultados, setResultados] = useState<Cliente[]>([])
 
   const buscar = async () => {
-    const trimmed = email.trim()
+    const trimmed = searchVal.trim()
     if (!trimmed) return
-    if (!EMAIL_REGEX.test(trimmed)) {
-      toast.error('Ingresa un correo electrónico válido')
-      return
-    }
     setBuscando(true)
+    setResultados([])
     try {
-      const found = await clienteService.buscarPorCorreo(trimmed)
-      if (found) {
-        onClienteSelect(found)
+      const res = await clienteService.listar({ search: trimmed, size: 10 })
+      if (res.content && res.content.length === 1) {
+        onClienteSelect(res.content[0])
+      } else if (res.content && res.content.length > 1) {
+        setResultados(res.content)
       } else {
-        toast.error('No se encontró ningún cliente con ese correo')
+        toast.error('No se encontro ningun cliente')
       }
     } catch {
       toast.error('Error al buscar cliente')
@@ -51,10 +49,10 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
           </div>
           <div>
             <p className="font-semibold text-xs text-gray-800 dark:text-gray-200">
-              Sí, tiene cuenta
+              Si, tiene cuenta
             </p>
             <p className="text-[10px] text-gray-500 dark:text-gray-400">
-              Buscar por correo
+              Buscar por documento, correo o nombre
             </p>
           </div>
         </button>
@@ -89,7 +87,8 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
           type="button"
           onClick={() => {
             setPaso('inicio')
-            setEmail('')
+            setSearchVal('')
+            setResultados([])
           }}
           className="text-[10px] text-brand-azul hover:underline"
         >
@@ -98,10 +97,10 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
       </div>
       <div className="flex gap-2">
         <Input
-          type="email"
-          placeholder="correo@ejemplo.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="DNI, RUC, correo o nombre"
+          value={searchVal}
+          onChange={(e) => setSearchVal(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
@@ -113,7 +112,7 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
         <button
           type="button"
           onClick={buscar}
-          disabled={!email.trim() || buscando}
+          disabled={!searchVal.trim() || buscando}
           className="h-9 px-3 flex items-center justify-center rounded-lg bg-brand-azul text-white disabled:opacity-40 hover:bg-brand-azul/90 transition-colors"
         >
           {buscando ? (
@@ -123,6 +122,26 @@ export const ClienteBusqueda = ({ onClienteSelect }: ClienteBusquedaProps) => {
           )}
         </button>
       </div>
+
+      {resultados.length > 0 && (
+        <div className="mt-2 max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900 z-50 relative">
+          {resultados.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => onClienteSelect(c)}
+              className="w-full px-3 py-2 text-left text-xs hover:bg-gray-50 dark:hover:bg-gray-800 flex flex-col gap-0.5"
+            >
+              <span className="font-bold text-gray-800 dark:text-gray-200">
+                {c.nombreCompleto}
+              </span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                {c.numeroDocumento} {c.correo ? `• ${c.correo}` : ''}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

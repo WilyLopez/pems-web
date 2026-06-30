@@ -34,4 +34,6 @@ export const RUTA_ACCION = {
   solicitudesEvento: '/admin/eventos?estado=SOLICITADA',
   eventosSaldoPendiente: '/admin/eventos?estado=CONFIRMADA',
   caja: '/admin/finanzas/caja',
+  yapesPorValidar: '/admin/reservas?medioPago=YAPE&estado=PENDIENTE',
 } as const
+
