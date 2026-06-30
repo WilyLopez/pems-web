@@ -12,12 +12,13 @@ import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
 import { Badge } from '@/components/ui/Badge'
 import { cn, formatDate, formatCurrency } from '@/lib/utils'
 import { formatTipoEvento } from '@/features/cliente/shared/constants'
-import { differenceInDays, parseISO, startOfDay } from 'date-fns'
+import { differenceInDays, startOfDay } from 'date-fns'
+import { parseLocalDate } from '@/features/cliente/shared/utils/reserva'
 
 export function EventoCard({ evento }: { evento: EventoPrivado }) {
   const hoy = startOfDay(new Date())
   const diasRestantes = differenceInDays(
-    startOfDay(parseISO(evento.fechaEvento)),
+    parseLocalDate(evento.fechaEvento),
     hoy
   )
   const cercano =

@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
 import { parseISO, startOfDay, differenceInDays } from 'date-fns'
+import { getEstadoEfectivo, parseLocalDate } from '@/features/cliente/shared/utils/reserva'
 import {
   Ticket,
   CalendarDays,
@@ -83,13 +84,14 @@ export function ClienteDashboardView() {
     return (
       reservasData?.content
         ?.filter((r: Reserva) => {
-          if (!['PENDIENTE', 'CONFIRMADA'].includes(r.estado)) return false
-          return differenceInDays(startOfDay(parseISO(r.fechaEvento)), hoy) >= 0
+          const est = getEstadoEfectivo(r)
+          if (!['PENDIENTE', 'CONFIRMADA', 'REPROGRAMADA'].includes(est)) return false
+          return differenceInDays(parseLocalDate(r.fechaEvento), hoy) >= 0
         })
         ?.sort(
           (a: Reserva, b: Reserva) =>
-            parseISO(a.fechaEvento).getTime() -
-            parseISO(b.fechaEvento).getTime()
+            parseLocalDate(a.fechaEvento).getTime() -
+            parseLocalDate(b.fechaEvento).getTime()
         ) ?? []
     )
   }, [reservasData])
@@ -100,7 +102,7 @@ export function ClienteDashboardView() {
   const totalPendiente = useMemo(() => {
     return (
       reservasData?.content
-        ?.filter((r: Reserva) => r.estado === 'PENDIENTE')
+        ?.filter((r: Reserva) => getEstadoEfectivo(r) === 'PENDIENTE')
         ?.reduce((sum: number, r: Reserva) => sum + r.totalPagado, 0) ?? 0
     )
   }, [reservasData])
@@ -206,9 +208,9 @@ export function ClienteDashboardView() {
                           {proximaVisita.edadNino} años
                         </p>
                       </div>
-                      <EstadoBadge estado={proximaVisita.estado} />
+                      <EstadoBadge estado={getEstadoEfectivo(proximaVisita)} />
                     </div>
-                    {proximaVisita.estado === 'PENDIENTE' && (
+                    {getEstadoEfectivo(proximaVisita) === 'PENDIENTE' && (
                       <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
                         <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
                         <p className="text-xs text-amber-800">
@@ -256,7 +258,7 @@ export function ClienteDashboardView() {
                             {r.numeroTicket}
                           </p>
                         </div>
-                        <EstadoBadge estado={r.estado} compact />
+                        <EstadoBadge estado={getEstadoEfectivo(r)} compact />
                       </button>
                     ))}
                   </div>

@@ -2,7 +2,8 @@
 
 import { useMemo } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { differenceInDays, parseISO, startOfDay } from 'date-fns'
+import { differenceInDays, startOfDay } from 'date-fns'
+import { parseLocalDate } from '@/features/cliente/shared/utils/reserva'
 import { PartyPopper, Calendar, Clock, Plus, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { useMisEventosData } from '../../hooks/useMisEventosData'
@@ -43,7 +44,7 @@ export function MisEventosView() {
   const proximosConRecordatorio = useMemo(() => {
     const hoy = startOfDay(new Date())
     return confirmados.filter((e) => {
-      const diff = differenceInDays(startOfDay(parseISO(e.fechaEvento)), hoy)
+      const diff = differenceInDays(parseLocalDate(e.fechaEvento), hoy)
       return diff >= 0 && diff <= 7
     })
   }, [confirmados])
@@ -60,7 +61,7 @@ export function MisEventosView() {
           </p>
         </div>
         <Link
-          href="/eventos-privados"
+          href="/cliente/celebraciones/solicitar"
           className="shrink-0 flex items-center gap-1.5 px-3 sm:px-4 py-2.5 bg-brand-rosa text-white rounded-xl text-sm font-bold hover:bg-brand-rosa/90 transition-colors"
         >
           <Plus className="h-4 w-4" />
@@ -80,7 +81,7 @@ export function MisEventosView() {
             <div className="space-y-2">
               {proximosConRecordatorio.map((e) => {
                 const dias = differenceInDays(
-                  startOfDay(parseISO(e.fechaEvento)),
+                  parseLocalDate(e.fechaEvento),
                   startOfDay(new Date())
                 )
                 return (
@@ -176,7 +177,7 @@ export function MisEventosView() {
                     </p>
                   </div>
                   <Link
-                    href="/eventos-privados"
+                    href="/cliente/celebraciones/solicitar"
                     className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-rosa text-white rounded-xl text-sm font-bold hover:bg-brand-rosa/90 transition-colors"
                   >
                     <Plus className="h-4 w-4" />
@@ -215,7 +216,7 @@ export function MisEventosView() {
                     </p>
                   </div>
                   <Link
-                    href="/eventos-privados"
+                    href="/cliente/celebraciones/solicitar"
                     className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-rosa text-white rounded-xl text-sm font-bold hover:bg-brand-rosa/90 transition-colors"
                   >
                     <Plus className="h-4 w-4" />
