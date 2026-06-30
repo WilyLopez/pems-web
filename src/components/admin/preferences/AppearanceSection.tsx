@@ -114,6 +114,7 @@ export function AppearanceSection({ prefs, onChange }: Props) {
         </div>
       </SectionGroup>
 
+      {/*
       <SectionGroup
         title="Colores personalizados"
         icon={<Palette className="h-4 w-4" />}
@@ -151,6 +152,7 @@ export function AppearanceSection({ prefs, onChange }: Props) {
           onChange={(v) => onChange({ cursorGrande: v })}
         />
       </SectionGroup>
+      */}
     </div>
   )
 }

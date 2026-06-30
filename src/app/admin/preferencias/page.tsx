@@ -140,6 +140,7 @@ export default function PreferenciasPage() {
             <CheckCircle2 className="h-3.5 w-3.5" />
             <span>Guardado automáticamente</span>
           </div>
+          {/* 
           <Button
             variant="outline"
             size="sm"
@@ -149,11 +150,13 @@ export default function PreferenciasPage() {
             <RotateCcw className="h-3.5 w-3.5" />
             Restablecer
           </Button>
+          */}
         </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="flex min-h-[600px]">
+          {/*
           <nav className="w-52 shrink-0 border-r border-border bg-muted/30 p-3 space-y-0.5">
             {SECTIONS.map(({ id, label, icon: Icon }) => {
               const isActive = activeSection === id
@@ -174,11 +177,13 @@ export default function PreferenciasPage() {
               )
             })}
           </nav>
+          */}
 
           <div className="flex-1 min-w-0 p-7 overflow-y-auto">
             {activeSection === 'apariencia' && (
               <AppearanceSection prefs={preferences} onChange={handleChange} />
             )}
+            {/*
             {activeSection === 'tipografia' && (
               <TypographySection prefs={preferences} onChange={handleChange} />
             )}
@@ -206,11 +211,14 @@ export default function PreferenciasPage() {
                 onChange={handleChange}
               />
             )}
+            */}
           </div>
 
+          {/*
           <div className="hidden xl:flex w-64 shrink-0 border-l border-border bg-muted/20 p-5 flex-col">
             <PreviewPanel prefs={preferences} />
           </div>
+          */}
         </div>
       </div>
 
