@@ -72,7 +72,6 @@ export function WizardHeader({
             width={90}
             height={36}
             className="h-8 w-auto"
-            style={{ width: 'auto', height: 'auto' }}
           />
           <div className="hidden sm:block h-5 w-px bg-gray-200" />
           <span className="hidden sm:block text-sm font-semibold text-gray-600">

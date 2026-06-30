@@ -70,6 +70,13 @@ export const reservasApi = {
     return data.data
   },
 
+  rechazarPago: async (id: number, motivo?: string): Promise<Reserva> => {
+    const { data } = await api.post<ApiResponse<Reserva>>(
+      `/reservas/${id}/rechazar-pago?motivo=${encodeURIComponent(motivo || '')}`
+    )
+    return data.data
+  },
+
   descargarTicket: async (idReserva: number, numeroTicket: string) => {
     return downloadFile(
       `/reservas/${idReserva}/ticket`,

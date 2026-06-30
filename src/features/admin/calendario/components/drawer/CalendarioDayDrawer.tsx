@@ -40,7 +40,6 @@ function resolveMode(
   tipoOcupacion?: string
 ): DrawerMode {
   if (esPasado) return 'PASADO'
-  if (tipoDia === 'FERIADO') return 'FERIADO'
   if (tipoDia === 'BLOQUEADO') return 'BLOQUEADO'
   if (tipoDia === 'NO_LABORABLE') return 'NO_LABORABLE'
   if (tipoOcupacion === 'PRIVADO_PARCIAL' || tipoOcupacion === 'PRIVADO_LLENO')

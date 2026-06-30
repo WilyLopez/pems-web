@@ -9,7 +9,6 @@ import { Switch } from '@/components/ui/Switch'
 import { toast } from 'sonner'
 import { integracionService, SedeIntegracion } from '@/services/integracion.service'
 import { ModuleCard } from '../shared/ModuleCard'
-import { ReadOnlyList } from '../shared/ReadOnlyList'
 import type { SeccionNavProps } from '../../hooks/useConfiguracionNav'
 
 function IntegracionesForm({
@@ -137,14 +136,13 @@ function IntegracionesForm({
           </div>
           <div className="grid grid-cols-2 gap-3 items-center">
             <div className="space-y-1.5">
-              <Label htmlFor="decLimit">Límite mensual</Label>
+              <Label htmlFor="decLimit">Límite mensual (Fijo)</Label>
               <Input
                 id="decLimit"
                 type="number"
                 value={decLimit}
-                onChange={(e) => setDecLimit(Number(e.target.value))}
-                min={0}
-                required
+                disabled
+                className="bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-80"
               />
             </div>
             <div className="flex items-center justify-between pt-5">
@@ -200,14 +198,13 @@ function IntegracionesForm({
           </div>
           <div className="grid grid-cols-2 gap-3 items-center">
             <div className="space-y-1.5">
-              <Label htmlFor="apiLimit">Límite mensual</Label>
+              <Label htmlFor="apiLimit">Límite mensual (Fijo)</Label>
               <Input
                 id="apiLimit"
                 type="number"
                 value={apiLimit}
-                onChange={(e) => setApiLimit(Number(e.target.value))}
-                min={0}
-                required
+                disabled
+                className="bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-80"
               />
             </div>
             <div className="flex items-center justify-between pt-5">
@@ -241,6 +238,52 @@ function IntegracionesForm({
   )
 }
 
+interface ViewContentProps {
+  list: SedeIntegracion[]
+}
+
+function ViewContent({ list }: ViewContentProps) {
+  const activo = list.find((i) => i.activo)
+  const activoNombre = activo ? activo.proveedorCodigo : 'Ninguno (Default Decolecta)'
+  const limite = activo ? activo.limiteMensual : 100
+  const consumidas = activo ? activo.consultasRealizadas : 0
+  const porcentaje = Math.min(100, Math.round((consumidas / limite) * 100))
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Proveedor Activo</span>
+          <span className="font-bold text-foreground">{activoNombre}</span>
+        </div>
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Límite Mensual</span>
+          <span className="font-bold text-foreground">{limite} consultas</span>
+        </div>
+      </div>
+
+      <div className="border-t border-border pt-3 space-y-1.5">
+        <div className="flex justify-between text-xs font-semibold text-muted-foreground">
+          <span>Consumo de este mes</span>
+          <span className="text-foreground">{consumidas} / {limite} ({porcentaje}%)</span>
+        </div>
+        <div className="w-full h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${
+              porcentaje > 90
+                ? 'bg-red-500'
+                : porcentaje > 75
+                  ? 'bg-amber-500'
+                  : 'bg-brand-azul'
+            }`}
+            style={{ width: `${porcentaje}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function IntegracionesSection({
   idSede,
   navProps,
@@ -266,10 +309,11 @@ export function IntegracionesSection({
   const activo = list.find((i) => i.activo)
   const activoNombre = activo ? activo.proveedorCodigo : 'Ninguno (Default Decolecta)'
   const limite = activo ? activo.limiteMensual : 100
+  const consumidas = activo ? activo.consultasRealizadas : 0
 
   const summary = [
     { label: 'Proveedor Activo', value: activoNombre },
-    { label: 'Límite Mensual', value: `${limite} consultas` },
+    { label: 'Consumidas este mes', value: `${consumidas} / ${limite}` },
   ]
 
   return (
@@ -280,7 +324,7 @@ export function IntegracionesSection({
       description="Configura los tokens y límites de Decolecta y APISPERU por sede"
       summary={summary}
       editSize="sm:max-w-md"
-      viewContent={<ReadOnlyList items={summary} />}
+      viewContent={<ViewContent list={list} />}
       editContent={
         <IntegracionesForm
           idSede={idSede}

@@ -38,9 +38,15 @@ export function calcularResumenPagos(
   const totalNum = Number(total) || 0
   const vuelto = Math.max(0, (Number(efectivoRecibido) || 0) - efectivoAplicado)
   const saldo = Math.max(0, totalNum - sumaPagos)
-  const montosCoinciden = totalNum === 0 || Math.abs(sumaPagos - totalNum) <= 0.01
+  const montosCoinciden = totalNum === 0 || (sumaPagos >= totalNum - 0.01)
 
-  return { sumaPagos, efectivoAplicado, vuelto, saldo, montosCoinciden }
+  return {
+    sumaPagos,
+    efectivoAplicado,
+    vuelto,
+    saldo,
+    montosCoinciden,
+  }
 }
 
 export function calcularResumenVenta(

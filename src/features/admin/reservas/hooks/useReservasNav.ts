@@ -22,6 +22,7 @@ export function useReservasNav() {
   const search = searchParams.get('search') || ''
   const estado = (searchParams.get('estado') || '') as EstadoReserva | ''
   const fecha = searchParams.get('fecha') || ''
+  const medioPago = searchParams.get('medioPago') || ''
 
   const ingresado = useMemo(() => {
     const ing = searchParams.get('ingresado')
@@ -92,6 +93,31 @@ export function useReservasNav() {
     [updateParams]
   )
 
+  const setMedioPago = useCallback(
+    (mp: string) => {
+      updateParams({ medioPago: mp || null, page: null })
+    },
+    [updateParams]
+  )
+
+  const setYapePendiente = useCallback(
+    (activo: boolean) => {
+      const updates: Record<string, string | null> = {
+        medioPago: activo ? 'YAPE' : null,
+        estado: activo ? 'PENDIENTE' : null,
+        page: null,
+      }
+      if (activo) {
+        updates.fecha = null
+      }
+      updateParams(updates)
+    },
+    [updateParams]
+  )
+
+
+
+
   const openAction = useCallback(
     (m: string, id: number) => {
       updateParams({ modal: m, actionId: id.toString() })
@@ -118,12 +144,29 @@ export function useReservasNav() {
     updateParams({ modal: null, actionId: null, drawerId: null })
   }, [updateParams])
 
+  const clearFilters = useCallback(() => {
+    const d = new Date()
+    const offset = d.getTimezoneOffset()
+    const local = new Date(d.getTime() - offset * 60 * 1000)
+    const hoyStr = local.toISOString().split('T')[0]
+
+    updateParams({
+      search: null,
+      estado: null,
+      fecha: hoyStr,
+      medioPago: null,
+      ingresado: null,
+      page: null,
+    })
+  }, [updateParams])
+
   return {
     page,
     size,
     search,
     estado,
     fecha,
+    medioPago,
     ingresado,
     modal,
     actionId: actionId ? parseInt(actionId, 10) : null,
@@ -134,10 +177,15 @@ export function useReservasNav() {
     setEstado,
     setFecha,
     setIngresado,
+    setMedioPago,
+    setYapePendiente,
+    clearFilters,
     openAction,
     openDrawer,
     openFidelizacion,
+
     openEstados,
     closeAll,
   }
 }
+

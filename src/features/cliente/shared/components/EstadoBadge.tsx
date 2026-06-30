@@ -7,6 +7,7 @@ const CONFIG: Record<string, { label: string; cls: string }> = {
   CANCELADA: { label: 'Cancelada', cls: 'bg-red-100 text-red-700' },
   REPROGRAMADA: { label: 'Reprogramada', cls: 'bg-purple-100 text-purple-700' },
   SOLICITADA: { label: 'Solicitada', cls: 'bg-gray-100 text-gray-600' },
+  EXPIRADA: { label: 'Expirada', cls: 'bg-gray-100 text-gray-700' },
 }
 
 export function EstadoBadge({

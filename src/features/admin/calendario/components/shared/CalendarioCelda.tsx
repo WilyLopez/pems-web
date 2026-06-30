@@ -35,10 +35,11 @@ function barColor(pct: number) {
 function CeldaPreview({ day, disp }: { day: Date; disp: Disponibilidad }) {
   const tipo = disp.tipoOcupacion
   const bloqueado = tipo === 'BLOQUEADO'
-  const feriado = tipo === 'FERIADO'
+  const feriado = disp.esFeriado
   const esPrivado = tipo === 'PRIVADO_PARCIAL' || tipo === 'PRIVADO_LLENO'
   const pct = disp.ocupacionPorcentaje ?? 0
   const tieneReservas = disp.totalReservas > 0
+
 
   return (
     <div className="w-52 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-3 space-y-2.5">
@@ -110,7 +111,8 @@ function CeldaPreview({ day, disp }: { day: Date; disp: Disponibilidad }) {
         </div>
       )}
 
-      {!bloqueado && !feriado && !esPrivado && (
+      {!bloqueado && !esPrivado && (
+
         <div className="space-y-1.5">
           <div className="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800">
             <div
@@ -164,7 +166,7 @@ export const CalendarioCelda = React.memo(
     const tipo = disp?.tipoOcupacion
 
     const bloqueado = tipo === 'BLOQUEADO'
-    const feriado = tipo === 'FERIADO'
+    const feriado = disp?.esFeriado ?? false
     const esPrivadoParcial = tipo === 'PRIVADO_PARCIAL' && !tieneReservas
     const esPrivadoLleno = tipo === 'PRIVADO_LLENO'
     const esPrivado = esPrivadoParcial || esPrivadoLleno
@@ -172,8 +174,8 @@ export const CalendarioCelda = React.memo(
     const lleno =
       (pct >= 100 || !!disp?.aforoCompleto) &&
       !bloqueado &&
-      !feriado &&
       !esPrivado
+
 
     const bgClass = cn(
       pasado && !selected && 'bg-gray-50/70 border-gray-100 opacity-55',
@@ -284,7 +286,8 @@ export const CalendarioCelda = React.memo(
           )}
         </div>
 
-        {disp && !bloqueado && !feriado && (
+        {disp && !bloqueado && (
+
           <>
             {esPrivado && (
               <div className="flex flex-col gap-0.5 mt-1 flex-1">

@@ -18,10 +18,6 @@ export const METODOS_PAGO = [
   'TRANSFERENCIA',
 ] as const
 
-// El monto de una línea puede ser 0 (línea placeholder mientras el cajero
-// elige el medio de pago). La regla real —que la suma de pagos cuadre con el
-// total— se valida en el componente (montosCoinciden) y en el backend. Aquí solo
-// se impide un monto negativo o con más de 2 decimales.
 export const pagoLineaSchema = z.object({
   medioPago: z.enum(METODOS_PAGO),
   monto: z.coerce
@@ -32,17 +28,40 @@ export const pagoLineaSchema = z.object({
   referencia: z.string().trim().optional(),
 })
 
-export const acompananteSchema = z.object({
-  nombre: nombreField,
-  dni: dniField,
-  telefono: z
-    .string()
-    .trim()
-    .regex(
-      TELEFONO_PERU_REGEX,
-      'Ingresa un celular válido (9 dígitos, empieza con 9)'
-    ),
-})
+export const acompananteSchema = z
+  .object({
+    tipoDocumento: z.enum(['DNI', 'RUC']).default('DNI'),
+    nombre: nombreField,
+    dni: z.string().trim(),
+    telefono: z
+      .string()
+      .trim()
+      .optional()
+      .or(z.literal(''))
+      .refine(
+        (val) => !val || TELEFONO_PERU_REGEX.test(val),
+        'Ingresa un celular válido (9 dígitos, empieza con 9)'
+      ),
+  })
+  .superRefine((data, ctx) => {
+    if (data.tipoDocumento === 'DNI') {
+      if (!/^\d{8}$/.test(data.dni)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El DNI debe tener 8 dígitos numéricos',
+          path: ['dni'],
+        })
+      }
+    } else if (data.tipoDocumento === 'RUC') {
+      if (!/^(10|20)\d{9}$/.test(data.dni)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'El RUC debe tener 11 dígitos numéricos y comenzar con 10 o 20',
+          path: ['dni'],
+        })
+      }
+    }
+  })
 
 function buildNinoSchema(edadMin: number, edadMax: number) {
   return z.object({

@@ -15,6 +15,7 @@ import {
 
 interface ReservasTableProps {
   data?: PageableResponse<Reserva>
+  isLoading?: boolean
   page: number
   size: number
   onPageChange: (page: number) => void
@@ -26,6 +27,7 @@ interface ReservasTableProps {
 export const ReservasTable = React.memo(
   ({
     data,
+    isLoading,
     page,
     size,
     onPageChange,
@@ -40,7 +42,8 @@ export const ReservasTable = React.memo(
 
     return (
       <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
-        <DataTable columns={columns} data={data?.content ?? []} />
+        <DataTable columns={columns} data={data?.content ?? []} isLoading={isLoading} />
+
         {data?.totalElements !== undefined && (
           <div className="flex flex-col md:flex-row items-center justify-between px-6 py-4 bg-gray-50/50 border-t border-gray-100 gap-4">
             <div className="flex items-center gap-2">
