@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { format, parseISO, addDays, subDays } from 'date-fns'
+import { format, parseISO, addDays, subDays, differenceInDays } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, CalendarClock } from 'lucide-react'
 import {
   useResumenDia,
   useBloquearFechas,
@@ -33,6 +33,7 @@ type DrawerMode =
   | 'EVENTO'
   | 'RESERVA'
   | 'LIBRE'
+  | 'PLANEACION'
 
 function resolveMode(
   esPasado: boolean,
@@ -57,6 +58,7 @@ const BADGE_CONFIG: Record<string, { label: string; cls: string }> = {
   RESERVA: { label: 'Reservas activas', cls: 'bg-blue-50 text-blue-700' },
   LIBRE_PROG: { label: 'Disponible', cls: 'bg-green-50 text-green-700' },
   LIBRE_NOPROG: { label: 'Sin programar', cls: 'bg-amber-50 text-amber-700' },
+  PLANEACION: { label: 'Planeación', cls: 'bg-indigo-50 text-indigo-700' },
 }
 
 function fmtTurno(inicio?: string, fin?: string) {
@@ -138,7 +140,16 @@ export const CalendarioDayDrawer = React.memo(
       !esPasado && (disp?.tieneProgramacionSemanal ?? false)
     const disponiblePrivado = disp?.disponiblePrivado ?? false
 
-    const mode = resolveMode(esPasado, disp?.tipoDia, disp?.tipoOcupacion)
+    const modeBase = resolveMode(esPasado, disp?.tipoDia, disp?.tipoOcupacion)
+
+    const diffDays = differenceInDays(date, new Date())
+    const limitePlaneacion = Math.max(
+      config?.diasMaxEventoPrivado ?? 365,
+      config?.diasMaxReservaPublica ?? 365
+    )
+    const enPlaneacion = !esPasado && diffDays > limitePlaneacion
+
+    const mode = enPlaneacion ? 'PLANEACION' : modeBase
 
     const badgeKey =
       mode === 'LIBRE'
@@ -366,6 +377,18 @@ export const CalendarioDayDrawer = React.memo(
                   </>
                 )}
 
+                {mode === 'PLANEACION' && (
+                  <div className="flex flex-col items-center justify-center text-center py-16 px-6">
+                    <div className="h-16 w-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+                      <CalendarClock className="h-8 w-8 text-indigo-400" />
+                    </div>
+                    <h3 className="text-sm font-black text-gray-900 mb-1">Día en planeación</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed max-w-[260px]">
+                      Esta fecha supera tu ventana máxima de configuración ({limitePlaneacion} días). Aún no está habilitada para operaciones.
+                    </p>
+                  </div>
+                )}
+
                 {mode === 'LIBRE' && (
                   <>
                     <DrawerStats
@@ -375,7 +398,7 @@ export const CalendarioDayDrawer = React.memo(
                     />
                     <DrawerAlerts alertas={data.alertas} />
                     {sharedActions}
-                    {turnoSection}
+                    {!tieneProgramacion && turnoSection}
                     {data.pagosPendientes > 0 && (
                       <PagosBanner count={data.pagosPendientes} />
                     )}

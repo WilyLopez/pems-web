@@ -211,22 +211,24 @@ export const CalendarioSemana = React.memo(
                       </div>
                     )}
 
-                    <div className="mt-auto divide-y divide-gray-100">
-                      <TurnoSlot
-                        icon={Sun}
-                        label="Mañana"
-                        titulo={disp.tituloEventoT1}
-                        ocupado={!!disp.turnoT1Ocupado}
-                        pasado={pasado}
-                      />
-                      <TurnoSlot
-                        icon={Sunset}
-                        label="Tarde"
-                        titulo={disp.tituloEventoT2}
-                        ocupado={!!disp.turnoT2Ocupado}
-                        pasado={pasado}
-                      />
-                    </div>
+                    {!disp.tieneProgramacionSemanal && (
+                      <div className="mt-auto divide-y divide-gray-100">
+                        <TurnoSlot
+                          icon={Sun}
+                          label="Mañana"
+                          titulo={disp.tituloEventoT1}
+                          ocupado={!!disp.turnoT1Ocupado}
+                          pasado={pasado}
+                        />
+                        <TurnoSlot
+                          icon={Sunset}
+                          label="Tarde"
+                          titulo={disp.tituloEventoT2}
+                          ocupado={!!disp.turnoT2Ocupado}
+                          pasado={pasado}
+                        />
+                      </div>
+                    )}
 
                     {esPrivado && (disp.ingresoEstimado ?? 0) > 0 && (
                       <div className="px-2 pb-1.5 flex items-center gap-1">
