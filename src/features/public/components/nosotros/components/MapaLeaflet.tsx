@@ -3,6 +3,12 @@
 import { useEffect, useRef } from 'react'
 import mapboxgl from 'mapbox-gl'
 
+declare const process: {
+  env: {
+    NEXT_PUBLIC_MAPBOX_TOKEN?: string
+  }
+}
+
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? ''
 const ESTILO_MAPA = 'mapbox://styles/mapbox/light-v11'
 const ESTILO_SAT = 'mapbox://styles/mapbox/outdoors-v12'
@@ -40,15 +46,17 @@ function buildPopupHTML(
   googleMapsUrl?: string
 ): string {
   const parts: string[] = []
-  if (nombre)
+  if (nombre) {
     parts.push(
       `<p style="font-weight:700;font-size:14px;margin:0 0 4px;color:#0f172a">${nombre}</p>`
     )
-  if (direccion)
+  }
+  if (direccion) {
     parts.push(
       `<p style="font-size:12px;color:#64748b;margin:0 0 6px;line-height:1.5">${direccion}</p>`
     )
-  if (horarioSemana || horarioFinDeSemana)
+  }
+  if (horarioSemana || horarioFinDeSemana) {
     parts.push(
       '<div style="border-top:1px solid #f1f5f9;margin:8px 0 6px;padding-top:6px">' +
         (horarioSemana
@@ -59,62 +67,16 @@ function buildPopupHTML(
           : '') +
         '</div>'
     )
-  if (googleMapsUrl)
+  }
+  if (googleMapsUrl) {
     parts.push(
       `<a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" ` +
         `style="display:block;text-align:center;padding:8px 12px;background:#ef4444;color:white;` +
         `border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;margin-top:4px;` +
         `letter-spacing:0.02em">Cómo llegar</a>`
     )
-  return `<div style="padding:8px 4px 4px;min-width:185px;font-family:system-ui,sans-serif">${parts.join('')}</div>`
-}
-
-function agregar3dEdificios(map: mapboxgl.Map): void {
-  if (map.getLayer('3d-buildings')) return
-  const layers = map.getStyle().layers
-  let primeraEtiqueta: string | undefined
-  for (const layer of layers) {
-    if (
-      layer.type === 'symbol' &&
-      (layer.layout as Record<string, unknown>)['text-field']
-    ) {
-      primeraEtiqueta = layer.id
-      break
-    }
   }
-  map.addLayer(
-    {
-      id: '3d-buildings',
-      source: 'composite',
-      'source-layer': 'building',
-      filter: ['==', 'extrude', 'true'],
-      type: 'fill-extrusion',
-      minzoom: 15,
-      paint: {
-        'fill-extrusion-color': '#dde8f0',
-        'fill-extrusion-height': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          15,
-          0,
-          15.05,
-          ['get', 'height'],
-        ],
-        'fill-extrusion-base': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          15,
-          0,
-          15.05,
-          ['get', 'min_height'],
-        ],
-        'fill-extrusion-opacity': 0.75,
-      },
-    },
-    primeraEtiqueta
-  )
+  return `<div style="padding:8px 4px 4px;min-width:185px;font-family:system-ui,sans-serif">${parts.join('')}</div>`
 }
 
 class ToggleEstiloControl implements mapboxgl.IControl {
@@ -140,7 +102,6 @@ class ToggleEstiloControl implements mapboxgl.IControl {
         diff: false,
       } as Parameters<typeof map.setStyle>[1])
       btn.textContent = this._satelite ? 'Claro' : 'Terreno'
-      map.once('style.load', () => agregar3dEdificios(map))
     })
     container.appendChild(btn)
     return container
@@ -174,9 +135,7 @@ export function MapaLeaflet({
         set: () => {},
         configurable: true,
       })
-    } catch {
-      /* getter-only y no configurable en esta versión — sin efecto */
-    }
+    } catch {}
     mapboxgl.accessToken = TOKEN
 
     const map = new mapboxgl.Map({
@@ -200,8 +159,6 @@ export function MapaLeaflet({
     )
 
     map.on('load', () => {
-      agregar3dEdificios(map)
-
       const popup = new mapboxgl.Popup({
         closeButton: true,
         maxWidth: '240px',
@@ -225,7 +182,7 @@ export function MapaLeaflet({
       map.flyTo({
         center: [longitud, latitud],
         zoom: 16.5,
-        pitch: 52,
+        pitch: 0,
         duration: 2800,
         essential: true,
       })

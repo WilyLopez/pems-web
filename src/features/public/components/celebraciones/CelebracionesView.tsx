@@ -18,12 +18,13 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
-import { usePaquetes } from '../../hooks/usePaquetes'
 import { usePublicConfig } from '../../hooks/usePublicConfig'
+import { useTiposEventoPublico, usePaquetesPublico } from '@/hooks/useComercial'
+import { DynamicIcon } from '@/components/admin/comercial/shared/IconPicker'
 import { Skeleton } from '../shared/Skeletons'
 import { formatCurrency } from '@/lib/utils'
 
-const tiposEventos = [
+const tiposEventosPorDefecto = [
   {
     icon: Cake,
     nombre: 'Cumpleaños infantiles',
@@ -84,8 +85,17 @@ const pasosPorDefecto = [
 ]
 
 export function CelebracionesView() {
-  const { data: paquetes, isLoading: loadingPaquetes } = usePaquetes()
+  const { data: paquetes, isLoading: loadingPaquetes } = usePaquetesPublico()
   const { data: config } = usePublicConfig()
+  const { data: tiposEventosQuery = [] } = useTiposEventoPublico()
+
+  const tiposEventos = tiposEventosQuery.length > 0
+    ? tiposEventosQuery.map((t) => ({
+        icon: t.icono,
+        nombre: t.nombre,
+        desc: t.descripcion || '',
+      }))
+    : tiposEventosPorDefecto
 
   const whatsappNumero = config?.whatsapp?.replace(/\D/g, '') ?? null
   const whatsappUrl = whatsappNumero ? `https://wa.me/${whatsappNumero}` : null
@@ -142,22 +152,31 @@ export function CelebracionesView() {
             </h2>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {tiposEventos.map(({ icon: Icon, nombre, desc }) => (
-              <div
-                key={nombre}
-                className="flex items-start gap-4 p-5 rounded-2xl border border-gray-100 hover:border-brand-rosa/30 hover:shadow-brand transition-all group"
-              >
-                <div className="w-10 h-10 rounded-xl bg-brand-rosa/10 flex items-center justify-center shrink-0 group-hover:bg-brand-rosa group-hover:text-white transition-colors">
-                  <Icon className="h-5 w-5 text-brand-rosa group-hover:text-white" />
+            {tiposEventos.map(({ icon, nombre, desc }) => {
+              return (
+                <div
+                  key={nombre}
+                  className="flex items-start gap-4 p-5 rounded-2xl border border-gray-100 hover:border-brand-rosa/30 hover:shadow-brand transition-all group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-brand-rosa/10 flex items-center justify-center shrink-0 group-hover:bg-brand-rosa group-hover:text-white transition-colors">
+                    {typeof icon === 'string' ? (
+                      <DynamicIcon name={icon} className="h-5 w-5 text-brand-rosa group-hover:text-white" fallback={Cake} />
+                    ) : (
+                      (() => {
+                        const IconComponent = icon as React.ElementType
+                        return <IconComponent className="h-5 w-5 text-brand-rosa group-hover:text-white" />
+                      })()
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">{nombre}</h3>
+                    <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                      {desc}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-900">{nombre}</h3>
-                  <p className="text-sm text-gray-500 mt-1 leading-relaxed">
-                    {desc}
-                  </p>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -185,72 +204,126 @@ export function CelebracionesView() {
                 const waBadge = whatsappUrl
                   ? `${whatsappUrl}?text=${encodeURIComponent(`Hola! Me interesa el ${paquete.nombre}`)}`
                   : null
+                const baseColor = paquete.color || '#00AEEF'
                 return (
                   <div
                     key={paquete.id}
-                    className="bg-white rounded-3xl border-2 border-gray-100 overflow-hidden shadow-sm hover:shadow-brand transition-all hover:-translate-y-1 relative flex flex-col justify-between"
+                    className={`bg-white rounded-3xl border-2 overflow-hidden shadow-sm hover:shadow-brand transition-all hover:-translate-y-1 relative flex flex-col justify-between ${
+                      paquete.destacado
+                        ? 'border-brand-rosa ring-4 ring-brand-rosa/10 shadow-lg scale-102 z-10'
+                        : 'border-gray-100'
+                    }`}
                   >
+                    {paquete.destacado && (
+                      <div className="absolute top-4 left-4 bg-brand-rosa text-white text-[10px] uppercase font-black px-3 py-1 rounded-full z-10">
+                        Destacado
+                      </div>
+                    )}
+
                     {paquete.badge && (
-                      <div className="absolute top-4 right-4 bg-brand-rosa text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+                      <div
+                        className="absolute top-4 right-4 text-white text-xs font-bold px-3 py-1 rounded-full z-10"
+                        style={{ backgroundColor: baseColor }}
+                      >
                         {paquete.badge}
                       </div>
                     )}
 
-                    <div className="bg-gradient-to-br from-brand-rosa/10 to-brand-amarillo/10 p-6">
-                      <PartyPopper className="h-7 w-7 text-brand-azul mb-2" />
-                      <h3 className="text-xl font-black text-gray-900">
-                        {paquete.nombre}
-                      </h3>
-                      <p className="text-sm text-gray-650 mt-1 line-clamp-2 leading-relaxed">
-                        {paquete.descripcionCorta}
-                      </p>
-                      <div className="flex items-end gap-1 mt-3">
-                        <span className="text-4xl font-black text-brand-azul">
-                          {formatCurrency(paquete.precio)}
-                        </span>
-                      </div>
-                      <div className="flex gap-3 mt-2 text-sm text-gray-500 font-semibold">
-                        {paquete.duracionMinutos && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3.5 w-3.5 text-brand-azul" />
-                            {Math.round(paquete.duracionMinutos / 60)}h{' '}
-                            {paquete.duracionMinutos % 60 > 0
-                              ? `${paquete.duracionMinutos % 60}min`
-                              : ''}
-                          </span>
-                        )}
-                        {paquete.limitepersonas && (
-                          <span className="flex items-center gap-1">
-                            <Users className="h-3.5 w-3.5 text-brand-rosa" />
-                            Hasta {paquete.limitepersonas}
-                          </span>
-                        )}
-                      </div>
+                    {/* Image Banner */}
+                    <div className="aspect-video bg-gray-100 relative overflow-hidden">
+                      {paquete.imagenUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={paquete.imagenUrl}
+                          alt={paquete.nombre}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden"
+                          style={{
+                            background: `linear-gradient(135deg, ${baseColor} 0%, ${baseColor}aa 100%)`,
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:16px_16px]" />
+                          <PartyPopper className="h-10 w-10 text-white/40 relative z-10" />
+                        </div>
+                      )}
                     </div>
 
                     <div className="p-6 flex-1 flex flex-col justify-between">
-                      {paquete.beneficios && paquete.beneficios.length > 0 && (
-                        <ul className="space-y-2.5 flex-grow">
-                          {paquete.beneficios.map((item) => (
-                            <li
-                              key={item}
-                              className="flex items-start gap-2.5 text-sm"
-                            >
-                              <div className="w-5 h-5 rounded-full bg-brand-menta/30 flex items-center justify-center shrink-0 mt-0.5">
-                                <Check className="h-3 w-3 text-emerald-600" />
-                              </div>
-                              <span className="text-gray-700 leading-relaxed">
-                                {item}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-xl font-black text-gray-900 leading-tight">
+                            {paquete.nombre}
+                          </h3>
+                          <p className="text-sm text-gray-650 mt-1.5 leading-relaxed">
+                            {paquete.descripcionCorta}
+                          </p>
+                          {paquete.descripcionLarga && (
+                            <p className="text-xs text-gray-400 mt-2 line-clamp-3 leading-relaxed border-l-2 border-gray-200 pl-2 italic">
+                              {paquete.descripcionLarga}
+                            </p>
+                          )}
+                        </div>
 
-                      <div className="mt-5 space-y-2">
+                        <div className="flex items-end gap-1">
+                          <span
+                            className="text-4xl font-black"
+                            style={{ color: baseColor }}
+                          >
+                            {formatCurrency(paquete.precio)}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-500 font-bold">
+                          {paquete.duracionMinutos && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3.5 w-3.5" style={{ color: baseColor }} />
+                              {Math.round(paquete.duracionMinutos / 60)}h{' '}
+                              {paquete.duracionMinutos % 60 > 0
+                                ? `${paquete.duracionMinutos % 60}min`
+                                : ''}
+                            </span>
+                          )}
+                          {paquete.limitepersonas && (
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3.5 w-3.5 text-brand-rosa" />
+                              Hasta {paquete.limitepersonas} personas
+                            </span>
+                          )}
+                        </div>
+
+                        {paquete.beneficios && paquete.beneficios.length > 0 && (
+                          <ul className="space-y-2 pt-2 border-t border-gray-100">
+                            {paquete.beneficios.map((item) => (
+                              <li
+                                key={item}
+                                className="flex items-start gap-2 text-sm text-gray-650"
+                              >
+                                <div
+                                  className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                                  style={{ backgroundColor: `${baseColor}1a` }}
+                                >
+                                  <Check
+                                    className="h-2.5 w-2.5"
+                                    style={{ color: baseColor }}
+                                  />
+                                </div>
+                                <span className="text-gray-700 leading-relaxed text-xs">
+                                  {item}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <div className="mt-6 space-y-2">
                         <Button
                           asChild
-                          className="w-full bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full font-bold shadow-sm"
+                          className="w-full text-white rounded-full font-bold shadow-sm"
+                          style={{ backgroundColor: baseColor }}
                         >
                           <Link href="/cliente/celebraciones/solicitar">
                             Solicitar este paquete

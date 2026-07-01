@@ -6,6 +6,7 @@ interface LogoProps {
   variant?: 'principal' | 'secundario'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   href?: string
+  onClick?: () => void
   className?: string
 }
 
@@ -20,6 +21,7 @@ export function Logo({
   variant = 'secundario',
   size = 'md',
   href = '/',
+  onClick,
   className,
 }: LogoProps) {
   const { w, h } = sizeMap[size]
@@ -39,5 +41,9 @@ export function Logo({
   )
 
   if (!href) return img
-  return <Link href={href}>{img}</Link>
+  return (
+    <Link href={href} onClick={onClick}>
+      {img}
+    </Link>
+  )
 }
