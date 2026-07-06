@@ -13,11 +13,10 @@ type FormValues = z.infer<typeof abrirCajaSchema>
 
 interface Props {
   idSede: number
-  fecha: string
   onSuccess?: () => void
 }
 
-export function AbrirCajaPanel({ idSede, fecha, onSuccess }: Props) {
+export function AbrirCajaPanel({ idSede, onSuccess }: Props) {
   const { abrir } = useCajaMutations()
   const {
     register,
@@ -31,7 +30,7 @@ export function AbrirCajaPanel({ idSede, fecha, onSuccess }: Props) {
 
   function onSubmit(v: FormValues) {
     abrir.mutate(
-      { idSede, payload: { ...v, fecha } },
+      { idSede, payload: v },
       {
         onSuccess: () => {
           reset()

@@ -6,6 +6,7 @@ import {
   ActualizarEgresoPayload,
   ActualizarGastoOperativoPayload,
   CerrarCajaPayload,
+  CerrarCajaForzadoPayload,
   CrearTipoIngresoPayload,
   CrearTipoEgresoPayload,
   EjecutarPresupuestoPayload,
@@ -602,6 +603,21 @@ export function useCajaMutations() {
     onError: () => toast.error('No se pudo cerrar la caja.'),
   })
 
+  const cerrarForzado = useMutation({
+    mutationFn: ({
+      idSesion,
+      payload,
+    }: {
+      idSesion: number
+      payload: CerrarCajaForzadoPayload
+    }) => financeApi.cerrarCajaForzado(idSesion, payload),
+    onSuccess: () => {
+      toast.success('Caja cerrada.')
+      invalidar()
+    },
+    onError: () => toast.error('No se pudo cerrar la caja.'),
+  })
+
   const registrarMovimiento = useMutation({
     mutationFn: ({
       idApertura,
@@ -617,7 +633,7 @@ export function useCajaMutations() {
     onError: () => toast.error('No se pudo registrar el movimiento.'),
   })
 
-  return { abrir, cerrar, registrarMovimiento }
+  return { abrir, cerrar, cerrarForzado, registrarMovimiento }
 }
 
 export function useMovimientosCaja(idApertura: number | undefined) {

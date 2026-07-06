@@ -6,6 +6,7 @@ import {
   AperturaCaja,
   ArqueoCaja,
   CerrarCajaPayload,
+  CerrarCajaForzadoPayload,
   CrearTipoEgresoPayload,
   CrearTipoIngresoPayload,
   DashboardFinanciero,
@@ -353,11 +354,22 @@ export const financeApi = {
   },
 
   cerrarCaja: async (
-    idApertura: number,
+    idSesion: number,
     payload: CerrarCajaPayload
   ): Promise<AperturaCaja> => {
     const { data } = await api.put<ApiResponse<AperturaCaja>>(
-      `/caja/${idApertura}/cerrar`,
+      `/caja/${idSesion}/cerrar`,
+      payload
+    )
+    return data.data
+  },
+
+  cerrarCajaForzado: async (
+    idSesion: number,
+    payload: CerrarCajaForzadoPayload
+  ): Promise<AperturaCaja> => {
+    const { data } = await api.put<ApiResponse<AperturaCaja>>(
+      `/caja/${idSesion}/cerrar-forzado`,
       payload
     )
     return data.data
@@ -374,8 +386,8 @@ export const financeApi = {
 
   obtenerCajaHoy: async (idSede: number): Promise<AperturaCaja | null> => {
     try {
-      const { data } = await api.get<ApiResponse<AperturaCaja>>(
-        `/caja/sedes/${idSede}/hoy`
+      const { data } = await api.get<ApiResponse<AperturaCaja | null>>(
+        `/caja/sedes/${idSede}/mi-sesion`
       )
       return data.data
     } catch (err: any) {

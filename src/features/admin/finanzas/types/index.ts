@@ -167,6 +167,7 @@ export type CategoriaIngreso =
   | 'INGRESO_MANUAL'
   | 'OTRO'
 export type EstadoCaja = 'ABIERTA' | 'CERRADA'
+export type TipoSesionCaja = 'CAJERO' | 'ADMINISTRATIVA'
 export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO'
 export type CategoriaRetiro =
   | 'SERVICIOS'
@@ -202,6 +203,8 @@ export interface RegistroIngreso {
 export interface AperturaCaja {
   id: number
   idSede: number
+  usuarioId: string
+  tipo: TipoSesionCaja
   fecha: string
   saldoInicial: number
   saldoFinal?: number
@@ -210,8 +213,8 @@ export interface AperturaCaja {
   saldoEsperado?: number
   diferencia?: number
   estado: EstadoCaja
-  idUsuarioApertura: string
-  idUsuarioCierre?: string
+  cerradaPor?: string
+  motivoCierre?: string
   fechaApertura: string
   fechaCierre?: string
   observaciones?: string
@@ -219,7 +222,7 @@ export interface AperturaCaja {
 
 export interface ArqueoCaja {
   id: number
-  idAperturaCaja: number
+  idSesionCaja: number
   saldoEsperado: number
   saldoContado: number
   diferencia: number
@@ -240,7 +243,7 @@ export interface RegistrarArqueoPayload {
 
 export interface MovimientoCaja {
   id: number
-  idAperturaCaja: number
+  idSesionCaja: number
   tipo: TipoMovimientoCaja
   concepto: string
   monto: number
@@ -308,13 +311,18 @@ export interface RegistrarIngresoManualPayload {
 }
 
 export interface AbrirCajaPayload {
-  fecha: string
   saldoInicial: number
   observaciones?: string
 }
 
 export interface CerrarCajaPayload {
   saldoFinal: number
+  observaciones?: string
+}
+
+export interface CerrarCajaForzadoPayload {
+  saldoFinal: number
+  motivo: string
   observaciones?: string
 }
 

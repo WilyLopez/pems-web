@@ -20,10 +20,9 @@ interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   idSede: number
-  fecha: string
 }
 
-export function AbrirCajaModal({ open, onOpenChange, idSede, fecha }: Props) {
+export function AbrirCajaModal({ open, onOpenChange, idSede }: Props) {
   const { abrir } = useCajaMutations()
   const {
     register,
@@ -37,7 +36,7 @@ export function AbrirCajaModal({ open, onOpenChange, idSede, fecha }: Props) {
 
   function onSubmit(v: FormValues) {
     abrir.mutate(
-      { idSede, payload: { ...v, fecha } },
+      { idSede, payload: v },
       {
         onSuccess: () => {
           reset()

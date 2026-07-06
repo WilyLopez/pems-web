@@ -12,6 +12,12 @@ export const cerrarCajaSchema = z.object({
   observaciones: z.string().optional(),
 })
 
+export const cerrarCajaForzadoSchema = z.object({
+  saldoFinal: z.coerce.number().min(0, 'El saldo final no puede ser negativo'),
+  motivo: z.string().min(3, 'El motivo del cierre es obligatorio'),
+  observaciones: z.string().optional(),
+})
+
 export const movimientoCajaSchema = z.object({
   tipo: z.enum(['INGRESO', 'EGRESO'], { message: 'Selecciona tipo' }),
   concepto: z.string().min(2, 'El concepto es obligatorio'),
