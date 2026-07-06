@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { X, ChevronLeft, ChevronRight, Images } from 'lucide-react'
 import { fileUrl } from '@/lib/utils'
+import { useFocusTrap } from '@/features/public/shared/hooks/useFocusTrap'
 
 interface ZonaFotosModalProps {
   open: boolean
@@ -20,6 +21,7 @@ export function ZonaFotosModal({
   initialIndex = 0,
 }: ZonaFotosModalProps) {
   const [current, setCurrent] = useState(initialIndex)
+  const trapRef = useFocusTrap<HTMLDivElement>(open)
 
   useEffect(() => {
     if (open) setCurrent(initialIndex)
@@ -59,7 +61,12 @@ export function ZonaFotosModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-5xl mx-4 bg-gray-950 rounded-2xl overflow-hidden shadow-2xl flex flex-col"
+        ref={trapRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Fotos de ${nombreZona}`}
+        className="relative w-full max-w-5xl mx-4 bg-gray-950 rounded-2xl overflow-hidden shadow-2xl flex flex-col outline-none"
         style={{ maxHeight: '92vh' }}
         onClick={(e) => e.stopPropagation()}
       >

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge'
 import { usePublicPrecios } from '@/features/public/shared/hooks/usePublicPrecios'
 import { useSedesPublicas } from '@/features/public/shared/hooks/useSedesPublicas'
 import { SectionHeader } from '@/features/public/shared/components/SectionHeader'
+import { SocialProofStrip } from '@/features/public/shared/components/SocialProofStrip'
 
 interface Tarifa {
   tipo: string
@@ -79,22 +80,19 @@ export function JuegosPrecios() {
                   <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center mb-3">
                     <Icon className="h-5 w-5 text-brand-azul" />
                   </div>
-                  <h3 className="text-xl font-black text-gray-900">{tipo}</h3>
+                  <h3 className="text-xl font-bold text-gray-900">{tipo}</h3>
                   <Badge className={`mt-2 text-xs ${badgeClass}`}>
                     {badge}
                   </Badge>
                 </div>
                 <div className="flex items-end gap-1">
-                  <span className="text-5xl font-black text-brand-azul">
+                  <span className="text-5xl font-black text-brand-azul-dark">
                     {precio}
                   </span>
                   <span className="text-gray-400 mb-1 text-sm">/ niño</span>
                 </div>
                 <p className="text-sm text-gray-600 leading-relaxed">{desc}</p>
-                <Button
-                  asChild
-                  className="w-full bg-brand-azul hover:bg-brand-azul/90 text-white rounded-full font-bold mt-auto"
-                >
+                <Button asChild variant="brand" className="w-full mt-auto">
                   <Link href="/cliente/reservar">
                     Comprar ahora
                     <ChevronRight className="ml-1 h-4 w-4" />
@@ -104,6 +102,8 @@ export function JuegosPrecios() {
             )
           )}
         </div>
+
+        <SocialProofStrip className="mt-8 max-w-3xl mx-auto" />
 
         <div className="mt-8 p-4 bg-brand-amarillo/15 border border-brand-amarillo/30 rounded-2xl flex items-start gap-3">
           <Ticket className="h-5 w-5 text-yellow-700 shrink-0 mt-0.5" />

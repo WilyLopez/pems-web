@@ -36,7 +36,7 @@ export function HomeHero() {
         <div
           className={cn(
             'grid items-center gap-10',
-            hayMascotas && 'lg:grid-cols-2'
+            hayMascotas && 'lg:grid-cols-[1fr_1.15fr]'
           )}
         >
           <div className="max-w-2xl space-y-8 text-white">
@@ -49,7 +49,7 @@ export function HomeHero() {
 
             <Reveal delay={0.08}>
               <div className="space-y-4">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-none drop-shadow-lg">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight drop-shadow-lg">
                   <span className="text-white">
                     {texto('home.hero.titulo_linea1', 'Diversión')}
                   </span>
@@ -71,8 +71,9 @@ export function HomeHero() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   size="lg"
+                  variant="brand"
                   asChild
-                  className="bg-brand-rosa hover:bg-brand-rosa/90 text-white font-bold rounded-full px-8 h-12 text-base gap-2 shadow-lg"
+                  className="px-8 h-12 text-base gap-2"
                 >
                   <Link href="/cliente/reservar">
                     <Ticket className="h-5 w-5" />
@@ -99,14 +100,14 @@ export function HomeHero() {
               className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2"
             >
               <div className="text-center">
-                <div className="text-3xl font-black text-brand-amarillo drop-shadow">
+                <div className="text-3xl font-bold text-brand-amarillo drop-shadow">
                   {texto('home.hero.stats.familias', '+500')}
                 </div>
                 <div className="text-xs text-white/60">Familias felices</div>
               </div>
               <div className="w-px h-10 bg-white/20" />
               <div className="text-center">
-                <div className="text-3xl font-black text-brand-azul drop-shadow">
+                <div className="text-3xl font-bold text-brand-azul drop-shadow">
                   {texto('home.hero.stats.calificacion', '4.9')}
                 </div>
                 <div className="text-xs text-white/60 flex items-center gap-1">
@@ -116,7 +117,7 @@ export function HomeHero() {
               </div>
               <div className="w-px h-10 bg-white/20" />
               <div className="text-center">
-                <div className="text-3xl font-black text-brand-menta drop-shadow">
+                <div className="text-3xl font-bold text-brand-menta drop-shadow">
                   +{aniosExperiencia}
                 </div>
                 <div className="text-xs text-white/60">Años de experiencia</div>
@@ -125,30 +126,31 @@ export function HomeHero() {
           </div>
 
           {hayMascotas && (
-            <Reveal delay={0.3} className="hidden lg:flex justify-center">
-              <div className="relative h-96 w-80">
-                <div className="absolute -inset-6 bg-gradient-to-br from-brand-azul/25 to-brand-rosa/25 rounded-[2rem] blur-2xl" />
+            <Reveal delay={0.3} className="flex justify-center lg:justify-end">
+              <div className="relative h-72 w-72 sm:h-96 sm:w-96 lg:h-[32rem] lg:w-[28rem]">
+                <div className="absolute left-1/2 bottom-4 h-20 w-40 -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-azul/40 via-white/10 to-brand-rosa/40 blur-2xl sm:h-28 sm:w-56 lg:h-36 lg:w-72" />
+                <div className="absolute -inset-8 rounded-[2.5rem] bg-gradient-to-br from-brand-azul/25 to-brand-rosa/25 blur-3xl" />
                 {mascota2Url && (
-                  <div className="absolute -right-4 top-0 h-52 w-52 -rotate-6 drop-shadow-2xl">
+                  <div className="mascota-float-a absolute -right-2 top-0 h-40 w-40 drop-shadow-2xl sm:h-56 sm:w-56 lg:h-72 lg:w-72 [mask-image:radial-gradient(ellipse_at_center,black_68%,transparent_100%)] [-webkit-mask-image:radial-gradient(ellipse_at_center,black_68%,transparent_100%)]">
                     <Image
                       src={mascota2Url}
                       alt="Mascota"
                       fill
                       unoptimized={mascota2Url.startsWith('http')}
                       className="object-contain"
-                      sizes="208px"
+                      sizes="(min-width: 1024px) 288px, (min-width: 640px) 224px, 160px"
                     />
                   </div>
                 )}
                 {mascota1Url && (
-                  <div className="absolute left-0 bottom-0 h-80 w-72 rotate-3 drop-shadow-2xl">
+                  <div className="mascota-float-b absolute left-0 bottom-0 h-60 w-56 drop-shadow-2xl sm:h-80 sm:w-72 lg:h-[28rem] lg:w-[24rem] [mask-image:radial-gradient(ellipse_at_center,black_68%,transparent_100%)] [-webkit-mask-image:radial-gradient(ellipse_at_center,black_68%,transparent_100%)]">
                     <Image
                       src={mascota1Url}
                       alt="Mascota"
                       fill
                       unoptimized={mascota1Url.startsWith('http')}
                       className="object-contain"
-                      sizes="288px"
+                      sizes="(min-width: 1024px) 384px, (min-width: 640px) 288px, 224px"
                       priority
                     />
                   </div>

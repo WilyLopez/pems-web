@@ -33,6 +33,15 @@ const buttonVariants = cva(
 
         purple:
           'bg-purple-600 text-white shadow-sm hover:bg-purple-700 active:scale-[0.98]',
+
+        brand:
+          'bg-brand-rosa text-white font-bold rounded-full shadow-lg hover:bg-brand-rosa-dark active:scale-[0.98]',
+
+        brandOutline:
+          'border border-brand-rosa/60 bg-transparent text-brand-rosa font-bold rounded-full hover:bg-brand-rosa/5 active:scale-[0.98]',
+
+        whatsapp:
+          'bg-emerald-600 text-white font-bold rounded-full shadow-lg hover:bg-emerald-700 active:scale-[0.98]',
       },
       size: {
         default: 'h-9 px-4 py-2',

@@ -190,7 +190,7 @@ function DetalleReserva({
 
       <div className="px-5 pb-5 pt-2 border-t border-gray-100 space-y-2">
         <a
-          href={`/api/v1/reservas/${reserva.id}/pdf`}
+          href={`${process.env.NEXT_PUBLIC_API_URL}/reservas/${reserva.id}/pdf`}
           download
           className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-brand-azul text-white rounded-xl text-sm font-bold hover:bg-brand-azul/90 transition-colors"
         >

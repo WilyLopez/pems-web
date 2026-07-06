@@ -2,6 +2,7 @@
 
 import { PublicNavbar } from '@/features/public/layout/PublicNavbar'
 import { DynamicFooter } from '@/features/public/footer/DynamicFooter'
+import { WhatsAppFloat } from '@/features/public/shared/components/WhatsAppFloat'
 import { configuracionPublicaService } from '@/services/configuracion-publica.service'
 import { legalService } from '@/services/legal.service'
 import { ConfiguracionPublica } from '@/types/configuracion-publica.types'
@@ -34,6 +35,7 @@ export default async function PublicLayout({
     <div className="min-h-screen flex flex-col bg-white font-poppins">
       <PublicNavbar />
       <main className="flex-1">{children}</main>
+      <WhatsAppFloat />
       <DynamicFooter config={config} legalDocs={legalDocs} />
     </div>
   )

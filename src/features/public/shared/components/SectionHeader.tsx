@@ -37,7 +37,7 @@ export function SectionHeader({
           {badge}
         </BrandBadge>
       )}
-      <h2 className={cn('text-3xl font-black', titleColor, titleClassName)}>
+      <h2 className={cn('text-3xl font-bold', titleColor, titleClassName)}>
         {title}
       </h2>
       {description && (

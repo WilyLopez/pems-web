@@ -21,6 +21,7 @@ import {
 import { Logo } from '@/components/brand/Logo'
 import { Button } from '@/components/ui/Button'
 import { cn, getInitials } from '@/lib/utils'
+import { useFocusTrap } from '@/features/public/shared/hooks/useFocusTrap'
 import { navLinks } from './useNavbar'
 
 const ICON_MAP = { Home, Gamepad2, PartyPopper, Info, Phone }
@@ -48,6 +49,8 @@ export function NavMobileDrawer({
   correo,
   whatsappUrl,
 }: NavMobileDrawerProps) {
+  const trapRef = useFocusTrap<HTMLDivElement>(open)
+
   // Lock body scroll while drawer is open
   useEffect(() => {
     if (open) {
@@ -86,8 +89,10 @@ export function NavMobileDrawer({
 
       {/* Drawer panel — slides from the right */}
       <div
+        ref={trapRef}
+        tabIndex={-1}
         className={cn(
-          'fixed top-0 right-0 bottom-0 z-50 w-[300px] max-w-[85vw] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out lg:hidden',
+          'fixed top-0 right-0 bottom-0 z-50 w-[300px] max-w-[85vw] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out lg:hidden outline-none',
           open ? 'translate-x-0' : 'translate-x-full'
         )}
         role="dialog"
@@ -156,7 +161,7 @@ export function NavMobileDrawer({
                     'flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition-all',
                     active
                       ? 'text-brand-azul bg-brand-azul/10'
-                      : 'text-gray-700 hover:text-brand-azul hover:bg-brand-azul/6'
+                      : 'text-gray-700 hover:text-brand-azul hover:bg-brand-azul/5'
                   )}
                 >
                   <div
@@ -187,7 +192,7 @@ export function NavMobileDrawer({
               <Link
                 href="/cliente/mis-entradas"
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-brand-rosa hover:bg-brand-rosa/6 transition-all"
+                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-brand-rosa hover:bg-brand-rosa/5 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                   <Ticket className="h-4 w-4 text-gray-500" />
@@ -197,7 +202,7 @@ export function NavMobileDrawer({
               <Link
                 href="/cliente/mis-reservas"
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-brand-rosa hover:bg-brand-rosa/6 transition-all"
+                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-brand-rosa hover:bg-brand-rosa/5 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                   <CalendarDays className="h-4 w-4 text-gray-500" />
@@ -207,7 +212,7 @@ export function NavMobileDrawer({
               <Link
                 href="/cliente/mi-cuenta"
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-brand-rosa hover:bg-brand-rosa/6 transition-all"
+                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-gray-700 hover:text-brand-rosa hover:bg-brand-rosa/5 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                   <User className="h-4 w-4 text-gray-500" />
@@ -223,7 +228,7 @@ export function NavMobileDrawer({
               <Link
                 href="/admin/dashboard"
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-brand-azul hover:bg-brand-azul/6 transition-all"
+                className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-brand-azul hover:bg-brand-azul/5 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-brand-azul/10 flex items-center justify-center shrink-0">
                   <Shield className="h-4 w-4 text-brand-azul" />
@@ -257,7 +262,8 @@ export function NavMobileDrawer({
         <div className="px-4 py-4 border-t border-gray-100 space-y-2 bg-gray-50/60">
           <Button
             asChild
-            className="w-full bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full font-bold gap-2 shadow-sm"
+            variant="brand"
+            className="w-full gap-2 shadow-sm"
           >
             <Link href="/cliente/reservar" onClick={onClose}>
               <Ticket className="h-4 w-4" />

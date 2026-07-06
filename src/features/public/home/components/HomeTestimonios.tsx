@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { Star, User } from 'lucide-react'
-import { useTestimonios } from '../hooks/useTestimonios'
+import { useTestimonios } from '@/features/public/shared/hooks/useTestimonios'
 import { TestimoniosSkeleton, Skeleton } from '@/features/public/shared/components/Skeletons'
 import { fileUrl } from '@/lib/utils'
 import { SectionHeader } from '@/features/public/shared/components/SectionHeader'

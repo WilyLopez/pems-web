@@ -25,7 +25,9 @@ export function FaqAccordion({
           >
             <button
               onClick={() => setOpenId(isOpen ? null : faq.id)}
-              className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 font-bold text-gray-900 hover:text-brand-azul transition-colors outline-none"
+              aria-expanded={isOpen}
+              aria-controls={`faq-respuesta-${faq.id}`}
+              className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 font-bold text-gray-900 hover:text-brand-azul transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-azul focus-visible:ring-inset rounded-2xl"
             >
               <span>{faq.pregunta}</span>
               <ChevronDown
@@ -36,13 +38,18 @@ export function FaqAccordion({
               />
             </button>
             <div
+              id={`faq-respuesta-${faq.id}`}
               className={cn(
-                'transition-all duration-300 ease-in-out max-h-0 opacity-0 overflow-hidden border-t border-transparent',
-                isOpen && 'max-h-[500px] opacity-100 border-gray-100/50'
+                'grid transition-all duration-300 ease-in-out border-t',
+                isOpen
+                  ? 'grid-rows-[1fr] opacity-100 border-gray-100/50'
+                  : 'grid-rows-[0fr] opacity-0 border-transparent'
               )}
             >
-              <div className="px-6 py-5 text-sm text-gray-600 leading-relaxed bg-gray-50/50">
-                {faq.respuesta}
+              <div className="overflow-hidden">
+                <div className="px-6 py-5 text-sm text-gray-600 leading-relaxed bg-gray-50/50">
+                  {faq.respuesta}
+                </div>
               </div>
             </div>
           </div>

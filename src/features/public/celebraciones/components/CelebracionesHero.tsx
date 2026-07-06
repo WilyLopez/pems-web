@@ -23,11 +23,7 @@ export function CelebracionesHero({
       description="Organizamos cada detalle para que tú solo tengas que disfrutar. Desde cumpleaños hasta eventos temáticos."
       actions={
         <>
-          <Button
-            asChild
-            size="lg"
-            className="bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-full font-bold px-8 gap-2"
-          >
+          <Button asChild size="lg" variant="brand" className="px-8 gap-2">
             <a href="#paquetes">
               <PartyPopper className="h-5 w-5" />
               Ver paquetes
@@ -36,9 +32,9 @@ export function CelebracionesHero({
           {whatsappUrl && (
             <Button
               asChild
-              variant="outline"
+              variant="whatsapp"
               size="lg"
-              className="rounded-full border-brand-rosa text-brand-rosa hover:bg-brand-rosa/5 gap-2"
+              className="px-8 gap-2"
             >
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                 <Phone className="h-5 w-5" />

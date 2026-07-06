@@ -38,7 +38,7 @@ function LegalNotFound() {
         <div className="mx-auto w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
           <AlertCircle className="h-6 w-6 text-gray-400" />
         </div>
-        <h1 className="text-lg font-black text-gray-800">
+        <h1 className="text-lg font-bold text-gray-800">
           Documento no disponible
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -108,7 +108,7 @@ export function LegalDocumentView() {
               </Link>
             )}
           </div>
-          <h1 className="text-2xl font-black text-gray-900">{doc.titulo}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{doc.titulo}</h1>
           <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Hash className="h-3 w-3" /> Versión {doc.version}

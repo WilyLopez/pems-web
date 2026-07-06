@@ -304,6 +304,40 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
+
+  .mascota-float-a {
+    animation: mascotaFloatA 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    will-change: transform;
+  }
+
+  .mascota-float-b {
+    animation: mascotaFloatB 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    will-change: transform;
+  }
+}
+
+@keyframes mascotaFloatA {
+  0%,
+  100% {
+    transform: perspective(900px) rotateZ(-6deg) rotateY(-6deg) rotateX(2deg)
+      translateY(0);
+  }
+  50% {
+    transform: perspective(900px) rotateZ(-3deg) rotateY(8deg) rotateX(-3deg)
+      translateY(-14px);
+  }
+}
+
+@keyframes mascotaFloatB {
+  0%,
+  100% {
+    transform: perspective(900px) rotateZ(3deg) rotateY(6deg) rotateX(-2deg)
+      translateY(0);
+  }
+  50% {
+    transform: perspective(900px) rotateZ(6deg) rotateY(-8deg) rotateX(3deg)
+      translateY(-18px);
+  }
 }
 
 html,

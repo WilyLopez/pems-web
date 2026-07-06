@@ -14,7 +14,7 @@ export function usePublicPrecios(idSede: number) {
     queryKey: [...PUBLIC_QUERY_KEYS.precios, idSede],
     queryFn: async () => {
       const response = await api.get<ApiResponse<PrecioPublicoResponse[]>>(
-        `/api/v1/tarifas/sedes/${idSede}/precios`
+        `/tarifas/sedes/${idSede}/precios`
       )
       return response.data.data
     },

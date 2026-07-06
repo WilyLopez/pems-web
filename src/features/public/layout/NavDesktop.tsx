@@ -70,7 +70,7 @@ export function NavDesktop({
                     ? 'text-brand-azul bg-brand-azul/10'
                     : 'text-white bg-white/20'
                   : isSolid
-                    ? 'text-gray-700 hover:text-brand-azul hover:bg-brand-azul/8'
+                    ? 'text-gray-700 hover:text-brand-azul hover:bg-brand-azul/10'
                     : 'text-white/90 hover:text-white hover:bg-white/15'
               )}
             >
@@ -90,7 +90,7 @@ export function NavDesktop({
             className={cn(
               'font-semibold gap-1.5',
               isSolid
-                ? 'text-gray-700 hover:text-brand-azul hover:bg-brand-azul/8'
+                ? 'text-gray-700 hover:text-brand-azul hover:bg-brand-azul/10'
                 : 'text-white hover:bg-white/15'
             )}
           >
@@ -157,7 +157,7 @@ export function NavDesktop({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={logout}
-                className="text-destructive focus:text-destructive focus:bg-destructive/8"
+                className="text-destructive focus:text-destructive focus:bg-destructive/10"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Cerrar sesión
@@ -172,7 +172,7 @@ export function NavDesktop({
             className={cn(
               'font-semibold gap-1.5',
               isSolid
-                ? 'text-gray-700 hover:text-brand-azul hover:bg-brand-azul/8'
+                ? 'text-gray-700 hover:text-brand-azul hover:bg-brand-azul/10'
                 : 'text-white hover:bg-white/15'
             )}
           >
@@ -185,8 +185,9 @@ export function NavDesktop({
 
         <Button
           size="sm"
+          variant="brand"
           asChild
-          className="bg-brand-rosa hover:bg-brand-rosa/90 text-white font-bold px-5 rounded-full gap-1.5 shadow-sm"
+          className="px-5 gap-1.5 shadow-sm"
         >
           <Link href="/cliente/reservar">
             <Ticket className="h-4 w-4" />

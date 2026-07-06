@@ -8,6 +8,7 @@ import { CelebracionesHero } from './components/CelebracionesHero'
 import { TiposEvento, TipoEventoItem } from './components/TiposEvento'
 import { Paquetes } from './components/Paquetes'
 import { Pasos } from './components/Pasos'
+import { CtaInstituciones } from './components/CtaInstituciones'
 import { CelebracionesCta } from './components/CelebracionesCta'
 
 const tiposEventosPorDefecto: TipoEventoItem[] = [
@@ -71,6 +72,7 @@ export function CelebracionesView() {
       />
       <GaleriaPublica id="momentos" />
       <Pasos />
+      <CtaInstituciones whatsappUrl={whatsappUrl} />
       <CelebracionesCta whatsappUrl={whatsappUrl} />
     </>
   )

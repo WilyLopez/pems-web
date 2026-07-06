@@ -68,7 +68,9 @@ const config: Config = {
         /* ── Paleta de marca Kiki y Lala ── */
         brand: {
           rosa: '#F64B8A',
+          'rosa-dark': '#D6336C',
           azul: '#00AEEF',
+          'azul-dark': '#0077B6',
           amarillo: '#FFD84D',
           menta: '#6EE7B7',
         },
