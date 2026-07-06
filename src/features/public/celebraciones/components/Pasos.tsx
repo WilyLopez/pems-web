@@ -36,7 +36,7 @@ export function Pasos() {
         <div className="grid gap-6 grid-cols-2 md:grid-cols-4">
           {pasosPorDefecto.map(({ n, icon: Icon, titulo, desc }) => (
             <div key={n} className="relative">
-              <div className="w-12 h-12 rounded-full bg-brand-gradient flex items-center justify-center text-white font-black text-lg mx-auto mb-3">
+              <div className="w-12 h-12 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-lg mx-auto mb-3">
                 {n}
               </div>
               <Icon className="h-5 w-5 text-brand-azul mx-auto mb-1" />

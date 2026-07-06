@@ -2,10 +2,9 @@
 
 import { HomeHeroBanner } from './components/HomeHeroBanner'
 import { HomeHero } from './components/HomeHero'
-import { HomeNovedades } from './components/HomeNovedades'
+import { HomeActualidad } from './components/HomeActualidad'
 import { HomePromociones } from './components/HomePromociones'
 import { HomeProductos } from './components/HomeProductos'
-import { HomeActividades } from './components/HomeActividades'
 import { HomeSeguridad } from './components/HomeSeguridad'
 import { HomeTestimonios } from './components/HomeTestimonios'
 import { HomeCta } from './components/HomeCta'
@@ -17,10 +16,9 @@ export function HomeView() {
         <HomeHeroBanner />
         <HomeHero />
       </div>
-      <HomeNovedades />
-      <HomePromociones />
       <HomeProductos />
-      <HomeActividades />
+      <HomePromociones />
+      <HomeActualidad />
       <HomeSeguridad />
       <HomeTestimonios />
       <HomeCta />

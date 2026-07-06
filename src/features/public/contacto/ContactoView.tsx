@@ -35,17 +35,13 @@ export function ContactoView() {
         title={
           <>
             Hablemos y{' '}
-            <span className="text-brand-azul">planifiquemos tu visita</span>
+            <span className="text-brand-azul-dark">planifiquemos tu visita</span>
           </>
         }
         description="Estamos en Chiclayo, listos para resolver tus dudas y recibirte. Escríbenos o pásate a conocernos."
         actions={
           whatsappUrl ? (
-            <Button
-              asChild
-              size="lg"
-              className="bg-green-550 hover:bg-green-600 text-white rounded-full font-bold px-8 gap-2"
-            >
+            <Button asChild size="lg" variant="whatsapp" className="px-8 gap-2">
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" />
                 Escríbenos por WhatsApp
@@ -59,7 +55,7 @@ export function ContactoView() {
         <div className="container max-w-5xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12">
             <div className="space-y-6">
-              <h2 className="text-3xl font-black">¿Dónde estamos?</h2>
+              <h2 className="text-3xl font-bold">¿Dónde estamos?</h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-brand-rosa/20 flex items-center justify-center shrink-0">
@@ -187,10 +183,7 @@ export function ContactoView() {
               </div>
 
               {whatsappUrl && (
-                <Button
-                  asChild
-                  className="bg-green-550 hover:bg-green-600 text-white rounded-full font-bold gap-2 transition-all hover:scale-105"
-                >
+                <Button asChild variant="whatsapp" className="gap-2">
                   <a
                     href={whatsappUrl}
                     target="_blank"

@@ -8,30 +8,22 @@ export function CelebracionesCta({
   whatsappUrl: string | null
 }) {
   return (
-    <section className="py-16 bg-brand-gradient text-white">
+    <section className="py-16 bg-brand-gradient-dark text-white">
       <div className="container max-w-3xl mx-auto px-4 text-center space-y-5">
-        <h2 className="text-3xl font-black">¿Tienes alguna duda?</h2>
+        <h2 className="text-3xl font-bold">¿Tienes alguna duda?</h2>
         <p className="text-white/80">
           Nuestro equipo está listo para ayudarte a planificar la celebración
           perfecta.
         </p>
         {whatsappUrl ? (
-          <Button
-            asChild
-            size="lg"
-            className="bg-white text-brand-rosa hover:bg-white/90 rounded-full font-bold px-10 gap-2"
-          >
+          <Button asChild size="lg" variant="whatsapp" className="px-10 gap-2">
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
               <MessageCircle className="h-5 w-5" />
               Hablar con nosotros
             </a>
           </Button>
         ) : (
-          <Button
-            asChild
-            size="lg"
-            className="bg-white text-brand-rosa hover:bg-white/90 rounded-full font-bold px-10 gap-2"
-          >
+          <Button asChild size="lg" variant="brand" className="px-10 gap-2">
             <Link href="/cliente/celebraciones/solicitar">
               <PartyPopper className="h-5 w-5" />
               Solicitar información

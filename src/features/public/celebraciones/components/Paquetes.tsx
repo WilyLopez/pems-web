@@ -4,6 +4,7 @@ import { PartyPopper, Check, Clock, Users, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/features/public/shared/components/Skeletons'
 import { SectionHeader } from '@/features/public/shared/components/SectionHeader'
+import { SocialProofStrip } from '@/features/public/shared/components/SocialProofStrip'
 import { formatCurrency } from '@/lib/utils'
 import { PaqueteEvento } from '@/types/comercial.types'
 
@@ -41,12 +42,12 @@ export function Paquetes({
                   key={paquete.id}
                   className={`bg-white rounded-3xl border-2 overflow-hidden shadow-sm hover:shadow-brand transition-all hover:-translate-y-1 relative flex flex-col justify-between ${
                     paquete.destacado
-                      ? 'border-brand-rosa ring-4 ring-brand-rosa/10 shadow-lg scale-105 z-10'
+                      ? 'border-brand-rosa ring-4 ring-brand-rosa/10 shadow-lg lg:scale-105 z-10'
                       : 'border-gray-100'
                   }`}
                 >
                   {paquete.destacado && (
-                    <div className="absolute top-4 left-4 bg-brand-rosa text-white text-[10px] uppercase font-black px-3 py-1 rounded-full z-10">
+                    <div className="absolute top-4 left-4 bg-brand-rosa text-white text-[10px] uppercase font-bold px-3 py-1 rounded-full z-10">
                       Destacado
                     </div>
                   )}
@@ -86,7 +87,7 @@ export function Paquetes({
                   <div className="p-6 flex-1 flex flex-col justify-between">
                     <div className="space-y-4">
                       <div>
-                        <h3 className="text-xl font-black text-gray-900 leading-tight">
+                        <h3 className="text-xl font-bold text-gray-900 leading-tight">
                           {paquete.nombre}
                         </h3>
                         <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">
@@ -158,11 +159,7 @@ export function Paquetes({
                     </div>
 
                     <div className="mt-6">
-                      <Button
-                        asChild
-                        className="w-full text-white rounded-full font-bold shadow-sm"
-                        style={{ backgroundColor: baseColor }}
-                      >
+                      <Button asChild variant="brand" className="w-full">
                         <Link href="/cliente/celebraciones/solicitar">
                           Solicitar este paquete
                         </Link>
@@ -173,7 +170,13 @@ export function Paquetes({
               )
             })}
           </div>
-        ) : (
+        ) : null}
+
+        {!loading && paquetes && paquetes.length > 0 && (
+          <SocialProofStrip className="mt-10" />
+        )}
+
+        {!loading && (!paquetes || paquetes.length === 0) && (
           <div className="text-center py-16 text-gray-500">
             <PartyPopper className="h-12 w-12 mx-auto mb-4 text-gray-300" />
             <p className="font-medium">
@@ -182,7 +185,8 @@ export function Paquetes({
             {whatsappUrl && (
               <Button
                 asChild
-                className="mt-4 bg-brand-rosa text-white rounded-full gap-2 px-6"
+                variant="whatsapp"
+                className="mt-4 gap-2 px-6"
               >
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-4 w-4" />

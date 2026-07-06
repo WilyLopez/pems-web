@@ -34,7 +34,7 @@ export function JuegosZonas() {
     <section className="py-16 bg-gray-50">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-black text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900">
             Nuestras zonas de juego
           </h2>
           <p className="text-gray-600 mt-1">
