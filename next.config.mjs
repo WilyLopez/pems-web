@@ -19,6 +19,7 @@ const nextConfig = {
       { source: '/promociones', destination: '/', permanent: true },
       { source: '/zona-de-juegos', destination: '/juegos', permanent: true },
       { source: '/faq', destination: '/nosotros#faq', permanent: true },
+      { source: '/paquetes', destination: '/celebraciones', permanent: true },
     ]
   },
   async rewrites() {
