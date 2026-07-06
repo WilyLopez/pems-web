@@ -35,8 +35,11 @@ export function FormField({
         )}
       </div>
       {children}
-      {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
-      {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+      {error ? (
+        <p className="text-xs text-destructive mt-1">{error}</p>
+      ) : (
+        hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>
+      )}
     </div>
   )
 }

@@ -1,20 +1,18 @@
 import { Metadata } from 'next'
-import { CelebracionesView } from '@/features/public/components/celebraciones/CelebracionesView'
+import { CelebracionesView } from '@/features/public'
 import { configuracionPublicaService } from '@/services/configuracion-publica.service'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const config = await configuracionPublicaService.obtenerPublica()
-    const baseTitle = config.metaTitle || 'Kiki y Lala'
+    const baseTitle = config.nombreNegocio || 'Kiki y Lala'
     return {
       title: `Celebraciones | ${baseTitle}`,
       description:
-        config.metaDescription ||
         'Planifica el cumpleaños o evento de tu hijo/a en Kiki y Lala. Conoce nuestros paquetes de celebraciones privadas en Chiclayo.',
       openGraph: {
         title: `Celebraciones | ${baseTitle}`,
         description:
-          config.metaDescription ||
           'Planifica el cumpleaños o evento de tu hijo/a en Kiki y Lala.',
       },
     }

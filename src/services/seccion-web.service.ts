@@ -19,6 +19,12 @@ export const seccionWebService = {
     return data.data
   },
 
+  listarContenidoPublico: async (): Promise<ContenidoWeb[]> => {
+    const { data } =
+      await api.get<ApiResponse<ContenidoWeb[]>>('/contenido/publico')
+    return data.data
+  },
+
   listarContenido: async (
     page = 0,
     size = 20,

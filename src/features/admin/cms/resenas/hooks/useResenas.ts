@@ -4,7 +4,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { resenaService } from '@/services/resena.service'
 import { CMS_QUERY_KEYS } from '@/features/admin/cms/shared/queryKeys'
+import { PUBLIC_QUERY_KEYS } from '@/features/public/shared/queryKeys'
 import { ResponderResenaPayload } from '@/types/resena.types'
+
+function invalidarResenas(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: ['resenas'] })
+  qc.invalidateQueries({ queryKey: PUBLIC_QUERY_KEYS.testimonios })
+}
 
 export function useResenas(pendientes = false, page = 0, size = 20) {
   return useQuery({
@@ -21,7 +27,7 @@ export function useAprobarResena() {
   return useMutation({
     mutationFn: (id: number) => resenaService.aprobar(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['resenas'] })
+      invalidarResenas(qc)
       toast.success('Reseña aprobada y publicada.')
     },
     onError: () => toast.error('No se pudo aprobar la reseña.'),
@@ -33,7 +39,7 @@ export function useRechazarResena() {
   return useMutation({
     mutationFn: (id: number) => resenaService.rechazar(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['resenas'] })
+      invalidarResenas(qc)
       toast.success('Reseña eliminada.')
     },
     onError: () => toast.error('No se pudo rechazar la reseña.'),
@@ -66,7 +72,7 @@ export function useDestacarResena() {
         ? resenaService.quitarDestacado(id)
         : resenaService.destacar(id),
     onSuccess: (_, { destacada }) => {
-      qc.invalidateQueries({ queryKey: ['resenas'] })
+      invalidarResenas(qc)
       toast.success(destacada ? 'Destacado removido.' : 'Reseña destacada.')
     },
     onError: () => toast.error('No se pudo cambiar el estado.'),
@@ -79,7 +85,7 @@ export function useToggleHome() {
     mutationFn: ({ id, mostrar }: { id: number; mostrar: boolean }) =>
       resenaService.toggleHome(id, mostrar),
     onSuccess: (_, { mostrar }) => {
-      qc.invalidateQueries({ queryKey: ['resenas'] })
+      invalidarResenas(qc)
       toast.success(
         mostrar ? 'Reseña añadida al inicio.' : 'Reseña quitada del inicio.'
       )

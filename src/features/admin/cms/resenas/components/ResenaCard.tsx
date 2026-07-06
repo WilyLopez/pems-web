@@ -100,7 +100,6 @@ export function ResenaCard({
           </div>
         )}
 
-        {/* Estado badges */}
         <div className="flex flex-wrap gap-1.5">
           {resena.aprobada && (
             <Badge className="bg-green-100 text-green-800 text-xs h-5">
@@ -121,7 +120,6 @@ export function ResenaCard({
           )}
         </div>
 
-        {/* Acciones */}
         <div>
           <button
             type="button"

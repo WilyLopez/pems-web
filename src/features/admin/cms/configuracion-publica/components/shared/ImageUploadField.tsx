@@ -1,31 +1,19 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import {
-  History,
-  Upload,
-  RefreshCw,
-  ExternalLink,
-  Trash2,
-  Image as ImageIcon,
-} from 'lucide-react'
+import Image from 'next/image'
+import { Upload, Image as ImageIcon, Eye, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { galeriaService } from '@/services/galeria.service'
-import {
-  type AssetEntry,
-  getHistory,
-  addHistory,
-  removeHistory,
-  formatBytes,
-  formatDate,
-} from '../../types'
+
+const TAMANO_MAX_BYTES = 5 * 1024 * 1024
 
 interface Props {
-  label: string
-  tipo: AssetEntry['tipo']
+  label?: string
+  tipo: string
   value: string
   onChange: (url: string) => void
 }
@@ -33,28 +21,14 @@ interface Props {
 export function ImageUploadField({ label, tipo, value, onChange }: Props) {
   const [isDragging, setIsDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [showHistory, setShowHistory] = useState(false)
-  const [history, setHistory] = useState<AssetEntry[]>(() => getHistory(tipo))
-  const [deleteUrl, setDeleteUrl] = useState<string | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [archivoPendiente, setArchivoPendiente] = useState<File | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  async function upload(file: File) {
-    if (!file.type.startsWith('image/')) {
-      toast.error('Solo se permiten archivos de imagen.')
-      return
-    }
+  async function subirArchivo(file: File) {
     setUploading(true)
     try {
       const result = await galeriaService.subir(file, `${tipo}-${Date.now()}`)
-      const entry: AssetEntry = {
-        url: result.url,
-        nombre: file.name,
-        fechaSubida: result.fechaCreacion ?? new Date().toISOString(),
-        tamanioBytes: result.tamanioBytes,
-        tipo,
-      }
-      addHistory(entry)
-      setHistory(getHistory(tipo))
       onChange(result.url)
       toast.success('Imagen subida.')
     } catch {
@@ -64,50 +38,56 @@ export function ImageUploadField({ label, tipo, value, onChange }: Props) {
     }
   }
 
-  function confirmDelete(url: string) {
-    removeHistory(url)
-    setHistory(getHistory(tipo))
-    setDeleteUrl(null)
+  function solicitarSubida(file: File) {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Solo se permiten archivos de imagen.')
+      return
+    }
+    if (file.size > TAMANO_MAX_BYTES) {
+      toast.error('La imagen no debe superar 5 MB.')
+      return
+    }
+    if (value) {
+      setArchivoPendiente(file)
+      return
+    }
+    subirArchivo(file)
+  }
+
+  function confirmarReemplazo() {
+    if (archivoPendiente) subirArchivo(archivoPendiente)
+    setArchivoPendiente(null)
   }
 
   return (
     <div className="space-y-2.5">
-      <div className="flex items-center justify-between">
-        <Label className="font-medium">{label}</Label>
-        <button
-          type="button"
-          onClick={() => setShowHistory((v) => !v)}
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <History className="h-3 w-3" />
-          Historial
-          {history.length > 0 && (
-            <span className="ml-0.5 font-medium text-brand-azul">
-              ({history.length})
-            </span>
-          )}
-        </button>
-      </div>
-      <p className="text-xs text-muted-foreground -mt-1">
-        El historial se guarda localmente en este navegador.
-      </p>
+      {label && <Label className="font-medium">{label}</Label>}
 
       <div className="flex gap-3">
-        <div className="relative w-16 h-16 rounded-xl border-2 bg-muted border-border flex items-center justify-center shrink-0 overflow-hidden">
+        <button
+          type="button"
+          disabled={!value}
+          onClick={() => setPreviewOpen(true)}
+          className="group relative w-16 h-16 rounded-xl border-2 bg-muted border-border flex items-center justify-center shrink-0 overflow-hidden disabled:cursor-default"
+        >
           {value ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={value}
-              alt={label}
-              className="w-full h-full object-contain p-1.5"
-              onError={(e) => {
-                e.currentTarget.style.opacity = '0.2'
-              }}
-            />
+            <>
+              <Image
+                src={value}
+                alt={label ?? tipo}
+                fill
+                unoptimized
+                sizes="64px"
+                className="object-contain p-1.5"
+              />
+              <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-colors">
+                <Eye className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </span>
+            </>
           ) : (
             <ImageIcon className="h-5 w-5 text-muted-foreground/40" />
           )}
-        </div>
+        </button>
         <div
           className={`flex-1 min-h-[64px] rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 cursor-pointer select-none transition-all duration-150 ${
             isDragging
@@ -123,7 +103,7 @@ export function ImageUploadField({ label, tipo, value, onChange }: Props) {
             e.preventDefault()
             setIsDragging(false)
             const f = e.dataTransfer.files[0]
-            if (f) upload(f)
+            if (f) solicitarSubida(f)
           }}
           onClick={() => inputRef.current?.click()}
         >
@@ -146,97 +126,50 @@ export function ImageUploadField({ label, tipo, value, onChange }: Props) {
             className="sr-only"
             onChange={(e) => {
               const f = e.target.files?.[0]
-              if (f) upload(f)
+              if (f) solicitarSubida(f)
               e.target.value = ''
             }}
           />
         </div>
       </div>
 
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="https://... (o sube una imagen)"
-        className="h-8 text-xs font-mono"
-      />
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+        >
+          <X className="h-3 w-3" />
+          Quitar imagen
+        </button>
+      )}
 
-      {showHistory && (
-        <div className="rounded-xl border overflow-hidden">
-          {history.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-3">
-              Sin versiones anteriores
-            </p>
-          ) : (
-            <div className="divide-y divide-border">
-              {history.map((entry) => (
-                <div
-                  key={entry.url}
-                  className="flex items-center gap-2.5 px-3 py-2.5"
-                >
-                  <div className="relative w-9 h-9 rounded-lg border border-border bg-card shrink-0 overflow-hidden flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={entry.url}
-                      alt=""
-                      className="w-full h-full object-contain p-0.5"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate text-card-foreground">
-                      {entry.nombre}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {[
-                        formatBytes(entry.tamanioBytes),
-                        formatDate(entry.fechaSubida),
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-0.5 shrink-0">
-                    <button
-                      type="button"
-                      title="Restaurar"
-                      onClick={() => {
-                        onChange(entry.url)
-                        toast.success('URL restaurada.')
-                      }}
-                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-brand-azul hover:bg-brand-azul/10 transition-colors"
-                    >
-                      <RefreshCw className="h-3 w-3" />
-                    </button>
-                    <a
-                      href={entry.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                    <button
-                      type="button"
-                      title="Eliminar del historial"
-                      onClick={() => setDeleteUrl(entry.url)}
-                      className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+      {value && (
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogTitle>{label ?? tipo}</DialogTitle>
+            <div className="relative h-72 w-full rounded-lg bg-muted overflow-hidden">
+              <Image
+                src={value}
+                alt={label ?? tipo}
+                fill
+                unoptimized
+                sizes="512px"
+                className="object-contain p-4"
+              />
             </div>
-          )}
-        </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       <ConfirmDialog
-        open={deleteUrl !== null}
-        onOpenChange={(v) => !v && setDeleteUrl(null)}
-        title="Eliminar del historial"
-        description="¿Eliminar esta versión del historial local? No se borra el archivo del servidor."
-        confirmLabel="Eliminar"
-        onConfirm={() => deleteUrl && confirmDelete(deleteUrl)}
+        open={archivoPendiente !== null}
+        onOpenChange={(open) => !open && setArchivoPendiente(null)}
+        title="Reemplazar imagen"
+        description="Ya hay una imagen cargada aquí. ¿Quieres reemplazarla por la nueva?"
+        confirmLabel="Reemplazar"
+        destructive={false}
+        onConfirm={confirmarReemplazo}
       />
     </div>
   )

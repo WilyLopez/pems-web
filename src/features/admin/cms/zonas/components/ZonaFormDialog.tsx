@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
+import { useEdadNinos } from '@/hooks/useEdadNinos'
 import { Video, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -26,46 +27,48 @@ import { fixMediaUrl, resolverMediaValue } from '@/lib/media'
 const VIDEO_REGEX =
   /^https:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|tiktok\.com\/).+$/
 
-const zonasSchema = z
-  .object({
-    nombre: z
-      .string()
-      .min(1, 'El nombre es obligatorio')
-      .max(25, 'Máximo 25 caracteres')
-      .trim(),
-    descripcion: z
-      .string()
-      .min(1, 'La descripción es obligatoria')
-      .max(100, 'Máximo 100 caracteres')
-      .trim(),
-    edadMinima: z.coerce
-      .number('Ingresa un número')
-      .min(0, 'Mínimo 0 años')
-      .optional()
-      .nullable(),
-    edadMaxima: z.coerce
-      .number('Ingresa un número')
-      .max(17, 'Máximo 17 años')
-      .optional()
-      .nullable(),
-    activa: z.boolean().default(true),
-    destacada: z.boolean().default(false),
-    orden: z.coerce.number('Ingresa un número').default(0),
-  })
-  .refine(
-    (d) => {
-      if (d.edadMinima != null && d.edadMaxima != null) {
-        return d.edadMaxima >= d.edadMinima
+export function crearZonasSchema(edadMinGlobal: number, edadMaxGlobal: number) {
+  return z
+    .object({
+      nombre: z
+        .string()
+        .min(1, 'El nombre es obligatorio')
+        .max(25, 'Máximo 25 caracteres')
+        .trim(),
+      descripcion: z
+        .string()
+        .min(1, 'La descripción es obligatoria')
+        .max(100, 'Máximo 100 caracteres')
+        .trim(),
+      edadMinima: z.coerce.number('Ingresa un número').optional().nullable(),
+      edadMaxima: z.coerce.number('Ingresa un número').optional().nullable(),
+      activa: z.boolean().default(true),
+      destacada: z.boolean().default(false),
+      orden: z.coerce.number('Ingresa un número').default(0),
+    })
+    .refine(
+      (d) => {
+        if (d.edadMinima != null && d.edadMaxima != null) {
+          return d.edadMaxima >= d.edadMinima
+        }
+        return true
+      },
+      {
+        message: 'La edad máxima no puede ser menor que la mínima',
+        path: ['edadMaxima'],
       }
-      return true
-    },
-    {
-      message: 'La edad máxima no puede ser menor que la mínima',
+    )
+    .refine((d) => d.edadMinima == null || d.edadMinima >= edadMinGlobal, {
+      message: `La edad mínima permitida es ${edadMinGlobal} años`,
+      path: ['edadMinima'],
+    })
+    .refine((d) => d.edadMaxima == null || d.edadMaxima <= edadMaxGlobal, {
+      message: `La edad máxima permitida es ${edadMaxGlobal} años`,
       path: ['edadMaxima'],
-    }
-  )
+    })
+}
 
-export type ZonaFormValues = z.infer<typeof zonasSchema>
+export type ZonaFormValues = z.infer<ReturnType<typeof crearZonasSchema>>
 
 interface ZonaFormDialogProps {
   open: boolean
@@ -80,6 +83,12 @@ export function ZonaFormDialog({
 }: ZonaFormDialogProps) {
   const { crear, actualizar } = useZonaMutations()
   const isEditing = !!zona
+
+  const { edadMin, edadMax } = useEdadNinos()
+  const zonasSchema = useMemo(
+    () => crearZonasSchema(edadMin, edadMax),
+    [edadMin, edadMax]
+  )
 
   const [imagenesMedia, setImagenesMedia] = useState<MediaValue[]>([])
   const [videos, setVideos] = useState<string[]>([])
@@ -311,9 +320,10 @@ export function ZonaFormDialog({
                     <Label>Edad mínima</Label>
                     <Input
                       type="number"
-                      min={0}
+                      min={edadMin}
+                      max={edadMax}
                       {...register('edadMinima')}
-                      placeholder="0"
+                      placeholder={String(edadMin)}
                     />
                     {errors.edadMinima && (
                       <p className="text-xs text-destructive">
@@ -325,9 +335,10 @@ export function ZonaFormDialog({
                     <Label>Edad máxima</Label>
                     <Input
                       type="number"
-                      max={17}
+                      min={edadMin}
+                      max={edadMax}
                       {...register('edadMaxima')}
-                      placeholder="17"
+                      placeholder={String(edadMax)}
                     />
                     {errors.edadMaxima && (
                       <p className="text-xs text-destructive">

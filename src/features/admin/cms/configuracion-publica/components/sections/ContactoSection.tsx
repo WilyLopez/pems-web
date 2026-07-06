@@ -1,10 +1,17 @@
-import { Phone, Mail, MapPin, Clock } from 'lucide-react'
+import Link from 'next/link'
+import { Phone, Mail, Clock, ArrowRight, MessageCircle } from 'lucide-react'
 import type { UseFormRegister, FieldErrors, Control } from 'react-hook-form'
-import { useWatch } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 import { SectionTitle } from '../shared/SectionTitle'
 import { FormField } from '../shared/FormField'
+import { PhoneInput } from '../shared/PhoneInput'
+import { useAuth } from '@/hooks/useAuth'
+import { useConfiguracionCalendarioPublica } from '@/hooks/useCalendario'
+import { formatHora12h, formatDiasOperacion } from '@/lib/horario'
+import { aWhatsappInternacional, soloDigitos } from '../../utils/telefono'
 import type { FormValues } from '../../types'
 
 interface Props {
@@ -14,9 +21,10 @@ interface Props {
 }
 
 export function ContactoSection({ register, errors, control }: Props) {
-  const direccion = useWatch({ control, name: 'direccion' })
-  const horarioSemana = useWatch({ control, name: 'horarioSemana' })
-  const horarioFinDeSemana = useWatch({ control, name: 'horarioFinDeSemana' })
+  const whatsapp = useWatch({ control, name: 'whatsapp' })
+  const { idSede } = useAuth()
+  const { data: operacion } = useConfiguracionCalendarioPublica(idSede ?? 0)
+  const whatsappValido = soloDigitos(whatsapp).length === 9
 
   return (
     <div className="space-y-4">
@@ -24,31 +32,77 @@ export function ContactoSection({ register, errors, control }: Props) {
         <CardContent className="pt-6 space-y-4">
           <SectionTitle icon={Phone} label="Teléfonos y WhatsApp" />
           <div className="grid sm:grid-cols-2 gap-4">
-            <FormField label="Teléfono principal" id="telefono">
-              <Input
-                id="telefono"
-                {...register('telefono')}
-                placeholder="+51 74 123456"
+            <FormField
+              label="Teléfono principal"
+              id="telefono"
+              error={errors.telefono?.message}
+            >
+              <Controller
+                name="telefono"
+                control={control}
+                render={({ field }) => (
+                  <PhoneInput
+                    id="telefono"
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
               />
             </FormField>
-            <FormField label="Teléfono secundario" id="telefonoSecundario">
-              <Input
-                id="telefonoSecundario"
-                {...register('telefonoSecundario')}
-                placeholder="+51 74 654321"
+            <FormField
+              label="Teléfono secundario"
+              id="telefonoSecundario"
+              error={errors.telefonoSecundario?.message}
+            >
+              <Controller
+                name="telefonoSecundario"
+                control={control}
+                render={({ field }) => (
+                  <PhoneInput
+                    id="telefonoSecundario"
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  />
+                )}
               />
             </FormField>
             <FormField
               label="WhatsApp"
               id="whatsapp"
-              hint="Solo números sin espacios ni guiones (ej: 51974123456)"
               error={errors.whatsapp?.message}
             >
-              <Input
-                id="whatsapp"
-                {...register('whatsapp')}
-                placeholder="51974123456"
-              />
+              <div className="flex gap-2">
+                <Controller
+                  name="whatsapp"
+                  control={control}
+                  render={({ field }) => (
+                    <PhoneInput
+                      id="whatsapp"
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    />
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!whatsappValido}
+                  onClick={() =>
+                    window.open(
+                      `https://wa.me/${aWhatsappInternacional(whatsapp)}`,
+                      '_blank',
+                      'noopener,noreferrer'
+                    )
+                  }
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Probar
+                </Button>
+              </div>
             </FormField>
           </div>
         </CardContent>
@@ -88,67 +142,38 @@ export function ContactoSection({ register, errors, control }: Props) {
 
       <Card>
         <CardContent className="pt-6 space-y-4">
-          <SectionTitle icon={MapPin} label="Dirección y ubicación" />
-          <FormField
-            label="Dirección"
-            id="direccion"
-            maxLength={300}
-            currentLength={(direccion ?? '').length}
-          >
-            <Input
-              id="direccion"
-              {...register('direccion')}
-              placeholder="Av. Ejemplo 123, Chiclayo"
-            />
-          </FormField>
-          <FormField
-            label="Enlace Google Maps"
-            id="googleMapsUrl"
-            error={errors.googleMapsUrl?.message}
-            hint="URL del lugar en Google Maps para el botón de 'Cómo llegar'"
-          >
-            <Input
-              id="googleMapsUrl"
-              {...register('googleMapsUrl')}
-              placeholder="https://maps.google.com/..."
-            />
-          </FormField>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-6 space-y-4">
           <SectionTitle icon={Clock} label="Horarios de atención" />
           <p className="text-xs text-muted-foreground -mt-2">
-            Texto libre que se muestra en el sitio web. Los horarios operativos
-            se configuran en <strong>Configuración → Operación</strong>.
+            Se muestran en el sitio web y se editan en{' '}
+            <strong>Configuración → Operación</strong>.
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
-            <FormField
-              label="Horario de semana"
-              id="horarioSemana"
-              maxLength={100}
-              currentLength={(horarioSemana ?? '').length}
-            >
-              <Input
-                id="horarioSemana"
-                {...register('horarioSemana')}
-                placeholder="Lun–Vie 9:00 AM – 7:00 PM"
-              />
-            </FormField>
-            <FormField
-              label="Horario fin de semana"
-              id="horarioFinDeSemana"
-              maxLength={100}
-              currentLength={(horarioFinDeSemana ?? '').length}
-            >
-              <Input
-                id="horarioFinDeSemana"
-                {...register('horarioFinDeSemana')}
-                placeholder="Sáb–Dom 10:00 AM – 8:00 PM"
-              />
-            </FormField>
+            <div className="rounded-lg border border-border bg-muted/40 p-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                Días de operación
+              </p>
+              <p className="text-sm font-semibold text-card-foreground mt-0.5">
+                {operacion ? formatDiasOperacion(operacion.diasOperacion) : '—'}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/40 p-3">
+              <p className="text-xs font-medium text-muted-foreground">
+                Horario
+              </p>
+              <p className="text-sm font-semibold text-card-foreground mt-0.5">
+                {operacion
+                  ? `${formatHora12h(operacion.horaApertura)} – ${formatHora12h(operacion.horaCierre)}`
+                  : '—'}
+              </p>
+            </div>
           </div>
+          <Link
+            href="/admin/configuracion/operacion"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-azul hover:underline"
+          >
+            Editar en Configuración → Operación
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </CardContent>
       </Card>
     </div>

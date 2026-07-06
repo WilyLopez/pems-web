@@ -13,7 +13,14 @@ try {
 }
 
 const nextConfig = {
-  transpilePackages: ['mapbox-gl'],
+  async redirects() {
+    return [
+      { source: '/eventos', destination: '/celebraciones', permanent: true },
+      { source: '/promociones', destination: '/', permanent: true },
+      { source: '/zona-de-juegos', destination: '/juegos', permanent: true },
+      { source: '/faq', destination: '/nosotros#faq', permanent: true },
+    ]
+  },
   async rewrites() {
     return [
       {

@@ -13,8 +13,6 @@ import { NegocioSection } from '../components/sections/NegocioSection'
 import { ContactoSection } from '../components/sections/ContactoSection'
 import { LogosSection } from '../components/sections/LogosSection'
 import { RedesSection } from '../components/sections/RedesSection'
-import { SeoSection } from '../components/sections/SeoSection'
-import { VisualSection } from '../components/sections/VisualSection'
 import { useConfiguracionPublicaNav } from '../hooks/useConfiguracionPublicaNav'
 import { useConfiguracionPublicaForm } from '../hooks/useConfiguracionPublicaForm'
 import { NAV_ITEMS, type SectionId } from '../types'
@@ -26,7 +24,6 @@ function isSectionIncomplete(
   if (!config) return false
   if (id === 'contacto') return !config.correo && !config.telefono
   if (id === 'logos') return !config.logoUrl
-  if (id === 'seo') return !config.metaTitle || !config.metaDescription
   return false
 }
 
@@ -77,10 +74,8 @@ export function ConfiguracionPublicaView() {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-64 rounded" />
-        <div className="flex gap-5">
-          <Skeleton className="h-80 w-48 rounded-xl shrink-0" />
-          <Skeleton className="h-80 flex-1 rounded-xl" />
-        </div>
+        <Skeleton className="h-10 w-full max-w-xl rounded-lg" />
+        <Skeleton className="h-80 w-full rounded-xl" />
       </div>
     )
   }
@@ -91,7 +86,7 @@ export function ConfiguracionPublicaView() {
 
       <PageHeader
         title="Configuración Pública"
-        description="Identidad, branding, redes sociales y SEO del sitio web"
+        description="Identidad, contacto, marca y redes sociales del sitio web"
         actions={
           <Button
             type="submit"
@@ -106,42 +101,40 @@ export function ConfiguracionPublicaView() {
       />
 
       <form id="config-publica-form" onSubmit={onSubmit}>
-        <div className="flex gap-5 min-h-[500px]">
-          <aside className="w-48 shrink-0">
-            <nav
-              className="space-y-0.5 sticky top-4"
-              aria-label="Secciones de configuración"
-            >
-              {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
-                const incomplete = isSectionIncomplete(id, config)
-                const isActive = seccion === id
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    aria-current={isActive ? 'page' : undefined}
-                    onClick={() => handleNavClick(id)}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul focus-visible:ring-offset-1 ${
-                      isActive
-                        ? 'bg-brand-azul text-white font-medium'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className="flex-1">{label}</span>
-                    {incomplete && !isActive && (
-                      <span
-                        className="w-2 h-2 rounded-full bg-amber-400 shrink-0"
-                        title="Sección incompleta"
-                      />
-                    )}
-                  </button>
-                )
-              })}
-            </nav>
-          </aside>
+        <div className="space-y-4">
+          <nav
+            className="flex gap-1.5 overflow-x-auto pb-1"
+            aria-label="Secciones de configuración"
+          >
+            {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
+              const incomplete = isSectionIncomplete(id, config)
+              const isActive = seccion === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => handleNavClick(id)}
+                  className={`relative flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul focus-visible:ring-offset-1 ${
+                    isActive
+                      ? 'bg-brand-azul text-white font-medium'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span>{label}</span>
+                  {incomplete && !isActive && (
+                    <span
+                      className="w-2 h-2 rounded-full bg-amber-400 shrink-0"
+                      title="Sección incompleta"
+                    />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
 
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0">
             {seccion === 'negocio' && (
               <NegocioSection register={register} errors={errors} />
             )}
@@ -152,18 +145,21 @@ export function ConfiguracionPublicaView() {
                 control={control}
               />
             )}
-            {seccion === 'logos' && <LogosSection control={control} />}
-            {seccion === 'redes' && (
-              <RedesSection register={register} errors={errors} />
-            )}
-            {seccion === 'seo' && (
-              <SeoSection
-                register={register}
+            {seccion === 'logos' && (
+              <LogosSection
                 control={control}
-                errors={errors}
+                onGuardarCampo={onSubmit}
+                guardando={isPending}
               />
             )}
-            {seccion === 'visual' && <VisualSection control={control} />}
+            {seccion === 'redes' && (
+              <RedesSection
+                control={control}
+                errors={errors}
+                onGuardarCampo={onSubmit}
+                guardando={isPending}
+              />
+            )}
           </div>
         </div>
 

@@ -32,7 +32,7 @@ export function AdminThemeRoot({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background font-inter">
+    <div className="flex h-screen w-screen overflow-hidden bg-background">
       {children}
     </div>
   )

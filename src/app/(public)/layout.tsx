@@ -1,7 +1,7 @@
 // src/app/(public)/layout.tsx
 
-import { PublicNavbar } from '@/components/layout/PublicNavbar'
-import { DynamicFooter } from '@/components/public/footer/DynamicFooter'
+import { PublicNavbar } from '@/features/public/layout/PublicNavbar'
+import { DynamicFooter } from '@/features/public/footer/DynamicFooter'
 import { configuracionPublicaService } from '@/services/configuracion-publica.service'
 import { legalService } from '@/services/legal.service'
 import { ConfiguracionPublica } from '@/types/configuracion-publica.types'

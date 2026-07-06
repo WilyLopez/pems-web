@@ -20,14 +20,11 @@ export function buildMetadata(
   config?: ConfiguracionPublica
 ): Metadata {
   const siteName = config?.nombreNegocio ?? DEFAULT_TITLE
-  const baseTitle = options.title
-    ? `${options.title} | ${siteName}`
-    : (config?.metaTitle ?? siteName)
+  const baseTitle = options.title ? `${options.title} | ${siteName}` : siteName
 
-  const description =
-    options.description ?? config?.metaDescription ?? DEFAULT_DESCRIPTION
+  const description = options.description ?? DEFAULT_DESCRIPTION
 
-  const keywords = options.keywords ?? config?.metaKeywords
+  const keywords = options.keywords
 
   const url = options.path ? `${DEFAULT_URL}${options.path}` : DEFAULT_URL
 

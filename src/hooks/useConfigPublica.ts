@@ -10,9 +10,6 @@ const DEFAULTS: Partial<ConfiguracionPublica> = {
   telefono: '987 654 321',
   whatsapp: '51987654321',
   correo: 'contacto@kikiylala.com',
-  direccion: 'Calle Principal 123, Chiclayo',
-  horarioSemana: 'Lunes a Viernes: 10:00 am – 8:00 pm',
-  horarioFinDeSemana: 'Sáb–Dom: 9:00 am – 9:00 pm',
 }
 
 export function useConfigPublica() {

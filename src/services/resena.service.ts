@@ -21,6 +21,19 @@ export const resenaService = {
     return data.data
   },
 
+  listarPublicas: async (
+    page = 0,
+    size = 20
+  ): Promise<PagedResponse<Resena>> => {
+    const { data } = await api.get<ApiResponse<PagedResponse<Resena>>>(
+      '/resenas/publicas',
+      {
+        params: { page, size },
+      }
+    )
+    return data.data
+  },
+
   submit: async (payload: SubmitResenaPayload): Promise<Resena> => {
     const { data } = await api.post<ApiResponse<Resena>>('/resenas', payload)
     return data.data

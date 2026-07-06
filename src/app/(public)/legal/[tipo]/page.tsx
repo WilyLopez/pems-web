@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { legalService } from '@/services/legal.service'
 import { buildMetadata } from '@/lib/seo'
-import { LegalDocumentView } from '@/features/public/components/legal/LegalDocumentView'
+import { LegalDocumentView } from '@/features/public'
 
 export const revalidate = 600
 

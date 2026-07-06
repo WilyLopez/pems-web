@@ -15,6 +15,7 @@ export interface Sede {
   ruc: string | null
   latitud: number | null
   longitud: number | null
+  googleMapsEmbedUrl: string | null
   activo: boolean
   fechaCreacion: string
 }

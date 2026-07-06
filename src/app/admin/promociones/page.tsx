@@ -177,7 +177,7 @@ const DEFAULT_VALUES: PromoFormValues = {
   prioridad: '5',
   textoPublicitario: '',
   textoBoton: 'Reservar ahora',
-  urlBoton: '/zona-de-juegos',
+  urlBoton: '/juegos',
   mostrarEnInicio: false,
   mostrarEnCarrusel: false,
   mostrarEnPaginaPromociones: true,
@@ -742,7 +742,7 @@ function CrearPromocionDialog({
               <div className="space-y-2">
                 <Label>URL botón de acción</Label>
                 <Input
-                  placeholder="/zona-de-juegos"
+                  placeholder="/juegos"
                   {...register('urlBoton')}
                 />
               </div>

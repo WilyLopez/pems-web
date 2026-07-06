@@ -1,6 +1,9 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { usePublicConfig } from '@/features/public/shared/hooks/usePublicConfig'
 
 interface LogoProps {
   variant?: 'principal' | 'secundario'
@@ -17,6 +20,13 @@ const sizeMap = {
   xl: { w: 220, h: 100 },
 }
 
+const sizeClassMap = {
+  sm: 'w-14 h-auto sm:w-20',
+  md: 'w-20 h-auto sm:w-28',
+  lg: 'w-28 h-auto sm:w-36',
+  xl: 'w-36 h-auto sm:w-48',
+}
+
 export function Logo({
   variant = 'secundario',
   size = 'md',
@@ -24,18 +34,24 @@ export function Logo({
   onClick,
   className,
 }: LogoProps) {
+  const { data: config } = usePublicConfig()
   const { w, h } = sizeMap[size]
-  const src =
+
+  const fallback =
     variant === 'principal' ? '/logo-principal.png' : '/logo-secundario.png'
+  const configUrl =
+    variant === 'principal' ? config?.logoUrl : config?.logoSecundarioUrl
+  const src = configUrl || fallback
+  const esExterno = src.startsWith('http')
 
   const img = (
     <Image
       src={src}
-      alt="Kiki y Lala"
+      alt={config?.nombreNegocio ?? 'Kiki y Lala'}
       width={w}
       height={h}
-      className={cn('object-contain', className)}
-      style={{ width: 'auto', height: 'auto' }}
+      unoptimized={esExterno}
+      className={cn('object-contain', sizeClassMap[size], className)}
       priority
     />
   )

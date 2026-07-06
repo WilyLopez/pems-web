@@ -22,8 +22,6 @@ import { Resena } from '@/types/resena.types'
 import { ResenaCard } from '@/features/admin/cms/resenas/components/ResenaCard'
 import { ResponderDialog } from '@/features/admin/cms/resenas/components/ResponderDialog'
 
-// ── Página ────────────────────────────────────────────────────────────────────
-
 export default function ResenasPage() {
   const router = useRouter()
   const pathname = usePathname()
@@ -49,10 +47,12 @@ export default function ResenasPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
-  function withLoading(id: number, fn: () => void) {
+  function ejecutar(
+    id: number,
+    accion: (opciones: { onSettled: () => void }) => void
+  ) {
     setLoadingId(id)
-    fn()
-    setTimeout(() => setLoadingId(null), 1500)
+    accion({ onSettled: () => setLoadingId(null) })
   }
 
   return (
@@ -105,18 +105,21 @@ export default function ResenasPage() {
                     showActions
                     loadingId={loadingId}
                     onAprobar={() =>
-                      withLoading(r.id, () => aprobar.mutate(r.id))
+                      ejecutar(r.id, (o) => aprobar.mutate(r.id, o))
                     }
                     onRechazar={() => setRechazarId(r.id)}
                     onResponder={() => setResponderTarget(r)}
                     onDestacar={() =>
-                      withLoading(r.id, () =>
-                        destacar.mutate({ id: r.id, destacada: r.destacada })
+                      ejecutar(r.id, (o) =>
+                        destacar.mutate({ id: r.id, destacada: r.destacada }, o)
                       )
                     }
                     onToggleHome={() =>
-                      withLoading(r.id, () =>
-                        toggleHome.mutate({ id: r.id, mostrar: !r.mostrarHome })
+                      ejecutar(r.id, (o) =>
+                        toggleHome.mutate(
+                          { id: r.id, mostrar: !r.mostrarHome },
+                          o
+                        )
                       )
                     }
                   />
@@ -126,6 +129,7 @@ export default function ResenasPage() {
         </TabsContent>
 
         <TabsContent value="aprobadas" className="mt-4">
+          {aprobadas.isError && <ErrorState onRetry={aprobadas.refetch} />}
           {aprobadas.isLoading && (
             <div className="grid gap-3 sm:grid-cols-2">
               {[1, 2, 3].map((i) => (
@@ -134,6 +138,7 @@ export default function ResenasPage() {
             </div>
           )}
           {!aprobadas.isLoading &&
+            !aprobadas.isError &&
             ((aprobadas.data?.content?.length ?? 0) === 0 ? (
               <EmptyState
                 title="Sin reseñas publicadas"
@@ -150,13 +155,16 @@ export default function ResenasPage() {
                     loadingId={loadingId}
                     onResponder={() => setResponderTarget(r)}
                     onDestacar={() =>
-                      withLoading(r.id, () =>
-                        destacar.mutate({ id: r.id, destacada: r.destacada })
+                      ejecutar(r.id, (o) =>
+                        destacar.mutate({ id: r.id, destacada: r.destacada }, o)
                       )
                     }
                     onToggleHome={() =>
-                      withLoading(r.id, () =>
-                        toggleHome.mutate({ id: r.id, mostrar: !r.mostrarHome })
+                      ejecutar(r.id, (o) =>
+                        toggleHome.mutate(
+                          { id: r.id, mostrar: !r.mostrarHome },
+                          o
+                        )
                       )
                     }
                   />
@@ -178,6 +186,7 @@ export default function ResenasPage() {
         title="¿Rechazar reseña?"
         description="La reseña será eliminada permanentemente."
         confirmLabel="Rechazar"
+        destructive
         onConfirm={() => {
           if (rechazarId !== null) {
             rechazar.mutate(rechazarId, {

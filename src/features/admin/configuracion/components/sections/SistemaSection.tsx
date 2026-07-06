@@ -12,40 +12,23 @@ import { Switch } from '@/components/ui/Switch'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { cn } from '@/lib/utils'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
-import {
   useConfiguracionAdmin,
   useActualizarConfiguracionPublica,
 } from '@/hooks/useConfiguracionPublica'
-import {
-  useActualizarConfiguracion,
-  toConfigMap,
-} from '../../hooks/useConfiguracionData'
 import type { SeccionNavProps } from '../../hooks/useConfiguracionNav'
-import type { ConfiguracionSistema } from '../../types'
 import { ReadOnlyList } from '../shared/ReadOnlyList'
 import { ModuleCard } from '../shared/ModuleCard'
-
-const PROVEEDORES = ['NUBEFACT', 'SUNAT_DIRECTA', 'EFACT'] as const
 
 const schema = z.object({
   mantenimientoActivo: z.boolean(),
   mensajeMantenimiento: z.string().max(500).optional(),
-  SUNAT_PROVEEDOR: z.enum(PROVEEDORES),
 })
 
 type FormValues = z.infer<typeof schema>
 
-function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
+function SistemaForm() {
   const { data: config } = useConfiguracionAdmin()
   const actualizarPublica = useActualizarConfiguracionPublica()
-  const actualizarGlobal = useActualizarConfiguracion()
-  const m = toConfigMap(configs)
 
   const [pendingActivar, setPendingActivar] = useState(false)
 
@@ -62,25 +45,20 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
     defaultValues: {
       mantenimientoActivo: false,
       mensajeMantenimiento: '',
-      SUNAT_PROVEEDOR:
-        (m.SUNAT_PROVEEDOR as (typeof PROVEEDORES)[number]) ?? 'NUBEFACT',
     },
   })
 
   useEffect(() => {
-    const map = toConfigMap(configs)
     if (config) {
       reset({
         mantenimientoActivo: config.mantenimientoActivo,
         mensajeMantenimiento: config.mensajeMantenimiento ?? '',
-        SUNAT_PROVEEDOR:
-          (map.SUNAT_PROVEEDOR as (typeof PROVEEDORES)[number]) ?? 'NUBEFACT',
       })
     }
-  }, [config, configs, reset])
+  }, [config, reset])
 
   const activo = watch('mantenimientoActivo')
-  const isPending = actualizarPublica.isPending || actualizarGlobal.isPending
+  const isPending = actualizarPublica.isPending
 
   function onSubmit(values: FormValues) {
     if (!config) return
@@ -89,7 +67,6 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
       mantenimientoActivo: values.mantenimientoActivo,
       mensajeMantenimiento: values.mensajeMantenimiento,
     })
-    actualizarGlobal.mutate({ SUNAT_PROVEEDOR: values.SUNAT_PROVEEDOR })
   }
 
   return (
@@ -171,35 +148,6 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
         </div>
       )}
 
-      <div className="border-t border-border pt-4">
-        <div className="max-w-sm space-y-1.5">
-          <Label htmlFor="SUNAT_PROVEEDOR">
-            Proveedor de servicios electrónicos (SUNAT)
-          </Label>
-          <Controller
-            control={control}
-            name="SUNAT_PROVEEDOR"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id="SUNAT_PROVEEDOR">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="NUBEFACT">Nubefact</SelectItem>
-                  <SelectItem value="SUNAT_DIRECTA">
-                    SUNAT Directa (OSE)
-                  </SelectItem>
-                  <SelectItem value="EFACT">eFact</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-          <p className="text-xs text-muted-foreground">
-            Plataforma para la emisión de comprobantes electrónicos.
-          </p>
-        </div>
-      </div>
-
       <div className="flex justify-end pt-1">
         <Button type="submit" disabled={isPending || !isDirty} size="sm">
           {isPending ? (
@@ -230,15 +178,8 @@ function SistemaForm({ configs }: { configs: ConfiguracionSistema[] }) {
   )
 }
 
-export function SistemaSection({
-  configs,
-  navProps,
-}: {
-  configs: ConfiguracionSistema[]
-  navProps?: SeccionNavProps
-}) {
+export function SistemaSection({ navProps }: { navProps?: SeccionNavProps }) {
   const { data: config } = useConfiguracionAdmin()
-  const m = toConfigMap(configs)
   const activo = config?.mantenimientoActivo ?? false
 
   const summary = [
@@ -246,7 +187,6 @@ export function SistemaSection({
       label: 'Estado del sitio',
       value: activo ? 'En mantenimiento' : 'Activo',
     },
-    { label: 'Proveedor SUNAT', value: m.SUNAT_PROVEEDOR ?? '—' },
   ]
 
   const viewItems = [
@@ -260,12 +200,12 @@ export function SistemaSection({
     <ModuleCard
       icon={Settings}
       color="bg-amber-50 text-amber-600"
-      title="Sistema e integraciones"
-      description="Mantenimiento del sitio y proveedor de facturación electrónica"
+      title="Mantenimiento del sitio"
+      description="Activa o desactiva el modo mantenimiento del sitio público"
       summary={summary}
       editSize="sm:max-w-md"
       viewContent={<ReadOnlyList items={viewItems} />}
-      editContent={<SistemaForm configs={configs} />}
+      editContent={<SistemaForm />}
       navProps={navProps}
     />
   )

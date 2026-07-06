@@ -1,3 +1,15 @@
+interface GaleriaFiltros {
+  page?: number
+  size?: number
+  soloDestacadas?: boolean
+  categoria?: string
+}
+
+interface GaleriaFiltrosPublicos {
+  soloDestacadas?: boolean
+  categoria?: string
+}
+
 export const CMS_QUERY_KEYS = {
   banners: (page: number, size: number) => ['banners', 'admin', page, size],
   configuracionAdmin: () => ['configuracion-publica', 'admin'],
@@ -10,7 +22,15 @@ export const CMS_QUERY_KEYS = {
   ],
   seccionesWeb: () => ['secciones-web'],
   faqAdmin: () => ['faqs', 'admin'],
-  galeria: (page: number, size: number) => ['galeria', 'admin', page, size],
+  galeria: {
+    all: ['galeria'] as const,
+    lista: (filtros: GaleriaFiltros) => ['galeria', 'admin', filtros] as const,
+    infinita: (filtros: GaleriaFiltros) =>
+      ['galeria', 'admin', 'infinita', filtros] as const,
+    detalle: (id: number) => ['galeria', 'admin', 'detalle', id] as const,
+  },
+  galeriaPublica: (filtros: GaleriaFiltrosPublicos) =>
+    ['galeria', 'publica', filtros] as const,
   legalDocumentos: () => ['legal-documentos', 'admin'],
   resenasPendientes: (page: number, size: number) => [
     'resenas',

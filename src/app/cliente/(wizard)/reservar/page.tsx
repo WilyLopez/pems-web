@@ -1,30 +1,28 @@
 import { Metadata } from 'next'
 import { Suspense } from 'react'
-import { ReservarView } from '@/features/public/components/reservar/ReservarView'
+import { ReservarView } from '@/features/cliente/reservar/ReservarView'
 import { configuracionPublicaService } from '@/services/configuracion-publica.service'
 import { Loader2 } from 'lucide-react'
+
+const DESCRIPTION =
+  'Reserva tu entrada a la zona de juegos de Kiki y Lala de forma rápida y segura en Chiclayo.'
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const config = await configuracionPublicaService.obtenerPublica()
-    const baseTitle = config.metaTitle || 'Kiki y Lala'
+    const baseTitle = config.nombreNegocio || 'Kiki y Lala'
     return {
       title: `Reservar Entrada | ${baseTitle}`,
-      description:
-        config.metaDescription ||
-        'Reserva tu entrada a la zona de juegos de Kiki y Lala de forma rápida y segura en Chiclayo.',
+      description: DESCRIPTION,
       openGraph: {
         title: `Reservar Entrada | ${baseTitle}`,
-        description:
-          config.metaDescription ||
-          'Reserva tu entrada a la zona de juegos de Kiki y Lala.',
+        description: DESCRIPTION,
       },
     }
   } catch {
     return {
       title: 'Reservar Entrada | Kiki y Lala',
-      description:
-        'Reserva tu entrada a la zona de juegos de Kiki y Lala de forma rápida y segura en Chiclayo.',
+      description: DESCRIPTION,
     }
   }
 }

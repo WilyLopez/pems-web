@@ -13,7 +13,7 @@ export interface Resena {
 }
 
 export interface SubmitResenaPayload {
-  idEventoPrivado?: number
+  idEventoPrivado: number
   nombreAutor: string
   contenido: string
   calificacion: number

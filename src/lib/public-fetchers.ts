@@ -9,7 +9,7 @@ import type { ConfiguracionPublica } from '@/types/configuracion-publica.types'
 import type { Sede } from '@/types/configuracion.types'
 import type { Faq } from '@/types/faq.types'
 import type { Promocion } from '@/types/promocion.types'
-import type { PrecioPublicoResponse } from '@/features/public/hooks/usePublicPrecios'
+import type { PrecioPublicoResponse } from '@/features/public/shared/hooks/usePublicPrecios'
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1'
 

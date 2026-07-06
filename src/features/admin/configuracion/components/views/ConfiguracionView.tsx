@@ -109,10 +109,7 @@ export function ConfiguracionView() {
               configs={configs}
               navProps={navPropsFor('seguridad')}
             />
-            <SistemaSection
-              configs={configs}
-              navProps={navPropsFor('sistema')}
-            />
+            <SistemaSection navProps={navPropsFor('sistema')} />
             <IntegracionesSection
               idSede={idSede}
               navProps={navPropsFor('integraciones')}

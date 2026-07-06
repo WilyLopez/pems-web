@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { Separator } from '@/components/ui/Separator'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import { formatTipoEvento } from '@/features/cliente/shared/constants'
+import { ResenaEventoCard } from '@/features/cliente/resenas/components/ResenaEventoCard'
 
 function PageSkeleton() {
   return (
@@ -337,6 +338,8 @@ export function DetalleEventoView() {
           </Card>
         </div>
       </div>
+
+      <ResenaEventoCard idEvento={evento.id} estado={evento.estado} />
     </div>
   )
 }

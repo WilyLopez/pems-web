@@ -6,9 +6,9 @@ export const PUBLIC_ROUTES = {
   reservar: '/reservar',
   reservarFecha: (fecha: string) => `/reservar/${fecha}`,
   nosotros: '/nosotros',
-  promociones: '/promociones',
-  zonaDeJuegos: '/zona-de-juegos',
-  faq: '/faq',
+  promociones: '/',
+  zonaDeJuegos: '/juegos',
+  faq: '/nosotros#faq',
   legal: (tipo: string) => `/legal/${tipo}`,
 } as const
 

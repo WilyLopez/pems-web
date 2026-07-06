@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
-import dynamic from 'next/dynamic'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { Building2, CheckCircle2, Loader2, MapPin, Save } from 'lucide-react'
+import { Building2, ExternalLink, Loader2, Map, Save } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -15,16 +14,7 @@ import type { SeccionNavProps } from '../../hooks/useConfiguracionNav'
 import type { Sede } from '../../types'
 import { ReadOnlyList } from '../shared/ReadOnlyList'
 import { ModuleCard } from '../shared/ModuleCard'
-
-const MapaPickerDynamic = dynamic(
-  () => import('./MapaPicker').then((m) => ({ default: m.MapaPicker })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-[280px] w-full animate-pulse bg-muted rounded-xl" />
-    ),
-  }
-)
+import { GoogleMapEmbed } from '@/features/public/shared/components/GoogleMapEmbed'
 
 const schema = z.object({
   nombre: z.string().min(2).max(120),
@@ -35,24 +25,13 @@ const schema = z.object({
     .length(11, 'El RUC debe tener 11 dígitos')
     .optional()
     .or(z.literal('')),
-  latitud: z
+  latitud: z.number().nullable().optional(),
+  longitud: z.number().nullable().optional(),
+  googleMapsEmbedUrl: z
     .string()
     .refine(
-      (v) =>
-        v === '' ||
-        (!isNaN(parseFloat(v)) && parseFloat(v) >= -90 && parseFloat(v) <= 90),
-      'Debe estar entre -90 y 90'
-    )
-    .optional(),
-  longitud: z
-    .string()
-    .refine(
-      (v) =>
-        v === '' ||
-        (!isNaN(parseFloat(v)) &&
-          parseFloat(v) >= -180 &&
-          parseFloat(v) <= 180),
-      'Debe estar entre -180 y 180'
+      (v) => v === '' || v.startsWith('https://www.google.com/maps/embed'),
+      'Debe ser un enlace de inserción (embed) de Google Maps'
     )
     .optional(),
 })
@@ -68,16 +47,15 @@ function SedeForm({ idSede }: { idSede: number }) {
     handleSubmit,
     reset,
     watch,
-    setValue,
     formState: { errors, isDirty },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
   })
 
-  const latVal = watch('latitud')
-  const lngVal = watch('longitud')
-  const latNum = latVal ? parseFloat(latVal) : null
-  const lngNum = lngVal ? parseFloat(lngVal) : null
+  const googleMapsEmbedUrl = watch('googleMapsEmbedUrl')
+  const embedValido =
+    !!googleMapsEmbedUrl &&
+    googleMapsEmbedUrl.startsWith('https://www.google.com/maps/embed')
 
   useEffect(() => {
     if (!sede) return
@@ -86,8 +64,9 @@ function SedeForm({ idSede }: { idSede: number }) {
       ciudad: sede.ciudad,
       departamento: sede.departamento,
       ruc: sede.ruc ?? '',
-      latitud: sede.latitud != null ? String(sede.latitud) : '',
-      longitud: sede.longitud != null ? String(sede.longitud) : '',
+      latitud: sede.latitud,
+      longitud: sede.longitud,
+      googleMapsEmbedUrl: sede.googleMapsEmbedUrl ?? '',
     })
   }, [sede, reset])
 
@@ -107,8 +86,9 @@ function SedeForm({ idSede }: { idSede: number }) {
       ciudad: values.ciudad,
       departamento: values.departamento,
       ruc: values.ruc || null,
-      latitud: values.latitud ? parseFloat(values.latitud) : null,
-      longitud: values.longitud ? parseFloat(values.longitud) : null,
+      latitud: values.latitud ?? null,
+      longitud: values.longitud ?? null,
+      googleMapsEmbedUrl: values.googleMapsEmbedUrl || null,
     })
   }
 
@@ -160,64 +140,51 @@ function SedeForm({ idSede }: { idSede: number }) {
       </div>
 
       <div className="border-t border-border pt-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
-              <MapPin className="h-4 w-4 text-blue-600" />
-            </div>
-            <div>
-              <p className="font-semibold text-card-foreground">
-                Ubicación en el mapa
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {latNum != null
-                  ? 'Arrastra el pin para ajustar la posición'
-                  : 'Haz clic en el mapa para colocar el pin'}
-              </p>
-            </div>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
+            <Map className="h-4 w-4 text-blue-600" />
           </div>
-          {latNum != null && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-xs text-muted-foreground h-7 px-2"
-              onClick={() => {
-                setValue('latitud', '', { shouldDirty: true })
-                setValue('longitud', '', { shouldDirty: true })
-              }}
-            >
-              Limpiar
-            </Button>
-          )}
+          <div>
+            <p className="font-semibold text-card-foreground">
+              Mapa insertado de Google Maps
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Mapa visible en la página de Contacto
+            </p>
+          </div>
         </div>
-        <div className="overflow-hidden rounded-xl border border-border">
-          <MapaPickerDynamic
-            latitud={latNum}
-            longitud={lngNum}
-            onChange={(lat, lng) => {
-              setValue('latitud', String(parseFloat(lat.toFixed(7))), {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-              setValue('longitud', String(parseFloat(lng.toFixed(7))), {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-            }}
+        <div className="space-y-1.5">
+          <Label htmlFor="googleMapsEmbedUrl">Enlace de inserción</Label>
+          <Input
+            id="googleMapsEmbedUrl"
+            placeholder="https://www.google.com/maps/embed?pb=..."
+            {...register('googleMapsEmbedUrl')}
           />
+          {errors.googleMapsEmbedUrl && (
+            <p className="text-xs text-destructive">
+              {errors.googleMapsEmbedUrl.message}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            En Google Maps: Compartir → Insertar un mapa → copiar solo el
+            enlace &apos;src&apos; del código.
+          </p>
+          <a
+            href="https://support.google.com/maps/answer/144361"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs font-medium text-brand-azul hover:underline"
+          >
+            ¿Cómo obtener este enlace?
+            <ExternalLink className="h-3 w-3" />
+          </a>
         </div>
-        {latNum != null && lngNum != null && (
-          <div className="mt-2 flex items-center gap-2.5 rounded-lg border border-green-100 bg-green-50 px-3 py-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
-            <div>
-              <p className="text-xs font-semibold text-green-800">
-                Ubicación registrada
-              </p>
-              <p className="font-mono text-xs text-green-600 tabular-nums">
-                {latNum.toFixed(6)}, {lngNum.toFixed(6)}
-              </p>
-            </div>
+        {embedValido && (
+          <div className="mt-3 overflow-hidden rounded-lg border border-border h-64">
+            <GoogleMapEmbed
+              src={googleMapsEmbedUrl!}
+              title="Vista previa del mapa"
+            />
           </div>
         )}
       </div>
@@ -250,10 +217,6 @@ function SedeViewContent({ sede }: { sede: Sede | undefined }) {
         Sin datos.
       </p>
     )
-  const coords =
-    sede.latitud != null && sede.longitud != null
-      ? `${sede.latitud}, ${sede.longitud}`
-      : '—'
   return (
     <ReadOnlyList
       items={[
@@ -261,7 +224,10 @@ function SedeViewContent({ sede }: { sede: Sede | undefined }) {
         { label: 'Ciudad', value: sede.ciudad },
         { label: 'Departamento', value: sede.departamento },
         { label: 'RUC', value: sede.ruc ?? '—' },
-        { label: 'Coordenadas', value: coords },
+        {
+          label: 'Mapa embebido',
+          value: sede.googleMapsEmbedUrl ? 'Configurado' : 'Sin configurar',
+        },
       ]}
     />
   )
@@ -283,7 +249,7 @@ export function SedeSection({
         { label: 'RUC', value: sede.ruc ?? '—' },
         {
           label: 'Mapa',
-          value: sede.latitud != null ? 'Configurado' : 'Sin coordenadas',
+          value: sede.googleMapsEmbedUrl ? 'Configurado' : 'Sin configurar',
         },
       ]
     : []
@@ -293,7 +259,7 @@ export function SedeSection({
       icon={Building2}
       color="bg-blue-50 text-blue-600"
       title="Datos de la sede"
-      description="Nombre, ciudad, RUC y coordenadas del mapa"
+      description="Nombre, ciudad, RUC y mapa del local"
       summary={summary}
       editSize="sm:max-w-xl"
       viewContent={<SedeViewContent sede={sede} />}

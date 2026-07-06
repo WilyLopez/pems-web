@@ -1,0 +1,6 @@
+export { HomeView } from './home/HomeView'
+export { JuegosView } from './juegos/JuegosView'
+export { CelebracionesView } from './celebraciones/CelebracionesView'
+export { NosotrosView } from './nosotros/NosotrosView'
+export { ContactoView } from './contacto/ContactoView'
+export { LegalDocumentView } from './legal/LegalDocumentView'

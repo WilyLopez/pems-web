@@ -20,7 +20,7 @@ export function ActividadPreview({
   return (
     <div className="w-full max-w-xs mx-auto">
       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">
-        Vista previa — /zona-de-juegos
+        Vista previa — /juegos
       </p>
       <div className="bg-white rounded-2xl border border-gray-100 p-4 flex items-start gap-3 shadow-sm">
         {imagenUrl ? (

@@ -29,7 +29,7 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 
 import { useSolicitarEventoWizard } from '../../hooks/useSolicitarEventoWizard'
-import { useSedesPublicas } from '@/features/public/hooks/useSedesPublicas'
+import { useSedesPublicas } from '@/features/public/shared/hooks/useSedesPublicas'
 import { useWizardTimer } from '../../hooks/useWizardTimer'
 import { usePaquetesPublico, useTiposEventoPublico } from '@/hooks/useComercial'
 import {

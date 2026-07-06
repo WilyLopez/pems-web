@@ -21,7 +21,7 @@ export const SECCION_LABELS: Record<SeccionConfig, string> = {
   'reservas-eventos': 'Reservas y eventos',
   sede: 'Datos de la sede',
   seguridad: 'Seguridad de acceso',
-  sistema: 'Sistema e integraciones',
+  sistema: 'Mantenimiento del sitio',
   integraciones: 'Integración de consultas',
 }
 
