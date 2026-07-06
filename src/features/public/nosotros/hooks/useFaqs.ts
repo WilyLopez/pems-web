@@ -9,7 +9,7 @@ export function useFaqs() {
     queryKey: PUBLIC_QUERY_KEYS.faqs,
     queryFn: async () => {
       const response = await api.get<ApiResponse<Faq[]>>(
-        '/api/v1/cms/faqs/publico'
+        '/cms/faqs/publico'
       )
       return response.data.data
     },

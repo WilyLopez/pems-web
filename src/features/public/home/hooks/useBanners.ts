@@ -11,7 +11,7 @@ export function useBanners(idSede?: number) {
       : PUBLIC_QUERY_KEYS.banners,
     queryFn: async () => {
       const response = await api.get<ApiResponse<Banner[]>>(
-        '/api/v1/banners/publico',
+        '/banners/publico',
         {
           params: idSede ? { idSede } : undefined,
         }
