@@ -18,7 +18,9 @@ import {
   RegistrarArqueoModal,
   MovimientosTable,
   ArqueosPanel,
+  CajaHistorialPanel,
 } from '@/features/cajero'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -56,136 +58,166 @@ export default function CajaPage() {
           title="Caja"
           description="Control de apertura, movimientos y cierre por día"
         />
-        <div className="flex items-center gap-2">
-          <Input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            className="h-9 w-40"
-          />
-          <Button asChild size="sm" variant="outline" className="gap-1.5">
-            <Link href={`/admin/finanzas/caja/movimientos?fecha=${fecha}`}>
-              <Receipt className="h-4 w-4" />
-              Ver movimientos
-            </Link>
-          </Button>
-          {estaAbierta && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowMov(true)}
-              className="gap-1.5"
-            >
-              <Plus className="h-4 w-4" />
-              Movimiento
-            </Button>
-          )}
-          {estaAbierta && (
-            <Button
-              asChild
-              size="sm"
-              className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
-            >
-              <Link href="/admin/ventas/nueva?from=caja">
-                <ShoppingCart className="h-4 w-4" />
-                Nueva venta
-              </Link>
-            </Button>
-          )}
-        </div>
       </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl border border-gray-100 p-5 h-28 animate-pulse"
+      <Tabs defaultValue="caja-dia" className="space-y-6">
+        <TabsList className="bg-gray-100/80 p-1 rounded-xl w-fit flex gap-1">
+          <TabsTrigger
+            value="caja-dia"
+            className="font-bold data-[state=active]:bg-brand-azul data-[state=active]:text-white transition-all duration-200"
+          >
+            Caja del día
+          </TabsTrigger>
+          <TabsTrigger
+            value="historial"
+            className="font-bold data-[state=active]:bg-brand-azul data-[state=active]:text-white transition-all duration-200"
+          >
+            Historial de cajas
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="caja-dia" className="space-y-6 mt-0">
+          <div className="flex justify-end items-center gap-2">
+            <Input
+              type="date"
+              value={fecha}
+              onChange={(e) => setFecha(e.target.value)}
+              className="h-9 w-40 bg-white shadow-sm"
             />
-          ))}
-        </div>
-      ) : !caja ? (
-        esHoy ? (
-          <AbrirCajaPanel idSede={idSede!} fecha={fecha} />
-        ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center space-y-2">
-            <Lock className="mx-auto h-10 w-10 text-gray-300" />
-            <p className="text-sm font-semibold text-gray-500">
-              No hay caja registrada para esta fecha.
-            </p>
+            <Button asChild size="sm" variant="outline" className="gap-1.5">
+              <Link href={`/admin/finanzas/caja/movimientos?fecha=${fecha}`}>
+                <Receipt className="h-4 w-4" />
+                Ver movimientos
+              </Link>
+            </Button>
+            {estaAbierta && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowMov(true)}
+                className="gap-1.5"
+              >
+                <Plus className="h-4 w-4" />
+                Movimiento
+              </Button>
+            )}
+            {estaAbierta && (
+              <Button
+                asChild
+                size="sm"
+                className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
+              >
+                <Link href="/admin/ventas/nueva?from=caja">
+                  <ShoppingCart className="h-4 w-4" />
+                  Nueva venta
+                </Link>
+              </Button>
+            )}
           </div>
-        )
-      ) : (
-        <>
-          <CajaStatusCard caja={caja} />
 
-          {estaAbierta ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                  <div className="px-5 py-4 border-b">
-                    <h3 className="text-sm font-semibold text-gray-700">
-                      Movimientos
-                    </h3>
-                  </div>
-                  <MovimientosTable movimientos={movimientos} />
-                </div>
-
-                {arqueos.length > 0 && (
-                  <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-4">
-                      Arqueos del día
-                    </h3>
-                    <ArqueosPanel arqueos={arqueos} />
-                  </div>
-                )}
-              </div>
-
-              <div className="lg:col-span-1">
-                <CerrarCajaPanel
-                  caja={caja}
-                  onArqueo={() => setShowArqueo(true)}
+          {isLoading ? (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl border border-gray-100 p-5 h-28 animate-pulse"
                 />
-              </div>
+              ))}
             </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="px-5 py-4 border-b">
-                  <h3 className="text-sm font-semibold text-gray-700">
-                    Movimientos
-                  </h3>
-                </div>
-                <MovimientosTable movimientos={movimientos} />
+          ) : !caja ? (
+            esHoy ? (
+              <AbrirCajaPanel idSede={idSede!} fecha={fecha} />
+            ) : (
+              <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center space-y-2">
+                <Lock className="mx-auto h-10 w-10 text-gray-300" />
+                <p className="text-sm font-semibold text-gray-500">
+                  No hay caja registrada para esta fecha.
+                </p>
               </div>
+            )
+          ) : (
+            <>
+              <CajaStatusCard caja={caja} />
 
-              {arqueos.length > 0 && (
-                <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-4">
-                    Arqueos del día
-                  </h3>
-                  <ArqueosPanel arqueos={arqueos} />
+              {estaAbierta ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                      <div className="px-5 py-4 border-b">
+                        <h3 className="text-sm font-semibold text-gray-700">
+                          Movimientos
+                        </h3>
+                      </div>
+                      <MovimientosTable movimientos={movimientos} />
+                    </div>
+
+                    {arqueos.length > 0 && (
+                      <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                        <h3 className="text-sm font-semibold text-gray-700 mb-4">
+                          Arqueos del día
+                        </h3>
+                        <ArqueosPanel arqueos={arqueos} />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="lg:col-span-1">
+                    <CerrarCajaPanel
+                      caja={caja}
+                      onArqueo={() => setShowArqueo(true)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                    <div className="px-5 py-4 border-b">
+                      <h3 className="text-sm font-semibold text-gray-700">
+                        Movimientos
+                      </h3>
+                    </div>
+                    <MovimientosTable movimientos={movimientos} />
+                  </div>
+
+                  {arqueos.length > 0 && (
+                    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                      <h3 className="text-sm font-semibold text-gray-700 mb-4">
+                        Arqueos del día
+                      </h3>
+                      <ArqueosPanel arqueos={arqueos} />
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
 
-          {estaAbierta && caja && (
-            <>
-              <RegistrarArqueoModal
-                open={showArqueo}
-                onOpenChange={setShowArqueo}
-                caja={caja}
-              />
-              <RegistrarMovimientoModal
-                open={showMov}
-                onOpenChange={setShowMov}
-                idApertura={caja.id}
-              />
+              {estaAbierta && caja && (
+                <>
+                  <RegistrarArqueoModal
+                    open={showArqueo}
+                    onOpenChange={setShowArqueo}
+                    caja={caja}
+                  />
+                  <RegistrarMovimientoModal
+                    open={showMov}
+                    onOpenChange={setShowMov}
+                    idApertura={caja.id}
+                  />
+                </>
+              )}
             </>
           )}
-        </>
-      )}
+        </TabsContent>
+
+        <TabsContent value="historial" className="space-y-6 mt-0">
+          {idSede ? (
+            <CajaHistorialPanel idSede={idSede} />
+          ) : (
+            <div className="text-center text-sm text-gray-400 py-12">
+              Cargando identificador de sede...
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

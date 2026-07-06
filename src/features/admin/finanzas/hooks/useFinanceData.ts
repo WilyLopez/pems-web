@@ -91,6 +91,11 @@ export const FINANCE_KEYS = {
     fin: string | undefined
   ) => [...FINANCE_KEYS.INGRESOS(), 'rango', idSede, inicio, fin] as const,
   CAJA: () => [...FINANCE_KEYS.ALL, 'caja'] as const,
+  CAJA_RANGO: (
+    idSede: number | undefined,
+    inicio: string | undefined,
+    fin: string | undefined
+  ) => [...FINANCE_KEYS.CAJA(), 'rango', idSede, inicio, fin] as const,
   CAJA_DETAIL: (idSede: number | undefined, fecha: string | undefined) =>
     [...FINANCE_KEYS.CAJA(), 'detail', idSede, fecha] as const,
   CAJA_HOY: (idSede: number | undefined) =>
@@ -529,6 +534,18 @@ export function useCajaHoy(idSede: number | undefined) {
     enabled: !!idSede,
     staleTime: 1000 * 30,
     refetchInterval: 1000 * 60,
+  })
+}
+
+export function useCajasRango(
+  idSede: number | undefined,
+  inicio: string | undefined,
+  fin: string | undefined
+) {
+  return useQuery({
+    queryKey: FINANCE_KEYS.CAJA_RANGO(idSede, inicio, fin),
+    queryFn: () => financeApi.listarCajasPorRango(idSede!, inicio!, fin!),
+    enabled: !!idSede && !!inicio && !!fin,
   })
 }
 
