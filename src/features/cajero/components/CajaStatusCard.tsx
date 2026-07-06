@@ -68,16 +68,16 @@ export function CajaStatusCard({ caja }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <p className="text-sm font-medium text-gray-500 capitalize">
+          <p className="text-sm font-medium text-gray-500 capitalize" suppressHydrationWarning>
             {formatFecha(caja.fecha)}
           </p>
           {estaAbierta ? (
-            <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+            <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1" suppressHydrationWarning>
               <Clock className="h-3 w-3" />
               Abierta desde las {formatHora(caja.fechaApertura)}
             </p>
           ) : (
-            <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+            <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1" suppressHydrationWarning>
               <Clock className="h-3 w-3" />
               Cerrada a las{' '}
               {caja.fechaCierre ? formatHora(caja.fechaCierre) : '—'}
