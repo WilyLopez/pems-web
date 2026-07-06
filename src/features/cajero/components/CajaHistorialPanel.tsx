@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/Dialog'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { Calendar, Lock, Unlock, AlertTriangle, HelpCircle } from 'lucide-react'
+import { Calendar, Lock, Unlock, AlertTriangle, HelpCircle, ClipboardList } from 'lucide-react'
 
 type FormValues = z.infer<typeof cerrarCajaSchema>
 
@@ -49,7 +49,7 @@ function formatFechaLocal(fechaStr: string) {
   })
 }
 
-function formatHoraLocal(isoStr: string | null) {
+function formatHoraLocal(isoStr: string | null | undefined) {
   if (!isoStr) return '—'
   return new Date(isoStr).toLocaleTimeString('es-PE', {
     hour: '2-digit',
@@ -229,7 +229,7 @@ export function CajaHistorialPanel({ idSede }: Props) {
                     <TableCell className="text-center">
                       {abierta ? (
                         <Button
-                          size="xs"
+                          size="sm"
                           variant="destructive"
                           onClick={() => handleOpenCloseDialog(c)}
                           className="bg-red-600 hover:bg-red-700 text-white font-bold gap-1 rounded-lg px-2.5 py-1 text-[11px] h-7"
