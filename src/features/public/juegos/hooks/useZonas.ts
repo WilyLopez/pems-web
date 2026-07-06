@@ -8,7 +8,7 @@ export function useZonas() {
   return useQuery({
     queryKey: PUBLIC_QUERY_KEYS.zonas,
     queryFn: async () => {
-      const response = await api.get<ApiResponse<ZonaJuego[]>>('/api/v1/zonas')
+      const response = await api.get<ApiResponse<ZonaJuego[]>>('/zonas')
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,

@@ -32,7 +32,7 @@ export function JuegosReglas() {
       <div className="container max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
           <Shield className="h-8 w-8 text-brand-rosa mx-auto mb-2" />
-          <h2 className="text-3xl font-black text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900">
             {texto('zona.reglamento.titulo', 'Reglamento del local')}
           </h2>
           <p className="text-gray-600 mt-1">

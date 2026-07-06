@@ -66,11 +66,11 @@ export function HomeProductos() {
                   </div>
 
                   <span
-                    className={`mb-2 text-xs font-black uppercase tracking-wider ${p.accentText}`}
+                    className={`mb-2 text-xs font-bold uppercase tracking-wider ${p.accentText}`}
                   >
                     {p.badge}
                   </span>
-                  <h3 className="text-2xl font-black text-gray-900">
+                  <h3 className="text-2xl font-bold text-gray-900">
                     {p.titulo}
                   </h3>
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-gray-600">

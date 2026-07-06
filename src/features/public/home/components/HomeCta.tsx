@@ -13,7 +13,7 @@ export function HomeCta() {
         <div className="w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center mx-auto animate-float">
           <Zap className="h-8 w-8 text-white" />
         </div>
-        <h2 className="text-4xl sm:text-5xl font-black">
+        <h2 className="text-4xl sm:text-5xl font-bold">
           ¿Listo para la diversión?
         </h2>
         <p className="text-white/70 text-lg">
@@ -23,8 +23,9 @@ export function HomeCta() {
         <div className="flex justify-center">
           <Button
             size="lg"
+            variant="brand"
             asChild
-            className="bg-brand-rosa hover:bg-brand-rosa/90 text-white font-bold rounded-full px-10 h-12 text-base gap-2"
+            className="px-10 h-12 text-base gap-2"
           >
             <Link href="/cliente/reservar">
               <Ticket className="h-5 w-5" />

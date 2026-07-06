@@ -32,7 +32,7 @@ export function GaleriaPublica({
     <section id={id} className="scroll-mt-20 bg-white py-16">
       <div className="container mx-auto max-w-6xl px-4">
         <div className="mb-10 text-center">
-          <h2 className="text-3xl font-black text-gray-900">{titulo}</h2>
+          <h2 className="text-3xl font-bold text-gray-900">{titulo}</h2>
           <p className="mt-2 text-gray-600">{descripcion}</p>
         </div>
 

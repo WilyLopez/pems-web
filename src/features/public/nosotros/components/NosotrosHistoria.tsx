@@ -28,7 +28,7 @@ function MetricaCard({ icon: Icon, value, label, bgClass }: MetricaCardProps) {
       className={`${bgClass} rounded-2xl p-6 text-center shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300`}
     >
       <Icon className="h-6 w-6 text-brand-azul mx-auto mb-2" />
-      <div className="text-3xl font-black text-gray-900">{value}</div>
+      <div className="text-3xl font-bold text-gray-900">{value}</div>
       <div className="text-xs text-gray-600 mt-1 font-semibold">{label}</div>
     </div>
   )
@@ -71,7 +71,7 @@ export function NosotrosHistoria({ metricas }: NosotrosHistoriaProps) {
             <BrandBadge color="rosa">
               {texto('nosotros.historia.badge', 'Nuestra historia')}
             </BrandBadge>
-            <h2 className="text-3xl sm:text-4xl font-black text-gray-900">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
               {texto(
                 'nosotros.historia.titulo',
                 'Nacimos de un sueño familiar'

@@ -84,7 +84,7 @@ export function PromoCard({
             {TIPO_LABEL[promo.tipoPromocion] ?? promo.tipoPromocion}
           </Badge>
           <h3
-            className={`font-black text-gray-900 leading-tight ${destacada ? 'text-xl' : 'text-base'}`}
+            className={`font-bold text-gray-900 leading-tight ${destacada ? 'text-xl' : 'text-base'}`}
           >
             {promo.nombre}
           </h3>
