@@ -36,6 +36,10 @@ import {
   calcularResumenVenta,
   DENOMINACIONES_EFECTIVO,
 } from '@/features/admin/ventas/utils/ventas.utils'
+import {
+  useMiSesionCaja,
+  CajaRequeridaAlert,
+} from '@/features/admin/finanzas'
 import { cn } from '@/lib/utils'
 
 const cobrarSchema = z.object({
@@ -85,6 +89,15 @@ export const CobrarReservaDrawer = ({
   })
 
   const formValues = watch()
+
+  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
+    useMiSesionCaja()
+  const efectivoBloqueado =
+    !cargandoSesionCaja &&
+    !miSesionCaja &&
+    (formValues.pagos ?? []).some(
+      (p) => p.medioPago === 'EFECTIVO' && Number(p.monto) > 0
+    )
 
   const { fields, append, remove } = useFieldArray({ control, name: 'pagos' })
 
@@ -343,11 +356,15 @@ export const CobrarReservaDrawer = ({
                 </p>
               </div>
             )}
+            {efectivoBloqueado && (
+              <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas tener tu caja abierta." />
+            )}
             <Button
               type="submit"
               disabled={
                 !isValid ||
                 !resumen?.montosCoinciden ||
+                efectivoBloqueado ||
                 cobrarMutation.isPending
               }
               className="w-full h-12 rounded-xl font-black uppercase tracking-wider"
