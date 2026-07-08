@@ -20,9 +20,11 @@ import {
   useIngresosPorRango,
   useIngresoMutations,
   useTiposIngreso,
+  useMiSesionCaja,
   ingresoManualSchema,
   RegistroIngreso,
   TiposIngresoManager,
+  CajaRequeridaAlert,
 } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
@@ -198,14 +200,23 @@ export default function IngresosPage() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(ingresoManualSchema),
     defaultValues: { fecha: new Date().toISOString().slice(0, 10) },
   })
 
+  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
+    useMiSesionCaja()
+  const medioPagoSeleccionado = watch('medioPago')
+  const requiereCajaAdministrativa =
+    medioPagoSeleccionado === 'EFECTIVO' &&
+    !cargandoSesionCaja &&
+    miSesionCaja?.tipo !== 'ADMINISTRATIVA'
+
   function onSubmit(values: FormValues) {
-    if (!idSede) return
+    if (!idSede || requiereCajaAdministrativa) return
     registrar.mutate(
       { idSede, payload: { ...values } },
       {
@@ -674,6 +685,9 @@ export default function IngresosPage() {
                 placeholder="Observaciones…"
               />
             </div>
+            {requiereCajaAdministrativa && (
+              <CajaRequeridaAlert mensaje="Para registrar ingresos en efectivo necesitas tu Caja Administrativa abierta." />
+            )}
             <div className="flex justify-end gap-2 pt-1">
               <Button
                 type="button"
@@ -686,7 +700,7 @@ export default function IngresosPage() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={registrar.isPending}
+                disabled={registrar.isPending || requiereCajaAdministrativa}
                 className="bg-brand-azul hover:bg-brand-azul/90 text-white"
               >
                 Registrar
