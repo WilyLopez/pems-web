@@ -63,6 +63,10 @@ import { formatDate, formatCurrency, cn } from '@/lib/utils'
 import { ADMIN_ROUTES } from '@/config/routes'
 import Link from 'next/link'
 import { MultiMedioPago } from '../forms/MultiMedioPago'
+import {
+  useMiSesionCaja,
+  CajaRequeridaAlert,
+} from '@/features/admin/finanzas'
 
 const ORIGEN_LABELS: Record<string, string> = {
   PRESENCIAL: 'Presencial',
@@ -112,6 +116,16 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
   ])
   const [dialogReprogramar, setDialogReprogramar] = useState(false)
   const [nuevaTarea, setNuevaTarea] = useState('')
+
+  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
+    useMiSesionCaja()
+  const sinCajaAdministrativa =
+    !cargandoSesionCaja && miSesionCaja?.tipo !== 'ADMINISTRATIVA'
+  const efectivoSaldoBloqueado =
+    medioPagoSaldo === 'EFECTIVO' && sinCajaAdministrativa
+  const efectivoCuotaBloqueado =
+    sinCajaAdministrativa &&
+    pagosCuota.some((p) => p.medioPago === 'EFECTIVO' && p.monto > 0)
 
   const completadas = checklist.filter((c) => c.completada).length
   const pctChecklist =
@@ -591,10 +605,15 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                                       disabled={
                                         !montoSaldo ||
                                         !medioPagoSaldo ||
+                                        efectivoSaldoBloqueado ||
                                         registrarSaldo.isPending
                                       }
                                       onClick={() => {
-                                        if (!montoSaldo || !medioPagoSaldo)
+                                        if (
+                                          !montoSaldo ||
+                                          !medioPagoSaldo ||
+                                          efectivoSaldoBloqueado
+                                        )
                                           return
                                         registrarSaldo.mutate(
                                           {
@@ -619,6 +638,9 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                                       Registrar
                                     </Button>
                                   </div>
+                                  {efectivoSaldoBloqueado && (
+                                    <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas tu Caja Administrativa abierta." />
+                                  )}
                                 </div>
                               )}
                           </>
@@ -1035,6 +1057,9 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                 onChange={setPagosCuota}
                 totalEsperado={cuotaSeleccionada.monto}
               />
+              {efectivoCuotaBloqueado && (
+                <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas tu Caja Administrativa abierta." />
+              )}
             </div>
           )}
           <DialogFooter className="gap-2">
@@ -1050,6 +1075,7 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
               className="rounded-xl bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
               disabled={
                 registrarCuota.isPending ||
+                efectivoCuotaBloqueado ||
                 pagosCuota.some((p) => !p.medioPago || !p.monto) ||
                 Math.abs(
                   pagosCuota.reduce((s, p) => s + p.monto, 0) -
