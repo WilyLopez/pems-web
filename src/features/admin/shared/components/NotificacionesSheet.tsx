@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import {
   Bell,
@@ -24,6 +24,14 @@ import {
   SheetTitle,
   SheetCloseButton,
 } from '@/components/ui/Sheet'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/utils'
@@ -31,7 +39,7 @@ import { useNotificacionesStore } from '@/lib/store/notificaciones.store'
 import type { Notificacion } from '@/lib/store/notificaciones.store'
 import type { TipoVisual } from '@/types/notificaciones.types'
 
-type Filtro = 'todas' | 'no-leidas' | TipoVisual
+type Filtro = 'todas' | 'no-leidas' | 'leidas'
 
 const TIPO_ICON: Record<TipoVisual, LucideIcon> = {
   reserva: Ticket,
@@ -72,29 +80,24 @@ const TIPO_LABEL: Record<TipoVisual, string> = {
 const FILTROS: { value: Filtro; label: string }[] = [
   { value: 'todas', label: 'Todas' },
   { value: 'no-leidas', label: 'No leídas' },
-  { value: 'reserva', label: 'Reservas' },
-  { value: 'pago', label: 'Pagos' },
-  { value: 'evento', label: 'Eventos' },
-  { value: 'contrato', label: 'Contratos' },
-  { value: 'caja', label: 'Caja' },
-  { value: 'sistema', label: 'Sistema' },
+  { value: 'leidas', label: 'Leídas' },
 ]
 
 interface NotificacionItemProps {
   n: Notificacion
-  onRead: (id: string) => void
+  onClickItem: (n: Notificacion) => void
 }
 
-function NotificacionItem({ n, onRead }: NotificacionItemProps) {
+function NotificacionItem({ n, onClickItem }: NotificacionItemProps) {
   const Icon = TIPO_ICON[n.tipo]
 
   return (
     <div
-      onClick={() => !n.leida && onRead(n.id)}
+      onClick={() => onClickItem(n)}
       className={cn(
-        'flex gap-3 px-5 py-4 transition-colors',
+        'flex gap-3 px-5 py-4 transition-colors cursor-pointer',
         !n.leida
-          ? 'bg-brand-azul/[0.03] hover:bg-brand-azul/[0.06] cursor-pointer'
+          ? 'bg-brand-azul/[0.03] hover:bg-brand-azul/[0.06]'
           : 'hover:bg-gray-50'
       )}
     >
@@ -126,7 +129,9 @@ function NotificacionItem({ n, onRead }: NotificacionItemProps) {
         >
           {n.titulo}
         </p>
-        <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{n.mensaje}</p>
+        <p className="text-xs text-gray-500 mt-0.5 leading-relaxed line-clamp-2">
+          {n.mensaje}
+        </p>
         <div className="flex items-center gap-2 mt-1.5">
           <span className="text-[10px] text-gray-400">
             {formatDistanceToNow(n.fecha, { addSuffix: true, locale: es })}
@@ -168,16 +173,18 @@ export function NotificacionesSheet() {
   } = useNotificacionesStore()
 
   const [filtro, setFiltro] = useState<Filtro>('todas')
+  const [notificacionSeleccionada, setNotificacionSeleccionada] =
+    useState<Notificacion | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
     setPanelAbierto(false)
-  }, [pathname])
+  }, [pathname, setPanelAbierto])
 
   const filtradas = useMemo(() => {
     if (filtro === 'no-leidas') return notificaciones.filter((n) => !n.leida)
-    if (filtro === 'todas') return notificaciones
-    return notificaciones.filter((n) => n.tipo === filtro)
+    if (filtro === 'leidas') return notificaciones.filter((n) => n.leida)
+    return notificaciones
   }, [notificaciones, filtro])
 
   const handleOpenChange = (open: boolean) => {
@@ -185,83 +192,161 @@ export function NotificacionesSheet() {
     if (open) fetchNotificaciones()
   }
 
+  const handleClicNotificacion = (n: Notificacion) => {
+    if (!n.leida) {
+      marcarLeida(n.id)
+    }
+    setNotificacionSeleccionada(n)
+  }
+
   return (
-    <Sheet open={panelAbierto} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-        <SheetHeader className="shrink-0">
-          <SheetTitle>Notificaciones</SheetTitle>
-          <div className="flex items-center gap-2">
-            {noLeidas > 0 && (
-              <>
-                <Badge className="bg-brand-rosa text-white text-[10px] h-5 px-2 rounded-full">
-                  {noLeidas} nuevas
-                </Badge>
-                <button
-                  onClick={marcarTodasLeidas}
-                  className="flex items-center gap-1 text-[10px] font-semibold text-brand-azul hover:text-brand-azul/70 transition-colors"
-                >
-                  <Check className="h-3 w-3" />
-                  Marcar todas
-                </button>
-              </>
-            )}
-            <SheetCloseButton />
-          </div>
-        </SheetHeader>
-
-        <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0 scrollbar-none">
-          {FILTROS.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setFiltro(f.value)}
-              className={cn(
-                'shrink-0 rounded-full text-[11px] font-semibold px-3 py-1 transition-colors',
-                filtro === f.value
-                  ? 'bg-brand-azul text-white'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+    <>
+      <Sheet open={panelAbierto} onOpenChange={handleOpenChange}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-md p-0 flex flex-col"
+        >
+          <SheetHeader className="shrink-0">
+            <SheetTitle>Notificaciones</SheetTitle>
+            <div className="flex items-center gap-2">
+              {noLeidas > 0 && (
+                <>
+                  <Badge className="bg-brand-rosa text-white text-[10px] h-5 px-2 rounded-full">
+                    {noLeidas} nuevas
+                  </Badge>
+                  <button
+                    onClick={marcarTodasLeidas}
+                    className="flex items-center gap-1 text-[10px] font-semibold text-brand-azul hover:text-brand-azul/70 transition-colors"
+                  >
+                    <Check className="h-3 w-3" />
+                    Marcar todas
+                  </button>
+                </>
               )}
+              <SheetCloseButton />
+            </div>
+          </SheetHeader>
+
+          <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0 scrollbar-none">
+            {FILTROS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setFiltro(f.value)}
+                className={cn(
+                  'shrink-0 rounded-full text-[11px] font-semibold px-3 py-1 transition-colors',
+                  filtro === f.value
+                    ? 'bg-brand-azul text-white'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1 overflow-y-auto divide-y divide-gray-50 min-h-0">
+            {cargando && notificaciones.length === 0 ? (
+              <div className="flex items-center justify-center py-16">
+                <RefreshCw className="h-5 w-5 text-gray-300 animate-spin" />
+              </div>
+            ) : filtradas.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-2">
+                <Bell className="h-8 w-8 text-gray-200" />
+                <p className="text-sm text-gray-400">
+                  {filtro === 'no-leidas'
+                    ? 'No tienes notificaciones sin leer.'
+                    : 'Sin notificaciones.'}
+                </p>
+              </div>
+            ) : (
+              filtradas.map((n) => (
+                <NotificacionItem
+                  key={n.id}
+                  n={n}
+                  onClickItem={handleClicNotificacion}
+                />
+              ))
+            )}
+          </div>
+
+          <div className="border-t border-gray-100 px-4 py-3 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchNotificaciones}
+              disabled={cargando}
+              className="w-full"
             >
-              {f.label}
-            </button>
-          ))}
-        </div>
+              <RefreshCw
+                className={cn('mr-2 h-3.5 w-3.5', cargando && 'animate-spin')}
+              />
+              Actualizar
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
-        <div className="flex-1 overflow-y-auto divide-y divide-gray-50 min-h-0">
-          {cargando && notificaciones.length === 0 ? (
-            <div className="flex items-center justify-center py-16">
-              <RefreshCw className="h-5 w-5 text-gray-300 animate-spin" />
-            </div>
-          ) : filtradas.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-2">
-              <Bell className="h-8 w-8 text-gray-200" />
-              <p className="text-sm text-gray-400">
-                {filtro === 'no-leidas'
-                  ? 'No tienes notificaciones sin leer.'
-                  : 'Sin notificaciones.'}
-              </p>
-            </div>
-          ) : (
-            filtradas.map((n) => (
-              <NotificacionItem key={n.id} n={n} onRead={marcarLeida} />
-            ))
-          )}
-        </div>
+      <Dialog
+        open={!!notificacionSeleccionada}
+        onOpenChange={(open) => !open && setNotificacionSeleccionada(null)}
+      >
+        {notificacionSeleccionada && (
+          <DialogContent className="sm:max-w-md rounded-2xl border border-gray-100 p-6 shadow-2xl">
+            <DialogHeader className="flex flex-row items-center gap-3 border-b border-gray-100 pb-4 mb-4">
+              <div
+                className={cn(
+                  'h-10 w-10 rounded-xl flex items-center justify-center shrink-0',
+                  TIPO_COLOR[notificacionSeleccionada.tipo]
+                )}
+              >
+                {React.createElement(TIPO_ICON[notificacionSeleccionada.tipo], {
+                  className: 'h-5 w-5',
+                })}
+              </div>
+              <div className="flex-1 min-w-0">
+                <DialogTitle className="text-base font-bold text-gray-900 leading-tight">
+                  {notificacionSeleccionada.titulo}
+                </DialogTitle>
+                <DialogDescription className="sr-only">
+                  Detalles de la notificación
+                </DialogDescription>
+                <span className="text-[10px] text-gray-400 mt-1 block">
+                  {formatDistanceToNow(notificacionSeleccionada.fecha, {
+                    addSuffix: true,
+                    locale: es,
+                  })}
+                </span>
+              </div>
+            </DialogHeader>
 
-        <div className="border-t border-gray-100 px-4 py-3 shrink-0">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchNotificaciones}
-            disabled={cargando}
-            className="w-full"
-          >
-            <RefreshCw
-              className={cn('mr-2 h-3.5 w-3.5', cargando && 'animate-spin')}
-            />
-            Actualizar
-          </Button>
-        </div>
-      </SheetContent>
-    </Sheet>
+            <div className="space-y-4">
+              <div className="text-sm text-gray-600 leading-relaxed bg-gray-50/50 p-4 rounded-xl border border-gray-100/50">
+                {notificacionSeleccionada.mensaje}
+              </div>
+            </div>
+
+            <DialogFooter className="mt-6 flex flex-row justify-end gap-2 border-t border-gray-100 pt-4">
+              {notificacionSeleccionada.href && (
+                <a
+                  href={notificacionSeleccionada.href}
+                  className="inline-flex items-center justify-center rounded-xl bg-brand-azul px-4 py-2 text-xs font-bold text-white hover:bg-brand-azul/90 transition-colors gap-1.5"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Ver Detalle
+                </a>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setNotificacionSeleccionada(null)}
+                className="rounded-xl px-4 text-xs font-semibold"
+              >
+                Cerrar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
+      </Dialog>
+    </>
   )
 }
