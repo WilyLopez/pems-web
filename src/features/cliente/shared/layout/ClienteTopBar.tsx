@@ -19,6 +19,7 @@ import {
 import { clienteService } from '@/services/cliente.service'
 import { NotificacionesPanel } from '@/features/cliente/shared/components/NotificacionesPanel'
 import { clienteKeys } from '@/features/cliente/shared/queryKeys'
+import { useNotificaciones } from '@/hooks/useNotificaciones'
 
 const BREADCRUMB_MAP: Record<string, string> = {
   cliente: 'Inicio',
@@ -45,6 +46,7 @@ function getBreadcrumb(pathname: string): { label: string; href: string }[] {
 }
 
 export function ClienteTopBar() {
+  useNotificaciones()
   const pathname = usePathname()
   const { nombre, correo, clientePerfilId, logout } = useAuth()
   const breadcrumb = getBreadcrumb(pathname)

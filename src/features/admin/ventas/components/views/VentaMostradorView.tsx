@@ -39,6 +39,10 @@ import {
   DialogDescription,
 } from '@/components/ui/Dialog'
 import { clienteService } from '@/services/cliente.service'
+import {
+  useMiSesionCaja,
+  CajaRequeridaAlert,
+} from '@/features/admin/finanzas'
 import { formatCurrency, cn } from '@/lib/utils'
 import { PagoLinea } from '../../types'
 import { VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
@@ -60,6 +64,8 @@ export const VentaMostradorView = ({
   const [ventaExitosa, setVentaExitosa] = useState<any>(null)
 
   const formProps = useVentaMostradorForm()
+  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
+    useMiSesionCaja()
 
   const {
     methods,
@@ -246,6 +252,15 @@ export const VentaMostradorView = ({
     setCliente(null)
     cleanLocalStorage()
     methods.reset()
+  }
+
+  if (!cargandoSesionCaja && !miSesionCaja) {
+    return (
+      <CajaRequeridaAlert
+        mensaje="Para registrar ventas necesitas tener tu caja abierta."
+        className="max-w-xl"
+      />
+    )
   }
 
   return (

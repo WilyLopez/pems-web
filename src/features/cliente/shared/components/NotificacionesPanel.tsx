@@ -52,24 +52,40 @@ export function NotificacionesPanel() {
   const noLeidas = notificaciones.filter((n) => !n.leida).length
 
   return (
-    <Popover
-      onOpenChange={(open) => {
-        if (open) fetchNotificaciones()
-      }}
-    >
-      <PopoverTrigger asChild>
-        <button
-          className="relative w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
-          aria-label="Notificaciones"
-        >
-          <Bell className="h-5 w-5" />
-          {noLeidas > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-brand-rosa text-white text-[10px] font-black rounded-full leading-none">
-              {noLeidas > 9 ? '9+' : noLeidas}
-            </span>
-          )}
-        </button>
-      </PopoverTrigger>
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes bell-ring {
+          0%, 100% { transform: rotate(0deg); }
+          15% { transform: rotate(15deg); }
+          30% { transform: rotate(-15deg); }
+          45% { transform: rotate(10deg); }
+          60% { transform: rotate(-10deg); }
+          75% { transform: rotate(4deg); }
+          85% { transform: rotate(-4deg); }
+        }
+        .bell-ring-active {
+          animation: bell-ring 2s ease-in-out infinite;
+          transform-origin: top center;
+        }
+      `}} />
+      <Popover
+        onOpenChange={(open) => {
+          if (open) fetchNotificaciones()
+        }}
+      >
+        <PopoverTrigger asChild>
+          <button
+            className="relative w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+            aria-label="Notificaciones"
+          >
+            <Bell className={cn("h-5 w-5", noLeidas > 0 && "bell-ring-active text-brand-rosa")} />
+            {noLeidas > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center bg-brand-rosa text-white text-[10px] font-black rounded-full leading-none animate-pulse">
+                {noLeidas > 9 ? '9+' : noLeidas}
+              </span>
+            )}
+          </button>
+        </PopoverTrigger>
 
       <PopoverContent
         className="w-80 sm:w-96 p-0 rounded-2xl shadow-2xl border border-gray-100 overflow-hidden"
@@ -127,6 +143,7 @@ export function NotificacionesPanel() {
         </div>
       </PopoverContent>
     </Popover>
+    </>
   )
 }
 
