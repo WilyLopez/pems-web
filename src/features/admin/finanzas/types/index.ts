@@ -169,6 +169,7 @@ export type CategoriaIngreso =
 export type EstadoCaja = 'ABIERTA' | 'CERRADA'
 export type TipoSesionCaja = 'CAJERO' | 'ADMINISTRATIVA'
 export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO'
+export type NaturalezaMovimientoCaja = 'NORMAL' | 'CONTRAASIENTO'
 export type CategoriaRetiro =
   | 'SERVICIOS'
   | 'PROVEEDORES'
@@ -253,7 +254,13 @@ export interface MovimientoCaja {
   idRegistroEgreso?: number
   idVenta?: number
   esManual: boolean
+  naturaleza: NaturalezaMovimientoCaja
+  idMovimientoAnulado?: number
   fechaCreacion: string
+}
+
+export interface AnularMovimientoPayload {
+  motivo: string
 }
 
 export interface PresupuestoEvento {

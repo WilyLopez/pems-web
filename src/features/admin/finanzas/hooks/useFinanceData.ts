@@ -96,6 +96,12 @@ export const FINANCE_KEYS = {
     [...FINANCE_KEYS.CAJA(), 'detail', idSede, fecha] as const,
   CAJA_HOY: (idSede: number | undefined) =>
     [...FINANCE_KEYS.CAJA(), 'hoy', idSede] as const,
+  MI_SESION: () => [...FINANCE_KEYS.CAJA(), 'mi-sesion'] as const,
+  CAJAS_RANGO: (
+    idSede: number | undefined,
+    inicio: string | undefined,
+    fin: string | undefined
+  ) => [...FINANCE_KEYS.CAJA(), 'rango', idSede, inicio, fin] as const,
   MOVIMIENTOS_CAJA: (idApertura: number | undefined) =>
     [...FINANCE_KEYS.CAJA(), 'movimientos', idApertura] as const,
   RESUMEN_CAJA: (idApertura: number | undefined) =>
@@ -530,6 +536,27 @@ export function useCajaHoy(idSede: number | undefined) {
     enabled: !!idSede,
     staleTime: 1000 * 30,
     refetchInterval: 1000 * 60,
+  })
+}
+
+export function useMiSesionCaja() {
+  return useQuery({
+    queryKey: FINANCE_KEYS.MI_SESION(),
+    queryFn: financeApi.obtenerMiSesion,
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 60,
+  })
+}
+
+export function useCajasRango(
+  idSede: number | undefined,
+  inicio: string | undefined,
+  fin: string | undefined
+) {
+  return useQuery({
+    queryKey: FINANCE_KEYS.CAJAS_RANGO(idSede, inicio, fin),
+    queryFn: () => financeApi.listarCajasPorRango(idSede!, inicio!, fin!),
+    enabled: !!idSede && !!inicio && !!fin,
   })
 }
 

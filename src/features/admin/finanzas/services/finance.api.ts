@@ -3,6 +3,7 @@ import {
   ActualizarEgresoPayload,
   ActualizarGastoOperativoPayload,
   AbrirCajaPayload,
+  AnularMovimientoPayload,
   AperturaCaja,
   ArqueoCaja,
   CerrarCajaPayload,
@@ -396,6 +397,29 @@ export const financeApi = {
     }
   },
 
+  obtenerMiSesion: async (): Promise<AperturaCaja | null> => {
+    try {
+      const { data } =
+        await api.get<ApiResponse<AperturaCaja | null>>('/caja/mi-sesion')
+      return data.data
+    } catch (err: any) {
+      if (err?.response?.status === 404) return null
+      throw err
+    }
+  },
+
+  listarCajasPorRango: async (
+    idSede: number,
+    inicio: string,
+    fin: string
+  ): Promise<AperturaCaja[]> => {
+    const { data } = await api.get<ApiResponse<AperturaCaja[]>>(
+      `/caja/sedes/${idSede}/rango`,
+      { params: { inicio, fin } }
+    )
+    return data.data
+  },
+
   generarResumenCaja: async (idApertura: number): Promise<ResumenCaja> => {
     const { data } = await api.get<ApiResponse<ResumenCaja>>(
       `/caja/${idApertura}/resumen`
@@ -427,6 +451,17 @@ export const financeApi = {
   ): Promise<MovimientoCaja> => {
     const { data } = await api.post<ApiResponse<MovimientoCaja>>(
       `/caja/${idApertura}/movimientos`,
+      payload
+    )
+    return data.data
+  },
+
+  anularMovimientoCaja: async (
+    idMovimiento: number,
+    payload: AnularMovimientoPayload
+  ): Promise<MovimientoCaja> => {
+    const { data } = await api.post<ApiResponse<MovimientoCaja>>(
+      `/caja/movimientos/${idMovimiento}/anular`,
       payload
     )
     return data.data
