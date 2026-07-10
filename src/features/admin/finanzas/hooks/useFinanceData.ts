@@ -3,8 +3,7 @@ import { toast } from 'sonner'
 import { financeApi } from '../services/finance.api'
 import {
   AbrirCajaPayload,
-  ActualizarEgresoPayload,
-  ActualizarGastoOperativoPayload,
+  AnularMovimientoPayload,
   CerrarCajaPayload,
   CerrarCajaForzadoPayload,
   CrearTipoIngresoPayload,
@@ -35,6 +34,13 @@ export const FINANCE_KEYS = {
     inicio: string | undefined,
     fin: string | undefined
   ) => [...FINANCE_KEYS.EGRESOS(), 'rango', idSede, inicio, fin] as const,
+  EGRESOS_PENDIENTES: (idSede: number | undefined) =>
+    [...FINANCE_KEYS.EGRESOS(), 'pendientes-aprobacion', idSede] as const,
+  TESORERIA_WEB: (
+    idSede: number | undefined,
+    inicio: string | undefined,
+    fin: string | undefined
+  ) => [...FINANCE_KEYS.ALL, 'tesoreria-web', idSede, inicio, fin] as const,
   GASTOS_EVENTO: (idEvento: number | undefined) =>
     [...FINANCE_KEYS.ALL, 'gastos-evento', idEvento] as const,
   GASTOS_EVENTO_RANGO: (
@@ -204,31 +210,75 @@ export function useEgresoMutations() {
     onError: () => toast.error('No se pudo registrar el egreso.'),
   })
 
-  const actualizar = useMutation({
+  const anular = useMutation({
     mutationFn: ({
       id,
       payload,
     }: {
       id: number
-      payload: ActualizarEgresoPayload
-    }) => financeApi.actualizarEgreso(id, payload),
+      payload: AnularMovimientoPayload
+    }) => financeApi.anularEgreso(id, payload),
     onSuccess: () => {
-      toast.success('Egreso actualizado.')
+      toast.success('Egreso anulado con contraasiento.')
       invalidarEgresos()
     },
-    onError: () => toast.error('No se pudo actualizar el egreso.'),
+    onError: (err: any) =>
+      toast.error(
+        err?.message ?? 'No se pudo anular el egreso.'
+      ),
   })
 
-  const eliminar = useMutation({
-    mutationFn: financeApi.eliminarEgreso,
+  const aprobar = useMutation({
+    mutationFn: (id: number) => financeApi.aprobarEgreso(id),
     onSuccess: () => {
-      toast.success('Egreso eliminado.')
+      toast.success('Egreso aprobado.')
       invalidarEgresos()
     },
-    onError: () => toast.error('No se pudo eliminar el egreso.'),
+    onError: (err: any) =>
+      toast.error(
+        err?.message ?? 'No se pudo aprobar el egreso.'
+      ),
   })
 
-  return { registrar, actualizar, eliminar }
+  const rechazar = useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: AnularMovimientoPayload
+    }) => financeApi.rechazarEgreso(id, payload),
+    onSuccess: () => {
+      toast.success('Egreso rechazado.')
+      invalidarEgresos()
+    },
+    onError: (err: any) =>
+      toast.error(
+        err?.message ?? 'No se pudo rechazar el egreso.'
+      ),
+  })
+
+  return { registrar, anular, aprobar, rechazar }
+}
+
+export function useEgresosPendientesAprobacion(idSede: number | undefined) {
+  return useQuery({
+    queryKey: FINANCE_KEYS.EGRESOS_PENDIENTES(idSede),
+    queryFn: () => financeApi.listarEgresosPendientesAprobacion(idSede!),
+    enabled: !!idSede,
+  })
+}
+
+export function useTesoreriaWeb(
+  idSede: number | undefined,
+  inicio: string | undefined,
+  fin: string | undefined
+) {
+  return useQuery({
+    queryKey: FINANCE_KEYS.TESORERIA_WEB(idSede, inicio, fin),
+    queryFn: () => financeApi.listarTesoreriaWeb(idSede!, inicio!, fin!),
+    enabled: !!idSede && !!inicio && !!fin,
+  })
 }
 
 export function useGastosEventoPorRango(
@@ -345,31 +395,22 @@ export function useGastoOperativoMutations() {
     onError: () => toast.error('No se pudo registrar el gasto operativo.'),
   })
 
-  const actualizar = useMutation({
+  const anular = useMutation({
     mutationFn: ({
       id,
       payload,
     }: {
       id: number
-      payload: ActualizarGastoOperativoPayload
-    }) => financeApi.actualizarGastoOperativo(id, payload),
+      payload: AnularMovimientoPayload
+    }) => financeApi.anularGastoOperativo(id, payload),
     onSuccess: () => {
-      toast.success('Gasto operativo actualizado.')
+      toast.success('Gasto operativo anulado.')
       invalidarGastos()
     },
-    onError: () => toast.error('No se pudo actualizar el gasto operativo.'),
+    onError: () => toast.error('No se pudo anular el gasto operativo.'),
   })
 
-  const eliminar = useMutation({
-    mutationFn: financeApi.eliminarGastoOperativo,
-    onSuccess: () => {
-      toast.success('Gasto operativo eliminado.')
-      invalidarGastos()
-    },
-    onError: () => toast.error('No se pudo eliminar el gasto operativo.'),
-  })
-
-  return { registrar, actualizar, eliminar }
+  return { registrar, anular }
 }
 
 export function useResumenMensual(
@@ -509,16 +550,25 @@ export function useIngresoMutations() {
     onError: () => toast.error('No se pudo registrar el ingreso.'),
   })
 
-  const eliminar = useMutation({
-    mutationFn: (id: number) => financeApi.eliminarIngreso(id),
+  const anular = useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: AnularMovimientoPayload
+    }) => financeApi.anularIngreso(id, payload),
     onSuccess: () => {
-      toast.success('Ingreso eliminado.')
+      toast.success('Ingreso anulado con contraasiento.')
       invalidar()
     },
-    onError: () => toast.error('No se pudo eliminar el ingreso.'),
+    onError: (err: any) =>
+      toast.error(
+        err?.message ?? 'No se pudo anular el ingreso.'
+      ),
   })
 
-  return { registrar, eliminar }
+  return { registrar, anular }
 }
 
 export function useCaja(idSede: number | undefined, fecha: string | undefined) {
@@ -612,7 +662,10 @@ export function useCajaMutations() {
       toast.success('Caja abierta.')
       invalidar()
     },
-    onError: () => toast.error('No se pudo abrir la caja.'),
+    onError: (error: any) => {
+      invalidar()
+      toast.error(error?.message ?? 'No se pudo abrir la caja.')
+    },
   })
 
   const cerrar = useMutation({
@@ -627,7 +680,10 @@ export function useCajaMutations() {
       toast.success('Caja cerrada.')
       invalidar()
     },
-    onError: () => toast.error('No se pudo cerrar la caja.'),
+    onError: (error: any) => {
+      invalidar()
+      toast.error(error?.message ?? 'No se pudo cerrar la caja.')
+    },
   })
 
   const cerrarForzado = useMutation({
@@ -642,7 +698,10 @@ export function useCajaMutations() {
       toast.success('Caja cerrada.')
       invalidar()
     },
-    onError: () => toast.error('No se pudo cerrar la caja.'),
+    onError: (error: any) => {
+      invalidar()
+      toast.error(error?.message ?? 'No se pudo cerrar la caja.')
+    },
   })
 
   const registrarMovimiento = useMutation({
@@ -660,7 +719,25 @@ export function useCajaMutations() {
     onError: () => toast.error('No se pudo registrar el movimiento.'),
   })
 
-  return { abrir, cerrar, cerrarForzado, registrarMovimiento }
+  const anularMovimiento = useMutation({
+    mutationFn: ({
+      idMovimiento,
+      payload,
+    }: {
+      idMovimiento: number
+      payload: AnularMovimientoPayload
+    }) => financeApi.anularMovimientoCaja(idMovimiento, payload),
+    onSuccess: () => {
+      toast.success('Movimiento anulado con contraasiento.')
+      invalidar()
+    },
+    onError: (err: any) =>
+      toast.error(
+        err?.message ?? 'No se pudo anular el movimiento.'
+      ),
+  })
+
+  return { abrir, cerrar, cerrarForzado, registrarMovimiento, anularMovimiento }
 }
 
 export function useMovimientosCaja(idApertura: number | undefined) {

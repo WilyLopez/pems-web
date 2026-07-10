@@ -13,17 +13,28 @@ export interface TipoEgreso {
   activo: boolean
 }
 
+export type EstadoAprobacionEgreso =
+  | 'APROBADO'
+  | 'PENDIENTE_APROBACION'
+  | 'RECHAZADO'
+
 export interface RegistroEgreso {
   id: number
   tipoEgresoCodigo: string
   idSede: number
   monto: number
   fecha: string
+  medioPago?: string
   periodoAnio?: number
   periodoMes?: number
   descripcion?: string
   comprobanteUrl?: string
   esRecurrente: boolean
+  naturaleza: NaturalezaMovimientoCaja
+  idRegistroAnulado?: number
+  estadoAprobacion: EstadoAprobacionEgreso
+  fechaAprobacion?: string
+  motivoRechazo?: string
   fechaCreacion: string
 }
 
@@ -44,6 +55,8 @@ export interface GastoOperativo {
   descripcion: string
   monto: number
   comprobanteUrl?: string
+  naturaleza: NaturalezaMovimientoCaja
+  idGastoAnulado?: number
   fechaCreacion: string
 }
 
@@ -123,6 +136,7 @@ export interface RegistrarEgresoPayload {
   tipoEgresoCodigo: string
   monto: number
   fecha: string
+  medioPago: string
   periodoAnio?: number
   periodoMes?: number
   descripcion?: string
@@ -137,24 +151,6 @@ export interface RegistrarGastoEventoPayload {
 }
 
 export interface RegistrarGastoOperativoPayload {
-  fecha: string
-  descripcion: string
-  monto: number
-  comprobanteUrl?: string
-}
-
-export interface ActualizarEgresoPayload {
-  tipoEgresoCodigo: string
-  monto: number
-  fecha: string
-  periodoAnio?: number
-  periodoMes?: number
-  descripcion?: string
-  comprobanteUrl?: string
-  esRecurrente?: boolean
-}
-
-export interface ActualizarGastoOperativoPayload {
   fecha: string
   descripcion: string
   monto: number
@@ -195,9 +191,12 @@ export interface RegistroIngreso {
   idEventoPrivado?: number
   monto: number
   fecha: string
+  fechaCobro?: string
   medioPago?: string
   descripcion?: string
   esAutomatico: boolean
+  naturaleza: NaturalezaMovimientoCaja
+  idRegistroAnulado?: number
   fechaCreacion: string
 }
 
