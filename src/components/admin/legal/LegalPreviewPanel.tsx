@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Monitor, Smartphone } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
+import { sanitizeLegalHtml } from '@/lib/sanitize'
 
 interface Props {
   titulo: string
@@ -80,7 +81,7 @@ export function LegalPreviewPanel({ titulo, contenido }: Props) {
                 lineHeight: 1.75,
                 color: '#374151',
               }}
-              dangerouslySetInnerHTML={{ __html: contenido }}
+              dangerouslySetInnerHTML={{ __html: sanitizeLegalHtml(contenido) }}
             />
           ) : (
             <p

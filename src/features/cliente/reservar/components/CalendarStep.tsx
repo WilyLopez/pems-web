@@ -10,7 +10,6 @@ import {
   isBefore,
   isAfter,
   startOfDay,
-  parse,
   addDays,
 } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -19,7 +18,7 @@ import { useDisponibilidadRango } from '@/hooks/useDisponibilidad'
 import { Disponibilidad } from '@/features/admin/calendario/types'
 import { Skeleton } from '@/features/public/shared/components/Skeletons'
 import { PrecioLabel } from './PrecioLabel'
-import { cn } from '@/lib/utils'
+import { cn, esFechaHoyEnZonaNegocio, yaPasoLaHoraEnZonaNegocio } from '@/lib/utils'
 
 interface CalendarStepProps {
   idSede: number
@@ -52,8 +51,7 @@ export function CalendarStep({
   const semanasMax = Math.ceil(diasMax / 7)
 
   const hoyYaCerro = (fecha: string) =>
-    isToday(parseISO(fecha)) &&
-    isAfter(new Date(), parse(horaCierre, 'HH:mm', new Date()))
+    esFechaHoyEnZonaNegocio(fecha) && yaPasoLaHoraEnZonaNegocio(horaCierre)
 
   const semanaInicio = startOfWeek(addWeeks(new Date(), semanaOffset), {
     weekStartsOn: 1,

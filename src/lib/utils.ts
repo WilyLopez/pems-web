@@ -40,6 +40,34 @@ export function formatDateTime(date: string | Date) {
   })
 }
 
+const ZONA_NEGOCIO = 'America/Lima'
+
+export function fechaHoyEnZonaNegocio(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: ZONA_NEGOCIO,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+}
+
+export function esFechaHoyEnZonaNegocio(fechaISO: string): boolean {
+  return fechaISO === fechaHoyEnZonaNegocio()
+}
+
+export function yaPasoLaHoraEnZonaNegocio(horaLimite: string): boolean {
+  const partes = new Intl.DateTimeFormat('en-US', {
+    timeZone: ZONA_NEGOCIO,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(new Date())
+  const horas = Number(partes.find((p) => p.type === 'hour')?.value ?? 0)
+  const minutos = Number(partes.find((p) => p.type === 'minute')?.value ?? 0)
+  const [hLimite, mLimite] = horaLimite.split(':').map(Number)
+  return horas * 100 + minutos > hLimite * 100 + mLimite
+}
+
 export function formatCurrency(amount: number, decimals?: number) {
   return new Intl.NumberFormat('es-PE', {
     style: 'currency',

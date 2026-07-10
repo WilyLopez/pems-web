@@ -47,7 +47,7 @@ export const DOT_COLOR: Record<TipoVisual, string> = {
 }
 
 export function AdminNavbar() {
-  const { nombre, correo, fotoPerfilUrl, logout } = useAuth()
+  const { nombre, correo, fotoPerfilUrl, logout, isAdmin } = useAuth()
   const { toggleMobile } = useSidebarStore()
   useNotificaciones()
 
@@ -104,7 +104,7 @@ export function AdminNavbar() {
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <UserMenu nombre={nombre} correo={correo} logout={logout} />
+          <UserMenu nombre={nombre} correo={correo} logout={logout} isAdmin={isAdmin} />
         </DropdownMenu>
       </div>
     </header>

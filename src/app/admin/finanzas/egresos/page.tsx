@@ -6,7 +6,9 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
-  Pencil,
+  Undo2,
+  Check,
+  XCircle,
   X,
   Tag,
   Eye,
@@ -23,6 +25,7 @@ import {
   useGastosEventoPorRango,
   useTiposEgreso,
   RegistrarEgresoModal,
+  AnularRegistroModal,
   PeriodoSelector,
   TiposEgresoManager,
   RegistroEgreso,
@@ -74,7 +77,7 @@ function formatFecha(iso: string) {
 }
 
 export default function EgresosPage() {
-  const { idSede } = useAuth()
+  const { idSede, isAdmin } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -91,10 +94,11 @@ export default function EgresosPage() {
 
   const [openModal, setOpenModal] = useState(false)
   const [openTipos, setOpenTipos] = useState(false)
-  const [editandoEgreso, setEditandoEgreso] = useState<
-    RegistroEgreso | undefined
-  >()
   const [detailEgreso, setDetailEgreso] = useState<RegistroEgreso | null>(null)
+  const [egresoAnular, setEgresoAnular] = useState<RegistroEgreso | null>(null)
+  const [egresoRechazar, setEgresoRechazar] = useState<RegistroEgreso | null>(
+    null
+  )
 
   const inicioMes = `${anio}-${String(mes).padStart(2, '0')}-01`
   const finMes = new Date(anio, mes, 0).toISOString().split('T')[0]
@@ -183,7 +187,7 @@ export default function EgresosPage() {
   )
   const { data: tiposEgreso = [] } = useTiposEgreso()
 
-  const { eliminar } = useEgresoMutations()
+  const { anular, aprobar, rechazar } = useEgresoMutations()
 
   function resolverTipoEgreso(codigo: string) {
     return tiposEgreso.find((t) => t.codigo === codigo)?.nombre ?? codigo
@@ -218,17 +222,17 @@ export default function EgresosPage() {
     ? Math.max(1, Math.ceil(filteredRange.length / PAGE_SIZE))
     : (paginado?.totalPages ?? 1)
 
+  const idsAnulados = new Set(
+    egresos
+      .map((e) => e.idRegistroAnulado)
+      .filter((id): id is number => id != null)
+  )
+
   const tieneFiltrosSecundarios = !!(filtroTipo || filtroRecurrente || q)
   const totalGastosOp = gastosOp.reduce((s, g) => s + g.monto, 0)
   const totalGastosEv = gastosEv.reduce((s, g) => s + g.monto, 0)
 
   function abrirNuevo() {
-    setEditandoEgreso(undefined)
-    setOpenModal(true)
-  }
-
-  function abrirEditar(e: RegistroEgreso) {
-    setEditandoEgreso(e)
     setOpenModal(true)
   }
 
@@ -429,13 +433,42 @@ export default function EgresosPage() {
                           className="hover:bg-gray-50 transition-colors"
                         >
                           <td className="px-4 py-3">
-                            <p className="font-medium text-gray-900">
+                            <p
+                              className={cn(
+                                'font-medium text-gray-900',
+                                idsAnulados.has(e.id) &&
+                                  'line-through text-gray-400'
+                              )}
+                            >
                               {e.tipoEgresoCodigo}
                             </p>
                             {e.descripcion && (
                               <p className="text-xs text-gray-400 truncate max-w-[200px]">
                                 {e.descripcion}
                               </p>
+                            )}
+                            {e.naturaleza === 'CONTRAASIENTO' && (
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600">
+                                Contraasiento
+                              </span>
+                            )}
+                            {idsAnulados.has(e.id) && (
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600">
+                                Anulado
+                              </span>
+                            )}
+                            {e.estadoAprobacion === 'PENDIENTE_APROBACION' && (
+                              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                                Pendiente de aprobación
+                              </span>
+                            )}
+                            {e.estadoAprobacion === 'RECHAZADO' && (
+                              <span
+                                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600"
+                                title={e.motivoRechazo}
+                              >
+                                Rechazado
+                              </span>
                             )}
                           </td>
                           <td className="px-4 py-3 text-gray-600">{e.fecha}</td>
@@ -456,21 +489,39 @@ export default function EgresosPage() {
                               >
                                 <Eye className="h-3.5 w-3.5" />
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => abrirEditar(e)}
-                                className="p-1 text-gray-400 hover:text-brand-azul transition-colors"
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => eliminar.mutate(e.id)}
-                                disabled={eliminar.isPending}
-                                className="p-1 text-xs text-gray-400 hover:text-red-500 transition-colors"
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </button>
+                              {e.estadoAprobacion === 'PENDIENTE_APROBACION' &&
+                                isAdmin && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => aprobar.mutate(e.id)}
+                                      disabled={aprobar.isPending}
+                                      className="p-1 text-gray-400 hover:text-emerald-600 transition-colors"
+                                      title="Aprobar"
+                                    >
+                                      <Check className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setEgresoRechazar(e)}
+                                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                                      title="Rechazar"
+                                    >
+                                      <XCircle className="h-3.5 w-3.5" />
+                                    </button>
+                                  </>
+                                )}
+                              {e.estadoAprobacion === 'APROBADO' &&
+                                e.naturaleza !== 'CONTRAASIENTO' &&
+                                !idsAnulados.has(e.id) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setEgresoAnular(e)}
+                                    className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                                  >
+                                    <Undo2 className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
                             </div>
                           </td>
                         </tr>
@@ -795,14 +846,56 @@ export default function EgresosPage() {
       {idSede && (
         <RegistrarEgresoModal
           open={openModal}
-          onOpenChange={(v) => {
-            setOpenModal(v)
-            if (!v) setEditandoEgreso(undefined)
-          }}
+          onOpenChange={setOpenModal}
           idSede={idSede}
-          egreso={editandoEgreso}
         />
       )}
+
+      <AnularRegistroModal
+        titulo="Anular egreso"
+        registro={
+          egresoAnular
+            ? {
+                id: egresoAnular.id,
+                concepto: egresoAnular.descripcion || egresoAnular.tipoEgresoCodigo,
+                monto: egresoAnular.monto,
+              }
+            : null
+        }
+        pending={anular.isPending}
+        onConfirmar={(motivo) =>
+          anular.mutate(
+            { id: egresoAnular!.id, payload: { motivo } },
+            { onSuccess: () => setEgresoAnular(null) }
+          )
+        }
+        onClose={() => setEgresoAnular(null)}
+      />
+
+      <AnularRegistroModal
+        titulo="Rechazar egreso"
+        descripcion="El egreso nunca llegó a afectar la caja; quedará marcado como rechazado para auditoría."
+        etiquetaMotivo="Motivo de rechazo"
+        textoBoton="Rechazar"
+        registro={
+          egresoRechazar
+            ? {
+                id: egresoRechazar.id,
+                concepto:
+                  egresoRechazar.descripcion || egresoRechazar.tipoEgresoCodigo,
+                monto: egresoRechazar.monto,
+              }
+            : null
+        }
+        pending={rechazar.isPending}
+        onConfirmar={(motivo) =>
+          rechazar.mutate(
+            { id: egresoRechazar!.id, payload: { motivo } },
+            { onSuccess: () => setEgresoRechazar(null) }
+          )
+        }
+        onClose={() => setEgresoRechazar(null)}
+      />
     </div>
   )
 }

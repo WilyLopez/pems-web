@@ -34,18 +34,27 @@ export function CerrarCajaPanel({ caja, onArqueo }: Props) {
     handleSubmit,
     control,
     reset,
+    setError,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(cerrarCajaSchema),
-    defaultValues: { saldoFinal: 0 },
   })
 
   const saldoFinalWatch = useWatch({ control, name: 'saldoFinal' })
+  const contadoIngresado =
+    saldoFinalWatch !== undefined &&
+    saldoFinalWatch !== null &&
+    `${saldoFinalWatch}` !== ''
   const saldoFinalNum = Number(saldoFinalWatch) || 0
   const diferencia = saldoFinalNum - saldoEsperado
-  const hayDiferencia = saldoFinalNum > 0
 
   function onSubmit(v: FormValues) {
+    if (v.saldoFinal - saldoEsperado !== 0 && !v.observaciones?.trim()) {
+      setError('observaciones', {
+        message: 'Registra una observación que justifique la diferencia',
+      })
+      return
+    }
     cerrar.mutate(
       { idApertura: caja.id, payload: v },
       { onSuccess: () => reset() }
@@ -108,18 +117,20 @@ export function CerrarCajaPanel({ caja, onArqueo }: Props) {
           )}
         </div>
 
-        {hayDiferencia && (
+        {contadoIngresado && (
           <div
             className={cn(
               'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold',
-              diferencia >= 0
+              diferencia === 0
                 ? 'bg-emerald-50 text-emerald-700'
-                : 'bg-red-50 text-red-600'
+                : diferencia > 0
+                  ? 'bg-amber-50 text-amber-700'
+                  : 'bg-red-50 text-red-600'
             )}
           >
-            <span>Diferencia</span>
+            <span>{diferencia === 0 ? 'Sin diferencia' : 'Diferencia'}</span>
             <span>
-              {diferencia >= 0 ? '+' : ''}
+              {diferencia > 0 ? '+' : ''}
               {formatCurrency(diferencia)}
             </span>
           </div>
@@ -127,7 +138,19 @@ export function CerrarCajaPanel({ caja, onArqueo }: Props) {
 
         <div className="space-y-1">
           <Label>Observaciones</Label>
-          <Input {...register('observaciones')} placeholder="Opcional…" />
+          <Input
+            {...register('observaciones')}
+            placeholder={
+              contadoIngresado && diferencia !== 0
+                ? 'Obligatorio: justifica la diferencia…'
+                : 'Opcional…'
+            }
+          />
+          {errors.observaciones && (
+            <p className="text-xs text-red-500">
+              {errors.observaciones.message}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-2">

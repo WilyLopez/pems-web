@@ -84,6 +84,8 @@ export const VentaMostradorView = ({
     plazasDisponibles,
     exceedsAforo,
     estaBloqueado,
+    fueraDeHorario,
+    hayEventoPrivado,
     esHoy,
     total,
     subtotal,
@@ -305,7 +307,8 @@ export const VentaMostradorView = ({
                       estaBloqueado={estaBloqueado}
                       esHoy={esHoy}
                       precioDia={precioDia}
-                      fueraDeHorario={estaBloqueado && !disponibilidad?.disponiblePublico}
+                      fueraDeHorario={fueraDeHorario}
+                      hayEventoPrivado={hayEventoPrivado}
                       confCal={confCal}
                       disponibilidad={disponibilidad}
                     />

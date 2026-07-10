@@ -123,6 +123,10 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
     !cargandoSesionCaja && miSesionCaja?.tipo !== 'ADMINISTRATIVA'
   const efectivoSaldoBloqueado =
     medioPagoSaldo === 'EFECTIVO' && sinCajaAdministrativa
+  const montoSaldoExcedeSaldo =
+    !!montoSaldo &&
+    evento != null &&
+    parseFloat(montoSaldo) > (evento.montoSaldo ?? 0)
   const efectivoCuotaBloqueado =
     sinCajaAdministrativa &&
     pagosCuota.some((p) => p.medioPago === 'EFECTIVO' && p.monto > 0)
@@ -586,6 +590,7 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                                     <Input
                                       type="number"
                                       step="0.01"
+                                      max={evento.montoSaldo}
                                       placeholder="Monto S/"
                                       value={montoSaldo}
                                       onChange={(e) =>
@@ -606,13 +611,15 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                                         !montoSaldo ||
                                         !medioPagoSaldo ||
                                         efectivoSaldoBloqueado ||
+                                        montoSaldoExcedeSaldo ||
                                         registrarSaldo.isPending
                                       }
                                       onClick={() => {
                                         if (
                                           !montoSaldo ||
                                           !medioPagoSaldo ||
-                                          efectivoSaldoBloqueado
+                                          efectivoSaldoBloqueado ||
+                                          montoSaldoExcedeSaldo
                                         )
                                           return
                                         registrarSaldo.mutate(
@@ -638,6 +645,12 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                                       Registrar
                                     </Button>
                                   </div>
+                                  {montoSaldoExcedeSaldo && (
+                                    <p className="text-xs text-destructive">
+                                      El monto no puede superar el saldo
+                                      pendiente ({formatCurrency(evento.montoSaldo ?? 0)}).
+                                    </p>
+                                  )}
                                   {efectivoSaldoBloqueado && (
                                     <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas tu Caja Administrativa abierta." />
                                   )}

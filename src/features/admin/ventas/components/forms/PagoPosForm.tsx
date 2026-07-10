@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Plus, X, Landmark, Receipt, Coins, QrCode, CreditCard } from 'lucide-react'
 import {
   Controller,
@@ -63,6 +63,17 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
     efectivoRecibido || 0,
     total
   )
+
+  useEffect(() => {
+    if (fields.length !== 1) return
+    const montoObjetivo = Math.max(0, Math.round(total * 100) / 100)
+    if (pagos?.[0]?.monto !== montoObjetivo) {
+      setValue('pagos.0.monto', montoObjetivo, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+    }
+  }, [total, fields.length, pagos, setValue])
 
   const tieneEfectivo = pagos.some(
     (p) => p.medioPago === 'EFECTIVO' && p.monto > 0
@@ -166,6 +177,7 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                           type="number"
                           placeholder="0.00"
                           value={f.value || ''}
+                          disabled={fields.length === 1}
                           onChange={(e) =>
                             f.onChange(parseFloat(e.target.value) || 0)
                           }
@@ -177,7 +189,7 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                         />
                       )}
                     />
-                    {saldoLinea > 0 && pagos[i]?.monto !== saldoLinea && (
+                    {fields.length > 1 && saldoLinea > 0 && pagos[i]?.monto !== saldoLinea && (
                       <button
                         type="button"
                         onClick={() => setValue(`pagos.${i}.monto`, saldoLinea, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}

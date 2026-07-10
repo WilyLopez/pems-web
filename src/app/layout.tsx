@@ -1,6 +1,6 @@
 import '@/lib/zod-messages'
 import type { Metadata } from 'next'
-import { Geist, Poppins } from 'next/font/google'
+import { Geist, Poppins, Inter, Roboto } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { Providers } from './providers'
 import { configuracionPublicaService } from '@/services/configuracion-publica.service'
@@ -11,6 +11,12 @@ const poppins = Poppins({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800', '900'],
   variable: '--font-poppins',
+})
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: ['400', '500', '700', '900'],
+  variable: '--font-roboto',
 })
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -35,7 +41,9 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head />
-      <body className={`${geistSans.variable} ${poppins.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} antialiased`}
+      >
         <Providers>
           {children}
           <Toaster richColors position="top-right" />

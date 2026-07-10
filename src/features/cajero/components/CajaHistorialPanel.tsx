@@ -76,13 +76,18 @@ export function CajaHistorialPanel({ idSede }: Props) {
     handleSubmit,
     control,
     reset,
+    setError,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(cerrarCajaForzadoSchema),
-    defaultValues: { saldoFinal: 0, motivo: '', observaciones: '' },
+    defaultValues: { motivo: '', observaciones: '' },
   })
 
   const saldoFinalWatch = useWatch({ control, name: 'saldoFinal' })
+  const contadoIngresado =
+    saldoFinalWatch !== undefined &&
+    saldoFinalWatch !== null &&
+    `${saldoFinalWatch}` !== ''
   const saldoFinalNum = Number(saldoFinalWatch) || 0
 
   const saldoEsperado = selectedCaja
@@ -94,17 +99,17 @@ export function CajaHistorialPanel({ idSede }: Props) {
 
   function handleOpenCloseDialog(caja: AperturaCaja) {
     setSelectedCaja(caja)
-    reset({
-      saldoFinal: Number(
-        (caja.saldoInicial + caja.totalIngresos - caja.totalEgresos).toFixed(2)
-      ),
-      motivo: '',
-      observaciones: '',
-    })
+    reset({ motivo: '', observaciones: '' })
   }
 
   function onSubmitClose(v: FormValues) {
     if (!selectedCaja) return
+    if (v.saldoFinal - saldoEsperado !== 0 && !v.observaciones?.trim()) {
+      setError('observaciones', {
+        message: 'Registra una observación que justifique la diferencia',
+      })
+      return
+    }
     cerrarForzado.mutate(
       { idSesion: selectedCaja.id, payload: v },
       {
@@ -315,18 +320,20 @@ export function CajaHistorialPanel({ idSede }: Props) {
                 )}
               </div>
 
-              {saldoFinalNum > 0 && (
+              {contadoIngresado && (
                 <div
                   className={cn(
                     'flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold',
-                    diferencia >= 0
+                    diferencia === 0
                       ? 'bg-emerald-50 text-emerald-700'
-                      : 'bg-red-50 text-red-600'
+                      : diferencia > 0
+                        ? 'bg-amber-50 text-amber-700'
+                        : 'bg-red-50 text-red-600'
                   )}
                 >
-                  <span>Diferencia</span>
+                  <span>{diferencia === 0 ? 'Sin diferencia' : 'Diferencia'}</span>
                   <span>
-                    {diferencia >= 0 ? '+' : ''}
+                    {diferencia > 0 ? '+' : ''}
                     {formatCurrency(diferencia)}
                   </span>
                 </div>
@@ -348,9 +355,18 @@ export function CajaHistorialPanel({ idSede }: Props) {
                 <Label>Observaciones</Label>
                 <Input
                   {...register('observaciones')}
-                  placeholder="Ej. Sobrante, cuadre correcto, etc."
+                  placeholder={
+                    contadoIngresado && diferencia !== 0
+                      ? 'Obligatorio: justifica la diferencia…'
+                      : 'Ej. Sobrante, cuadre correcto, etc.'
+                  }
                   className="h-10"
                 />
+                {errors.observaciones && (
+                  <p className="text-xs text-red-500">
+                    {errors.observaciones.message}
+                  </p>
+                )}
               </div>
 
               <DialogFooter className="gap-2 pt-2">

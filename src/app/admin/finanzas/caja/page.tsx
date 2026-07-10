@@ -9,6 +9,8 @@ import {
   useMovimientosCaja,
   useArqueosCaja,
   RegistrarMovimientoModal,
+  AnularMovimientoModal,
+  MovimientoCaja,
 } from '@/features/admin/finanzas'
 import {
   CajaStatusCard,
@@ -29,6 +31,8 @@ export default function CajaPage() {
 
   const [showMov, setShowMov] = useState(false)
   const [showArqueo, setShowArqueo] = useState(false)
+  const [movimientoAnular, setMovimientoAnular] =
+    useState<MovimientoCaja | null>(null)
 
   const { data: caja, isLoading } = useCajaHoy(idSede ?? undefined)
 
@@ -123,7 +127,10 @@ export default function CajaPage() {
                           Movimientos
                         </h3>
                       </div>
-                      <MovimientosTable movimientos={movimientos} />
+                      <MovimientosTable
+                        movimientos={movimientos}
+                        onAnular={setMovimientoAnular}
+                      />
                     </div>
 
                     {arqueos.length > 0 && (
@@ -176,6 +183,10 @@ export default function CajaPage() {
                     open={showMov}
                     onOpenChange={setShowMov}
                     idApertura={caja.id}
+                  />
+                  <AnularMovimientoModal
+                    movimiento={movimientoAnular}
+                    onClose={() => setMovimientoAnular(null)}
                   />
                 </>
               )}

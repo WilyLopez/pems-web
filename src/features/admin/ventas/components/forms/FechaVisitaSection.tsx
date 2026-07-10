@@ -18,6 +18,7 @@ interface FechaVisitaSectionProps {
   esHoy: boolean
   precioDia: any
   fueraDeHorario: boolean
+  hayEventoPrivado: boolean
   confCal: any
   disponibilidad: any
 }
@@ -32,6 +33,7 @@ export const FechaVisitaSection = ({
   esHoy,
   precioDia,
   fueraDeHorario,
+  hayEventoPrivado,
   confCal,
   disponibilidad,
 }: FechaVisitaSectionProps) => {
@@ -122,9 +124,11 @@ export const FechaVisitaSection = ({
           </AlertTitle>
           <AlertDescription className="text-[10px] leading-tight">
             {fueraDeHorario
-              ? `El local ya se encuentra cerrado para ventas hoy. Hora de cierre: ${confCal?.turnoT2Fin}`
-              : disponibilidad?.motivoBloqueo ||
-                'Esta fecha se encuentra bloqueada para la venta de entradas.'}
+              ? `El local ya se encuentra cerrado para ventas hoy. Hora de cierre: ${confCal?.horaCierre}`
+              : hayEventoPrivado
+                ? 'En la fecha seleccionada hay un evento privado. Selecciona otra fecha.'
+                : disponibilidad?.motivoBloqueo ||
+                  'Esta fecha se encuentra bloqueada para la venta de entradas.'}
           </AlertDescription>
         </Alert>
       )}

@@ -1,18 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import {
-  Palette,
-  Type,
-  Layout,
-  Zap,
-  MousePointer,
-  LayoutDashboard,
-  Bell,
-  Globe,
-  RotateCcw,
-  CheckCircle2,
-} from 'lucide-react'
+import { Palette, Type, Bell, RotateCcw, CheckCircle2 } from 'lucide-react'
 
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
@@ -26,47 +15,32 @@ import {
   useParchearPreferencias,
   useResetPreferencias,
 } from '@/hooks/useAdminPreferences'
-import { useThemeConfig } from '@/hooks/useThemeConfig'
 import { useAdminPreferencesStore } from '@/lib/store/admin-preferences.store'
 import { PreferenciaAdmin } from '@/types/preferencias.types'
 import { cn } from '@/lib/utils'
 
-import { AppearanceSection } from './components/AppearanceSection'
+import { ThemeSection } from './components/ThemeSection'
 import { TypographySection } from './components/TypographySection'
-import { LayoutSection } from './components/LayoutSection'
-import { AnimationsSection } from './components/AnimationsSection'
-import { BehaviorSection } from './components/BehaviorSection'
-import { DashboardSection } from './components/DashboardSection'
 import { NotificationSection } from './components/NotificationSection'
-import { LocalizationSection } from './components/LocalizationSection'
-import { PreviewPanel } from './components/PreviewPanel'
 
 const SECTIONS = [
-  { id: 'apariencia', label: 'Apariencia', icon: Palette },
+  { id: 'tema', label: 'Tema', icon: Palette },
   { id: 'tipografia', label: 'Tipografía', icon: Type },
-  { id: 'layout', label: 'Layout', icon: Layout },
-  { id: 'animaciones', label: 'Animaciones', icon: Zap },
-  { id: 'comportamiento', label: 'Comportamiento', icon: MousePointer },
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'notificaciones', label: 'Notificaciones', icon: Bell },
-  { id: 'localizacion', label: 'Localización', icon: Globe },
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
 
 function PreferenciasSkeleton() {
   return (
-    <div className="flex flex-col lg:flex-row min-h-[560px]">
-      <div className="w-full lg:w-56 shrink-0 border-b lg:border-b-0 lg:border-r border-border p-3 flex lg:flex-col gap-1.5 overflow-x-auto whitespace-nowrap lg:whitespace-normal">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-9 w-28 lg:w-full rounded-lg shrink-0" />
+    <div className="space-y-5 p-6">
+      <div className="flex gap-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-9 w-28 rounded-full" />
         ))}
       </div>
-      <div className="flex-1 p-6 space-y-4">
-        <Skeleton className="h-6 w-48 rounded-lg" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-      </div>
+      <Skeleton className="h-32 w-full rounded-xl" />
+      <Skeleton className="h-32 w-full rounded-xl" />
     </div>
   )
 }
@@ -77,10 +51,8 @@ export function PreferenciasContainer() {
   const { patchDebounced } = useParchearPreferencias()
   const resetMutation = useResetPreferencias()
   const [confirmReset, setConfirmReset] = useState(false)
-  const [activeSection, setActiveSection] = useState<SectionId>('apariencia')
+  const [activeSection, setActiveSection] = useState<SectionId>('tema')
   const [savedAt, setSavedAt] = useState<Date | null>(null)
-
-  useThemeConfig()
 
   function handleChange(patch: Partial<PreferenciaAdmin>) {
     patchDebounced(patch)
@@ -153,60 +125,38 @@ export function PreferenciasContainer() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="flex flex-col lg:flex-row min-h-[600px]">
-          {/* Navegación responsiva adaptable: Horizontal con scroll en móviles, Vertical fijo en desktop */}
-          <nav className="w-full lg:w-56 shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-muted/30 lg:p-3 p-2 flex lg:flex-col gap-1 overflow-x-auto scrollbar-none whitespace-nowrap lg:whitespace-normal">
-            {SECTIONS.map(({ id, label, icon: Icon }) => {
-              const isActive = activeSection === id
-              return (
-                <button
-                  key={id}
-                  onClick={() => setActiveSection(id)}
-                  className={cn(
-                    'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-all duration-150 shrink-0 lg:shrink',
-                    isActive
-                      ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-background hover:shadow-sm'
-                  )}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span>{label}</span>
-                </button>
-              )
-            })}
-          </nav>
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden p-5 sm:p-7 space-y-6">
+        <div className="flex flex-wrap gap-2">
+          {SECTIONS.map(({ id, label, icon: Icon }) => {
+            const isActive = activeSection === id
+            return (
+              <button
+                key={id}
+                onClick={() => setActiveSection(id)}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-all duration-150',
+                  isActive
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                    : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span>{label}</span>
+              </button>
+            )
+          })}
+        </div>
 
-          <div className="flex-1 min-w-0 p-4 sm:p-7 overflow-y-auto">
-            {activeSection === 'apariencia' && (
-              <AppearanceSection prefs={preferences} onChange={handleChange} />
-            )}
-            {activeSection === 'tipografia' && (
-              <TypographySection prefs={preferences} onChange={handleChange} />
-            )}
-            {activeSection === 'layout' && (
-              <LayoutSection prefs={preferences} onChange={handleChange} />
-            )}
-            {activeSection === 'animaciones' && (
-              <AnimationsSection prefs={preferences} onChange={handleChange} />
-            )}
-            {activeSection === 'comportamiento' && (
-              <BehaviorSection prefs={preferences} onChange={handleChange} />
-            )}
-            {activeSection === 'dashboard' && (
-              <DashboardSection prefs={preferences} onChange={handleChange} />
-            )}
-            {activeSection === 'notificaciones' && (
-              <NotificationSection prefs={preferences} onChange={handleChange} />
-            )}
-            {activeSection === 'localizacion' && (
-              <LocalizationSection prefs={preferences} onChange={handleChange} />
-            )}
-          </div>
-
-          <div className="hidden xl:flex w-64 shrink-0 border-l border-border bg-muted/20 p-5 flex-col">
-            <PreviewPanel prefs={preferences} />
-          </div>
+        <div>
+          {activeSection === 'tema' && (
+            <ThemeSection prefs={preferences} onChange={handleChange} />
+          )}
+          {activeSection === 'tipografia' && (
+            <TypographySection prefs={preferences} onChange={handleChange} />
+          )}
+          {activeSection === 'notificaciones' && (
+            <NotificationSection prefs={preferences} onChange={handleChange} />
+          )}
         </div>
       </div>
 

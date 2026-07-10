@@ -21,9 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
-import { useTiposEgreso, useEgresoMutations } from '../hooks/useFinanceData'
+import { useTiposEgreso, useEgresoMutations, useMiSesionCaja } from '../hooks/useFinanceData'
 import { egresoSchema } from '../schemas/finance.schemas'
-import { RegistroEgreso } from '../types'
+import { CajaRequeridaAlert } from './CajaRequeridaAlert'
+import { MEDIOS_PAGO } from '@/lib/finance-constants'
 
 type FormValues = z.infer<typeof egresoSchema>
 
@@ -31,18 +32,13 @@ interface Props {
   open: boolean
   onOpenChange: (v: boolean) => void
   idSede: number
-  egreso?: RegistroEgreso
 }
 
-export function RegistrarEgresoModal({
-  open,
-  onOpenChange,
-  idSede,
-  egreso,
-}: Props) {
+export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
   const { data: tipos = [] } = useTiposEgreso()
-  const { registrar, actualizar } = useEgresoMutations()
-  const editando = !!egreso
+  const { registrar } = useEgresoMutations()
+  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
+    useMiSesionCaja()
 
   const {
     register,
@@ -57,6 +53,7 @@ export function RegistrarEgresoModal({
       tipoEgresoCodigo: '',
       monto: 0,
       fecha: new Date().toISOString().split('T')[0],
+      medioPago: '',
       esRecurrente: false,
       descripcion: '',
       comprobanteUrl: '',
@@ -64,66 +61,50 @@ export function RegistrarEgresoModal({
   })
 
   const esRecurrente = watch('esRecurrente')
+  const medioPagoSeleccionado = watch('medioPago')
+  const requiereCajaAdministrativa =
+    medioPagoSeleccionado === 'EFECTIVO' &&
+    !cargandoSesionCaja &&
+    miSesionCaja?.tipo !== 'ADMINISTRATIVA'
 
   useEffect(() => {
     if (open) {
-      if (egreso) {
-        reset({
-          tipoEgresoCodigo: egreso.tipoEgresoCodigo,
-          monto: egreso.monto,
-          fecha: egreso.fecha,
-          esRecurrente: egreso.esRecurrente,
-          periodoAnio: egreso.periodoAnio,
-          periodoMes: egreso.periodoMes,
-          descripcion: egreso.descripcion ?? '',
-          comprobanteUrl: egreso.comprobanteUrl ?? '',
-        })
-      } else {
-        reset({
-          tipoEgresoCodigo: '',
-          monto: 0,
-          fecha: new Date().toISOString().split('T')[0],
-          esRecurrente: false,
-          descripcion: '',
-          comprobanteUrl: '',
-        })
-      }
+      reset({
+        tipoEgresoCodigo: '',
+        monto: 0,
+        fecha: new Date().toISOString().split('T')[0],
+        medioPago: '',
+        esRecurrente: false,
+        descripcion: '',
+        comprobanteUrl: '',
+      })
     }
-  }, [open, egreso, reset])
+  }, [open, reset])
 
   function onSubmit(data: FormValues) {
+    if (requiereCajaAdministrativa) return
     const payload = {
       tipoEgresoCodigo: data.tipoEgresoCodigo,
       monto: data.monto,
       fecha: data.fecha,
+      medioPago: data.medioPago,
       esRecurrente: data.esRecurrente,
       periodoAnio: data.esRecurrente ? data.periodoAnio : undefined,
       periodoMes: data.esRecurrente ? data.periodoMes : undefined,
       descripcion: data.descripcion || undefined,
       comprobanteUrl: data.comprobanteUrl || undefined,
     }
-    if (editando) {
-      actualizar.mutate(
-        { id: egreso!.id, payload },
-        { onSuccess: () => onOpenChange(false) }
-      )
-    } else {
-      registrar.mutate(
-        { idSede, payload },
-        { onSuccess: () => onOpenChange(false) }
-      )
-    }
+    registrar.mutate(
+      { idSede, payload },
+      { onSuccess: () => onOpenChange(false) }
+    )
   }
-
-  const isPending = editando ? actualizar.isPending : registrar.isPending
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {editando ? 'Editar egreso' : 'Registrar egreso'}
-          </DialogTitle>
+          <DialogTitle>Registrar egreso</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
@@ -177,6 +158,30 @@ export function RegistrarEgresoModal({
               )}
             </div>
           </div>
+
+          <div className="space-y-1.5">
+            <Label>Medio de pago *</Label>
+            <select
+              {...register('medioPago')}
+              className="w-full h-9 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-azul"
+            >
+              <option value="">Seleccionar…</option>
+              {MEDIOS_PAGO.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+            {errors.medioPago && (
+              <p className="text-xs text-destructive">
+                {errors.medioPago.message}
+              </p>
+            )}
+          </div>
+
+          {requiereCajaAdministrativa && (
+            <CajaRequeridaAlert mensaje="Para registrar egresos en efectivo necesitas tu Caja Administrativa abierta." />
+          )}
 
           <div className="flex items-center gap-2">
             <Checkbox
@@ -250,14 +255,10 @@ export function RegistrarEgresoModal({
             </Button>
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={registrar.isPending || requiereCajaAdministrativa}
               className="bg-brand-azul hover:bg-brand-azul/90 text-white"
             >
-              {isPending
-                ? 'Guardando...'
-                : editando
-                  ? 'Guardar cambios'
-                  : 'Registrar'}
+              {registrar.isPending ? 'Guardando...' : 'Registrar'}
             </Button>
           </div>
         </form>
