@@ -35,7 +35,7 @@ export function ArqueosPanel({ arqueos }: Props) {
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-400">
+              <span className="text-xs font-semibold text-gray-400" suppressHydrationWarning>
                 {formatHora(a.fechaCreacion)}
               </span>
               {a.observaciones && (
