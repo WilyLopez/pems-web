@@ -88,6 +88,11 @@ export const navGroups: {
         href: '/admin/finanzas/egresos',
         icon: ArrowDownCircle,
       },
+      {
+        label: 'Tesorería Web',
+        href: '/admin/finanzas/tesoreria-web',
+        icon: Globe,
+      },
       { label: 'Reportes', href: '/admin/finanzas/reportes', icon: BarChart3 },
     ],
   },

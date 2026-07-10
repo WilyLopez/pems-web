@@ -16,8 +16,14 @@ export function useMisReservasData(isAuthenticated: boolean) {
   const reprogramarMutation = useMutation({
     mutationFn: ({ id, nuevaFecha }: { id: number; nuevaFecha: string }) =>
       reservaApi.reprogramar(id, nuevaFecha),
-    onSuccess: () => {
-      toast.success('Reserva reprogramada exitosamente.')
+    onSuccess: (nueva) => {
+      if (nueva.estado === 'PENDIENTE') {
+        toast.success(
+          `Reserva reprogramada. Queda un saldo de S/ ${nueva.totalPagado.toFixed(2)} por pagar al llegar.`
+        )
+      } else {
+        toast.success('Reserva reprogramada exitosamente.')
+      }
       queryClient.invalidateQueries({ queryKey: clienteKeys.reservas.all })
     },
     onError: (err: { message?: string }) => {

@@ -30,6 +30,12 @@ export default function MovimientosCajaPage() {
 
   const isLoading = loadingCaja || loadingMov
 
+  const idsAnulados = new Set(
+    movimientos
+      .map((m) => m.idMovimientoAnulado)
+      .filter((id): id is number => id != null)
+  )
+
   const totalIngresos = movimientos
     .filter((m) => m.tipo === 'INGRESO')
     .reduce((s, m) => s + m.monto, 0)
@@ -151,7 +157,24 @@ export default function MovimientosCajaPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-gray-800">
-                          {m.concepto}
+                          <span
+                            className={cn(
+                              idsAnulados.has(m.id) &&
+                                'line-through text-gray-400'
+                            )}
+                          >
+                            {m.concepto}
+                          </span>
+                          {m.naturaleza === 'CONTRAASIENTO' && (
+                            <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600">
+                              Contraasiento
+                            </span>
+                          )}
+                          {idsAnulados.has(m.id) && (
+                            <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600">
+                              Anulado
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-gray-500">
                           {m.medioPago ?? '—'}

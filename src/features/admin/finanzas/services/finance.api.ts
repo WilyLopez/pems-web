@@ -1,11 +1,11 @@
 import api from '@/services/api'
 import {
-  ActualizarEgresoPayload,
-  ActualizarGastoOperativoPayload,
   AbrirCajaPayload,
+  AnularMovimientoPayload,
   AperturaCaja,
   ArqueoCaja,
   CerrarCajaPayload,
+  CerrarCajaForzadoPayload,
   CrearTipoEgresoPayload,
   CrearTipoIngresoPayload,
   DashboardFinanciero,
@@ -108,19 +108,42 @@ export const financeApi = {
     return data.data
   },
 
-  actualizarEgreso: async (
+  anularEgreso: async (
     id: number,
-    payload: ActualizarEgresoPayload
+    payload: AnularMovimientoPayload
   ): Promise<RegistroEgreso> => {
-    const { data } = await api.put<ApiResponse<RegistroEgreso>>(
-      `/egresos/${id}`,
+    const { data } = await api.post<ApiResponse<RegistroEgreso>>(
+      `/egresos/${id}/anular`,
       payload
     )
     return data.data
   },
 
-  eliminarEgreso: async (id: number): Promise<void> => {
-    await api.delete(`/egresos/${id}`)
+  listarEgresosPendientesAprobacion: async (
+    idSede: number
+  ): Promise<RegistroEgreso[]> => {
+    const { data } = await api.get<ApiResponse<RegistroEgreso[]>>(
+      `/egresos/sedes/${idSede}/pendientes-aprobacion`
+    )
+    return data.data
+  },
+
+  aprobarEgreso: async (id: number): Promise<RegistroEgreso> => {
+    const { data } = await api.post<ApiResponse<RegistroEgreso>>(
+      `/egresos/${id}/aprobar`
+    )
+    return data.data
+  },
+
+  rechazarEgreso: async (
+    id: number,
+    payload: AnularMovimientoPayload
+  ): Promise<RegistroEgreso> => {
+    const { data } = await api.post<ApiResponse<RegistroEgreso>>(
+      `/egresos/${id}/rechazar`,
+      payload
+    )
+    return data.data
   },
 
   listarGastosEvento: async (idEvento: number): Promise<GastoEvento[]> => {
@@ -194,19 +217,15 @@ export const financeApi = {
     return data.data
   },
 
-  actualizarGastoOperativo: async (
+  anularGastoOperativo: async (
     id: number,
-    payload: ActualizarGastoOperativoPayload
+    payload: AnularMovimientoPayload
   ): Promise<GastoOperativo> => {
-    const { data } = await api.put<ApiResponse<GastoOperativo>>(
-      `/gastos-operativos/${id}`,
+    const { data } = await api.post<ApiResponse<GastoOperativo>>(
+      `/gastos-operativos/${id}/anular`,
       payload
     )
     return data.data
-  },
-
-  eliminarGastoOperativo: async (id: number): Promise<void> => {
-    await api.delete(`/gastos-operativos/${id}`)
   },
 
   resumenMensual: async (
@@ -320,8 +339,27 @@ export const financeApi = {
     return data.data
   },
 
-  eliminarIngreso: async (id: number): Promise<void> => {
-    await api.delete(`/ingresos/${id}`)
+  anularIngreso: async (
+    id: number,
+    payload: AnularMovimientoPayload
+  ): Promise<RegistroIngreso> => {
+    const { data } = await api.post<ApiResponse<RegistroIngreso>>(
+      `/ingresos/${id}/anular`,
+      payload
+    )
+    return data.data
+  },
+
+  listarTesoreriaWeb: async (
+    idSede: number,
+    inicio: string,
+    fin: string
+  ): Promise<RegistroIngreso[]> => {
+    const { data } = await api.get<ApiResponse<RegistroIngreso[]>>(
+      `/ingresos/sedes/${idSede}/tesoreria-web`,
+      { params: { inicio, fin } }
+    )
+    return data.data
   },
 
   obtenerCaja: async (
@@ -332,7 +370,7 @@ export const financeApi = {
       const { data } = await api.get<ApiResponse<AperturaCaja>>(
         `/caja/sedes/${idSede}/fecha/${fecha}`
       )
-      return data.data
+      return data.data ?? null
     } catch (err: any) {
       if (err?.response?.status === 404) {
         return null
@@ -353,11 +391,22 @@ export const financeApi = {
   },
 
   cerrarCaja: async (
-    idApertura: number,
+    idSesion: number,
     payload: CerrarCajaPayload
   ): Promise<AperturaCaja> => {
     const { data } = await api.put<ApiResponse<AperturaCaja>>(
-      `/caja/${idApertura}/cerrar`,
+      `/caja/${idSesion}/cerrar`,
+      payload
+    )
+    return data.data
+  },
+
+  cerrarCajaForzado: async (
+    idSesion: number,
+    payload: CerrarCajaForzadoPayload
+  ): Promise<AperturaCaja> => {
+    const { data } = await api.put<ApiResponse<AperturaCaja>>(
+      `/caja/${idSesion}/cerrar-forzado`,
       payload
     )
     return data.data
@@ -386,14 +435,37 @@ export const financeApi = {
 
   obtenerCajaHoy: async (idSede: number): Promise<AperturaCaja | null> => {
     try {
-      const { data } = await api.get<ApiResponse<AperturaCaja>>(
-        `/caja/sedes/${idSede}/hoy`
+      const { data } = await api.get<ApiResponse<AperturaCaja | null>>(
+        `/caja/sedes/${idSede}/mi-sesion`
       )
-      return data.data
+      return data.data ?? null
     } catch (err: any) {
       if (err?.response?.status === 404) return null
       throw err
     }
+  },
+
+  obtenerMiSesion: async (): Promise<AperturaCaja | null> => {
+    try {
+      const { data } =
+        await api.get<ApiResponse<AperturaCaja | null>>('/caja/mi-sesion')
+      return data.data ?? null
+    } catch (err: any) {
+      if (err?.response?.status === 404) return null
+      throw err
+    }
+  },
+
+  listarCajasPorRango: async (
+    idSede: number,
+    inicio: string,
+    fin: string
+  ): Promise<AperturaCaja[]> => {
+    const { data } = await api.get<ApiResponse<AperturaCaja[]>>(
+      `/caja/sedes/${idSede}/rango`,
+      { params: { inicio, fin } }
+    )
+    return data.data
   },
 
   generarResumenCaja: async (idApertura: number): Promise<ResumenCaja> => {
@@ -427,6 +499,17 @@ export const financeApi = {
   ): Promise<MovimientoCaja> => {
     const { data } = await api.post<ApiResponse<MovimientoCaja>>(
       `/caja/${idApertura}/movimientos`,
+      payload
+    )
+    return data.data
+  },
+
+  anularMovimientoCaja: async (
+    idMovimiento: number,
+    payload: AnularMovimientoPayload
+  ): Promise<MovimientoCaja> => {
+    const { data } = await api.post<ApiResponse<MovimientoCaja>>(
+      `/caja/movimientos/${idMovimiento}/anular`,
       payload
     )
     return data.data

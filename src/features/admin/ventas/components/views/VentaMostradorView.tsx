@@ -39,6 +39,10 @@ import {
   DialogDescription,
 } from '@/components/ui/Dialog'
 import { clienteService } from '@/services/cliente.service'
+import {
+  useMiSesionCaja,
+  CajaRequeridaAlert,
+} from '@/features/admin/finanzas'
 import { formatCurrency, cn } from '@/lib/utils'
 import { PagoLinea } from '../../types'
 import { VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
@@ -60,6 +64,8 @@ export const VentaMostradorView = ({
   const [ventaExitosa, setVentaExitosa] = useState<any>(null)
 
   const formProps = useVentaMostradorForm()
+  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
+    useMiSesionCaja()
 
   const {
     methods,
@@ -78,6 +84,8 @@ export const VentaMostradorView = ({
     plazasDisponibles,
     exceedsAforo,
     estaBloqueado,
+    fueraDeHorario,
+    hayEventoPrivado,
     esHoy,
     total,
     subtotal,
@@ -248,6 +256,15 @@ export const VentaMostradorView = ({
     methods.reset()
   }
 
+  if (!cargandoSesionCaja && !miSesionCaja) {
+    return (
+      <CajaRequeridaAlert
+        mensaje="Para registrar ventas necesitas tener tu caja abierta."
+        className="max-w-xl"
+      />
+    )
+  }
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit as any)}>
@@ -290,7 +307,8 @@ export const VentaMostradorView = ({
                       estaBloqueado={estaBloqueado}
                       esHoy={esHoy}
                       precioDia={precioDia}
-                      fueraDeHorario={estaBloqueado && !disponibilidad?.disponiblePublico}
+                      fueraDeHorario={fueraDeHorario}
+                      hayEventoPrivado={hayEventoPrivado}
                       confCal={confCal}
                       disponibilidad={disponibilidad}
                     />

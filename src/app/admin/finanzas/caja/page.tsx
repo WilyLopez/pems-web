@@ -2,14 +2,15 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Plus, Lock, ShoppingCart, Receipt } from 'lucide-react'
+import { Plus, ShoppingCart, Receipt } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import {
-  useCaja,
   useCajaHoy,
   useMovimientosCaja,
   useArqueosCaja,
   RegistrarMovimientoModal,
+  AnularMovimientoModal,
+  MovimientoCaja,
 } from '@/features/admin/finanzas'
 import {
   CajaStatusCard,
@@ -23,28 +24,17 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 
 export default function CajaPage() {
   const { idSede } = useAuth()
   const hoy = new Date().toISOString().slice(0, 10)
 
-  const [fecha, setFecha] = useState(hoy)
   const [showMov, setShowMov] = useState(false)
   const [showArqueo, setShowArqueo] = useState(false)
+  const [movimientoAnular, setMovimientoAnular] =
+    useState<MovimientoCaja | null>(null)
 
-  const esHoy = fecha === hoy
-
-  const { data: cajaHoy, isLoading: loadingHoy } = useCajaHoy(
-    esHoy ? (idSede ?? undefined) : undefined
-  )
-  const { data: cajaHistorica, isLoading: loadingHistorica } = useCaja(
-    esHoy ? undefined : (idSede ?? undefined),
-    esHoy ? undefined : fecha
-  )
-
-  const caja = esHoy ? cajaHoy : cajaHistorica
-  const isLoading = esHoy ? loadingHoy : loadingHistorica
+  const { data: caja, isLoading } = useCajaHoy(idSede ?? undefined)
 
   const { data: movimientos = [] } = useMovimientosCaja(caja?.id)
   const { data: arqueos = [] } = useArqueosCaja(caja?.id)
@@ -56,7 +46,7 @@ export default function CajaPage() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <PageHeader
           title="Caja"
-          description="Control de apertura, movimientos y cierre por día"
+          description="Apertura, movimientos y cierre de tu sesión de caja"
         />
       </div>
 
@@ -66,31 +56,25 @@ export default function CajaPage() {
             value="caja-dia"
             className="font-bold data-[state=active]:bg-brand-azul data-[state=active]:text-white transition-all duration-200"
           >
-            Caja del día
+            Mi caja
           </TabsTrigger>
           <TabsTrigger
             value="historial"
             className="font-bold data-[state=active]:bg-brand-azul data-[state=active]:text-white transition-all duration-200"
           >
-            Historial de cajas
+            Historial de sesiones
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="caja-dia" className="space-y-6 mt-0">
-          <div className="flex justify-end items-center gap-2">
-            <Input
-              type="date"
-              value={fecha}
-              onChange={(e) => setFecha(e.target.value)}
-              className="h-9 w-40 bg-white shadow-sm"
-            />
-            <Button asChild size="sm" variant="outline" className="gap-1.5">
-              <Link href={`/admin/finanzas/caja/movimientos?fecha=${fecha}`}>
-                <Receipt className="h-4 w-4" />
-                Ver movimientos
-              </Link>
-            </Button>
-            {estaAbierta && (
+          {estaAbierta && caja && (
+            <div className="flex justify-end items-center gap-2">
+              <Button asChild size="sm" variant="outline" className="gap-1.5">
+                <Link href={`/admin/finanzas/caja/movimientos?fecha=${hoy}`}>
+                  <Receipt className="h-4 w-4" />
+                  Ver movimientos
+                </Link>
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
@@ -100,8 +84,6 @@ export default function CajaPage() {
                 <Plus className="h-4 w-4" />
                 Movimiento
               </Button>
-            )}
-            {estaAbierta && (
               <Button
                 asChild
                 size="sm"
@@ -112,8 +94,8 @@ export default function CajaPage() {
                   Nueva venta
                 </Link>
               </Button>
-            )}
-          </div>
+            </div>
+          )}
 
           {isLoading ? (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -125,14 +107,11 @@ export default function CajaPage() {
               ))}
             </div>
           ) : !caja ? (
-            esHoy ? (
-              <AbrirCajaPanel idSede={idSede!} fecha={fecha} />
+            idSede ? (
+              <AbrirCajaPanel idSede={idSede} />
             ) : (
-              <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center space-y-2">
-                <Lock className="mx-auto h-10 w-10 text-gray-300" />
-                <p className="text-sm font-semibold text-gray-500">
-                  No hay caja registrada para esta fecha.
-                </p>
+              <div className="text-center text-sm text-gray-400 py-12">
+                Cargando identificador de sede...
               </div>
             )
           ) : (
@@ -148,13 +127,16 @@ export default function CajaPage() {
                           Movimientos
                         </h3>
                       </div>
-                      <MovimientosTable movimientos={movimientos} />
+                      <MovimientosTable
+                        movimientos={movimientos}
+                        onAnular={setMovimientoAnular}
+                      />
                     </div>
 
                     {arqueos.length > 0 && (
                       <div className="bg-white rounded-2xl border border-gray-100 p-5">
                         <h3 className="text-sm font-semibold text-gray-700 mb-4">
-                          Arqueos del día
+                          Arqueos de la sesión
                         </h3>
                         <ArqueosPanel arqueos={arqueos} />
                       </div>
@@ -182,7 +164,7 @@ export default function CajaPage() {
                   {arqueos.length > 0 && (
                     <div className="bg-white rounded-2xl border border-gray-100 p-5">
                       <h3 className="text-sm font-semibold text-gray-700 mb-4">
-                        Arqueos del día
+                        Arqueos de la sesión
                       </h3>
                       <ArqueosPanel arqueos={arqueos} />
                     </div>
@@ -201,6 +183,10 @@ export default function CajaPage() {
                     open={showMov}
                     onOpenChange={setShowMov}
                     idApertura={caja.id}
+                  />
+                  <AnularMovimientoModal
+                    movimiento={movimientoAnular}
+                    onClose={() => setMovimientoAnular(null)}
                   />
                 </>
               )}

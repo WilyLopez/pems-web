@@ -6,6 +6,7 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
+  Undo2,
   X,
   ArrowUpCircle,
   Tag,
@@ -20,9 +21,12 @@ import {
   useIngresosPorRango,
   useIngresoMutations,
   useTiposIngreso,
+  useMiSesionCaja,
   ingresoManualSchema,
   RegistroIngreso,
   TiposIngresoManager,
+  CajaRequeridaAlert,
+  AnularRegistroModal,
 } from '@/features/admin/finanzas'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
@@ -95,6 +99,9 @@ export default function IngresosPage() {
   const [detailIngreso, setDetailIngreso] = useState<RegistroIngreso | null>(
     null
   )
+  const [ingresoAnular, setIngresoAnular] = useState<RegistroIngreso | null>(
+    null
+  )
 
   const filtroActivo = !!desde && !!hasta
 
@@ -153,7 +160,7 @@ export default function IngresosPage() {
     )
 
   const { data: tipos = [] } = useTiposIngreso()
-  const { registrar, eliminar } = useIngresoMutations()
+  const { registrar, anular } = useIngresoMutations()
 
   const isLoading = filtroActivo ? loadingRango : loadingPag
 
@@ -187,6 +194,12 @@ export default function IngresosPage() {
     ? Math.max(1, Math.ceil(filteredRange.length / PAGE_SIZE))
     : (paginado?.totalPages ?? 1)
 
+  const idsAnulados = new Set(
+    ingresos
+      .map((e) => e.idRegistroAnulado)
+      .filter((id): id is number => id != null)
+  )
+
   const tienesFiltrosSecundarios = !!(
     filtroTipo ||
     filtroMedio ||
@@ -198,14 +211,23 @@ export default function IngresosPage() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(ingresoManualSchema),
     defaultValues: { fecha: new Date().toISOString().slice(0, 10) },
   })
 
+  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
+    useMiSesionCaja()
+  const medioPagoSeleccionado = watch('medioPago')
+  const requiereCajaAdministrativa =
+    medioPagoSeleccionado === 'EFECTIVO' &&
+    !cargandoSesionCaja &&
+    miSesionCaja?.tipo !== 'ADMINISTRATIVA'
+
   function onSubmit(values: FormValues) {
-    if (!idSede) return
+    if (!idSede || requiereCajaAdministrativa) return
     registrar.mutate(
       { idSede, payload: { ...values } },
       {
@@ -392,7 +414,13 @@ export default function IngresosPage() {
                 ingresos.map((e) => (
                   <tr key={e.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">
+                      <p
+                        className={cn(
+                          'font-medium text-gray-900',
+                          idsAnulados.has(e.id) &&
+                            'line-through text-gray-400'
+                        )}
+                      >
                         {resolverTipo(e.tipoIngresoCodigo)}
                       </p>
                       {e.descripcion && (
@@ -400,8 +428,25 @@ export default function IngresosPage() {
                           {e.descripcion}
                         </p>
                       )}
+                      {e.naturaleza === 'CONTRAASIENTO' && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600">
+                          Contraasiento
+                        </span>
+                      )}
+                      {idsAnulados.has(e.id) && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600">
+                          Anulado
+                        </span>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{e.fecha}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      <p>{e.fecha}</p>
+                      {e.fechaCobro && e.fechaCobro !== e.fecha && (
+                        <p className="text-[11px] text-gray-400">
+                          Cobrado: {e.fechaCobro}
+                        </p>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-gray-500">
                       {e.medioPago ?? '—'}
                     </td>
@@ -428,16 +473,17 @@ export default function IngresosPage() {
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </button>
-                        {!e.esAutomatico && (
-                          <button
-                            type="button"
-                            onClick={() => eliminar.mutate(e.id)}
-                            disabled={eliminar.isPending}
-                            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        )}
+                        {!e.esAutomatico &&
+                          e.naturaleza !== 'CONTRAASIENTO' &&
+                          !idsAnulados.has(e.id) && (
+                            <button
+                              type="button"
+                              onClick={() => setIngresoAnular(e)}
+                              className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <Undo2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
                       </div>
                     </td>
                   </tr>
@@ -558,6 +604,12 @@ export default function IngresosPage() {
                   </span>
                 </InfoRow>
 
+                {detailIngreso.fechaCobro && (
+                  <InfoRow label="Fecha de cobro">
+                    {formatFecha(detailIngreso.fechaCobro)}
+                  </InfoRow>
+                )}
+
                 {detailIngreso.medioPago && (
                   <InfoRow label="Medio de pago">
                     {MEDIOS_PAGO.find(
@@ -674,6 +726,9 @@ export default function IngresosPage() {
                 placeholder="Observaciones…"
               />
             </div>
+            {requiereCajaAdministrativa && (
+              <CajaRequeridaAlert mensaje="Para registrar ingresos en efectivo necesitas tu Caja Administrativa abierta." />
+            )}
             <div className="flex justify-end gap-2 pt-1">
               <Button
                 type="button"
@@ -686,7 +741,7 @@ export default function IngresosPage() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={registrar.isPending}
+                disabled={registrar.isPending || requiereCajaAdministrativa}
                 className="bg-brand-azul hover:bg-brand-azul/90 text-white"
               >
                 Registrar
@@ -695,6 +750,29 @@ export default function IngresosPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <AnularRegistroModal
+        titulo="Anular ingreso"
+        registro={
+          ingresoAnular
+            ? {
+                id: ingresoAnular.id,
+                concepto:
+                  ingresoAnular.descripcion ||
+                  resolverTipo(ingresoAnular.tipoIngresoCodigo),
+                monto: ingresoAnular.monto,
+              }
+            : null
+        }
+        pending={anular.isPending}
+        onConfirmar={(motivo) =>
+          anular.mutate(
+            { id: ingresoAnular!.id, payload: { motivo } },
+            { onSuccess: () => setIngresoAnular(null) }
+          )
+        }
+        onClose={() => setIngresoAnular(null)}
+      />
     </div>
   )
 }

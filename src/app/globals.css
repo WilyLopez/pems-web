@@ -92,6 +92,11 @@
   h4 {
     @apply font-bold tracking-tight;
   }
+
+  .admin-shell {
+    font-family: var(--font-admin, var(--font-geist-sans)), system-ui, sans-serif;
+    font-size: var(--font-base-size, 15px);
+  }
 }
 
 .dark .bg-white {

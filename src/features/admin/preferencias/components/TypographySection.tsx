@@ -1,50 +1,23 @@
 'use client'
 
+import React from 'react'
 import { PreferenciaAdmin, TamanioFuente } from '@/types/preferencias.types'
 import { Type } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SectionGroup } from './shared/SectionUI'
+import { TIPOGRAFIA_FAMILY_MAP, FONT_SIZE_MAP } from '../constants'
 
 interface Props {
   prefs: PreferenciaAdmin
   onChange: (patch: Partial<PreferenciaAdmin>) => void
 }
 
-const FUENTES: {
-  value: string
-  label: string
-  family: string
-  specimen: string
-}[] = [
-  {
-    value: 'INTER',
-    label: 'Inter',
-    family: 'Inter, sans-serif',
-    specimen: 'Aa Bb Cc',
-  },
-  {
-    value: 'POPPINS',
-    label: 'Poppins',
-    family: 'Poppins, sans-serif',
-    specimen: 'Aa Bb Cc',
-  },
-  {
-    value: 'ROBOTO',
-    label: 'Roboto',
-    family: 'Roboto, sans-serif',
-    specimen: 'Aa Bb Cc',
-  },
-  {
-    value: 'GEIST',
-    label: 'Geist',
-    family: 'var(--font-geist-sans), sans-serif',
-    specimen: 'Aa Bb Cc',
-  },
-  {
-    value: 'SYSTEM',
-    label: 'Sistema',
-    family: 'system-ui, sans-serif',
-    specimen: 'Aa Bb Cc',
-  },
+const FUENTES: { value: string; label: string; specimen: string }[] = [
+  { value: 'INTER', label: 'Inter', specimen: 'Aa Bb Cc' },
+  { value: 'POPPINS', label: 'Poppins', specimen: 'Aa Bb Cc' },
+  { value: 'ROBOTO', label: 'Roboto', specimen: 'Aa Bb Cc' },
+  { value: 'GEIST', label: 'Geist', specimen: 'Aa Bb Cc' },
+  { value: 'SYSTEM', label: 'Sistema', specimen: 'Aa Bb Cc' },
 ]
 
 const TAMANIOS: {
@@ -85,8 +58,9 @@ export function TypographySection({ prefs, onChange }: Props) {
         icon={<Type className="h-4 w-4" />}
       >
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {FUENTES.map(({ value, label, family, specimen }) => {
+          {FUENTES.map(({ value, label, specimen }) => {
             const isSelected = prefs.tipografia === value
+            const family = TIPOGRAFIA_FAMILY_MAP[value]
             return (
               <button
                 key={value}
@@ -129,7 +103,7 @@ export function TypographySection({ prefs, onChange }: Props) {
         title="Tamaño de fuente"
         icon={<span className="text-xs font-bold text-primary">Aa</span>}
       >
-        <div className="flex gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {TAMANIOS.map(({ value, label, desc, specimen, size }) => {
             const isSelected = prefs.tamanioFuente === value
             return (
@@ -137,7 +111,7 @@ export function TypographySection({ prefs, onChange }: Props) {
                 key={value}
                 onClick={() => onChange({ tamanioFuente: value })}
                 className={cn(
-                  'flex flex-1 flex-col items-center gap-3 rounded-xl border-2 py-5 px-4 transition-all duration-150',
+                  'flex flex-col items-center gap-3 rounded-xl border-2 py-5 px-4 transition-all duration-150',
                   isSelected
                     ? 'border-primary bg-primary/5 shadow-sm shadow-primary/10'
                     : 'border-border hover:border-primary/40 hover:bg-muted/30'
@@ -166,39 +140,12 @@ export function TypographySection({ prefs, onChange }: Props) {
           </p>
           <p
             className="text-foreground leading-relaxed"
-            style={{
-              fontSize:
-                prefs.tamanioFuente === 'SMALL'
-                  ? '13px'
-                  : prefs.tamanioFuente === 'LARGE'
-                    ? '17px'
-                    : '15px',
-            }}
+            style={{ fontSize: FONT_SIZE_MAP[prefs.tamanioFuente] }}
           >
             Panel de administración · Kiki y Lala PEMS
           </p>
         </div>
       </SectionGroup>
-    </div>
-  )
-}
-
-function SectionGroup({
-  title,
-  icon,
-  children,
-}: {
-  title: string
-  icon?: React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <div className="rounded-xl border border-border/60 bg-muted/20 p-5 space-y-4">
-      <div className="flex items-center gap-2 pb-3 border-b border-border/40">
-        {icon && <span className="text-primary">{icon}</span>}
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-      </div>
-      {children}
     </div>
   )
 }

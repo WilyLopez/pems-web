@@ -13,17 +13,28 @@ export interface TipoEgreso {
   activo: boolean
 }
 
+export type EstadoAprobacionEgreso =
+  | 'APROBADO'
+  | 'PENDIENTE_APROBACION'
+  | 'RECHAZADO'
+
 export interface RegistroEgreso {
   id: number
   tipoEgresoCodigo: string
   idSede: number
   monto: number
   fecha: string
+  medioPago?: string
   periodoAnio?: number
   periodoMes?: number
   descripcion?: string
   comprobanteUrl?: string
   esRecurrente: boolean
+  naturaleza: NaturalezaMovimientoCaja
+  idRegistroAnulado?: number
+  estadoAprobacion: EstadoAprobacionEgreso
+  fechaAprobacion?: string
+  motivoRechazo?: string
   fechaCreacion: string
 }
 
@@ -44,6 +55,8 @@ export interface GastoOperativo {
   descripcion: string
   monto: number
   comprobanteUrl?: string
+  naturaleza: NaturalezaMovimientoCaja
+  idGastoAnulado?: number
   fechaCreacion: string
 }
 
@@ -123,6 +136,7 @@ export interface RegistrarEgresoPayload {
   tipoEgresoCodigo: string
   monto: number
   fecha: string
+  medioPago: string
   periodoAnio?: number
   periodoMes?: number
   descripcion?: string
@@ -143,31 +157,15 @@ export interface RegistrarGastoOperativoPayload {
   comprobanteUrl?: string
 }
 
-export interface ActualizarEgresoPayload {
-  tipoEgresoCodigo: string
-  monto: number
-  fecha: string
-  periodoAnio?: number
-  periodoMes?: number
-  descripcion?: string
-  comprobanteUrl?: string
-  esRecurrente?: boolean
-}
-
-export interface ActualizarGastoOperativoPayload {
-  fecha: string
-  descripcion: string
-  monto: number
-  comprobanteUrl?: string
-}
-
 export type CategoriaIngreso =
   | 'RESERVA_PUBLICA'
   | 'ADELANTO_EVENTO'
   | 'INGRESO_MANUAL'
   | 'OTRO'
 export type EstadoCaja = 'ABIERTA' | 'CERRADA'
+export type TipoSesionCaja = 'CAJERO' | 'ADMINISTRATIVA'
 export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO'
+export type NaturalezaMovimientoCaja = 'NORMAL' | 'CONTRAASIENTO'
 export type CategoriaRetiro =
   | 'SERVICIOS'
   | 'PROVEEDORES'
@@ -193,15 +191,20 @@ export interface RegistroIngreso {
   idEventoPrivado?: number
   monto: number
   fecha: string
+  fechaCobro?: string
   medioPago?: string
   descripcion?: string
   esAutomatico: boolean
+  naturaleza: NaturalezaMovimientoCaja
+  idRegistroAnulado?: number
   fechaCreacion: string
 }
 
 export interface AperturaCaja {
   id: number
   idSede: number
+  usuarioId: string
+  tipo: TipoSesionCaja
   fecha: string
   saldoInicial: number
   saldoFinal?: number
@@ -210,8 +213,8 @@ export interface AperturaCaja {
   saldoEsperado?: number
   diferencia?: number
   estado: EstadoCaja
-  idUsuarioApertura: string
-  idUsuarioCierre?: string
+  cerradaPor?: string
+  motivoCierre?: string
   fechaApertura: string
   fechaCierre?: string
   observaciones?: string
@@ -219,7 +222,7 @@ export interface AperturaCaja {
 
 export interface ArqueoCaja {
   id: number
-  idAperturaCaja: number
+  idSesionCaja: number
   saldoEsperado: number
   saldoContado: number
   diferencia: number
@@ -240,7 +243,7 @@ export interface RegistrarArqueoPayload {
 
 export interface MovimientoCaja {
   id: number
-  idAperturaCaja: number
+  idSesionCaja: number
   tipo: TipoMovimientoCaja
   concepto: string
   monto: number
@@ -250,7 +253,13 @@ export interface MovimientoCaja {
   idRegistroEgreso?: number
   idVenta?: number
   esManual: boolean
+  naturaleza: NaturalezaMovimientoCaja
+  idMovimientoAnulado?: number
   fechaCreacion: string
+}
+
+export interface AnularMovimientoPayload {
+  motivo: string
 }
 
 export interface PresupuestoEvento {
@@ -308,13 +317,18 @@ export interface RegistrarIngresoManualPayload {
 }
 
 export interface AbrirCajaPayload {
-  fecha: string
   saldoInicial: number
   observaciones?: string
 }
 
 export interface CerrarCajaPayload {
   saldoFinal: number
+  observaciones?: string
+}
+
+export interface CerrarCajaForzadoPayload {
+  saldoFinal: number
+  motivo: string
   observaciones?: string
 }
 

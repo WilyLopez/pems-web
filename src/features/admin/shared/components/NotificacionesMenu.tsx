@@ -31,23 +31,39 @@ export const NotificacionesMenu = memo(function NotificacionesMenu() {
   const { TIPO_ICON, TIPO_BADGE, DOT_COLOR } = require('@/features/admin/shared/layout/AdminNavbar')
 
   return (
-    <DropdownMenu
-      onOpenChange={(open) => {
-        if (open) fetchNotificaciones()
-      }}
-    >
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative h-9 w-9 rounded-xl hover:bg-gray-100 transition-colors"
-        >
-          <Bell className="h-[18px] w-[18px] text-gray-500" />
-          {noLeidas > 0 && (
-            <span className="absolute top-1.5 right-1.5 h-[7px] w-[7px] rounded-full bg-brand-rosa ring-2 ring-white" />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes bell-ring {
+          0%, 100% { transform: rotate(0deg); }
+          15% { transform: rotate(15deg); }
+          30% { transform: rotate(-15deg); }
+          45% { transform: rotate(10deg); }
+          60% { transform: rotate(-10deg); }
+          75% { transform: rotate(4deg); }
+          85% { transform: rotate(-4deg); }
+        }
+        .bell-ring-active {
+          animation: bell-ring 2s ease-in-out infinite;
+          transform-origin: top center;
+        }
+      `}} />
+      <DropdownMenu
+        onOpenChange={(open) => {
+          if (open) fetchNotificaciones()
+        }}
+      >
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative h-9 w-9 rounded-xl hover:bg-gray-100 transition-colors"
+          >
+            <Bell className={cn("h-[18px] w-[18px] text-gray-500", noLeidas > 0 && "bell-ring-active text-brand-rosa")} />
+            {noLeidas > 0 && (
+              <span className="absolute top-1.5 right-1.5 h-[7px] w-[7px] rounded-full bg-brand-rosa ring-2 ring-white animate-pulse" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
 
       <DropdownMenuContent
         align="end"
@@ -150,5 +166,6 @@ export const NotificacionesMenu = memo(function NotificacionesMenu() {
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
+    </>
   )
 })

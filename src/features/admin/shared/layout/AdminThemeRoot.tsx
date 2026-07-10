@@ -2,6 +2,9 @@
 
 import { useEffect } from 'react'
 import { useThemeStore } from '@/lib/store/theme.store'
+import { useThemeConfig } from '@/hooks/useThemeConfig'
+import { useAdminPreferences } from '@/hooks/useAdminPreferences'
+import { useAuth } from '@/hooks/useAuth'
 
 function applyAdminTheme(theme: string) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -11,6 +14,10 @@ function applyAdminTheme(theme: string) {
 
 export function AdminThemeRoot({ children }: { children: React.ReactNode }) {
   const theme = useThemeStore((s) => s.theme)
+  const { isAdmin } = useAuth()
+
+  useAdminPreferences(isAdmin)
+  useThemeConfig()
 
   useEffect(() => {
     applyAdminTheme(theme)
@@ -32,7 +39,7 @@ export function AdminThemeRoot({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background">
+    <div className="admin-shell flex h-screen w-screen overflow-hidden bg-background">
       {children}
     </div>
   )

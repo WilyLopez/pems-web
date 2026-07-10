@@ -8,7 +8,7 @@ import {
   AperturaCaja,
   useCajasRango,
   useCajaMutations,
-  cerrarCajaSchema,
+  cerrarCajaForzadoSchema,
 } from '@/features/admin/finanzas'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -32,9 +32,9 @@ import {
 } from '@/components/ui/Dialog'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { Calendar, Lock, Unlock, AlertTriangle, HelpCircle, ClipboardList } from 'lucide-react'
+import { Calendar, Lock, AlertTriangle, ClipboardList } from 'lucide-react'
 
-type FormValues = z.infer<typeof cerrarCajaSchema>
+type FormValues = z.infer<typeof cerrarCajaForzadoSchema>
 
 interface Props {
   idSede: number
@@ -67,7 +67,7 @@ export function CajaHistorialPanel({ idSede }: Props) {
   const [fin, setFin] = useState(today)
 
   const { data: cajas = [], isLoading } = useCajasRango(idSede, inicio, fin)
-  const { cerrar } = useCajaMutations()
+  const { cerrarForzado } = useCajaMutations()
 
   const [selectedCaja, setSelectedCaja] = useState<AperturaCaja | null>(null)
 
@@ -76,13 +76,18 @@ export function CajaHistorialPanel({ idSede }: Props) {
     handleSubmit,
     control,
     reset,
+    setError,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(cerrarCajaSchema),
-    defaultValues: { saldoFinal: 0, observaciones: '' },
+    resolver: zodResolver(cerrarCajaForzadoSchema),
+    defaultValues: { motivo: '', observaciones: '' },
   })
 
   const saldoFinalWatch = useWatch({ control, name: 'saldoFinal' })
+  const contadoIngresado =
+    saldoFinalWatch !== undefined &&
+    saldoFinalWatch !== null &&
+    `${saldoFinalWatch}` !== ''
   const saldoFinalNum = Number(saldoFinalWatch) || 0
 
   const saldoEsperado = selectedCaja
@@ -94,18 +99,19 @@ export function CajaHistorialPanel({ idSede }: Props) {
 
   function handleOpenCloseDialog(caja: AperturaCaja) {
     setSelectedCaja(caja)
-    reset({
-      saldoFinal: Number(
-        (caja.saldoInicial + caja.totalIngresos - caja.totalEgresos).toFixed(2)
-      ),
-      observaciones: '',
-    })
+    reset({ motivo: '', observaciones: '' })
   }
 
   function onSubmitClose(v: FormValues) {
     if (!selectedCaja) return
-    cerrar.mutate(
-      { idApertura: selectedCaja.id, payload: v },
+    if (v.saldoFinal - saldoEsperado !== 0 && !v.observaciones?.trim()) {
+      setError('observaciones', {
+        message: 'Registra una observación que justifique la diferencia',
+      })
+      return
+    }
+    cerrarForzado.mutate(
+      { idSesion: selectedCaja.id, payload: v },
       {
         onSuccess: () => {
           setSelectedCaja(null)
@@ -117,7 +123,6 @@ export function CajaHistorialPanel({ idSede }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Filtros */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-wrap items-end gap-4 shadow-sm">
         <div className="space-y-1">
           <Label className="text-gray-500 font-semibold text-xs">Fecha Inicio</Label>
@@ -145,12 +150,11 @@ export function CajaHistorialPanel({ idSede }: Props) {
         </div>
       </div>
 
-      {/* Tabla */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         <div className="px-5 py-4 border-b flex justify-between items-center bg-gray-50/50">
           <div className="flex items-center gap-2">
             <ClipboardList className="h-4 w-4 text-brand-azul" />
-            <h3 className="text-sm font-bold text-gray-700">Cajas registradas</h3>
+            <h3 className="text-sm font-bold text-gray-700">Sesiones de caja</h3>
           </div>
           {isLoading && <span className="text-xs text-gray-400 animate-pulse">Cargando historial...</span>}
         </div>
@@ -158,13 +162,14 @@ export function CajaHistorialPanel({ idSede }: Props) {
         {cajas.length === 0 ? (
           <div className="py-12 text-center text-sm text-gray-400 space-y-2">
             <AlertTriangle className="mx-auto h-8 w-8 text-gray-300" />
-            <p>No se encontraron cajas registradas en este rango de fechas.</p>
+            <p>No se encontraron sesiones de caja en este rango de fechas.</p>
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50/50 text-gray-500 text-xs font-semibold uppercase">
                 <TableHead>Fecha</TableHead>
+                <TableHead>Tipo</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Apertura / Cierre</TableHead>
                 <TableHead className="text-right">Inicial</TableHead>
@@ -178,12 +183,19 @@ export function CajaHistorialPanel({ idSede }: Props) {
             <TableBody>
               {cajas.map((c) => {
                 const abierta = c.estado === 'ABIERTA'
-                const esperado = c.saldoInicial + c.totalIngresos - c.totalEgresos
                 const diff = c.diferencia ?? 0
                 return (
                   <TableRow key={c.id} className="hover:bg-gray-50/70 transition-colors">
                     <TableCell className="font-bold text-gray-800" suppressHydrationWarning>
                       {formatFechaLocal(c.fecha)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className="rounded-full px-2 py-0.5 text-[10px] font-bold border-0 bg-blue-100 text-blue-700 hover:bg-blue-100"
+                      >
+                        {c.tipo === 'ADMINISTRATIVA' ? 'ADMIN' : 'CAJERO'}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -235,7 +247,7 @@ export function CajaHistorialPanel({ idSede }: Props) {
                           className="bg-red-600 hover:bg-red-700 text-white font-bold gap-1 rounded-lg px-2.5 py-1 text-[11px] h-7"
                         >
                           <Lock className="h-3 w-3" />
-                          Cerrar caja
+                          Cierre forzado
                         </Button>
                       ) : (
                         <span className="text-xs text-gray-400 font-medium">—</span>
@@ -249,7 +261,6 @@ export function CajaHistorialPanel({ idSede }: Props) {
         )}
       </div>
 
-      {/* Modal de cierre forzado de caja */}
       <Dialog open={!!selectedCaja} onOpenChange={(open) => !open && setSelectedCaja(null)}>
         <DialogContent className="max-w-md bg-white p-6 rounded-2xl">
           <DialogHeader>
@@ -258,7 +269,7 @@ export function CajaHistorialPanel({ idSede }: Props) {
               Cierre administrativo de caja
             </DialogTitle>
             <DialogDescription className="text-xs text-gray-400">
-              Vas a realizar el cierre de la caja del día{' '}
+              Vas a cerrar de forma administrativa la sesión de caja del día{' '}
               <strong className="text-gray-700" suppressHydrationWarning>
                 {selectedCaja && formatFechaLocal(selectedCaja.fecha)}
               </strong>
@@ -309,30 +320,53 @@ export function CajaHistorialPanel({ idSede }: Props) {
                 )}
               </div>
 
-              {saldoFinalNum > 0 && (
+              {contadoIngresado && (
                 <div
                   className={cn(
                     'flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold',
-                    diferencia >= 0
+                    diferencia === 0
                       ? 'bg-emerald-50 text-emerald-700'
-                      : 'bg-red-50 text-red-600'
+                      : diferencia > 0
+                        ? 'bg-amber-50 text-amber-700'
+                        : 'bg-red-50 text-red-600'
                   )}
                 >
-                  <span>Diferencia</span>
+                  <span>{diferencia === 0 ? 'Sin diferencia' : 'Diferencia'}</span>
                   <span>
-                    {diferencia >= 0 ? '+' : ''}
+                    {diferencia > 0 ? '+' : ''}
                     {formatCurrency(diferencia)}
                   </span>
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <Label>Observaciones de cierre</Label>
+                <Label>Motivo del cierre forzado</Label>
                 <Input
-                  {...register('observaciones')}
-                  placeholder="Ej. Sobrante, cuadre correcto, etc."
+                  {...register('motivo')}
+                  placeholder="Ej. El cajero olvidó cerrar su caja"
                   className="h-10"
                 />
+                {errors.motivo && (
+                  <p className="text-xs text-red-500">{errors.motivo.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Observaciones</Label>
+                <Input
+                  {...register('observaciones')}
+                  placeholder={
+                    contadoIngresado && diferencia !== 0
+                      ? 'Obligatorio: justifica la diferencia…'
+                      : 'Ej. Sobrante, cuadre correcto, etc.'
+                  }
+                  className="h-10"
+                />
+                {errors.observaciones && (
+                  <p className="text-xs text-red-500">
+                    {errors.observaciones.message}
+                  </p>
+                )}
               </div>
 
               <DialogFooter className="gap-2 pt-2">
@@ -347,11 +381,11 @@ export function CajaHistorialPanel({ idSede }: Props) {
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={cerrar.isPending}
+                  disabled={cerrarForzado.isPending}
                   className="bg-red-600 hover:bg-red-700 text-white font-bold gap-1"
                 >
                   <Lock className="h-4 w-4" />
-                  {cerrar.isPending ? 'Cerrando...' : 'Confirmar cierre'}
+                  {cerrarForzado.isPending ? 'Cerrando...' : 'Confirmar cierre'}
                 </Button>
               </DialogFooter>
             </form>

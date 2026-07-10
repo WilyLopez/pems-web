@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { format, isToday, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
 import { useConfiguracionCalendario, useConfiguracionVenta } from '@/hooks/useConfiguracion'
@@ -15,6 +15,7 @@ import { Cliente } from '@/types/cliente.types'
 import { buildVentaMostradorSchema, VentaMostradorFormValues } from '../schema/ventaMostrador.schema'
 import { calcularResumenVenta } from '../utils/ventas.utils'
 import { PagoLinea } from '../types'
+import { esFechaHoyEnZonaNegocio, yaPasoLaHoraEnZonaNegocio } from '@/lib/utils'
 
 const LOCAL_STORAGE_KEY = 'pems_venta_mostrador_form'
 const LOCAL_STORAGE_CLIENTE_KEY = 'pems_venta_mostrador_cliente'
@@ -158,16 +159,16 @@ export function useVentaMostradorForm() {
     return efectivoAplicado > 0 && efectivoRecibido < efectivoAplicado
   }, [efectivoAplicado, efectivoRecibido])
 
-  const esHoy = useMemo(() => isToday(parseISO(fechaVisita)), [fechaVisita])
+  const esHoy = useMemo(() => esFechaHoyEnZonaNegocio(fechaVisita), [fechaVisita])
 
   const fueraDeHorario = useMemo(() => {
     if (!esHoy || !confCal) return false
-    const ahora = new Date()
-    const horaActual = ahora.getHours() * 100 + ahora.getMinutes()
-    const [hCierra, mCierra] = confCal.turnoT2Fin.split(':').map(Number)
-    const horaCierra = hCierra * 100 + mCierra
-    return horaActual > horaCierra
+    return yaPasoLaHoraEnZonaNegocio(confCal.horaCierre)
   }, [esHoy, confCal])
+
+  const hayEventoPrivado =
+    disponibilidad?.tipoOcupacion === 'PRIVADO_PARCIAL' ||
+    disponibilidad?.tipoOcupacion === 'PRIVADO_LLENO'
 
   const estaBloqueado = useMemo(() => {
     if (isLoadingDisp || !disponibilidad) return false
@@ -272,6 +273,8 @@ export function useVentaMostradorForm() {
     exceedsAforo,
     precioValido,
     estaBloqueado,
+    fueraDeHorario,
+    hayEventoPrivado,
     esHoy,
     total,
     subtotal,

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { PrecioLabel } from './PrecioLabel'
 import { Disponibilidad } from '@/features/admin/calendario/types'
 import { cn } from '@/lib/utils'
+import { sanitizeLegalHtml } from '@/lib/sanitize'
 import { legalService } from '@/services/legal.service'
 import { Cliente } from '@/types/cliente.types'
 import {
@@ -352,7 +353,7 @@ export function VisitorStep({
             ) : (
               <div
                 className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: docContenido }}
+                dangerouslySetInnerHTML={{ __html: sanitizeLegalHtml(docContenido) }}
               />
             )}
           </div>

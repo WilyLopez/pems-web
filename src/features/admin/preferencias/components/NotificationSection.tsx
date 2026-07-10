@@ -1,8 +1,10 @@
 'use client'
 
+import React from 'react'
 import { PreferenciaAdmin } from '@/types/preferencias.types'
 import { Bell, Mail, MonitorSmartphone, Volume2, CircleDot } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SectionGroup, ToggleRow } from './shared/SectionUI'
 
 interface Props {
   prefs: PreferenciaAdmin
@@ -115,65 +117,18 @@ export function NotificationSection({ prefs, onChange }: Props) {
         icon={<MonitorSmartphone className="h-4 w-4" />}
       >
         <div className="space-y-1 divide-y divide-border/40">
-          {UI_PREFS.map(({ key, label, description, icon: Icon }) => (
+          {UI_PREFS.map(({ key, label, description }) => (
             <div key={key} className="py-3 first:pt-0 last:pb-0">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {description}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  role="switch"
-                  aria-checked={prefs[key] as boolean}
-                  onClick={() => onChange({ [key]: !(prefs[key] as boolean) })}
-                  className={cn(
-                    'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200',
-                    (prefs[key] as boolean)
-                      ? 'bg-primary shadow-sm shadow-primary/30'
-                      : 'bg-input'
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md ring-0 transition-transform duration-200',
-                      (prefs[key] as boolean)
-                        ? 'translate-x-5'
-                        : 'translate-x-0'
-                    )}
-                  />
-                </button>
-              </div>
+              <ToggleRow
+                label={label}
+                description={description}
+                checked={prefs[key] as boolean}
+                onChange={(v) => onChange({ [key]: v })}
+              />
             </div>
           ))}
         </div>
       </SectionGroup>
-    </div>
-  )
-}
-
-function SectionGroup({
-  title,
-  icon,
-  children,
-}: {
-  title: string
-  icon?: React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <div className="rounded-xl border border-border/60 bg-muted/20 p-5 space-y-4">
-      <div className="flex items-center gap-2 pb-3 border-b border-border/40">
-        {icon && <span className="text-primary">{icon}</span>}
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-      </div>
-      {children}
     </div>
   )
 }

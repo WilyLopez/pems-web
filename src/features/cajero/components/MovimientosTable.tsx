@@ -1,11 +1,13 @@
 'use client'
 
+import { Undo2 } from 'lucide-react'
 import { CategoriaRetiro, MovimientoCaja } from '@/features/admin/finanzas'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 interface Props {
   movimientos: MovimientoCaja[]
+  onAnular?: (movimiento: MovimientoCaja) => void
 }
 
 const CATEGORIA_LABEL: Record<CategoriaRetiro, string> = {
@@ -23,7 +25,7 @@ function formatHora(iso: string) {
   })
 }
 
-export function MovimientosTable({ movimientos }: Props) {
+export function MovimientosTable({ movimientos, onAnular }: Props) {
   if (movimientos.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-gray-400">
@@ -31,6 +33,12 @@ export function MovimientosTable({ movimientos }: Props) {
       </p>
     )
   }
+
+  const idsAnulados = new Set(
+    movimientos
+      .map((m) => m.idMovimientoAnulado)
+      .filter((id): id is number => id != null)
+  )
 
   return (
     <div className="overflow-x-auto">
@@ -44,6 +52,7 @@ export function MovimientosTable({ movimientos }: Props) {
             <th className="px-4 py-3 font-semibold">Medio de pago</th>
             <th className="px-4 py-3 font-semibold">Origen</th>
             <th className="px-4 py-3 font-semibold text-right">Monto</th>
+            {onAnular && <th className="px-4 py-3" />}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -64,7 +73,25 @@ export function MovimientosTable({ movimientos }: Props) {
                   {m.tipo === 'INGRESO' ? 'Ingreso' : 'Egreso'}
                 </span>
               </td>
-              <td className="px-4 py-3 text-gray-800">{m.concepto}</td>
+              <td className="px-4 py-3 text-gray-800">
+                <span
+                  className={cn(
+                    idsAnulados.has(m.id) && 'line-through text-gray-400'
+                  )}
+                >
+                  {m.concepto}
+                </span>
+                {m.naturaleza === 'CONTRAASIENTO' && (
+                  <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600">
+                    Contraasiento
+                  </span>
+                )}
+                {idsAnulados.has(m.id) && (
+                  <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600">
+                    Anulado
+                  </span>
+                )}
+              </td>
               <td className="px-4 py-3">
                 {m.categoriaRetiro ? (
                   <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700">
@@ -96,13 +123,28 @@ export function MovimientosTable({ movimientos }: Props) {
                 {m.tipo === 'EGRESO' ? '-' : '+'}
                 {formatCurrency(m.monto)}
               </td>
+              {onAnular && (
+                <td className="px-4 py-3 text-right">
+                  {m.naturaleza !== 'CONTRAASIENTO' &&
+                    !idsAnulados.has(m.id) && (
+                      <button
+                        type="button"
+                        onClick={() => onAnular(m)}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <Undo2 className="h-3.5 w-3.5" />
+                        Anular
+                      </button>
+                    )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
         <tfoot className="border-t-2 bg-gray-50">
           <tr>
             <td
-              colSpan={6}
+              colSpan={onAnular ? 7 : 6}
               className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide"
             >
               Balance neto

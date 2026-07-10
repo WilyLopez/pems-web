@@ -9,7 +9,7 @@ import { PatchPreferenciaPayload } from '@/types/preferencias.types'
 
 export const PREFERENCIAS_KEY = ['admin-preferencias']
 
-export function useAdminPreferences() {
+export function useAdminPreferences(enabled = true) {
   const { setPreferences } = useAdminPreferencesStore()
   const qc = useQueryClient()
 
@@ -17,6 +17,7 @@ export function useAdminPreferences() {
     queryKey: PREFERENCIAS_KEY,
     queryFn: preferenciasService.getMias,
     staleTime: 5 * 60_000,
+    enabled,
   })
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { Trash2, Plus } from 'lucide-react'
+import { Undo2, Plus } from 'lucide-react'
 import {
   useGastosOperativos,
   useGastoOperativoMutations,
@@ -14,6 +14,8 @@ import { formatCurrency } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+import { AnularRegistroModal } from './AnularRegistroModal'
+import type { GastoOperativo } from '../types'
 
 type FormValues = z.infer<typeof gastoOperativoSchema>
 
@@ -24,10 +26,12 @@ interface Props {
 
 export function GastosOperativosDia({ idSede, fecha }: Props) {
   const [showForm, setShowForm] = useState(false)
+  const [gastoAnular, setGastoAnular] = useState<GastoOperativo | null>(null)
   const { data: gastos = [], isLoading } = useGastosOperativos(idSede, fecha)
-  const { registrar, eliminar } = useGastoOperativoMutations()
+  const { registrar, anular } = useGastoOperativoMutations()
 
-  const total = gastos.reduce((acc, g) => acc + g.monto, 0)
+  const vigentes = gastos.filter((g) => g.naturaleza === 'NORMAL')
+  const total = vigentes.reduce((acc, g) => acc + g.monto, 0)
 
   const {
     register,
@@ -156,26 +160,59 @@ export function GastosOperativosDia({ idSede, fecha }: Props) {
               key={g.id}
               className="flex items-center justify-between py-2.5 gap-2"
             >
-              <p className="text-sm text-gray-800 truncate flex-1">
+              <p
+                className={
+                  'text-sm truncate flex-1 ' +
+                  (g.naturaleza === 'NORMAL'
+                    ? 'text-gray-800'
+                    : 'text-gray-400 line-through')
+                }
+              >
                 {g.descripcion}
               </p>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-sm font-semibold text-red-600">
+                <span
+                  className={
+                    'text-sm font-semibold ' +
+                    (g.naturaleza === 'NORMAL'
+                      ? 'text-red-600'
+                      : 'text-gray-400')
+                  }
+                >
                   {formatCurrency(g.monto)}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => eliminar.mutate(g.id)}
-                  disabled={eliminar.isPending}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                {g.naturaleza === 'NORMAL' && (
+                  <button
+                    type="button"
+                    onClick={() => setGastoAnular(g)}
+                    disabled={anular.isPending}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Undo2 className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </li>
           ))}
         </ul>
       )}
+
+      <AnularRegistroModal
+        titulo="Anular gasto operativo"
+        registro={
+          gastoAnular
+            ? { id: gastoAnular.id, concepto: gastoAnular.descripcion, monto: gastoAnular.monto }
+            : null
+        }
+        pending={anular.isPending}
+        onConfirmar={(motivo) =>
+          anular.mutate(
+            { id: gastoAnular!.id, payload: { motivo } },
+            { onSuccess: () => setGastoAnular(null) }
+          )
+        }
+        onClose={() => setGastoAnular(null)}
+      />
     </div>
   )
 }

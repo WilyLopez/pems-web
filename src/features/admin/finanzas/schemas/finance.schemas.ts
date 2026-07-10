@@ -7,8 +7,25 @@ export const abrirCajaSchema = z.object({
   observaciones: z.string().optional(),
 })
 
+const saldoContadoSchema = z.preprocess(
+  (v) => {
+    if (v === '' || v === null || v === undefined) return undefined
+    const n = Number(v)
+    return Number.isNaN(n) ? undefined : n
+  },
+  z
+    .number({ message: 'El conteo del efectivo es obligatorio' })
+    .min(0, 'El saldo contado no puede ser negativo')
+)
+
 export const cerrarCajaSchema = z.object({
-  saldoFinal: z.coerce.number().min(0, 'El saldo final no puede ser negativo'),
+  saldoFinal: saldoContadoSchema,
+  observaciones: z.string().optional(),
+})
+
+export const cerrarCajaForzadoSchema = z.object({
+  saldoFinal: saldoContadoSchema,
+  motivo: z.string().min(3, 'El motivo del cierre es obligatorio'),
   observaciones: z.string().optional(),
 })
 
@@ -40,6 +57,7 @@ export const egresoSchema = z.object({
   tipoEgresoCodigo: z.string().min(1, 'Selecciona un tipo'),
   monto: z.coerce.number().positive('El monto debe ser mayor a 0'),
   fecha: z.string().min(1, 'La fecha es obligatoria'),
+  medioPago: z.string().min(1, 'Selecciona el medio de pago'),
   esRecurrente: z.boolean().default(false),
   periodoAnio: z.coerce.number().optional(),
   periodoMes: z.coerce.number().min(1).max(12).optional(),

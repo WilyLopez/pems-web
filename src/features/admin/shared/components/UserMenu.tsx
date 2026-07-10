@@ -21,9 +21,10 @@ interface UserMenuProps {
   nombre?: string | null
   correo?: string | null
   logout: () => void
+  isAdmin?: boolean
 }
 
-export function UserMenu({ nombre, correo, logout }: UserMenuProps) {
+export function UserMenu({ nombre, correo, logout, isAdmin }: UserMenuProps) {
   return (
     <DropdownMenuContent
       align="end"
@@ -61,17 +62,19 @@ export function UserMenu({ nombre, correo, logout }: UserMenuProps) {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild>
-          <Link
-            href="/admin/preferencias"
-            className="flex items-center gap-2.5 rounded-xl cursor-pointer"
-          >
-            <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
-              <SlidersHorizontal className="h-3.5 w-3.5 text-gray-500" />
-            </div>
-            <span className="text-sm">Preferencias</span>
-          </Link>
-        </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem asChild>
+            <Link
+              href="/admin/preferencias"
+              className="flex items-center gap-2.5 rounded-xl cursor-pointer"
+            >
+              <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
+                <SlidersHorizontal className="h-3.5 w-3.5 text-gray-500" />
+              </div>
+              <span className="text-sm">Preferencias</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuGroup>
 
       <Separator className="my-1" />
