@@ -456,18 +456,6 @@ export const financeApi = {
     }
   },
 
-  listarCajasPorRango: async (
-    idSede: number,
-    inicio: string,
-    fin: string
-  ): Promise<AperturaCaja[]> => {
-    const { data } = await api.get<ApiResponse<AperturaCaja[]>>(
-      `/caja/sedes/${idSede}/rango`,
-      { params: { inicio, fin } }
-    )
-    return data.data
-  },
-
   generarResumenCaja: async (idApertura: number): Promise<ResumenCaja> => {
     const { data } = await api.get<ApiResponse<ResumenCaja>>(
       `/caja/${idApertura}/resumen`
