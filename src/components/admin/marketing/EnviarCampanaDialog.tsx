@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Loader2, X, Send } from 'lucide-react'
+import { Loader2, X, Send, ArrowLeft, Users } from 'lucide-react'
 
 import { marketingService } from '@/services/marketing.service'
 import { CampanaEmail } from '@/types/marketing.types'
@@ -65,9 +65,37 @@ export function EnviarCampanaDialog({ campana, onClose, onSent }: Props) {
     soloConAccesoWeb: false,
     soloPresenciales: false,
   })
+  const [valoresVariables, setValoresVariables] = useState<
+    Record<string, string>
+  >({})
+  const [campanaIdPrevia, setCampanaIdPrevia] = useState(campana?.id)
+  const [confirmando, setConfirmando] = useState(false)
+
+  if (campana?.id !== campanaIdPrevia) {
+    setCampanaIdPrevia(campana?.id)
+    setValoresVariables({})
+    setConfirmando(false)
+  }
+
+  const { data: variablesRequeridas, isLoading: cargandoVariables } = useQuery({
+    queryKey: ['variables-requeridas', campana?.id],
+    queryFn: () => marketingService.obtenerVariablesRequeridas(campana!.id),
+    enabled: !!campana,
+  })
+
+  const { data: totalDestinatarios, isFetching: contandoDestinatarios } =
+    useQuery({
+      queryKey: ['destinatarios-count', campana?.id, filtro],
+      queryFn: () => marketingService.contarDestinatarios(campana!.id, filtro),
+      enabled: !!campana,
+    })
 
   const enviar = useMutation({
-    mutationFn: () => marketingService.enviarCampana(campana!.id, filtro),
+    mutationFn: () =>
+      marketingService.enviarCampana(campana!.id, {
+        ...filtro,
+        valoresVariables,
+      }),
     onSuccess: () => {
       toast.success(
         'Campaña iniciada. Los envíos se procesarán en segundo plano.'
@@ -75,13 +103,22 @@ export function EnviarCampanaDialog({ campana, onClose, onSent }: Props) {
       onSent()
       onClose()
     },
-    onError: () => toast.error('No se pudo iniciar el envío de la campaña.'),
+    onError: () => {
+      setConfirmando(false)
+      toast.error('No se pudo iniciar el envío de la campaña.')
+    },
   })
 
   if (!campana) return null
 
-  const toggle = (key: keyof FiltroEnvio) =>
+  const toggle = (key: keyof FiltroEnvio) => {
+    setConfirmando(false)
     setFiltro((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  const faltanVariables = (variablesRequeridas ?? []).some(
+    (variable) => !valoresVariables[variable]?.trim()
+  )
 
   return (
     <>
@@ -138,33 +175,119 @@ export function EnviarCampanaDialog({ campana, onClose, onSent }: Props) {
               ))}
             </div>
 
+            {cargandoVariables && (
+              <p className="text-xs text-gray-400">
+                Revisando variables de la plantilla…
+              </p>
+            )}
+
+            {!!variablesRequeridas?.length && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-gray-800">
+                  Completa las variables de la plantilla
+                </p>
+                {variablesRequeridas.map((variable) => (
+                  <div key={variable}>
+                    <label className="text-xs text-gray-500">
+                      {`{{${variable}}}`}
+                    </label>
+                    <input
+                      type="text"
+                      value={valoresVariables[variable] ?? ''}
+                      onChange={(e) =>
+                        setValoresVariables((prev) => ({
+                          ...prev,
+                          [variable]: e.target.value,
+                        }))
+                      }
+                      placeholder={`Valor para ${variable}`}
+                      className="w-full text-sm rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-azul/30"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 rounded-xl bg-brand-azul/5 border border-brand-azul/20 p-3 text-sm text-brand-azul font-semibold">
+              <Users className="h-4 w-4 shrink-0" />
+              {contandoDestinatarios ? (
+                <span className="text-gray-500 font-normal">
+                  Calculando destinatarios…
+                </span>
+              ) : (
+                <span>
+                  {totalDestinatarios ?? 0} destinatario
+                  {totalDestinatarios === 1 ? '' : 's'} recibirán este correo
+                </span>
+              )}
+            </div>
+
+            {confirmando && (
+              <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-700 font-medium">
+                Estás a punto de enviar esta campaña a {totalDestinatarios ?? 0}{' '}
+                destinatario
+                {totalDestinatarios === 1 ? '' : 's'}. Esta acción no se puede
+                deshacer. Confirma para continuar.
+              </div>
+            )}
+
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-700">
-              El envío se procesa en lotes de 50 correos por minuto. Los
-              resultados se actualizarán en tiempo real.
+              El envío se procesa en lotes de 50 correos por minuto.
             </div>
           </div>
 
           <div className="flex justify-end gap-3 px-5 pb-5 border-t border-gray-100 pt-4">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={onClose}
-              className="rounded-xl"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={() => enviar.mutate()}
-              disabled={enviar.isPending}
-              className="rounded-xl gap-1.5 bg-brand-azul hover:bg-brand-azul/90"
-            >
-              {enviar.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-              Iniciar envío
-            </Button>
+            {confirmando ? (
+              <>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setConfirmando(false)}
+                  disabled={enviar.isPending}
+                  className="rounded-xl gap-1.5"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Volver
+                </Button>
+                <Button
+                  onClick={() => enviar.mutate()}
+                  disabled={enviar.isPending || contandoDestinatarios}
+                  className="rounded-xl gap-1.5 bg-brand-azul hover:bg-brand-azul/90"
+                >
+                  {enviar.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                  Sí, enviar a {totalDestinatarios ?? 0} destinatario
+                  {totalDestinatarios === 1 ? '' : 's'}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-xl"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={() => setConfirmando(true)}
+                  disabled={
+                    cargandoVariables ||
+                    faltanVariables ||
+                    contandoDestinatarios ||
+                    !totalDestinatarios
+                  }
+                  className="rounded-xl gap-1.5 bg-brand-azul hover:bg-brand-azul/90"
+                >
+                  <Send className="h-4 w-4" />
+                  Iniciar envío
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

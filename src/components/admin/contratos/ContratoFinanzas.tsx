@@ -1,5 +1,5 @@
 import { CreditCard, TrendingUp, AlertCircle } from 'lucide-react'
-import { Contrato } from '@/types/contrato.types'
+import { Contrato } from '@/features/admin/contratos/types'
 import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 

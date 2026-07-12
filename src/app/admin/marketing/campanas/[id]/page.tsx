@@ -81,12 +81,15 @@ export default function CampanaDetailPage() {
     queryKey: ['campana', campanaId],
     queryFn: () => marketingService.getCampanaById(campanaId),
     enabled: !!campanaId,
+    refetchInterval: (query) =>
+      query.state.data?.estado === 'ENVIANDO' ? 5000 : false,
   })
 
   const { data: envios, isLoading: loadingEnvios } = useQuery({
     queryKey: ['envios', campanaId, page],
     queryFn: () => marketingService.listarEnvios(campanaId, page, 20),
     enabled: !!campanaId,
+    refetchInterval: campana?.estado === 'ENVIANDO' ? 5000 : false,
   })
 
   const totalEnviados = campana?.totalEnviados ?? 0

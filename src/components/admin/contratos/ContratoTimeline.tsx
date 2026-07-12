@@ -1,29 +1,15 @@
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import {
-  FilePen,
-  CheckCircle,
-  Send,
-  Clock,
-  XCircle,
-  Archive,
-  Upload,
-  RefreshCw,
-} from 'lucide-react'
-import { ActividadContrato } from '@/types/contrato.types'
+import { Upload, RefreshCw, Clock } from 'lucide-react'
+import { ActividadContrato } from '@/features/admin/contratos/types'
 import { cn } from '@/lib/utils'
 
 const ACCION_CONFIG: Record<
   string,
   { icon: React.ElementType; color: string }
 > = {
-  CREADO: { icon: FilePen, color: 'bg-gray-100 text-gray-600' },
-  ACTUALIZADO: { icon: RefreshCw, color: 'bg-blue-100 text-blue-700' },
-  ENVIADO: { icon: Send, color: 'bg-blue-100 text-blue-700' },
-  FIRMADO: { icon: CheckCircle, color: 'bg-green-100 text-green-700' },
-  CANCELADO: { icon: XCircle, color: 'bg-red-100 text-red-700' },
-  ARCHIVADO: { icon: Archive, color: 'bg-slate-100 text-slate-600' },
-  DOCUMENTO_SUBIDO: { icon: Upload, color: 'bg-purple-100 text-purple-700' },
+  CARGADO: { icon: Upload, color: 'bg-green-100 text-green-700' },
+  REEMPLAZADO: { icon: RefreshCw, color: 'bg-blue-100 text-blue-700' },
   DEFAULT: { icon: Clock, color: 'bg-gray-100 text-gray-500' },
 }
 
