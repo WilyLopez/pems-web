@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
-import { toast } from 'sonner'
 import {
   Loader2,
   Phone,
@@ -19,13 +18,8 @@ import {
   User,
 } from 'lucide-react'
 import { useConfirmarEvento } from '@/hooks/useEventos'
-import { useGenerarContrato } from '@/hooks/useContratos'
+import { useCargarContrato } from '@/hooks/useContratos'
 import { EventoPrivado, ModalidadPago, PagoItem } from '@/types/evento.types'
-import {
-  PLANTILLAS,
-  PlantillaId,
-  aplicarPlantilla,
-} from '@/types/contrato.types'
 import { formatCurrency, formatDate, cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -37,22 +31,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/Dialog'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
+import { ContratoUploadZone } from '@/components/admin/contratos/ContratoUploadZone'
 import { MultiMedioPago } from '@/features/admin/eventos/components/forms/MultiMedioPago'
 import {
   PlanCuotasBuilder,
   PlanCuotasValue,
 } from '@/features/admin/eventos/components/forms/PlanCuotasBuilder'
-import {
-  useMiSesionCaja,
-  CajaRequeridaAlert,
-} from '@/features/admin/finanzas'
+import { useMiSesionCaja, CajaRequeridaAlert } from '@/features/admin/finanzas'
 
 type Paso = 1 | 2 | 3
 
@@ -139,14 +124,13 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
   const [fechaLimitePagoContado, setFechaLimitePagoContado] = useState(
     evento.fechaEvento
   )
-  const [plantillaId, setPlantillaId] = useState<PlantillaId | ''>('')
   const [opcionContrato, setOpcionContrato] = useState<
-    'plantilla' | 'manual' | 'omitir' | null
+    'ahora' | 'despues' | null
   >(null)
-  const [contratoGenerado, setContratoGenerado] = useState(false)
+  const [contratoCargado, setContratoCargado] = useState(false)
 
   const confirmar = useConfirmarEvento()
-  const generarContrato = useGenerarContrato()
+  const cargarContrato = useCargarContrato()
   const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
     useMiSesionCaja()
   const sinCajaAdministrativa =
@@ -175,9 +159,8 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
       setPlanCuotas({ numeroCuotas: 2, fechaLimitePago: '' })
       setPagoError(null)
       setFechaLimitePagoContado(evento.fechaEvento)
-      setPlantillaId('')
       setOpcionContrato(null)
-      setContratoGenerado(false)
+      setContratoCargado(false)
       reset({ precioTotal: 0, montoAdelanto: 0 })
     }
   }, [open, reset])
@@ -195,21 +178,6 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
   const mailtoCliente = evento.correoCliente
     ? `mailto:${evento.correoCliente}?subject=Evento privado - ${formatDate(evento.fechaEvento)}&body=Hola ${evento.nombreCliente},%0D%0A%0D%0AMe comunico en relación a su evento privado del ${formatDate(evento.fechaEvento)}.`
     : null
-
-  const textoContrato = plantillaId
-    ? aplicarPlantilla(PLANTILLAS[plantillaId].plantilla, {
-        nombreCliente: evento.nombreCliente,
-        tipoEvento: evento.tipoEvento,
-        fechaEvento: evento.fechaEvento,
-        turno: evento.turno,
-        aforoDeclarado: evento.aforoDeclarado,
-        precioTotalContrato: precioData?.precioTotal,
-        montoAdelanto: precioData?.montoAdelanto,
-        saldoPendiente: precioData
-          ? precioData.precioTotal - precioData.montoAdelanto
-          : undefined,
-      })
-    : ''
 
   function onPrecioSubmit(values: PrecioValues) {
     if (values.montoAdelanto > 0) {
@@ -278,19 +246,10 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
     setPaso(3)
   }
 
-  function handleGenerarContrato() {
-    if (!plantillaId || !precioData) return
-    generarContrato.mutate(
-      {
-        idEvento: evento.id,
-        payload: { contenidoTexto: textoContrato, plantilla: plantillaId },
-      },
-      {
-        onSuccess: () => {
-          setContratoGenerado(true)
-          toast.success('Contrato generado correctamente.')
-        },
-      }
+  function handleCargarContrato(archivo: File) {
+    cargarContrato.mutate(
+      { idEvento: evento.id, archivo },
+      { onSuccess: () => setContratoCargado(true) }
     )
   }
 
@@ -641,10 +600,10 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() => setOpcionContrato('plantilla')}
+                onClick={() => setOpcionContrato('ahora')}
                 className={cn(
                   'w-full text-left border-2 rounded-xl p-3.5 transition-all',
-                  opcionContrato === 'plantilla'
+                  opcionContrato === 'ahora'
                     ? 'border-brand-azul bg-brand-azul/5'
                     : 'border-gray-100 hover:border-brand-azul/30'
                 )}
@@ -653,56 +612,26 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                   <FileText
                     className={cn(
                       'h-4 w-4',
-                      opcionContrato === 'plantilla'
+                      opcionContrato === 'ahora'
                         ? 'text-brand-azul'
                         : 'text-gray-400'
                     )}
                   />
                   <span className="text-sm font-bold text-gray-900">
-                    Generar desde plantilla
+                    Cargar el contrato ahora
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                  Selecciona una plantilla y genera el contrato automáticamente
-                  con los datos del evento.
+                  Sube el PDF del contrato ya firmado.
                 </p>
               </button>
 
               <button
                 type="button"
-                onClick={() => setOpcionContrato('manual')}
+                onClick={() => setOpcionContrato('despues')}
                 className={cn(
                   'w-full text-left border-2 rounded-xl p-3.5 transition-all',
-                  opcionContrato === 'manual'
-                    ? 'border-brand-azul bg-brand-azul/5'
-                    : 'border-gray-100 hover:border-brand-azul/30'
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <ExternalLink
-                    className={cn(
-                      'h-4 w-4',
-                      opcionContrato === 'manual'
-                        ? 'text-brand-azul'
-                        : 'text-gray-400'
-                    )}
-                  />
-                  <span className="text-sm font-bold text-gray-900">
-                    Subir contrato externo
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 mt-0.5 ml-6">
-                  Confirma el evento y accede al módulo de contratos para subir
-                  el documento firmado.
-                </p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setOpcionContrato('omitir')}
-                className={cn(
-                  'w-full text-left border-2 rounded-xl p-3.5 transition-all',
-                  opcionContrato === 'omitir'
+                  opcionContrato === 'despues'
                     ? 'border-gray-300 bg-gray-50'
                     : 'border-gray-100 hover:border-gray-200'
                 )}
@@ -711,84 +640,35 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                   <span
                     className={cn(
                       'text-sm font-bold',
-                      opcionContrato === 'omitir'
+                      opcionContrato === 'despues'
                         ? 'text-gray-700'
                         : 'text-gray-500'
                     )}
                   >
-                    Gestionar contrato después
+                    Cargar el contrato después
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  Confirma el evento ahora y gestiona el contrato más adelante
-                  desde el módulo de contratos.
+                  Confirma el evento ahora y sube el PDF más adelante desde el
+                  módulo de contratos.
                 </p>
               </button>
             </div>
 
-            {opcionContrato === 'plantilla' && (
-              <div className="space-y-3 bg-gray-50 rounded-xl border border-gray-100 p-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-gray-700">
-                    Plantilla
-                  </Label>
-                  <Select
-                    value={plantillaId}
-                    onValueChange={(v) => setPlantillaId(v as PlantillaId)}
-                  >
-                    <SelectTrigger className="h-9 rounded-lg text-sm bg-white">
-                      <SelectValue placeholder="Seleccionar plantilla..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(
-                        Object.entries(PLANTILLAS) as [
-                          PlantillaId,
-                          { label: string },
-                        ][]
-                      ).map(([key, { label }]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {plantillaId && (
-                  <>
-                    <div className="text-xs text-gray-500 bg-white rounded-lg border border-gray-200 p-2 max-h-32 overflow-y-auto font-mono whitespace-pre-wrap">
-                      {textoContrato}
-                    </div>
-                    {!contratoGenerado ? (
-                      <Button
-                        size="sm"
-                        className="rounded-lg bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5 w-full"
-                        disabled={generarContrato.isPending}
-                        onClick={handleGenerarContrato}
-                      >
-                        {generarContrato.isPending && (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        )}
-                        <FileText className="h-3.5 w-3.5" />
-                        Generar contrato
-                      </Button>
-                    ) : (
-                      <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2">
-                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                        Contrato generado. Podrás editarlo desde el módulo de
-                        contratos.
-                      </div>
-                    )}
-                  </>
+            {opcionContrato === 'ahora' && (
+              <div className="space-y-2 bg-gray-50 rounded-xl border border-gray-100 p-3">
+                {!contratoCargado ? (
+                  <ContratoUploadZone
+                    label="Arrastra el PDF del contrato o haz clic para seleccionarlo"
+                    cargando={cargarContrato.isPending}
+                    onArchivoValido={handleCargarContrato}
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    Contrato cargado correctamente.
+                  </div>
                 )}
-              </div>
-            )}
-
-            {opcionContrato === 'manual' && (
-              <div className="rounded-xl bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-800">
-                Tras confirmar el evento, accede a{' '}
-                <strong>Admin → Contratos</strong> para subir el documento
-                firmado y asociarlo a este evento.
               </div>
             )}
 
