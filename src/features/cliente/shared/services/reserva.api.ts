@@ -1,5 +1,6 @@
 import api from '@/services/api'
 import { ApiResponse, PagedResponse } from '@/types/api.types'
+import { EstadoEntregaCorreoDTO } from '@/types/notificaciones.types'
 import { Reserva, CrearReservaPayload } from '../types'
 
 export const reservaApi = {
@@ -56,6 +57,15 @@ export const reservaApi = {
       {
         params: { motivo },
       }
+    )
+    return data.data
+  },
+
+  obtenerEstadoCorreo: async (
+    idReserva: number
+  ): Promise<EstadoEntregaCorreoDTO> => {
+    const { data } = await api.get<ApiResponse<EstadoEntregaCorreoDTO>>(
+      `/reservas/${idReserva}/estado-correo`
     )
     return data.data
   },

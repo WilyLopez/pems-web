@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { differenceInDays, startOfDay } from 'date-fns'
 import { parseLocalDate } from '@/features/cliente/shared/utils/reserva'
@@ -14,10 +15,12 @@ import {
   FileText,
   CheckCircle2,
   MessageCircle,
+  Download,
 } from 'lucide-react'
 import Link from 'next/link'
 
 import { useDetalleEventoData } from '../../hooks/useMisEventosData'
+import { useContratoCliente } from '@/features/cliente/contratos/hooks/useContratoCliente'
 import { useWhatsAppUrl } from '@/hooks/useConfigPublica'
 import { ErrorState } from '@/components/common/Errorstate'
 import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
@@ -28,6 +31,7 @@ import { Separator } from '@/components/ui/Separator'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import { formatTipoEvento } from '@/features/cliente/shared/constants'
 import { ResenaEventoCard } from '@/features/cliente/resenas/components/ResenaEventoCard'
+import { downloadFile } from '@/utils/download.utils'
 
 function PageSkeleton() {
   return (
@@ -45,6 +49,27 @@ export function DetalleEventoView() {
   const { nombre } = useAuth()
 
   const { data: evento, isLoading, isError } = useDetalleEventoData(id)
+
+  const eventoConfirmadoOCompletado = evento
+    ? ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado)
+    : false
+
+  const { data: contrato, isLoading: cargandoContrato } = useContratoCliente(
+    eventoConfirmadoOCompletado ? id : null
+  )
+  const [descargando, setDescargando] = useState(false)
+
+  async function handleDescargarContrato() {
+    setDescargando(true)
+    try {
+      await downloadFile(
+        `/contratos/eventos/${id}/descargar`,
+        `contrato-evento-${id}.pdf`
+      )
+    } finally {
+      setDescargando(false)
+    }
+  }
 
   const mensaje = evento
     ? `Hola, soy ${nombre ?? 'cliente'}. Tengo una consulta sobre mi evento del ${formatDate(evento.fechaEvento)} (ID: EVT-${evento.id})`
@@ -65,7 +90,6 @@ export function DetalleEventoView() {
 
   const mostrarRecordatorio =
     diasRestantes !== null && diasRestantes >= 0 && diasRestantes <= 7
-  const tieneContrato = ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado)
   const saldoPendiente = evento.montoSaldo && evento.montoSaldo > 0
 
   const porcentajePagado =
@@ -214,23 +238,43 @@ export function DetalleEventoView() {
               </>
             )}
 
-            {tieneContrato && (
+            {eventoConfirmadoOCompletado && !cargandoContrato && (
               <>
                 <Separator />
-                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-xl px-3 py-2">
-                  <CheckCircle2 className="h-4 w-4 shrink-0" />
-                  <span className="font-semibold">Contrato generado.</span>
-                  <span className="text-xs text-green-600">
-                    El equipo te enviará el documento para firmar.
-                  </span>
-                </div>
+                {contrato ? (
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-green-700 bg-green-50 rounded-xl px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                      <span className="font-semibold">
+                        Contrato disponible.
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-lg gap-1.5 h-7 text-xs border-green-300 text-green-700 hover:bg-green-100"
+                      onClick={handleDescargarContrato}
+                      disabled={descargando}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Descargar
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-xl px-3 py-2">
+                    <Clock className="h-4 w-4 shrink-0 text-gray-400" />
+                    <span>
+                      Tu contrato aún no ha sido cargado por el equipo.
+                    </span>
+                  </div>
+                )}
               </>
             )}
           </CardContent>
         </Card>
 
         <div className="space-y-4">
-          {tieneContrato && evento.precioTotalContrato ? (
+          {eventoConfirmadoOCompletado && evento.precioTotalContrato ? (
             <Card className="border border-gray-100 shadow-card rounded-2xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold">
