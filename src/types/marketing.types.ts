@@ -123,4 +123,5 @@ export interface EnviarCampanaPayload {
   soloCorporativos?: boolean
   soloConAccesoWeb?: boolean
   soloPresenciales?: boolean
+  valoresVariables?: Record<string, string>
 }

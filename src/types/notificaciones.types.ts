@@ -43,14 +43,25 @@ export type TipoNotificacionBD =
   | 'PROMOCION_EXCLUSIVA'
   | 'PASSWORD_CAMBIADO'
   | 'RESENA_RESPONDIDA'
+  | 'RESERVA_CANCELADA'
+  | 'RESERVA_RECORDATORIO'
+  | 'RESERVA_REPROGRAMADA'
+  | 'RESERVA_INGRESO_CONFIRMADO'
+  | 'EVENTO_CONFIRMADO'
+  | 'EVENTO_ABONO_RECIBIDO'
+  | 'CAJA_APERTURA'
+  | 'CAJA_MOVIMIENTO_GRANDE'
+  | 'USUARIO_ACTIVACION'
+  | 'USUARIO_BLOQUEADO'
+  | 'USUARIO_DESBLOQUEADO'
+  | 'CAMBIO_PASSWORD'
+  | 'CAMBIO_ROL'
+  | 'CAMBIO_CORREO_SOLICITADO'
+  | 'CAMBIO_CORREO_ALERTA'
+  | 'CAMBIO_CORREO_CONFIRMADO'
 
 export type TipoVisual =
-  | 'reserva'
-  | 'evento'
-  | 'pago'
-  | 'contrato'
-  | 'caja'
-  | 'sistema'
+  'reserva' | 'evento' | 'pago' | 'contrato' | 'caja' | 'sistema'
 
 export const TIPO_VISUAL_MAP: Record<TipoNotificacionBD, TipoVisual> = {
   LOGIN_IP_NUEVA: 'sistema',
@@ -97,6 +108,22 @@ export const TIPO_VISUAL_MAP: Record<TipoNotificacionBD, TipoVisual> = {
   PROMOCION_EXCLUSIVA: 'sistema',
   PASSWORD_CAMBIADO: 'sistema',
   RESENA_RESPONDIDA: 'sistema',
+  RESERVA_CANCELADA: 'reserva',
+  RESERVA_RECORDATORIO: 'reserva',
+  RESERVA_REPROGRAMADA: 'reserva',
+  RESERVA_INGRESO_CONFIRMADO: 'reserva',
+  EVENTO_CONFIRMADO: 'evento',
+  EVENTO_ABONO_RECIBIDO: 'pago',
+  CAJA_APERTURA: 'caja',
+  CAJA_MOVIMIENTO_GRANDE: 'caja',
+  USUARIO_ACTIVACION: 'sistema',
+  USUARIO_BLOQUEADO: 'sistema',
+  USUARIO_DESBLOQUEADO: 'sistema',
+  CAMBIO_PASSWORD: 'sistema',
+  CAMBIO_ROL: 'sistema',
+  CAMBIO_CORREO_SOLICITADO: 'sistema',
+  CAMBIO_CORREO_ALERTA: 'sistema',
+  CAMBIO_CORREO_CONFIRMADO: 'sistema',
 }
 
 export interface NotificacionDTO {
@@ -116,4 +143,12 @@ export interface NotificacionDTO {
 
 export interface ConteoNoLeidasDTO {
   count: number
+}
+
+export type EstadoEntregaCorreo = 'ENVIADO' | 'PENDIENTE' | 'ERROR' | 'SIN_ENVIO'
+
+export interface EstadoEntregaCorreoDTO {
+  estado: EstadoEntregaCorreo
+  fechaEnvio: string | null
+  mensajeError: string | null
 }

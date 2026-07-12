@@ -1,9 +1,11 @@
-import { CheckCircle2, Download } from 'lucide-react'
+import { CheckCircle2, Download, MailWarning } from 'lucide-react'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { downloadFile } from '@/utils/download.utils'
+import { reservaService } from '@/services/reserva.service'
 import { Reserva } from '@/features/admin/reservas/types'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +24,16 @@ export function SuccessStep({
   onCancelar,
   isCancelando,
 }: SuccessStepProps) {
+  const { data: estadoCorreo } = useQuery({
+    queryKey: ['estado-correo-reserva', reservaCreada.id],
+    queryFn: () => reservaService.obtenerEstadoCorreo(reservaCreada.id),
+    enabled: reservaCreada.estado !== 'CANCELADA',
+    retry: false,
+    staleTime: 30_000,
+  })
+
+  const correoFallo = estadoCorreo?.estado === 'ERROR'
+
   return (
     <div className="container max-w-xl mx-auto px-4 pt-24 pb-12">
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 text-center space-y-6">
@@ -111,10 +123,21 @@ export function SuccessStep({
           </div>
         )}
 
-        <p className="text-xs text-gray-500 leading-relaxed">
-          Recibirás un correo con tu ticket en PDF en{' '}
-          <strong className="text-gray-800 font-bold">{correo}</strong>
-        </p>
+        {correoFallo ? (
+          <div className="bg-amber-50 border border-amber-200/80 rounded-2xl p-4 text-left flex gap-3">
+            <MailWarning className="h-4 w-4 text-amber-700 shrink-0 mt-0.5" />
+            <p className="text-xs font-semibold text-amber-800 leading-relaxed">
+              No pudimos enviar el correo con tu ticket a{' '}
+              <strong>{correo}</strong>. Descarga el PDF directamente desde
+              aquí para no perder tu ticket.
+            </p>
+          </div>
+        ) : (
+          <p className="text-xs text-gray-500 leading-relaxed">
+            Recibirás un correo con tu ticket en PDF en{' '}
+            <strong className="text-gray-800 font-bold">{correo}</strong>
+          </p>
+        )}
 
         <div className="flex flex-col gap-3 pt-2">
           {reservaCreada.estado !== 'CANCELADA' && (

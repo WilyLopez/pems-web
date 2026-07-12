@@ -3,65 +3,30 @@
 import { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { useRouter } from 'next/navigation'
-import { Search, RefreshCw, ArrowUpDown, Eye, X, Filter } from 'lucide-react'
-import { Contrato, EstadoContrato } from '../../types'
+import { ArrowUpDown, Eye, X, RefreshCw } from 'lucide-react'
+import { Contrato } from '../../types'
 import { useContratos } from '../../hooks/useContratos'
-import { useDebounce } from '@/hooks/useDebounce'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { DataTable } from '@/components/common/DataTable/DataTable'
 import { DataTablePagination } from '@/components/common/DataTable/DataTablePagination'
 import { ErrorState } from '@/components/common/Errorstate'
-import { ContratoBadgeEstado } from '@/components/admin/contratos/ContratoBadgeEstado'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/Select'
-import { formatDate, formatCurrency, cn } from '@/lib/utils'
+import { formatDate, formatDateTime, formatCurrency, cn } from '@/lib/utils'
 import { ADMIN_ROUTES } from '@/config/routes'
-
-const ESTADOS: { value: EstadoContrato | ''; label: string }[] = [
-  { value: '', label: 'Todos los estados' },
-  { value: 'BORRADOR', label: 'Borrador' },
-  { value: 'ENVIADO', label: 'Enviado' },
-  { value: 'PENDIENTE_FIRMA', label: 'Pendiente de firma' },
-  { value: 'FIRMADO', label: 'Firmado' },
-  { value: 'VENCIDO', label: 'Vencido' },
-  { value: 'CANCELADO', label: 'Cancelado' },
-  { value: 'ARCHIVADO', label: 'Archivado' },
-]
 
 export function ContratosListView() {
   const router = useRouter()
   const [page, setPage] = useState(0)
-  const [search, setSearch] = useState('')
-  const [estado, setEstado] = useState<EstadoContrato | ''>('')
   const [fecha, setFecha] = useState('')
-
-  const debouncedSearch = useDebounce(search, 350)
 
   const { data, isLoading, isError, refetch } = useContratos({
     page,
     size: 15,
-    search: debouncedSearch || undefined,
-    estado: estado || undefined,
     fechaEvento: fecha || undefined,
   })
-
-  const handleSearch = (v: string) => {
-    setSearch(v)
-    setPage(0)
-  }
-  const handleEstado = (v: string) => {
-    setEstado(v as EstadoContrato)
-    setPage(0)
-  }
 
   const columns: ColumnDef<Contrato>[] = [
     {
@@ -112,15 +77,6 @@ export function ContratosListView() {
       ),
     },
     {
-      accessorKey: 'estado',
-      header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase">
-          Estado
-        </span>
-      ),
-      cell: ({ row }) => <ContratoBadgeEstado estado={row.original.estado} />,
-    },
-    {
       accessorKey: 'precioTotalContrato',
       header: () => (
         <span className="text-xs font-semibold text-gray-500 uppercase">
@@ -157,29 +113,23 @@ export function ContratosListView() {
       },
     },
     {
-      accessorKey: 'version',
+      accessorKey: 'fechaCarga',
       header: () => (
         <span className="text-xs font-semibold text-gray-500 uppercase">
-          Ver.
+          Cargado
         </span>
       ),
       cell: ({ row }) => (
-        <Badge variant="outline" className="text-[10px] font-mono">
-          v{row.original.version}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: 'fechaCreacion',
-      header: () => (
-        <span className="text-xs font-semibold text-gray-500 uppercase">
-          Creado
-        </span>
-      ),
-      cell: ({ row }) => (
-        <span className="text-xs text-gray-400">
-          {formatDate(row.original.fechaCreacion)}
-        </span>
+        <div>
+          <p className="text-xs text-gray-600">
+            {row.original.fechaCarga
+              ? formatDateTime(row.original.fechaCarga)
+              : '—'}
+          </p>
+          <p className="text-[11px] text-gray-400">
+            {row.original.usuarioCarga ?? ''}
+          </p>
+        </div>
       ),
     },
     {
@@ -191,7 +141,7 @@ export function ContratosListView() {
           className="rounded-lg gap-1.5 text-xs text-gray-500 hover:text-brand-azul hover:bg-brand-azul/8"
           onClick={(e) => {
             e.stopPropagation()
-            router.push(ADMIN_ROUTES.contratoDetalle(row.original.id))
+            router.push(ADMIN_ROUTES.contratoDetalle(row.original.idEventoPrivado))
           }}
         >
           <Eye className="h-3.5 w-3.5" />
@@ -209,7 +159,7 @@ export function ContratosListView() {
 
       <PageHeader
         title="Contratos"
-        description="Gestion de contratos de eventos privados"
+        description="Contratos en PDF cargados por evento privado"
         actions={
           <Button
             variant="outline"
@@ -224,24 +174,6 @@ export function ContratosListView() {
       />
 
       <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-        <div className="relative flex-1 min-w-48 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Buscar por cliente, tipo de evento..."
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-9 h-10 rounded-xl border-gray-200"
-          />
-          {search && (
-            <button
-              onClick={() => handleSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
         <div className="relative">
           <Input
             type="date"
@@ -265,22 +197,6 @@ export function ContratosListView() {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-400 shrink-0" />
-          <Select value={estado} onValueChange={handleEstado}>
-            <SelectTrigger className="h-10 w-52 rounded-xl border-gray-200 text-sm">
-              <SelectValue placeholder="Estado..." />
-            </SelectTrigger>
-            <SelectContent>
-              {ESTADOS.map(({ value, label }) => (
-                <SelectItem key={value || 'todos'} value={value || 'todos'}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
         {data?.totalElements !== undefined && (
           <Badge
             variant="secondary"
@@ -298,7 +214,7 @@ export function ContratosListView() {
           isLoading={isLoading}
           emptyMessage="No se encontraron contratos con los filtros aplicados."
           onRowClick={(contrato) =>
-            router.push(ADMIN_ROUTES.contratoDetalle(contrato.id))
+            router.push(ADMIN_ROUTES.contratoDetalle(contrato.idEventoPrivado))
           }
         />
       </div>

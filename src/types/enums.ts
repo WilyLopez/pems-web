@@ -13,16 +13,6 @@ export enum EstadoEvento {
   CANCELADA = 'CANCELADA',
 }
 
-export enum EstadoContrato {
-  BORRADOR = 'BORRADOR',
-  ENVIADO = 'ENVIADO',
-  PENDIENTE_FIRMA = 'PENDIENTE_FIRMA',
-  FIRMADO = 'FIRMADO',
-  VENCIDO = 'VENCIDO',
-  CANCELADO = 'CANCELADO',
-  ARCHIVADO = 'ARCHIVADO',
-}
-
 export enum EstadoComprobante {
   PENDIENTE = 'PENDIENTE',
   EMITIDO = 'EMITIDO',

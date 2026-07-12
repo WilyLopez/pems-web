@@ -41,7 +41,7 @@ import { MediosPagoSelect } from '@/features/admin/config/components/MediosPagoS
 import { useResumenEvento, GastosEventoPanel } from '@/features/admin/finanzas'
 import { usePaquete } from '@/hooks/useComercial'
 import { ConfirmarEventoModal } from '@/components/admin/eventos/ConfirmarEventoModal'
-import { ContratoEventoTab } from '@/components/admin/contratos/ContratoEventoTab'
+import { ContratoCard } from '@/components/admin/contratos/ContratoCard'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { PageHeader } from '@/components/common/PageHeader'
 import { InfoRow } from '@/components/common/InfoRow'
@@ -63,10 +63,7 @@ import { formatDate, formatCurrency, cn } from '@/lib/utils'
 import { ADMIN_ROUTES } from '@/config/routes'
 import Link from 'next/link'
 import { MultiMedioPago } from '../forms/MultiMedioPago'
-import {
-  useMiSesionCaja,
-  CajaRequeridaAlert,
-} from '@/features/admin/finanzas'
+import { useMiSesionCaja, CajaRequeridaAlert } from '@/features/admin/finanzas'
 
 const ORIGEN_LABELS: Record<string, string> = {
   PRESENCIAL: 'Presencial',
@@ -648,7 +645,8 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                                   {montoSaldoExcedeSaldo && (
                                     <p className="text-xs text-destructive">
                                       El monto no puede superar el saldo
-                                      pendiente ({formatCurrency(evento.montoSaldo ?? 0)}).
+                                      pendiente (
+                                      {formatCurrency(evento.montoSaldo ?? 0)}).
                                     </p>
                                   )}
                                   {efectivoSaldoBloqueado && (
@@ -762,7 +760,7 @@ export function EventoDetalleView({ idEvento }: EventoDetalleViewProps) {
                 </TabsContent>
 
                 <TabsContent value="contrato" className="mt-4">
-                  <ContratoEventoTab idEvento={idEvento} evento={evento} />
+                  <ContratoCard idEvento={idEvento} />
                 </TabsContent>
 
                 <TabsContent value="checklist" className="mt-4">

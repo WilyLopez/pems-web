@@ -44,16 +44,20 @@ export function RecuperarContrasenaView() {
             <CheckCircle2 className="h-8 w-8 text-brand-azul" />
           </div>
           <div>
-            <p className="text-xl font-black text-gray-900">Revisa tu correo</p>
+            <p className="text-xl font-black text-gray-900">
+              Solicitud procesada
+            </p>
             <p className="text-sm text-gray-500 mt-2">
-              Te enviamos un enlace para restablecer tu contraseña a{' '}
+              Procesamos tu solicitud para restablecer la contraseña de{' '}
               <span className="font-semibold text-gray-700">
                 {emailEnviado}
               </span>
-              .
+              . Si la cuenta existe, en unos minutos recibirás el enlace.
             </p>
             <p className="text-xs text-gray-400 mt-2">
-              Si no ves el correo, revisa tu carpeta de spam.
+              Esto confirma que la solicitud fue procesada, no que el correo
+              ya llegó a tu bandeja. Si no lo ves en unos minutos, revisa tu
+              carpeta de spam.
             </p>
           </div>
           <Link

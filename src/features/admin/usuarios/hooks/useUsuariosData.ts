@@ -120,7 +120,9 @@ export function useMutacionesUsuario() {
   const resetPassword = useMutation({
     mutationFn: (id: number) => usuariosApi.resetPassword(id),
     onSuccess: () =>
-      toast.success('Se envió el email de recuperación de contraseña.'),
+      toast.success(
+        'Solicitud procesada. El email de recuperación se está enviando.'
+      ),
     onError: () => toast.error('No se pudo enviar el email de recuperación.'),
   })
 

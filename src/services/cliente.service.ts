@@ -107,17 +107,15 @@ export const clienteService = {
     return data.data
   },
 
-  completarPerfil: async (
-    payload: {
-      nombres: string
-      apellidoPaterno: string
-      apellidoMaterno?: string
-      tipoDocumento: string
-      numeroDocumento: string
-      telefono?: string
-      aceptaComunicaciones: boolean
-    }
-  ): Promise<Cliente> => {
+  completarPerfil: async (payload: {
+    nombres: string
+    apellidoPaterno: string
+    apellidoMaterno?: string
+    tipoDocumento: string
+    numeroDocumento: string
+    telefono?: string
+    aceptaComunicaciones: boolean
+  }): Promise<Cliente> => {
     const { data } = await api.post<ApiResponse<Cliente>>(
       '/clientes/me/completar',
       payload
@@ -131,5 +129,9 @@ export const clienteService = {
       { params: { search: correo, size: 1 } }
     )
     return data.data.content?.[0] ?? null
+  },
+
+  confirmarCambioCorreo: async (token: string): Promise<void> => {
+    await api.post('/clientes/me/correo/confirmar', { token })
   },
 }

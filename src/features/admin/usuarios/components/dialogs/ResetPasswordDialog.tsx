@@ -43,9 +43,11 @@ export function ResetPasswordDialog() {
             Restablecer contraseña
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Se enviará un email de recuperación de contraseña a{' '}
-            <strong>{usuario?.correo}</strong>. El usuario podrá crear una nueva
-            contraseña desde ese email.
+            Se procesará el envío de un email de recuperación de contraseña a{' '}
+            <strong>{usuario?.correo}</strong>. El usuario podrá crear una
+            nueva contraseña desde ese email en cuanto le llegue; esta
+            confirmación indica que la solicitud fue procesada por Supabase
+            Auth, no que el correo ya fue entregado.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

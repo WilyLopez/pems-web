@@ -2,19 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import {
-  Bell,
-  Check,
-  ExternalLink,
-  FileText,
-  Info,
-  PartyPopper,
-  RefreshCw,
-  ShoppingBag,
-  Ticket,
-  Wallet,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { Bell, Check, ExternalLink, RefreshCw } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
@@ -37,45 +25,14 @@ import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/utils'
 import { useNotificacionesStore } from '@/lib/store/notificaciones.store'
 import type { Notificacion } from '@/lib/store/notificaciones.store'
-import type { TipoVisual } from '@/types/notificaciones.types'
+import {
+  TIPO_ICON,
+  TIPO_BADGE as TIPO_COLOR,
+  DOT_COLOR,
+  TIPO_LABEL,
+} from '@/features/admin/shared/notificaciones/notificacionesVisuales'
 
 type Filtro = 'todas' | 'no-leidas' | 'leidas'
-
-const TIPO_ICON: Record<TipoVisual, LucideIcon> = {
-  reserva: Ticket,
-  evento: PartyPopper,
-  pago: Wallet,
-  contrato: FileText,
-  caja: ShoppingBag,
-  sistema: Info,
-}
-
-const TIPO_COLOR: Record<TipoVisual, string> = {
-  reserva: 'bg-brand-azul/10 text-brand-azul',
-  evento: 'bg-brand-rosa/10 text-brand-rosa',
-  pago: 'bg-amber-50 text-amber-600',
-  contrato: 'bg-green-50 text-green-600',
-  caja: 'bg-orange-50 text-orange-600',
-  sistema: 'bg-gray-100 text-gray-500',
-}
-
-const DOT_COLOR: Record<TipoVisual, string> = {
-  reserva: 'bg-brand-azul',
-  evento: 'bg-brand-rosa',
-  pago: 'bg-amber-500',
-  contrato: 'bg-green-500',
-  caja: 'bg-orange-500',
-  sistema: 'bg-gray-400',
-}
-
-const TIPO_LABEL: Record<TipoVisual, string> = {
-  reserva: 'Reservas',
-  evento: 'Eventos',
-  pago: 'Pagos',
-  contrato: 'Contratos',
-  caja: 'Caja',
-  sistema: 'Sistema',
-}
 
 const FILTROS: { value: Filtro; label: string }[] = [
   { value: 'todas', label: 'Todas' },
@@ -165,9 +122,13 @@ export function NotificacionesSheet() {
     notificaciones,
     noLeidas,
     cargando,
+    cargandoMas,
+    page,
+    totalPages,
     panelAbierto,
     setPanelAbierto,
     fetchNotificaciones,
+    cargarMas,
     marcarLeida,
     marcarTodasLeidas,
   } = useNotificacionesStore()
@@ -244,7 +205,10 @@ export function NotificacionesSheet() {
             ))}
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-gray-50 min-h-0">
+          <div
+            className="flex-1 overflow-y-auto divide-y divide-gray-50 min-h-0"
+            aria-live="polite"
+          >
             {cargando && notificaciones.length === 0 ? (
               <div className="flex items-center justify-center py-16">
                 <RefreshCw className="h-5 w-5 text-gray-300 animate-spin" />
@@ -259,13 +223,31 @@ export function NotificacionesSheet() {
                 </p>
               </div>
             ) : (
-              filtradas.map((n) => (
-                <NotificacionItem
-                  key={n.id}
-                  n={n}
-                  onClickItem={handleClicNotificacion}
-                />
-              ))
+              <>
+                {filtradas.map((n) => (
+                  <NotificacionItem
+                    key={n.id}
+                    n={n}
+                    onClickItem={handleClicNotificacion}
+                  />
+                ))}
+                {page + 1 < totalPages && (
+                  <div className="px-4 py-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={cargarMas}
+                      disabled={cargandoMas}
+                      className="w-full"
+                    >
+                      {cargandoMas ? (
+                        <RefreshCw className="mr-2 h-3.5 w-3.5 animate-spin" />
+                      ) : null}
+                      Cargar más
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

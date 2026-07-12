@@ -1,18 +1,10 @@
 import api from '@/services/api'
 import { ApiResponse, PagedResponse } from '@/types/api.types'
-import {
-  Contrato,
-  DocumentoContrato,
-  GenerarContratoPayload,
-  ActualizarContratoPayload,
-  CambiarEstadoPayload,
-} from '../types'
+import { Contrato } from '../types'
 
 export interface ListarContratosParams {
   page?: number
   size?: number
-  search?: string
-  estado?: string
   idSede?: number
   fechaEvento?: string
   sort?: string
@@ -41,61 +33,11 @@ export const contratosApi = {
     return data.data
   },
 
-  generar: async (
-    idEvento: number,
-    payload?: GenerarContratoPayload
-  ): Promise<Contrato> => {
-    const { data } = await api.post<ApiResponse<Contrato>>(
-      `/contratos/eventos/${idEvento}`,
-      payload ?? {}
-    )
-    return data.data
-  },
-
-  actualizar: async (
-    id: number,
-    payload: ActualizarContratoPayload
-  ): Promise<Contrato> => {
-    const { data } = await api.put<ApiResponse<Contrato>>(
-      `/contratos/${id}`,
-      payload
-    )
-    return data.data
-  },
-
-  firmar: async (id: number): Promise<Contrato> => {
-    const { data } = await api.post<ApiResponse<Contrato>>(
-      `/contratos/${id}/firmar`
-    )
-    return data.data
-  },
-
-  cambiarEstado: async (
-    id: number,
-    payload: CambiarEstadoPayload
-  ): Promise<Contrato> => {
-    const { data } = await api.post<ApiResponse<Contrato>>(
-      `/contratos/${id}/estado`,
-      payload
-    )
-    return data.data
-  },
-
-  reemplazar: async (id: number): Promise<Contrato> => {
-    const { data } = await api.post<ApiResponse<Contrato>>(
-      `/contratos/${id}/reemplazar`
-    )
-    return data.data
-  },
-
-  subirDocumento: async (
-    id: number,
-    archivo: File
-  ): Promise<DocumentoContrato> => {
+  cargar: async (idEvento: number, archivo: File): Promise<Contrato> => {
     const formData = new FormData()
     formData.append('archivo', archivo)
-    const { data } = await api.post<ApiResponse<DocumentoContrato>>(
-      `/contratos/${id}/documentos`,
+    const { data } = await api.post<ApiResponse<Contrato>>(
+      `/contratos/eventos/${idEvento}`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
