@@ -27,14 +27,20 @@ interface NotificacionesState {
   notificaciones: Notificacion[]
   noLeidas: number
   cargando: boolean
+  cargandoMas: boolean
+  page: number
+  totalPages: number
   ultimaActualizacion: number | null
   panelAbierto: boolean
   fetchNotificaciones: () => Promise<void>
+  cargarMas: () => Promise<void>
   fetchCount: () => Promise<void>
   marcarLeida: (id: string) => Promise<void>
   marcarTodasLeidas: () => Promise<void>
   setPanelAbierto: (open: boolean) => void
 }
+
+const TAMANIO_PAGINA = 30
 
 function getApi() {
   const { tipoPerfil } = useAuthStore.getState()
@@ -60,23 +66,55 @@ export const useNotificacionesStore = create<NotificacionesState>(
     notificaciones: [],
     noLeidas: 0,
     cargando: false,
+    cargandoMas: false,
+    page: 0,
+    totalPages: 1,
     ultimaActualizacion: null,
     panelAbierto: false,
 
     fetchNotificaciones: async () => {
       set({ cargando: true })
       try {
-        const page = await getApi().feed({ size: 30 })
-        const notifs = page.content.map(toNotificacion)
+        const [pagina, count] = await Promise.all([
+          getApi().feed({ size: TAMANIO_PAGINA }),
+          getApi().count(),
+        ])
         set({
-          notificaciones: notifs,
-          noLeidas: notifs.filter((n) => !n.leida).length,
+          notificaciones: pagina.content.map(toNotificacion),
+          noLeidas: count,
+          page: pagina.page,
+          totalPages: pagina.totalPages,
           ultimaActualizacion: Date.now(),
         })
       } catch {
         // silent — no interrumpir la UI si no hay sesion activa
       } finally {
         set({ cargando: false })
+      }
+    },
+
+    cargarMas: async () => {
+      const { page, totalPages, cargandoMas } = get()
+      if (cargandoMas || page + 1 >= totalPages) return
+
+      set({ cargandoMas: true })
+      try {
+        const pagina = await getApi().feed({
+          size: TAMANIO_PAGINA,
+          page: page + 1,
+        })
+        set((s) => ({
+          notificaciones: [
+            ...s.notificaciones,
+            ...pagina.content.map(toNotificacion),
+          ],
+          page: pagina.page,
+          totalPages: pagina.totalPages,
+        }))
+      } catch {
+        // silent — el usuario puede reintentar
+      } finally {
+        set({ cargandoMas: false })
       }
     },
 
@@ -91,6 +129,7 @@ export const useNotificacionesStore = create<NotificacionesState>(
 
     marcarLeida: async (id: string) => {
       const prevNotifs = get().notificaciones
+      const prevNoLeidas = get().noLeidas
       const yaLeida = prevNotifs.find((n) => n.id === id)?.leida ?? true
 
       set((s) => ({
@@ -103,7 +142,7 @@ export const useNotificacionesStore = create<NotificacionesState>(
       try {
         await getApi().marcarLeida(Number(id))
       } catch {
-        set({ notificaciones: prevNotifs })
+        set({ notificaciones: prevNotifs, noLeidas: prevNoLeidas })
       }
     },
 
@@ -111,6 +150,7 @@ export const useNotificacionesStore = create<NotificacionesState>(
 
     marcarTodasLeidas: async () => {
       const prevNotifs = get().notificaciones
+      const prevNoLeidas = get().noLeidas
 
       set((s) => ({
         notificaciones: s.notificaciones.map((n) => ({ ...n, leida: true })),
@@ -120,7 +160,7 @@ export const useNotificacionesStore = create<NotificacionesState>(
       try {
         await getApi().marcarTodasLeidas()
       } catch {
-        set({ notificaciones: prevNotifs })
+        set({ notificaciones: prevNotifs, noLeidas: prevNoLeidas })
       }
     },
   })
