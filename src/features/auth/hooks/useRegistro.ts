@@ -19,7 +19,9 @@ export function useRegistro() {
       })
     },
     onSuccess: () => {
-      toast.success('Cuenta creada. Revisa tu correo para verificarla.')
+      toast.success(
+        'Cuenta creada. Te enviaremos un correo de verificación; si no llega en unos minutos, revisa spam.'
+      )
       router.push('/auth/login')
     },
     onError: (err: any) => {

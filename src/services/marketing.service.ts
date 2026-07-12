@@ -84,6 +84,24 @@ export const marketingService = {
     await api.post(`/marketing/campanas/${id}/enviar`, filtro)
   },
 
+  obtenerVariablesRequeridas: async (id: number): Promise<string[]> => {
+    const { data } = await api.get<ApiResponse<string[]>>(
+      `/marketing/campanas/${id}/variables-requeridas`
+    )
+    return data.data
+  },
+
+  contarDestinatarios: async (
+    id: number,
+    filtro: Omit<EnviarCampanaPayload, 'valoresVariables'> = {}
+  ): Promise<number> => {
+    const { data } = await api.get<ApiResponse<number>>(
+      `/marketing/campanas/${id}/destinatarios/count`,
+      { params: filtro }
+    )
+    return data.data
+  },
+
   listarEnvios: async (
     idCampana: number,
     page = 0,

@@ -53,4 +53,11 @@ export const authService = {
   verificarCorreo: async (token: string): Promise<void> => {
     await api.get(`/clientes/verificar?token=${token}`)
   },
+
+  activarCuentaStaff: async (
+    token: string,
+    nuevaContrasena: string
+  ): Promise<void> => {
+    await api.post('/auth/activar-cuenta', { token, nuevaContrasena })
+  },
 }

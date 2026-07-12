@@ -90,3 +90,15 @@ export const cambiarSchema = z
   })
 
 export type CambiarFormValues = z.infer<typeof cambiarSchema>
+
+export const activarCuentaSchema = z
+  .object({
+    password: contrasenaSeguraField,
+    confirmPassword: z.string().min(1, 'Confirma tu nueva contraseña'),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
+
+export type ActivarCuentaFormValues = z.infer<typeof activarCuentaSchema>
