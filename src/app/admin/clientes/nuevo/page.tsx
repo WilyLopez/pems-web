@@ -16,11 +16,14 @@ export default function NuevoClientePage() {
   const { crearCliente } = useMutacionesCliente()
 
   const handleSubmit = (values: ClienteFormValues) => {
-    crearCliente.mutate(values, {
-      onSuccess: () => {
-        router.push('/admin/clientes')
-      },
-    })
+    crearCliente.mutate(
+      { values },
+      {
+        onSuccess: () => {
+          router.push('/admin/clientes')
+        },
+      }
+    )
   }
 
   return (

@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ventasApi, CobrarReservaPayload } from '../services/ventas.api'
-import { RegistrarVentaMostradorPayload, VentaFiltros } from '../types'
+import {
+  RegistrarVentaMostradorPayload,
+  VentaFiltros,
+  VentaMostradorResponse,
+} from '../types'
 import { RESERVAS_KEYS } from '@/features/admin/reservas/hooks/useReservasData'
+import { ApiError } from '@/types/api.types'
 import { toast } from 'sonner'
 
 export const VENTAS_KEYS = {
@@ -43,13 +48,19 @@ export function usePrecioDia(idSede: number | null, fecha: string) {
 
 export function useRegistrarVentaMostrador() {
   const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (payload: RegistrarVentaMostradorPayload) =>
-      ventasApi.registrarMostrador(payload),
+  return useMutation<
+    VentaMostradorResponse,
+    ApiError,
+    RegistrarVentaMostradorPayload
+  >({
+    mutationFn: (payload) => ventasApi.registrarMostrador(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [VENTAS_KEYS.LIST] })
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.ADMIN_LIST] })
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
+    },
+    onError: (err) => {
+      toast.error(err.message ?? 'No se pudo registrar la venta')
     },
   })
 }

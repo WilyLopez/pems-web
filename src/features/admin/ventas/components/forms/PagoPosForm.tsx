@@ -1,14 +1,21 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Plus, X, Landmark, Receipt, Coins, QrCode, CreditCard } from 'lucide-react'
+import {
+  Plus,
+  X,
+  Landmark,
+  Receipt,
+  Coins,
+  QrCode,
+  CreditCard,
+} from 'lucide-react'
 import {
   Controller,
   useFieldArray,
   useFormState,
   useWatch,
   useFormContext,
-  type Control,
 } from 'react-hook-form'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -18,17 +25,18 @@ import {
   METODOS_PAGO,
   type VentaMostradorFormValues,
 } from '../../schema/ventaMostrador.schema'
-import {
-  calcularResumenPagos,
-  DENOMINACIONES_EFECTIVO,
-} from '../../utils/ventas.utils'
+import { DENOMINACIONES_EFECTIVO } from '../../utils/ventas.utils'
 
 interface PagoPosFormProps {
-  control: Control<VentaMostradorFormValues>
   total: number
+  vuelto: number
 }
 
-const METODOS: { value: (typeof METODOS_PAGO)[number]; label: string; icon: any }[] = [
+const METODOS: {
+  value: (typeof METODOS_PAGO)[number]
+  label: string
+  icon: any
+}[] = [
   { value: 'EFECTIVO', label: 'Efectivo', icon: Coins },
   { value: 'YAPE', label: 'Yape', icon: QrCode },
   { value: 'PLIN', label: 'Plin', icon: QrCode },
@@ -36,8 +44,9 @@ const METODOS: { value: (typeof METODOS_PAGO)[number]; label: string; icon: any 
   { value: 'TRANSFERENCIA', label: 'Transferencia', icon: Landmark },
 ]
 
-export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
-  const { setValue, watch } = useFormContext()
+export const PagoPosForm = ({ total, vuelto }: PagoPosFormProps) => {
+  const { control, setValue, watch } =
+    useFormContext<VentaMostradorFormValues>()
   const { fields, append, remove } = useFieldArray({ control, name: 'pagos' })
   const pagos = useWatch({ control, name: 'pagos' }) as PagoLinea[]
   const efectivoRecibido = useWatch({
@@ -57,12 +66,6 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
     if (!disponible) return
     append({ medioPago: disponible.value, monto: 0 })
   }
-
-  const { sumaPagos, vuelto, saldo } = calcularResumenPagos(
-    pagos || [],
-    efectivoRecibido || 0,
-    total
-  )
 
   useEffect(() => {
     if (fields.length !== 1) return
@@ -142,9 +145,21 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                       key={m.value}
                       type="button"
                       onClick={() => {
-                        setValue(`pagos.${i}.medioPago`, m.value, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-                        setValue(`pagos.${i}.referencia`, '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-                        setValue(`pagos.${i}.monto`, saldoLinea, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+                        setValue(`pagos.${i}.medioPago`, m.value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        })
+                        setValue(`pagos.${i}.referencia`, '', {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        })
+                        setValue(`pagos.${i}.monto`, saldoLinea, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        })
                       }}
                       className={cn(
                         'px-2.5 py-1 text-[10px] font-bold rounded-lg border flex items-center gap-1 transition-all',
@@ -160,11 +175,20 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                 })}
               </div>
 
-              <div className={cn(
-                "grid gap-2.5",
-                currentMedio === 'EFECTIVO' ? "grid-cols-1" : "grid-cols-1 md:grid-cols-[160px_1fr]"
-              )}>
-                <div className={cn("space-y-1", currentMedio === 'EFECTIVO' && "max-w-[160px] w-full")}>
+              <div
+                className={cn(
+                  'grid gap-2.5',
+                  currentMedio === 'EFECTIVO'
+                    ? 'grid-cols-1'
+                    : 'grid-cols-1 md:grid-cols-[160px_1fr]'
+                )}
+              >
+                <div
+                  className={cn(
+                    'space-y-1',
+                    currentMedio === 'EFECTIVO' && 'max-w-[160px] w-full'
+                  )}
+                >
                   <Label className="text-[9px] font-bold text-gray-500 dark:text-gray-400">
                     Monto a Cobrar
                   </Label>
@@ -189,15 +213,23 @@ export const PagoPosForm = ({ control, total }: PagoPosFormProps) => {
                         />
                       )}
                     />
-                    {fields.length > 1 && saldoLinea > 0 && pagos[i]?.monto !== saldoLinea && (
-                      <button
-                        type="button"
-                        onClick={() => setValue(`pagos.${i}.monto`, saldoLinea, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-brand-azul/40 text-[8px] font-black text-brand-azul bg-brand-azul/5 hover:bg-brand-azul/10"
-                      >
-                        Saldo
-                      </button>
-                    )}
+                    {fields.length > 1 &&
+                      saldoLinea > 0 &&
+                      pagos[i]?.monto !== saldoLinea && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setValue(`pagos.${i}.monto`, saldoLinea, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                              shouldTouch: true,
+                            })
+                          }
+                          className="absolute right-1 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-brand-azul/40 text-[8px] font-black text-brand-azul bg-brand-azul/5 hover:bg-brand-azul/10"
+                        >
+                          Saldo
+                        </button>
+                      )}
                   </div>
                 </div>
 

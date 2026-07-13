@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { FormProvider, Controller } from 'react-hook-form'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
-import { Loader2, CreditCard } from 'lucide-react'
+import { Loader2, CreditCard, AlertCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { useVentaMostradorForm } from '../../hooks/useVentaMostradorForm'
@@ -38,21 +38,17 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/Dialog'
-import { clienteService } from '@/services/cliente.service'
-import {
-  useMiSesionCaja,
-  CajaRequeridaAlert,
-} from '@/features/admin/finanzas'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useMiSesionCaja, CajaRequeridaAlert } from '@/features/admin/finanzas'
 import { formatCurrency, cn } from '@/lib/utils'
-import { PagoLinea } from '../../types'
+import { PagoLinea, VentaMostradorResponse } from '../../types'
 import { VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
+import { VUELTO_SOSPECHOSO } from '../../utils/ventas.utils'
 
 interface VentaMostradorViewProps {
   onClose?: () => void
   desdeCaja?: boolean
 }
-
-const VUELTO_SOSPECHOSO = 200
 
 export const VentaMostradorView = ({
   onClose,
@@ -61,7 +57,8 @@ export const VentaMostradorView = ({
   const router = useRouter()
   const [showClienteModal, setShowClienteModal] = useState(false)
   const [confirmandoVueltoAlto, setConfirmandoVueltoAlto] = useState(false)
-  const [ventaExitosa, setVentaExitosa] = useState<any>(null)
+  const [ventaExitosa, setVentaExitosa] =
+    useState<VentaMostradorResponse | null>(null)
 
   const formProps = useVentaMostradorForm()
   const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
@@ -71,6 +68,8 @@ export const VentaMostradorView = ({
     methods,
     cliente,
     setCliente,
+    ventaAnonima,
+    setVentaAnonima,
     consultandoDni,
     consultarAcompananteDni,
     fechaVisita,
@@ -93,7 +92,6 @@ export const VentaMostradorView = ({
     vuelto,
     sumaPagos,
     efectivoAplicado,
-    efectivoInsuficiente,
     montosCoinciden,
     puedeRegistrar,
     promociones,
@@ -133,7 +131,7 @@ export const VentaMostradorView = ({
       } else if (e.key === 'F8') {
         e.preventDefault()
         if (puedeRegistrar) {
-          methods.handleSubmit(onSubmit as any)()
+          methods.handleSubmit(onSubmit)()
         }
       } else if (e.key === 'Escape') {
         e.preventDefault()
@@ -147,67 +145,15 @@ export const VentaMostradorView = ({
 
   const ejecutarRegistro = async (formData: VentaMostradorFormValues) => {
     if (!idSede) return
+
     try {
-      let currentClienteId = cliente?.id
-      const tipoDoc = formData.acompanante.tipoDocumento || 'DNI'
-      const isRuc = tipoDoc === 'RUC'
-      const docLen = isRuc ? 11 : 8
-
-      if (!currentClienteId && formData.acompanante.dni && formData.acompanante.dni.length === docLen) {
-        try {
-          const localRes = await clienteService.listar({ search: formData.acompanante.dni, size: 1 })
-          const found = localRes.content.find((c: any) => c.numeroDocumento === formData.acompanante.dni)
-          if (found) {
-            currentClienteId = found.id
-          } else {
-            const names = formData.acompanante.nombre.trim().split(/\s+/)
-            const noms = names.length > 2 ? names.slice(0, names.length - 2).join(' ') : names[0] || ''
-            const first = names.length > 1 ? names[names.length - 2] || '' : (isRuc ? '.' : 'CLIENTE')
-            const second = names.length > 0 ? names[names.length - 1] || '' : (isRuc ? '.' : 'NUEVO')
-
-            try {
-              const newClient = await clienteService.registrarAdmin({
-                tipoDocumentoCodigo: tipoDoc,
-                numeroDocumento: formData.acompanante.dni,
-                nombres: noms || formData.acompanante.nombre,
-                apellidoPaterno: first,
-                apellidoMaterno: second,
-                telefono: formData.acompanante.telefono || undefined,
-                origen: 'MOSTRADOR',
-                aceptaComunicaciones: true,
-              })
-              currentClienteId = newClient.id
-              toast.success('Cliente registrado exitosamente en la base de datos')
-            } catch (regErr: any) {
-              const isDupe =
-                regErr?.codigoError === 'db_constraint_violation' ||
-                regErr?.status === 400 ||
-                (regErr?.message && regErr.message.includes('duplicate'))
-              
-              if (isDupe) {
-                const searchRes = await clienteService.listar({ search: formData.acompanante.dni, size: 1 })
-                const foundClient = searchRes.content.find((c: any) => c.numeroDocumento === formData.acompanante.dni)
-                if (foundClient) {
-                  currentClienteId = foundClient.id
-                } else {
-                  throw regErr
-                }
-              } else {
-                throw regErr
-              }
-            }
-          }
-        } catch (err: any) {
-          console.error('Error al registrar o vincular cliente:', err)
-        }
-      }
-
       const res = await registrar.mutateAsync({
         tipoVenta: 'RESERVA',
         sedeId: idSede,
-        clienteId: currentClienteId,
+        clienteId: cliente?.id,
         fechaVisita: formData.fechaVisita,
         nombreAcompanante: formData.acompanante.nombre,
+        tipoDocumentoAcompanante: formData.acompanante.tipoDocumento,
         dniAcompanante: formData.acompanante.dni,
         telefonoAcompanante: formData.acompanante.telefono,
         ninos: formData.ninos,
@@ -225,23 +171,23 @@ export const VentaMostradorView = ({
       methods.reset({
         fechaVisita: format(new Date(), 'yyyy-MM-dd'),
         ninos: [{ nombreNino: '', edadNino: edadMin }],
-        acompanante: { tipoDocumento: 'DNI', nombre: '', dni: '', telefono: '' },
+        acompanante: {
+          tipoDocumento: 'DNI',
+          nombre: '',
+          dni: '',
+          telefono: '',
+        },
         idPromocion: null,
         pagos: [{ medioPago: 'EFECTIVO', monto: 0 }],
         efectivoRecibido: 0,
         actaFirmada: false,
       })
       setCliente(null)
-    } catch (err: any) {
-      toast.error(err?.response?.data?.mensaje ?? 'Error al registrar venta')
-    }
+      setVentaAnonima(false)
+    } catch {}
   }
 
   const onSubmit = (formData: VentaMostradorFormValues) => {
-    if (efectivoInsuficiente) {
-      toast.error('El efectivo recibido es menor que el monto cobrado en efectivo')
-      return
-    }
     if (vuelto > VUELTO_SOSPECHOSO) {
       setConfirmandoVueltoAlto(true)
       return
@@ -252,6 +198,7 @@ export const VentaMostradorView = ({
   const resetVenta = () => {
     setVentaExitosa(null)
     setCliente(null)
+    setVentaAnonima(false)
     cleanLocalStorage()
     methods.reset()
   }
@@ -267,7 +214,7 @@ export const VentaMostradorView = ({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit as any)}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_290px] gap-4 p-1">
           <div className="order-last lg:order-first space-y-3.5">
             <section className="space-y-2.5">
@@ -313,48 +260,74 @@ export const VentaMostradorView = ({
                       disponibilidad={disponibilidad}
                     />
 
-                    <div className={cn('space-y-4 transition-opacity', estaBloqueado && 'opacity-50 pointer-events-none')}>
-                      <RegistroNinos
-                        control={methods.control as any}
-                        edadMin={edadMin}
-                        edadMax={edadMax}
-                      />
+                    <div
+                      className={cn(
+                        'space-y-4 transition-opacity',
+                        estaBloqueado && 'opacity-50 pointer-events-none'
+                      )}
+                    >
+                      <RegistroNinos edadMin={edadMin} edadMax={edadMax} />
+
+                      {exceedsAforo && (
+                        <Alert
+                          variant="destructive"
+                          className="bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 py-3"
+                        >
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle className="text-xs font-bold">
+                            Aforo excedido
+                          </AlertTitle>
+                          <AlertDescription className="text-[10px] leading-tight">
+                            Registraste {ninos.length} entradas, pero solo hay{' '}
+                            {plazasDisponibles} lugar
+                            {plazasDisponibles !== 1 ? 'es' : ''} disponible
+                            {plazasDisponibles !== 1 ? 's' : ''} para esta
+                            fecha.
+                          </AlertDescription>
+                        </Alert>
+                      )}
 
                       <AcompananteSection
-                        control={methods.control as any}
                         errors={errors}
                         consultandoDni={consultandoDni}
                         acompananteDni={acompananteDni}
                         consultarAcompananteDni={consultarAcompananteDni}
                         statusBusqueda={statusBusqueda}
+                        cliente={cliente}
                       />
 
                       <PromocionSelect
-                        control={methods.control as any}
+                        control={methods.control}
                         promociones={promociones}
                       />
 
-                      <PagoPosForm control={methods.control as any} total={total} />
+                      <PagoPosForm total={total} vuelto={vuelto} />
 
                       <div className="pt-3 flex items-start gap-2.5">
                         <Controller
-                          control={methods.control as any}
+                          control={methods.control}
                           name="actaFirmada"
                           render={({ field }) => (
                             <Checkbox
                               id="acta"
                               checked={field.value}
-                              onCheckedChange={(v) => field.onChange(v === true)}
+                              onCheckedChange={(v) =>
+                                field.onChange(v === true)
+                              }
                               className="mt-0.5"
                             />
                           )}
                         />
                         <div className="grid gap-1 leading-none">
-                          <label htmlFor="acta" className="text-xs font-bold text-gray-700 dark:text-gray-200 cursor-pointer">
+                          <label
+                            htmlFor="acta"
+                            className="text-xs font-bold text-gray-700 dark:text-gray-200 cursor-pointer"
+                          >
                             Acta de responsabilidad firmada
                           </label>
                           <p className="text-[9px] text-gray-400 dark:text-gray-500">
-                            El acompañante acepta las normas y términos del local.
+                            El acompañante acepta las normas y términos del
+                            local.
                           </p>
                           {errors.actaFirmada && (
                             <p className="text-[9px] text-red-500 dark:text-red-400 font-bold">
@@ -380,8 +353,13 @@ export const VentaMostradorView = ({
                         >
                           {registrar.isPending ? (
                             <>
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" /> Procesando...
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />{' '}
+                              Procesando...
                             </>
+                          ) : exceedsAforo ? (
+                            'Excede el aforo disponible'
+                          ) : !cliente && !ventaAnonima ? (
+                            'Selecciona o registra un cliente'
                           ) : montosCoinciden ? (
                             `Confirmar venta · ${formatCurrency(total)}`
                           ) : (
@@ -399,9 +377,9 @@ export const VentaMostradorView = ({
           <div className="order-first lg:order-last">
             <ResumenVenta
               cliente={cliente}
+              ventaAnonima={ventaAnonima}
               fechaVisita={fechaVisita}
               esHoy={esHoy}
-              numNinos={ninos.length}
               precioUnit={precioUnit}
               subtotal={subtotal}
               descuento={descuento}
@@ -418,12 +396,16 @@ export const VentaMostradorView = ({
           </div>
         </div>
 
-        <AlertDialog open={confirmandoVueltoAlto} onOpenChange={setConfirmandoVueltoAlto}>
+        <AlertDialog
+          open={confirmandoVueltoAlto}
+          onOpenChange={setConfirmandoVueltoAlto}
+        >
           <AlertDialogContent aria-describedby="confirmar-vuelto-description">
             <AlertDialogHeader>
               <AlertDialogTitle>Vuelto inusualmente alto</AlertDialogTitle>
               <AlertDialogDescription id="confirmar-vuelto-description">
-                El vuelto a entregar es de {formatCurrency(vuelto)}. Verifica el efectivo recibido antes de continuar.
+                El vuelto a entregar es de {formatCurrency(vuelto)}. Verifica el
+                efectivo recibido antes de continuar.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -432,7 +414,7 @@ export const VentaMostradorView = ({
                 type="button"
                 onClick={() => {
                   setConfirmandoVueltoAlto(false)
-                  methods.handleSubmit(ejecutarRegistro as any)()
+                  methods.handleSubmit(ejecutarRegistro)()
                 }}
               >
                 Sí, es correcto
@@ -442,11 +424,15 @@ export const VentaMostradorView = ({
         </AlertDialog>
 
         <Dialog open={showClienteModal} onOpenChange={setShowClienteModal}>
-          <DialogContent aria-describedby="buscar-cliente-description" className="sm:max-w-md">
+          <DialogContent
+            aria-describedby="buscar-cliente-description"
+            className="sm:max-w-md"
+          >
             <DialogHeader>
               <DialogTitle>Buscar cliente</DialogTitle>
               <DialogDescription id="buscar-cliente-description">
-                Carga los datos de un cliente registrado, o continúa como visitante.
+                Busca un cliente registrado o crea uno nuevo. Toda venta debe
+                asociarse a un cliente, salvo que elijas continuar sin cliente.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -460,11 +446,12 @@ export const VentaMostradorView = ({
                 type="button"
                 onClick={() => {
                   setCliente(null)
+                  setVentaAnonima(true)
                   setShowClienteModal(false)
                 }}
-                className="w-full text-center text-xs font-bold text-gray-500 hover:text-brand-azul py-2"
+                className="w-full text-center text-xs font-bold text-amber-600 hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400 py-2"
               >
-                Continuar como invitado
+                Continuar sin cliente (venta anónima)
               </button>
             </div>
           </DialogContent>

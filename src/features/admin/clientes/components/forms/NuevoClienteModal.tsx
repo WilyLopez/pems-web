@@ -3,7 +3,7 @@
 import { useMutacionesCliente } from '../../hooks/useClientesData'
 import { ClienteForm } from './ClienteForm'
 import { ClienteFormValues } from '../../schema/cliente.schema'
-import { Cliente } from '../../types'
+import { Cliente, OrigenCliente } from '../../types'
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,7 @@ interface NuevoClienteModalProps {
   onOpenChange: (open: boolean) => void
   onCreated?: (cliente: Cliente) => void
   initialSearch?: string
+  origen?: OrigenCliente
 }
 
 export function NuevoClienteModal({
@@ -44,16 +45,20 @@ export function NuevoClienteModal({
   onOpenChange,
   onCreated,
   initialSearch,
+  origen = 'ADMIN',
 }: NuevoClienteModalProps) {
   const { crearCliente } = useMutacionesCliente()
 
   const handleSubmit = (values: ClienteFormValues) => {
-    crearCliente.mutate(values, {
-      onSuccess: (cliente) => {
-        onOpenChange(false)
-        onCreated?.(cliente)
-      },
-    })
+    crearCliente.mutate(
+      { values, origen },
+      {
+        onSuccess: (cliente) => {
+          onOpenChange(false)
+          onCreated?.(cliente)
+        },
+      }
+    )
   }
 
   const defaultValues = initialSearch

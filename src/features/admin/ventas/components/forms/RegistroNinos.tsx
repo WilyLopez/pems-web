@@ -4,7 +4,7 @@ import {
   Controller,
   useFieldArray,
   useFormState,
-  type Control,
+  useFormContext,
 } from 'react-hook-form'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -12,16 +12,12 @@ import { cn } from '@/lib/utils'
 import type { VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
 
 interface RegistroNinosProps {
-  control: Control<VentaMostradorFormValues>
   edadMin: number
   edadMax: number
 }
 
-export const RegistroNinos = ({
-  control,
-  edadMin,
-  edadMax,
-}: RegistroNinosProps) => {
+export const RegistroNinos = ({ edadMin, edadMax }: RegistroNinosProps) => {
+  const { control } = useFormContext<VentaMostradorFormValues>()
   const { fields, append, remove } = useFieldArray({ control, name: 'ninos' })
   const { errors } = useFormState({ control, name: 'ninos' })
 
@@ -31,7 +27,8 @@ export const RegistroNinos = ({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-          Niños / Entradas <span className="text-brand-azul">({fields.length})</span>
+          Niños / Entradas{' '}
+          <span className="text-brand-azul">({fields.length})</span>
         </Label>
         <button
           type="button"

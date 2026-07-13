@@ -4,6 +4,7 @@ import { clientesApi } from '../services/clientes.api'
 import { buildParams } from '../utils/clientes.utils'
 import { useClientesNav } from './useClientesNav'
 import { ClienteFormValues } from '../schema/cliente.schema'
+import { OrigenCliente } from '../types'
 
 export const CLIENTES_KEYS = {
   LIST: 'clientes-admin-list',
@@ -59,8 +60,13 @@ export function useMutacionesCliente(clienteId?: number | null) {
   })
 
   const crearCliente = useMutation({
-    mutationFn: (values: ClienteFormValues) =>
-      clientesApi.registrarAdmin({ ...values, origen: 'ADMIN' }),
+    mutationFn: ({
+      values,
+      origen = 'ADMIN',
+    }: {
+      values: ClienteFormValues
+      origen?: OrigenCliente
+    }) => clientesApi.registrarAdmin({ ...values, origen }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [CLIENTES_KEYS.LIST] })
       toast.success('Cliente registrado correctamente.')

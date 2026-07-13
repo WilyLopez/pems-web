@@ -8,11 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
+import { Promocion } from '@/services/promocion.service'
 import { VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
 
 interface PromocionSelectProps {
   control: Control<VentaMostradorFormValues>
-  promociones?: any[]
+  promociones?: Promocion[]
 }
 
 export const PromocionSelect = ({

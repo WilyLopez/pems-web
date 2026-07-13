@@ -1,33 +1,54 @@
-import React from 'react'
-import { Controller, Control, useWatch, useFormContext } from 'react-hook-form'
+import React, { useState } from 'react'
+import {
+  Controller,
+  FieldErrors,
+  useWatch,
+  useFormContext,
+} from 'react-hook-form'
 import { Loader2, Search, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Button } from '@/components/ui/Button'
+import { Checkbox } from '@/components/ui/Checkbox'
 import { cn } from '@/lib/utils'
+import { Cliente } from '@/types/cliente.types'
 import { VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
 
 interface AcompananteSectionProps {
-  control: Control<VentaMostradorFormValues>
-  errors: any
+  errors: FieldErrors<VentaMostradorFormValues>
   consultandoDni: boolean
   acompananteDni: string
   consultarAcompananteDni: () => void
   statusBusqueda: 'IDLE' | 'BUSCANDO' | 'ENCONTRADO' | 'NO_ENCONTRADO'
+  cliente: Cliente | null
 }
 
 export const AcompananteSection = ({
-  control,
   errors,
   consultandoDni,
   acompananteDni,
   consultarAcompananteDni,
   statusBusqueda,
+  cliente,
 }: AcompananteSectionProps) => {
-  const { setValue } = useFormContext()
-  const tipoDocumento = useWatch({ control, name: 'acompanante.tipoDocumento' }) || 'DNI'
+  const { control, setValue } = useFormContext<VentaMostradorFormValues>()
+  const tipoDocumento =
+    useWatch({ control, name: 'acompanante.tipoDocumento' }) || 'DNI'
   const isRuc = tipoDocumento === 'RUC'
   const len = isRuc ? 11 : 8
+  const [esMismoCliente, setEsMismoCliente] = useState(false)
+  const [ultimoClienteId, setUltimoClienteId] = useState(cliente?.id)
+  const clienteComoAcompanante =
+    cliente &&
+    (cliente.tipoDocumentoCodigo === 'DNI' ||
+      cliente.tipoDocumentoCodigo === 'RUC')
+      ? cliente
+      : null
+
+  if (cliente?.id !== ultimoClienteId) {
+    setUltimoClienteId(cliente?.id)
+    setEsMismoCliente(false)
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -37,7 +58,11 @@ export const AcompananteSection = ({
   }
 
   const handleBlur = () => {
-    if (acompananteDni && acompananteDni.trim().length === len && statusBusqueda === 'IDLE') {
+    if (
+      acompananteDni &&
+      acompananteDni.trim().length === len &&
+      statusBusqueda === 'IDLE'
+    ) {
       consultarAcompananteDni()
     }
   }
@@ -52,9 +77,26 @@ export const AcompananteSection = ({
           <button
             type="button"
             onClick={() => {
-              setValue('acompanante.tipoDocumento', 'DNI')
-              setValue('acompanante.dni', '')
-              setValue('acompanante.nombre', '')
+              setValue('acompanante.tipoDocumento', 'DNI', {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              })
+              setValue('acompanante.dni', '', {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              })
+              setValue('acompanante.nombre', '', {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              })
+              setValue('acompanante.telefono', '', {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              })
             }}
             className={cn(
               'px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all',
@@ -68,9 +110,26 @@ export const AcompananteSection = ({
           <button
             type="button"
             onClick={() => {
-              setValue('acompanante.tipoDocumento', 'RUC')
-              setValue('acompanante.dni', '')
-              setValue('acompanante.nombre', '')
+              setValue('acompanante.tipoDocumento', 'RUC', {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              })
+              setValue('acompanante.dni', '', {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              })
+              setValue('acompanante.nombre', '', {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              })
+              setValue('acompanante.telefono', '', {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              })
             }}
             className={cn(
               'px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all',
@@ -83,6 +142,64 @@ export const AcompananteSection = ({
           </button>
         </div>
       </div>
+
+      {clienteComoAcompanante && (
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <Checkbox
+            id="es-mismo-cliente"
+            checked={esMismoCliente}
+            onCheckedChange={(checked) => {
+              const isChecked = !!checked
+              setEsMismoCliente(isChecked)
+              if (isChecked) {
+                setValue(
+                  'acompanante.tipoDocumento',
+                  clienteComoAcompanante.tipoDocumentoCodigo as 'DNI' | 'RUC',
+                  { shouldValidate: true, shouldDirty: true, shouldTouch: true }
+                )
+                setValue(
+                  'acompanante.dni',
+                  clienteComoAcompanante.numeroDocumento,
+                  {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                    shouldTouch: true,
+                  }
+                )
+                setValue(
+                  'acompanante.nombre',
+                  clienteComoAcompanante.nombreCompleto,
+                  { shouldValidate: true, shouldDirty: true, shouldTouch: true }
+                )
+                setValue(
+                  'acompanante.telefono',
+                  clienteComoAcompanante.telefono || '',
+                  { shouldValidate: true, shouldDirty: true, shouldTouch: true }
+                )
+              } else {
+                setValue('acompanante.dni', '', {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                  shouldTouch: true,
+                })
+                setValue('acompanante.nombre', '', {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                  shouldTouch: true,
+                })
+                setValue('acompanante.telefono', '', {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                  shouldTouch: true,
+                })
+              }
+            }}
+          />
+          <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300">
+            El cliente será también el acompañante responsable
+          </span>
+        </label>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1">
@@ -103,26 +220,35 @@ export const AcompananteSection = ({
                     id="documento-input"
                     placeholder={isRuc ? 'Ingresa RUC' : 'Ingresa DNI'}
                     onChange={(e) =>
-                      field.onChange(e.target.value.replace(/\D/g, '').slice(0, len))
+                      field.onChange(
+                        e.target.value.replace(/\D/g, '').slice(0, len)
+                      )
                     }
                     onKeyDown={handleKeyDown}
                     onBlur={handleBlur}
                     className={cn(
                       'h-8 text-xs bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 pr-8 w-full',
-                      errors.acompanante?.dni && 'border-red-400 dark:border-red-600'
+                      errors.acompanante?.dni &&
+                        'border-red-400 dark:border-red-600'
                     )}
                   />
                 )}
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
-                {consultandoDni && <Loader2 className="h-3 w-3 animate-spin text-gray-400" />}
+                {consultandoDni && (
+                  <Loader2 className="h-3 w-3 animate-spin text-gray-400" />
+                )}
               </div>
             </div>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={consultandoDni || !acompananteDni || acompananteDni.length !== len}
+              disabled={
+                consultandoDni ||
+                !acompananteDni ||
+                acompananteDni.length !== len
+              }
               onClick={consultarAcompananteDni}
               className="px-2.5 h-8 rounded-lg shrink-0 border-gray-200 dark:border-gray-800"
               title="Buscar documento"
@@ -157,9 +283,6 @@ export const AcompananteSection = ({
             <Label className="text-[10px] font-bold text-gray-500 dark:text-gray-400">
               Celular (Opcional)
             </Label>
-            <span className="text-[8px] text-brand-azul font-medium truncate max-w-[130px]" title="Recibe confirmación de reserva por WhatsApp">
-              WhatsApp
-            </span>
           </div>
           <Controller
             control={control}
@@ -173,7 +296,8 @@ export const AcompananteSection = ({
                 }
                 className={cn(
                   'h-8 text-xs bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 w-full',
-                  errors.acompanante?.telefono && 'border-red-400 dark:border-red-600'
+                  errors.acompanante?.telefono &&
+                    'border-red-400 dark:border-red-600'
                 )}
               />
             )}
@@ -192,11 +316,16 @@ export const AcompananteSection = ({
             render={({ field }) => (
               <Input
                 {...field}
-                placeholder={isRuc ? 'Razón Social de la empresa' : 'Nombre completo del acompañante'}
+                placeholder={
+                  isRuc
+                    ? 'Razón Social de la empresa'
+                    : 'Nombre completo del acompañante'
+                }
                 onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                 className={cn(
                   'h-8 text-xs bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 w-full',
-                  errors.acompanante?.nombre && 'border-red-400 dark:border-red-600'
+                  errors.acompanante?.nombre &&
+                    'border-red-400 dark:border-red-600'
                 )}
               />
             )}
