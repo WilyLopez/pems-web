@@ -1,36 +1,60 @@
 import { useState } from 'react'
+import Image from 'next/image'
 import { format, addDays } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { AlertTriangle, Download, ChevronLeft } from 'lucide-react'
-import { toast } from 'sonner'
+import {
+  AlertTriangle,
+  Download,
+  ChevronLeft,
+  Wallet,
+  Clock,
+  Upload,
+  AlertCircle,
+  CheckCircle2,
+} from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog'
 import { Textarea } from '@/components/ui/Textarea'
 import { cn, formatDate, formatCurrency } from '@/lib/utils'
 import { Reserva } from '@/features/cliente/shared/types'
 import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
 
+type Vista = 'detalle' | 'reprogramar' | 'cancelar' | 'pagar'
+
 interface ReservaDetalleDialogProps {
   reserva: Reserva | null
   open: boolean
   onClose: () => void
+  vistaInicial?: Vista
   onReprogramar?: (params: { id: number; nuevaFecha: string }) => Promise<any>
   isReprogramando?: boolean
   onCancelar?: (params: { id: number; motivo: string }) => Promise<any>
   isCancelando?: boolean
+  onSubirComprobante?: (params: {
+    id: number
+    comprobante: File
+  }) => Promise<any>
+  isSubiendoComprobante?: boolean
 }
 
 export function ReservaDetalleDialog({
   reserva,
   open,
   onClose,
+  vistaInicial = 'detalle',
   onReprogramar,
   isReprogramando = false,
   onCancelar,
   isCancelando = false,
+  onSubirComprobante,
+  isSubiendoComprobante = false,
 }: ReservaDetalleDialogProps) {
-  const [vista, setVista] = useState<'detalle' | 'reprogramar' | 'cancelar'>(
-    'detalle'
-  )
+  const [vista, setVista] = useState<Vista>('detalle')
+  const [openAnterior, setOpenAnterior] = useState(open)
+
+  if (open !== openAnterior) {
+    setOpenAnterior(open)
+    if (open) setVista(vistaInicial)
+  }
 
   function handleClose() {
     onClose()
@@ -41,6 +65,7 @@ export function ReservaDetalleDialog({
 
   const tieneReprogramar = !!onReprogramar
   const tieneCancelar = !!onCancelar
+  const tienePagar = !!onSubirComprobante
 
   return (
     <Dialog
@@ -55,8 +80,10 @@ export function ReservaDetalleDialog({
             reserva={reserva}
             onReprogramar={() => setVista('reprogramar')}
             onCancelar={() => setVista('cancelar')}
+            onPagar={() => setVista('pagar')}
             puedeReprogramarAccion={tieneReprogramar}
             puedeCancelarAccion={tieneCancelar}
+            puedePagarAccion={tienePagar}
           />
         )}
         {vista === 'reprogramar' && onReprogramar && (
@@ -81,6 +108,15 @@ export function ReservaDetalleDialog({
             }}
             onCancelar={onCancelar}
             isCancelando={isCancelando}
+          />
+        )}
+        {vista === 'pagar' && onSubirComprobante && (
+          <PagarReserva
+            reserva={reserva}
+            onVolver={() => setVista('detalle')}
+            onExito={() => setVista('detalle')}
+            onSubirComprobante={onSubirComprobante}
+            isSubiendo={isSubiendoComprobante}
           />
         )}
       </DialogContent>
@@ -109,24 +145,33 @@ interface DetalleProps {
   reserva: Reserva
   onReprogramar: () => void
   onCancelar: () => void
+  onPagar: () => void
   puedeReprogramarAccion: boolean
   puedeCancelarAccion: boolean
+  puedePagarAccion: boolean
 }
 
 function DetalleReserva({
   reserva,
   onReprogramar,
   onCancelar,
+  onPagar,
   puedeReprogramarAccion,
   puedeCancelarAccion,
+  puedePagarAccion,
 }: DetalleProps) {
+  const esActiva =
+    reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA'
   const puedeReprogramar =
-    puedeReprogramarAccion &&
-    (reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA') &&
-    reserva.vecesReprogramada === 0
-  const puedeCancelar =
-    puedeCancelarAccion &&
-    (reserva.estado === 'PENDIENTE' || reserva.estado === 'CONFIRMADA')
+    puedeReprogramarAccion && esActiva && reserva.vecesReprogramada === 0
+  const yaUsoReprogramacion =
+    puedeReprogramarAccion && esActiva && reserva.vecesReprogramada > 0
+  const puedeCancelar = puedeCancelarAccion && esActiva
+  const faltaPagar =
+    puedePagarAccion &&
+    reserva.estado === 'PENDIENTE' &&
+    !reserva.referenciaPago
+  const enRevision = reserva.estado === 'PENDIENTE' && !!reserva.referenciaPago
 
   return (
     <div className="flex flex-col">
@@ -136,11 +181,11 @@ function DetalleReserva({
         </DialogTitle>
       </div>
 
-      <div className="flex flex-col items-center gap-2 py-6 bg-gray-50">
+      <div className="flex flex-col items-center gap-2 py-6 bg-gradient-to-b from-brand-azul/5 to-transparent">
         <img
           src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(reserva.numeroTicket)}`}
           alt={reserva.numeroTicket}
-          className="rounded-2xl border border-gray-200 bg-white p-2"
+          className="rounded-2xl border-2 border-brand-azul/20 bg-white p-2 shadow-card"
           width={180}
           height={180}
         />
@@ -179,11 +224,41 @@ function DetalleReserva({
         )}
       </div>
 
-      {reserva.estado === 'PENDIENTE' && (
+      {faltaPagar && (
+        <div className="mx-5 mb-4">
+          <button
+            onClick={onPagar}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#6E2FEC] text-white rounded-xl text-sm font-bold hover:bg-[#6E2FEC]/90 transition-colors shadow-sm"
+          >
+            <Wallet className="h-4 w-4" />
+            Pagar ahora con Yape
+          </button>
+        </div>
+      )}
+
+      {enRevision && (
+        <div className="mx-5 mb-4 flex items-start gap-2 bg-brand-azul/5 border border-brand-azul/20 rounded-xl px-3 py-2.5">
+          <Clock className="h-4 w-4 text-brand-azul shrink-0 mt-0.5" />
+          <p className="text-xs text-brand-azul/90">
+            Tu comprobante está en revisión. Te avisaremos apenas se valide.
+          </p>
+        </div>
+      )}
+
+      {reserva.estado === 'PENDIENTE' && !faltaPagar && !enRevision && (
         <div className="mx-5 mb-4 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
           <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-xs text-amber-800">
             Presenta este ticket en caja para confirmar tu ingreso.
+          </p>
+        </div>
+      )}
+
+      {yaUsoReprogramacion && (
+        <div className="mx-5 mb-4 flex items-start gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5">
+          <AlertCircle className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-gray-600">
+            Ya utilizaste tu reprogramación para esta reserva.
           </p>
         </div>
       )}
@@ -456,6 +531,128 @@ function CancelarReserva({
           type="button"
         >
           {isCancelando ? 'Cancelando...' : 'Sí, cancelar'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+interface PagarProps {
+  reserva: Reserva
+  onVolver: () => void
+  onExito: () => void
+  onSubirComprobante: (params: {
+    id: number
+    comprobante: File
+  }) => Promise<any>
+  isSubiendo: boolean
+}
+
+function PagarReserva({
+  reserva,
+  onVolver,
+  onExito,
+  onSubirComprobante,
+  isSubiendo,
+}: PagarProps) {
+  const [comprobante, setComprobante] = useState<File | null>(null)
+  const [intentoEnvio, setIntentoEnvio] = useState(false)
+
+  async function confirmar() {
+    setIntentoEnvio(true)
+    if (!comprobante) return
+    try {
+      await onSubirComprobante({ id: reserva.id, comprobante })
+      onExito()
+    } catch {
+      // toast is managed inside the hook
+    }
+  }
+
+  return (
+    <div className="flex flex-col">
+      <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center gap-2">
+        <button
+          onClick={onVolver}
+          className="text-gray-400 hover:text-gray-600"
+          type="button"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <DialogTitle className="text-lg font-black text-gray-900">
+          Pagar reserva
+        </DialogTitle>
+      </div>
+
+      <div className="px-5 py-4 space-y-4">
+        <div className="p-4 bg-[#6E2FEC]/5 border border-[#6E2FEC]/20 rounded-2xl space-y-3">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-white border border-purple-100 shadow-sm flex items-center justify-center shrink-0 overflow-hidden relative">
+              <Image
+                src="/qr-yape.png"
+                alt="QR Yape"
+                width={64}
+                height={64}
+                className="object-contain"
+              />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-bold text-gray-700">
+                Escanea el QR o yapea al número del local
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Envía exactamente{' '}
+                <span className="font-bold text-gray-700">
+                  {formatCurrency(reserva.totalPagado)}
+                </span>{' '}
+                y escribe el nombre del niño en el concepto.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+            <Upload className="h-3.5 w-3.5 text-[#6E2FEC]" />
+            Comprobante de pago Yape <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            className="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[11px] file:font-black file:bg-[#6E2FEC]/10 file:text-[#6E2FEC] hover:file:bg-[#6E2FEC]/20 cursor-pointer"
+            onChange={(e) => setComprobante(e.target.files?.[0] ?? null)}
+          />
+          {intentoEnvio && !comprobante && (
+            <p className="flex items-center gap-1 text-xs text-red-600 mt-1">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+              Debes subir la captura del comprobante Yape
+            </p>
+          )}
+          {comprobante && (
+            <p className="flex items-center gap-1 text-xs text-green-700 mt-1">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+              {comprobante.name} &middot; {(comprobante.size / 1024).toFixed(0)}{' '}
+              KB
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="px-5 pb-5 pt-2 border-t border-gray-100 grid grid-cols-2 gap-2">
+        <button
+          onClick={onVolver}
+          className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700"
+          type="button"
+        >
+          Volver
+        </button>
+        <button
+          onClick={confirmar}
+          disabled={isSubiendo}
+          className="py-2.5 rounded-xl bg-[#6E2FEC] text-white text-sm font-bold disabled:opacity-50 hover:bg-[#6E2FEC]/90 transition-colors"
+          type="button"
+        >
+          {isSubiendo ? 'Enviando...' : 'Enviar comprobante'}
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { Plus, Ticket, Clock } from 'lucide-react'
 import Link from 'next/link'
@@ -45,11 +46,27 @@ export function MisReservasView() {
     isReprogramando,
     cancelar,
     isCancelando,
+    subirComprobante,
+    isSubiendoComprobante,
   } = useMisReservasData(isAuthenticated)
+
+  const [vistaInicial, setVistaInicial] = useState<'detalle' | 'pagar'>(
+    'detalle'
+  )
 
   const reservaDetalle = reservas.find((r) => r.id === detalleId) || null
   const setReservaDetalle = (reserva: Reserva | null) =>
     setDetalleId(reserva ? reserva.id : null)
+
+  function abrirDetalle(reserva: Reserva) {
+    setVistaInicial('detalle')
+    setReservaDetalle(reserva)
+  }
+
+  function abrirPagarAhora(reserva: Reserva) {
+    setVistaInicial('pagar')
+    setReservaDetalle(reserva)
+  }
 
   const proximas = reservas.filter((r) =>
     ['PENDIENTE', 'CONFIRMADA'].includes(r.estado)
@@ -137,7 +154,8 @@ export function MisReservasView() {
             <ReservaCard
               key={r.id}
               reserva={r}
-              onVerDetalle={() => setReservaDetalle(r)}
+              onVerDetalle={() => abrirDetalle(r)}
+              onPagarAhora={() => abrirPagarAhora(r)}
             />
           ))}
         </div>
@@ -169,10 +187,13 @@ export function MisReservasView() {
         reserva={reservaDetalle}
         open={!!reservaDetalle}
         onClose={() => setReservaDetalle(null)}
+        vistaInicial={vistaInicial}
         onReprogramar={reprogramar}
         isReprogramando={isReprogramando}
         onCancelar={cancelar}
         isCancelando={isCancelando}
+        onSubirComprobante={subirComprobante}
+        isSubiendoComprobante={isSubiendoComprobante}
       />
     </div>
   )
