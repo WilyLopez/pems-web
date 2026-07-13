@@ -205,7 +205,7 @@ function TicketDetalleCard({
             <p className="text-sm text-amber-800">
               Este ticket es para el{' '}
               <strong>{formatDate(ticket.fechaVisita, "d 'de' MMMM")}</strong>,
-              no para hoy.
+              no para hoy. Cambia la fecha para poder registrar el ingreso.
             </p>
           </div>
         )}
@@ -290,6 +290,15 @@ function TicketDetalleCard({
               </>
             )}
           </div>
+        ) : !ticket.esHoy ? (
+          <button
+            disabled
+            title="Cambia la fecha del ticket antes de registrar el ingreso"
+            className="w-full flex items-center justify-center gap-2 h-11 bg-muted text-muted-foreground rounded-xl font-semibold text-sm cursor-not-allowed"
+          >
+            <LogIn className="h-4 w-4" />
+            Registrar ingreso
+          </button>
         ) : (
           <button
             onClick={() => onMarcarEntrada(ticket.idReserva)}

@@ -15,13 +15,7 @@ import { Reserva } from '../../types'
 import { reservaHelpers } from '../../utils/reserva-helpers'
 import { reservasApi } from '../../services/reservas.api'
 import { toast } from 'sonner'
-import { isBefore, parseISO, startOfDay } from 'date-fns'
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from '@/components/ui/Tooltip'
-import { cn } from '@/lib/utils'
+import { parseISO, startOfDay } from 'date-fns'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -43,14 +37,15 @@ export const RowActions = React.memo(
     const esYapePendiente = reservaHelpers.needsYapeValidation(reserva)
     const necesitaCobro = reservaHelpers.needsCobro(reserva)
 
-    const fechaPasada = React.useMemo(() => {
-      const dateLimit = startOfDay(parseISO(reserva.fechaEvento))
+    const esFechaDeHoy = React.useMemo(() => {
+      const fecha = startOfDay(parseISO(reserva.fechaEvento))
       const today = startOfDay(new Date())
-      return isBefore(dateLimit, today)
+      return fecha.getTime() === today.getTime()
     }, [reserva.fechaEvento])
 
     const esEstadoValido = reserva.estado === 'CONFIRMADA'
-    const deshabilitarIngreso = fechaPasada || !esEstadoValido
+    const deshabilitarIngreso = !esFechaDeHoy || !esEstadoValido
+    const puedeEliminar = reserva.ventaId === null
 
     const handleDescargarTicket = async () => {
       setDescargando(true)
@@ -134,7 +129,7 @@ export const RowActions = React.memo(
               </DropdownMenuItem>
             )}
 
-            {(cancelable || true) && (
+            {(cancelable || puedeEliminar) && (
               <>
                 <DropdownMenuSeparator />
                 {cancelable && (
@@ -146,13 +141,15 @@ export const RowActions = React.memo(
                     Cancelar
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem
-                  onClick={() => onAction('eliminar', reserva.id)}
-                  className="text-destructive focus:text-destructive focus:bg-red-50 rounded-lg cursor-pointer"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Eliminar
-                </DropdownMenuItem>
+                {puedeEliminar && (
+                  <DropdownMenuItem
+                    onClick={() => onAction('eliminar', reserva.id)}
+                    className="text-destructive focus:text-destructive focus:bg-red-50 rounded-lg cursor-pointer"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Eliminar
+                  </DropdownMenuItem>
+                )}
               </>
             )}
           </DropdownMenuContent>

@@ -16,6 +16,7 @@ import {
   CompletarPerfilFormValues,
 } from '../../schemas/auth.schema'
 import { useCompletarPerfil } from '../../hooks/useCompletarPerfil'
+import { ApiError } from '@/types/api.types'
 
 export function CompletarPerfilView() {
   const { nombre, correo } = useAuth()
@@ -31,7 +32,7 @@ export function CompletarPerfilView() {
   } = useForm<CompletarPerfilFormValues>({
     resolver: zodResolver(completarPerfilSchema),
     defaultValues: {
-      nombres: nombre ?? '',
+      nombres: nombre?.toUpperCase() ?? '',
       dni: '',
       telefono: '',
       aceptaTerminos: false,
@@ -39,14 +40,14 @@ export function CompletarPerfilView() {
   })
 
   useEffect(() => {
-    if (nombre) setValue('nombres', nombre)
+    if (nombre) setValue('nombres', nombre.toUpperCase())
   }, [nombre, setValue])
 
   const onSubmit = (values: CompletarPerfilFormValues) => {
     mutation.mutate(values, {
-      onError: (err: any) => {
+      onError: (err: ApiError) => {
         const fieldErrors = err.erroresCampo || err.errorsCampo
-        fieldErrors?.forEach((e: any) => {
+        fieldErrors?.forEach((e) => {
           if (e.campo === 'numeroDocumento') {
             setError('dni', { type: 'manual', message: e.mensaje })
           } else if (e.campo === 'nombres') {
@@ -96,8 +97,12 @@ export function CompletarPerfilView() {
               <Input
                 id="nombres"
                 placeholder="Tu nombre"
-                className="h-11 rounded-xl pl-9"
-                {...register('nombres')}
+                className="h-11 rounded-xl pl-9 uppercase"
+                {...register('nombres', {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.toUpperCase()
+                  },
+                })}
               />
             </div>
             {errors.nombres && (
@@ -107,7 +112,10 @@ export function CompletarPerfilView() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="dni">DNI</Label>
+              <Label htmlFor="dni">
+                DNI{' '}
+                <span className="font-normal text-gray-400">(Opcional)</span>
+              </Label>
               <div className="relative">
                 <CreditCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
@@ -125,7 +133,10 @@ export function CompletarPerfilView() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="telefono">Teléfono</Label>
+              <Label htmlFor="telefono">
+                Teléfono{' '}
+                <span className="font-normal text-gray-400">(Opcional)</span>
+              </Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input

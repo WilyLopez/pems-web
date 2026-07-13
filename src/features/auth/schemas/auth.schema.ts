@@ -2,9 +2,7 @@ import { z } from 'zod'
 import {
   nombreField,
   correoField,
-  telefonoField,
   telefonoOpcionalField,
-  dniField,
   dniOpcionalField,
   contrasenaSeguraField,
 } from '@/lib/validations/campos'
@@ -22,7 +20,7 @@ export const registroSchema = z
     correo: correoField,
     contrasena: contrasenaSeguraField,
     confirmarContrasena: z.string().min(1, 'Confirma tu contraseña'),
-    telefono: telefonoField,
+    telefono: telefonoOpcionalField,
     dni: dniOpcionalField,
     aceptaTerminos: z
       .boolean()
@@ -40,7 +38,7 @@ export type RegistroFormValues = z.infer<typeof registroSchema>
 
 export const completarPerfilSchema = z.object({
   nombres: nombreField,
-  dni: dniField,
+  dni: dniOpcionalField,
   telefono: telefonoOpcionalField,
   aceptaTerminos: z
     .boolean()

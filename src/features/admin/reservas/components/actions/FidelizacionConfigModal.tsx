@@ -37,7 +37,10 @@ export const FidelizacionConfigModal = ({
     }
   }, [config])
 
+  const umbralValido = Number.isInteger(umbral) && umbral >= 1
+
   const handleSave = () => {
+    if (!umbralValido) return
     actualizar.mutate(umbral, {
       onSuccess: onClose,
     })
@@ -68,10 +71,16 @@ export const FidelizacionConfigModal = ({
               onChange={(e) => setUmbral(parseInt(e.target.value))}
               disabled={isLoading || actualizar.isPending}
             />
-            <p className="text-[10px] text-gray-500">
-              Actualmente: La visita número {umbral} será gratuita para el
-              cliente.
-            </p>
+            {umbralValido ? (
+              <p className="text-[10px] text-gray-500">
+                Actualmente: La visita número {umbral} será gratuita para el
+                cliente.
+              </p>
+            ) : (
+              <p className="text-[10px] text-red-500">
+                Ingresa un número entero mayor o igual a 1.
+              </p>
+            )}
           </div>
         </div>
 
@@ -85,7 +94,7 @@ export const FidelizacionConfigModal = ({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={actualizar.isPending || isLoading}
+            disabled={actualizar.isPending || isLoading || !umbralValido}
             className="bg-brand-azul hover:bg-brand-azul/90 text-white"
           >
             {actualizar.isPending ? 'Guardando...' : 'Guardar configuración'}

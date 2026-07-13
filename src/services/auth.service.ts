@@ -31,7 +31,7 @@ export const authService = {
     apellidoPaterno?: string
     apellidoMaterno?: string
     tipoDocumento: string
-    numeroDocumento: string
+    numeroDocumento?: string
     telefono?: string
     aceptaComunicaciones: boolean
   }): Promise<Cliente> => {

@@ -54,9 +54,9 @@ export interface RegistrarClientePayload {
   nombre: string
   correo: string
   password: string
-  telefono: string
+  telefono?: string
   tipoDocumento: string
-  numeroDocumento: string
+  numeroDocumento?: string
 }
 
 export interface ListarClientesParams {
