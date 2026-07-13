@@ -1,18 +1,29 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from '@/lib/resolver'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
-import { useConfiguracionCalendario, useConfiguracionVenta } from '@/hooks/useConfiguracion'
+import {
+  useConfiguracionCalendario,
+  useConfiguracionVenta,
+} from '@/hooks/useConfiguracion'
 import { usePromociones } from '@/hooks/usePromocion'
 import { useDebounce } from '@/hooks/useDebounce'
 import { usePrecioDia, useRegistrarVentaMostrador } from './useVentasData'
 import { useDisponibilidad } from '@/features/admin/calendario/hooks/useCalendarData'
 import { clienteService } from '@/services/cliente.service'
-import { consultaService } from '@/services/consulta.service'
+import {
+  consultaService,
+  DniResponse,
+  RucResponse,
+} from '@/services/consulta.service'
 import { Cliente } from '@/types/cliente.types'
-import { buildVentaMostradorSchema, VentaMostradorFormValues } from '../schema/ventaMostrador.schema'
+import { ApiError } from '@/types/api.types'
+import {
+  buildVentaMostradorSchema,
+  VentaMostradorFormValues,
+} from '../schema/ventaMostrador.schema'
 import { calcularResumenVenta } from '../utils/ventas.utils'
 import { PagoLinea } from '../types'
 import { esFechaHoyEnZonaNegocio, yaPasoLaHoraEnZonaNegocio } from '@/lib/utils'
@@ -26,18 +37,26 @@ export function useVentaMostradorForm() {
   const { data: confCal } = useConfiguracionCalendario(idSede ?? null)
   const diasMaxFecha = confCal?.diasMaxReservaPublica ?? 14
 
-  const [cliente, setCliente] = useState<Cliente | null>(null)
+  const [cliente, setClienteRaw] = useState<Cliente | null>(null)
+  const [ventaAnonima, setVentaAnonima] = useState(false)
   const [consultandoDni, setConsultandoDni] = useState(false)
-  const [statusBusqueda, setStatusBusqueda] = useState<'IDLE' | 'BUSCANDO' | 'ENCONTRADO' | 'NO_ENCONTRADO'>('IDLE')
+  const [statusBusqueda, setStatusBusqueda] = useState<
+    'IDLE' | 'BUSCANDO' | 'ENCONTRADO' | 'NO_ENCONTRADO'
+  >('IDLE')
   const [borradorRecuperado, setBorradorRecuperado] = useState(false)
 
+  const setCliente = (c: Cliente | null) => {
+    setClienteRaw(c)
+    if (c) setVentaAnonima(false)
+  }
+
   const schema = useMemo(
-    () => buildVentaMostradorSchema(edadMin, edadMax),
-    [edadMin, edadMax]
+    () => buildVentaMostradorSchema(edadMin, edadMax, diasMaxFecha),
+    [edadMin, edadMax, diasMaxFecha]
   )
 
   const methods = useForm<VentaMostradorFormValues>({
-    resolver: zodResolver(schema) as any,
+    resolver: zodResolver(schema),
     mode: 'onTouched',
     reValidateMode: 'onChange',
     defaultValues: {
@@ -51,7 +70,12 @@ export function useVentaMostradorForm() {
     },
   })
 
-  const { setValue, reset, watch, formState: { errors, isValid } } = methods
+  const {
+    setValue,
+    reset,
+    watch,
+    formState: { errors, isValid },
+  } = methods
 
   const fechaVisita = watch('fechaVisita')
   const ninos = watch('ninos')
@@ -67,7 +91,10 @@ export function useVentaMostradorForm() {
 
   const debouncedFecha = useDebounce(fechaVisita, 400)
   const { data: precioDia } = usePrecioDia(idSede ?? null, debouncedFecha)
-  const { data: disponibilidad, isLoading: isLoadingDisp } = useDisponibilidad(idSede ?? 0, debouncedFecha)
+  const { data: disponibilidad, isLoading: isLoadingDisp } = useDisponibilidad(
+    idSede ?? 0,
+    debouncedFecha
+  )
   const { data: promociones } = usePromociones()
   const registrar = useRegistrarVentaMostrador()
 
@@ -77,7 +104,11 @@ export function useVentaMostradorForm() {
 
   useEffect(() => {
     if (!tieneMetodoEfectivo) {
-      setValue('efectivoRecibido', 0, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+      setValue('efectivoRecibido', 0, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      })
     }
   }, [tieneMetodoEfectivo, setValue])
 
@@ -120,13 +151,37 @@ export function useVentaMostradorForm() {
 
   useEffect(() => {
     if (cliente) {
-      setValue('acompanante.nombre', cliente.nombreCompleto.toUpperCase(), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-      setValue('acompanante.dni', cliente.numeroDocumento, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-      setValue('acompanante.telefono', cliente.telefono || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+      setValue('acompanante.nombre', cliente.nombreCompleto.toUpperCase(), {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+      setValue('acompanante.dni', cliente.numeroDocumento, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+      setValue('acompanante.telefono', cliente.telefono || '', {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      })
     } else {
-      setValue('acompanante.nombre', '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-      setValue('acompanante.dni', '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-      setValue('acompanante.telefono', '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+      setValue('acompanante.nombre', '', {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+      setValue('acompanante.dni', '', {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+      setValue('acompanante.telefono', '', {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      })
     }
   }, [cliente, setValue])
 
@@ -149,7 +204,7 @@ export function useVentaMostradorForm() {
         precioUnit,
         ninos,
         promocionActual,
-        pagos as any,
+        pagos as PagoLinea[],
         efectivoRecibido
       ),
     [precioUnit, ninos, promocionActual, pagos, efectivoRecibido]
@@ -159,7 +214,10 @@ export function useVentaMostradorForm() {
     return efectivoAplicado > 0 && efectivoRecibido < efectivoAplicado
   }, [efectivoAplicado, efectivoRecibido])
 
-  const esHoy = useMemo(() => esFechaHoyEnZonaNegocio(fechaVisita), [fechaVisita])
+  const esHoy = useMemo(
+    () => esFechaHoyEnZonaNegocio(fechaVisita),
+    [fechaVisita]
+  )
 
   const fueraDeHorario = useMemo(() => {
     if (!esHoy || !confCal) return false
@@ -188,14 +246,17 @@ export function useVentaMostradorForm() {
     !registrar.isPending &&
     !efectivoInsuficiente &&
     precioValido &&
-    !exceedsAforo
+    !exceedsAforo &&
+    (cliente !== null || ventaAnonima)
 
   const consultarAcompananteDni = async () => {
     const dni = acompananteDni?.trim()
     const isRuc = tipoDocumento === 'RUC'
     const len = isRuc ? 11 : 8
     if (!dni || dni.length !== len) {
-      toast.error(`Ingresa un ${tipoDocumento} de ${len} dígitos para consultar`)
+      toast.error(
+        `Ingresa un ${tipoDocumento} de ${len} dígitos para consultar`
+      )
       return
     }
     if (!idSede) {
@@ -205,14 +266,24 @@ export function useVentaMostradorForm() {
     setConsultandoDni(true)
     try {
       const localRes = await clienteService.listar({ search: dni, size: 1 })
-      const found = localRes.content.find((c: Cliente) => c.numeroDocumento === dni)
+      const found = localRes.content.find(
+        (c: Cliente) => c.numeroDocumento === dni
+      )
       if (found) {
-        setCliente(found as any)
-        setValue('acompanante.nombre', found.nombreCompleto.toUpperCase(), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-        setValue('acompanante.telefono', found.telefono || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+        setCliente(found)
+        setValue('acompanante.nombre', found.nombreCompleto.toUpperCase(), {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        })
+        setValue('acompanante.telefono', found.telefono || '', {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        })
         toast.success('Cliente encontrado en la base de datos')
       } else {
-        let data
+        let data: DniResponse | RucResponse | undefined
         if (isRuc) {
           data = await consultaService.consultarRuc(dni, idSede)
         } else {
@@ -220,26 +291,41 @@ export function useVentaMostradorForm() {
         }
 
         if (data) {
-          const rData = data as any
-          if (rData.nombreCompleto || rData.razonSocial) {
+          const nombreEncontrado = isRuc
+            ? (data as RucResponse).razonSocial
+            : (data as DniResponse).nombreCompleto
+          if (nombreEncontrado) {
             setCliente(null)
-            const name = isRuc ? rData.razonSocial : rData.nombreCompleto
-            setValue('acompanante.nombre', name.toUpperCase(), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-            toast.success(`${tipoDocumento} del acompañante consultado con éxito (nuevo cliente)`)
+            setValue('acompanante.nombre', nombreEncontrado.toUpperCase(), {
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true,
+            })
+            toast.success(
+              `${tipoDocumento} del acompañante consultado con éxito (nuevo cliente)`
+            )
             setStatusBusqueda('ENCONTRADO')
           } else {
-            toast.error(`No se encontraron datos para el ${tipoDocumento} del acompañante`)
+            toast.error(
+              `No se encontraron datos para el ${tipoDocumento} del acompañante`
+            )
             setStatusBusqueda('NO_ENCONTRADO')
           }
         } else {
-          toast.error(`No se encontraron datos para el ${tipoDocumento} del acompañante`)
+          toast.error(
+            `No se encontraron datos para el ${tipoDocumento} del acompañante`
+          )
           setStatusBusqueda('NO_ENCONTRADO')
         }
       }
-    } catch (err: any) {
-      const errorMsg = err?.response?.data?.message || err?.message || `Error al consultar ${tipoDocumento} del acompañante`
+    } catch (err) {
+      const apiErr = err as ApiError
+      const errorMsg =
+        apiErr.message || `Error al consultar ${tipoDocumento} del acompañante`
       if (errorMsg === 'LIMIT_EXCEEDED') {
-        toast.error('Lote de consultas mensual agotado para el proveedor seleccionado.')
+        toast.error(
+          'Lote de consultas mensual agotado para el proveedor seleccionado.'
+        )
       } else {
         toast.error(errorMsg)
       }
@@ -259,6 +345,8 @@ export function useVentaMostradorForm() {
     methods,
     cliente,
     setCliente,
+    ventaAnonima,
+    setVentaAnonima,
     consultandoDni,
     consultarAcompananteDni,
     fechaVisita,

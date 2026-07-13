@@ -1,12 +1,13 @@
 import api from '@/services/api'
 
+export const fetchPdfBlob = async (url: string): Promise<Blob> => {
+  const response = await api.get(url, { responseType: 'blob' })
+  return new Blob([response.data], { type: 'application/pdf' })
+}
+
 export const downloadFile = async (url: string, filename: string) => {
   try {
-    const response = await api.get(url, {
-      responseType: 'blob',
-    })
-
-    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const blob = await fetchPdfBlob(url)
     const downloadUrl = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = downloadUrl

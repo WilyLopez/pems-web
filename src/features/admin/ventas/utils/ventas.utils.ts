@@ -21,7 +21,7 @@ interface Promocion {
   activo: boolean
 }
 
-export const VUELTO_SOSPECHOSO = 100
+export const VUELTO_SOSPECHOSO = 200
 export const DENOMINACIONES_EFECTIVO = [10, 20, 50, 100, 200]
 
 export function calcularResumenPagos(
@@ -29,7 +29,6 @@ export function calcularResumenPagos(
   efectivoRecibido: number = 0,
   total: number = 0
 ): ResumenPagosCalculado {
-
   const sumaPagos = pagos.reduce((s, p) => s + (Number(p.monto) || 0), 0)
   const efectivoAplicado = pagos
     .filter((p) => p.medioPago === 'EFECTIVO')
@@ -38,7 +37,7 @@ export function calcularResumenPagos(
   const totalNum = Number(total) || 0
   const vuelto = Math.max(0, (Number(efectivoRecibido) || 0) - efectivoAplicado)
   const saldo = Math.max(0, totalNum - sumaPagos)
-  const montosCoinciden = totalNum === 0 || (sumaPagos >= totalNum - 0.01)
+  const montosCoinciden = totalNum === 0 || sumaPagos >= totalNum - 0.01
 
   return {
     sumaPagos,

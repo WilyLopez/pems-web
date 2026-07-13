@@ -17,9 +17,9 @@ import { NinoVenta, PagoLinea } from '../../types'
 
 interface ResumenVentaProps {
   cliente: Cliente | null
+  ventaAnonima?: boolean
   fechaVisita: string
   esHoy: boolean
-  numNinos: number
   precioUnit: number
   subtotal: number
   descuento: number
@@ -36,9 +36,9 @@ interface ResumenVentaProps {
 
 export const ResumenVenta = ({
   cliente,
+  ventaAnonima,
   fechaVisita,
   esHoy,
-  numNinos,
   precioUnit,
   subtotal,
   descuento,
@@ -86,6 +86,20 @@ export const ResumenVenta = ({
                 )}
               </div>
             </div>
+          ) : ventaAnonima ? (
+            <div className="flex items-center gap-2">
+              <div className="h-6 w-6 bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded flex items-center justify-center shrink-0">
+                <User className="h-3.5 w-3.5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                  Venta sin cliente asociado
+                </p>
+                <p className="text-[9px] text-amber-600/80 dark:text-amber-500/80">
+                  No sumará a fidelización
+                </p>
+              </div>
+            </div>
           ) : (
             <div className="flex items-center gap-2">
               <div className="h-6 w-6 bg-gray-100 dark:bg-gray-800 text-gray-400 rounded flex items-center justify-center shrink-0">
@@ -93,7 +107,7 @@ export const ResumenVenta = ({
               </div>
               <div>
                 <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                  Cliente Invitado
+                  Selecciona o registra un cliente
                 </p>
               </div>
             </div>
@@ -123,7 +137,7 @@ export const ResumenVenta = ({
 
         <div className="space-y-1.5">
           <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-            Entradas ({numNinos})
+            Entradas ({ninos.length})
           </span>
           <div className="space-y-1 max-h-28 overflow-y-auto pr-1">
             {ninos && ninos.length > 0 ? (
@@ -259,7 +273,8 @@ export const ResumenVenta = ({
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-0.5 text-[9px] font-black text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded uppercase">
-                  <AlertTriangle className="h-2.5 w-2.5" /> Falta pagar {formatCurrency(total - sumaPagos)}
+                  <AlertTriangle className="h-2.5 w-2.5" /> Falta pagar{' '}
+                  {formatCurrency(total - sumaPagos)}
                 </span>
               )}
             </div>

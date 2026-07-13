@@ -1,5 +1,5 @@
 import api from '@/services/api'
-import { Cliente, ListarClientesParams } from '../types'
+import { Cliente, ListarClientesParams, OrigenCliente } from '../types'
 import { ApiResponse, PagedResponse } from '@/types/api.types'
 import { ClienteFormValues } from '../schema/cliente.schema'
 
@@ -20,7 +20,7 @@ export const clientesApi = {
   },
 
   registrarAdmin: async (
-    payload: ClienteFormValues & { origen: 'ADMIN' }
+    payload: ClienteFormValues & { origen: OrigenCliente }
   ): Promise<Cliente> => {
     const sanitized = {
       ...payload,

@@ -1,9 +1,5 @@
 export type EstadoReserva =
-  | 'PENDIENTE'
-  | 'CONFIRMADA'
-  | 'REPROGRAMADA'
-  | 'COMPLETADA'
-  | 'CANCELADA'
+  'PENDIENTE' | 'CONFIRMADA' | 'REPROGRAMADA' | 'COMPLETADA' | 'CANCELADA'
 
 export interface EstadoReservaInfo {
   nombre: string
@@ -35,6 +31,7 @@ export interface Reserva {
   codigoQr: string
   medioPago: string | null
   referenciaPago?: string | null
+  motivoRechazoPago?: string | null
   fechaCreacion: string
   nombreCliente?: string | null
   correoCliente?: string | null

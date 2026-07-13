@@ -20,6 +20,7 @@ export interface Notificacion {
   mensaje: string
   fecha: Date
   leida: boolean
+  leidaEn: Date | null
   href?: string
 }
 
@@ -37,6 +38,7 @@ interface NotificacionesState {
   fetchCount: () => Promise<void>
   marcarLeida: (id: string) => Promise<void>
   marcarTodasLeidas: () => Promise<void>
+  eliminarNotificacion: (id: string) => Promise<void>
   setPanelAbierto: (open: boolean) => void
 }
 
@@ -57,6 +59,7 @@ function toNotificacion(dto: NotificacionDTO): Notificacion {
     mensaje: dto.mensaje,
     fecha: new Date(dto.createdAt),
     leida: dto.leida,
+    leidaEn: dto.leidaAt ? new Date(dto.leidaAt) : null,
     href: dto.urlAccion ?? undefined,
   }
 }
@@ -134,13 +137,35 @@ export const useNotificacionesStore = create<NotificacionesState>(
 
       set((s) => ({
         notificaciones: s.notificaciones.map((n) =>
-          n.id === id ? { ...n, leida: true } : n
+          n.id === id
+            ? { ...n, leida: true, leidaEn: n.leidaEn ?? new Date() }
+            : n
         ),
         noLeidas: Math.max(0, s.noLeidas - (yaLeida ? 0 : 1)),
       }))
 
       try {
         await getApi().marcarLeida(Number(id))
+      } catch {
+        set({ notificaciones: prevNotifs, noLeidas: prevNoLeidas })
+      }
+    },
+
+    eliminarNotificacion: async (id: string) => {
+      const prevNotifs = get().notificaciones
+      const prevNoLeidas = get().noLeidas
+      const eliminada = prevNotifs.find((n) => n.id === id)
+
+      set((s) => ({
+        notificaciones: s.notificaciones.filter((n) => n.id !== id),
+        noLeidas:
+          eliminada && !eliminada.leida
+            ? Math.max(0, s.noLeidas - 1)
+            : s.noLeidas,
+      }))
+
+      try {
+        await getApi().eliminar(Number(id))
       } catch {
         set({ notificaciones: prevNotifs, noLeidas: prevNoLeidas })
       }
@@ -153,7 +178,11 @@ export const useNotificacionesStore = create<NotificacionesState>(
       const prevNoLeidas = get().noLeidas
 
       set((s) => ({
-        notificaciones: s.notificaciones.map((n) => ({ ...n, leida: true })),
+        notificaciones: s.notificaciones.map((n) => ({
+          ...n,
+          leida: true,
+          leidaEn: n.leidaEn ?? new Date(),
+        })),
         noLeidas: 0,
       }))
 

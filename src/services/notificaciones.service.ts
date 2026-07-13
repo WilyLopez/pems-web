@@ -33,6 +33,9 @@ function makeFeed(base: string) {
     marcarTodasLeidas: async (): Promise<void> => {
       await api.patch(`${base}/leidas`)
     },
+    eliminar: async (id: number): Promise<void> => {
+      await api.delete(`${base}/${id}`)
+    },
   }
 }
 

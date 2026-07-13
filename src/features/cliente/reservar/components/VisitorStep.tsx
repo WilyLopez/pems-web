@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
-import { ChevronLeft, ChevronRight, AlertCircle, AlertTriangle, Loader2 } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+  AlertTriangle,
+  Loader2,
+} from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Input } from '@/components/ui/Input'
@@ -26,7 +32,10 @@ interface VisitorStepProps {
   maxAge: number
   dispSeleccionada: Disponibilidad | null
   precioMap: Record<string, number> | undefined
-  getTarifaKey: (fechaStr: string, esFeriado: boolean) => 'SEMANA' | 'FIN_SEMANA_FERIADO'
+  getTarifaKey: (
+    fechaStr: string,
+    esFeriado: boolean
+  ) => 'SEMANA' | 'FIN_SEMANA_FERIADO'
   onBack: () => void
   onSubmit: () => void
   perfilCliente?: Cliente | null
@@ -50,7 +59,9 @@ export function VisitorStep({
     formState: { errors },
   } = useFormContext()
 
-  const [docAbierto, setDocAbierto] = useState<'REGLAMENTO' | 'ACTA' | null>(null)
+  const [docAbierto, setDocAbierto] = useState<'REGLAMENTO' | 'ACTA' | null>(
+    null
+  )
   const [docTitulo, setDocTitulo] = useState('')
   const [docContenido, setDocContenido] = useState('')
   const [cargandoDoc, setCargandoDoc] = useState(false)
@@ -58,7 +69,9 @@ export function VisitorStep({
 
   async function abrirDocumento(tipo: 'REGLAMENTO' | 'ACTA') {
     setDocAbierto(tipo)
-    setDocTitulo(tipo === 'REGLAMENTO' ? 'Reglamento del Local' : 'Acta de Responsabilidad')
+    setDocTitulo(
+      tipo === 'REGLAMENTO' ? 'Reglamento del Local' : 'Acta de Responsabilidad'
+    )
     setDocContenido('')
     setCargandoDoc(true)
     try {
@@ -128,6 +141,11 @@ export function VisitorStep({
             <Input
               placeholder="Ej: Thiago Ramos"
               {...register('nombreNino')}
+              onChange={(e) =>
+                setValue('nombreNino', e.target.value.toUpperCase(), {
+                  shouldValidate: true,
+                })
+              }
               className={cn(
                 'h-11 rounded-xl',
                 errors.nombreNino && 'border-red-500 focus-visible:ring-red-500'
@@ -174,7 +192,10 @@ export function VisitorStep({
                     const isChecked = !!checked
                     setUsarMisDatos(isChecked)
                     if (isChecked) {
-                      setValue('nombreAcompanante', perfilCliente.nombreCompleto)
+                      setValue(
+                        'nombreAcompanante',
+                        perfilCliente.nombreCompleto.toUpperCase()
+                      )
                       setValue('dniAcompanante', perfilCliente.numeroDocumento)
                     } else {
                       setValue('nombreAcompanante', '')
@@ -197,9 +218,15 @@ export function VisitorStep({
             <Input
               placeholder="Ej: María Ramos"
               {...register('nombreAcompanante')}
+              onChange={(e) =>
+                setValue('nombreAcompanante', e.target.value.toUpperCase(), {
+                  shouldValidate: true,
+                })
+              }
               className={cn(
                 'h-11 rounded-xl',
-                errors.nombreAcompanante && 'border-red-500 focus-visible:ring-red-500'
+                errors.nombreAcompanante &&
+                  'border-red-500 focus-visible:ring-red-500'
               )}
             />
             {errors.nombreAcompanante && (
@@ -221,7 +248,8 @@ export function VisitorStep({
               {...register('dniAcompanante')}
               className={cn(
                 'h-11 rounded-xl font-mono',
-                errors.dniAcompanante && 'border-red-500 focus-visible:ring-red-500'
+                errors.dniAcompanante &&
+                  'border-red-500 focus-visible:ring-red-500'
               )}
             />
             {errors.dniAcompanante && (
@@ -262,7 +290,8 @@ export function VisitorStep({
                 >
                   Reglamento del local
                 </button>
-                , incluyendo las normas de conducta, restricciones de edad y responsabilidades del acompañante adulto.
+                , incluyendo las normas de conducta, restricciones de edad y
+                responsabilidades del acompañante adulto.
                 <span className="text-red-500 font-bold"> *</span>
               </span>
             </label>
@@ -334,7 +363,12 @@ export function VisitorStep({
         </div>
       </div>
 
-      <Dialog open={!!docAbierto} onOpenChange={(v) => { if (!v) setDocAbierto(null) }}>
+      <Dialog
+        open={!!docAbierto}
+        onOpenChange={(v) => {
+          if (!v) setDocAbierto(null)
+        }}
+      >
         <DialogContent className="max-w-lg rounded-3xl p-6 overflow-hidden max-h-[80vh] flex flex-col bg-white border border-gray-100">
           <DialogHeader>
             <DialogTitle className="text-lg font-black text-gray-900">
@@ -353,7 +387,9 @@ export function VisitorStep({
             ) : (
               <div
                 className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: sanitizeLegalHtml(docContenido) }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeLegalHtml(docContenido),
+                }}
               />
             )}
           </div>

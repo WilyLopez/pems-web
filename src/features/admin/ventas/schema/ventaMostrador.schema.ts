@@ -6,7 +6,7 @@ import {
   nombreField,
   dniField,
 } from '@/lib/validations/campos'
-import { format } from 'date-fns'
+import { addDays, format } from 'date-fns'
 
 export { NOMBRE_REGEX, DNI_REGEX, TELEFONO_PERU_REGEX }
 
@@ -56,7 +56,8 @@ export const acompananteSchema = z
       if (!/^(10|20)\d{9}$/.test(data.dni)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'El RUC debe tener 11 dígitos numéricos y comenzar con 10 o 20',
+          message:
+            'El RUC debe tener 11 dígitos numéricos y comenzar con 10 o 20',
           path: ['dni'],
         })
       }
@@ -74,8 +75,13 @@ function buildNinoSchema(edadMin: number, edadMax: number) {
   })
 }
 
-export function buildVentaMostradorSchema(edadMin: number, edadMax: number) {
+export function buildVentaMostradorSchema(
+  edadMin: number,
+  edadMax: number,
+  diasMaxFecha: number
+) {
   const hoy = format(new Date(), 'yyyy-MM-dd')
+  const fechaMaxima = format(addDays(new Date(), diasMaxFecha), 'yyyy-MM-dd')
   return z.object({
     fechaVisita: z
       .string()
@@ -84,6 +90,10 @@ export function buildVentaMostradorSchema(edadMin: number, edadMax: number) {
       .refine(
         (val) => val >= hoy,
         'La fecha de visita no puede ser en el pasado'
+      )
+      .refine(
+        (val) => val <= fechaMaxima,
+        `La fecha de visita no puede superar los ${diasMaxFecha} días de anticipación`
       ),
     ninos: z
       .array(buildNinoSchema(edadMin, edadMax))
@@ -106,11 +116,9 @@ export function buildVentaMostradorSchema(edadMin: number, edadMax: number) {
     idPromocion: z.number().nullable(),
     pagos: z.array(pagoLineaSchema).min(1, 'Agrega al menos un medio de pago'),
     efectivoRecibido: z.coerce.number().min(0).default(0),
-    actaFirmada: z
-      .boolean()
-      .refine((v) => v === true, {
-        message: 'Debes confirmar la firma del acta de responsabilidad',
-      }),
+    actaFirmada: z.boolean().refine((v) => v === true, {
+      message: 'Debes confirmar la firma del acta de responsabilidad',
+    }),
   })
 }
 

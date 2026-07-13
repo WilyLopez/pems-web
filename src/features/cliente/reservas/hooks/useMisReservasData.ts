@@ -43,6 +43,18 @@ export function useMisReservasData(isAuthenticated: boolean) {
     },
   })
 
+  const subirComprobanteMutation = useMutation({
+    mutationFn: ({ id, comprobante }: { id: number; comprobante: File }) =>
+      reservaApi.subirComprobante(id, comprobante),
+    onSuccess: () => {
+      toast.success('Comprobante enviado. Lo revisaremos en breve.')
+      queryClient.invalidateQueries({ queryKey: clienteKeys.reservas.all })
+    },
+    onError: (err: { message?: string }) => {
+      toast.error(err?.message ?? 'No se pudo enviar el comprobante.')
+    },
+  })
+
   return {
     reservas: (reservasQuery.data?.content ?? []).map((r) => ({
       ...r,
@@ -55,5 +67,7 @@ export function useMisReservasData(isAuthenticated: boolean) {
     isReprogramando: reprogramarMutation.isPending,
     cancelar: cancelarMutation.mutateAsync,
     isCancelando: cancelarMutation.isPending,
+    subirComprobante: subirComprobanteMutation.mutateAsync,
+    isSubiendoComprobante: subirComprobanteMutation.isPending,
   }
 }

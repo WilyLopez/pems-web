@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import Link from 'next/link'
 import { Bell, Check } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
@@ -18,19 +19,27 @@ import {
   TIPO_ICON,
   TIPO_BADGE,
 } from '@/features/admin/shared/notificaciones/notificacionesVisuales'
+import { NotificacionesDrawer } from './NotificacionesDrawer'
+
+const MAX_VISIBLES = 5
 
 export function NotificacionesPanel() {
   const {
     notificaciones,
     noLeidas,
-    page,
-    totalPages,
-    cargandoMas,
     marcarLeida,
     marcarTodasLeidas,
     fetchNotificaciones,
-    cargarMas,
+    setPanelAbierto,
   } = useNotificacionesStore()
+
+  const recientes = useMemo(
+    () =>
+      [...notificaciones]
+        .sort((a, b) => b.fecha.getTime() - a.fecha.getTime())
+        .slice(0, MAX_VISIBLES),
+    [notificaciones]
+  )
 
   return (
     <>
@@ -103,7 +112,7 @@ export function NotificacionesPanel() {
           </div>
 
           <div className="max-h-[360px] overflow-y-auto" aria-live="polite">
-            {notificaciones.length === 0 ? (
+            {recientes.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4 gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center">
                   <Bell className="h-5 w-5 text-gray-400" />
@@ -114,34 +123,29 @@ export function NotificacionesPanel() {
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
-                {notificaciones.map((n) => (
+                {recientes.map((n) => (
                   <NotificacionItem
                     key={n.id}
                     notificacion={n}
                     onMarcarLeida={() => marcarLeida(n.id)}
                   />
                 ))}
-                {page + 1 < totalPages && (
-                  <button
-                    onClick={cargarMas}
-                    disabled={cargandoMas}
-                    className="block w-full text-center text-xs text-brand-azul font-semibold py-2.5 hover:bg-gray-50 transition-colors disabled:opacity-60"
-                  >
-                    {cargandoMas ? 'Cargando…' : 'Cargar más'}
-                  </button>
-                )}
               </div>
             )}
           </div>
 
-          <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/50 text-center">
-            <p className="text-[11px] text-gray-400">
-              {notificaciones.length} notificacion
-              {notificaciones.length !== 1 ? 'es' : ''}
-            </p>
+          <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/50">
+            <button
+              onClick={() => setPanelAbierto(true)}
+              className="block w-full text-center text-xs text-brand-azul font-semibold py-1 hover:text-brand-azul/70 transition-colors"
+            >
+              Ver todas
+            </button>
           </div>
         </PopoverContent>
       </Popover>
+
+      <NotificacionesDrawer />
     </>
   )
 }

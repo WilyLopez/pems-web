@@ -282,6 +282,7 @@ export function ReservarView() {
       nombreAcompanante: valores.nombreAcompanante,
       dniAcompanante: valores.dniAcompanante,
       firmoConsentimiento: true,
+      medioPago: metodoPago,
     })
   }
 

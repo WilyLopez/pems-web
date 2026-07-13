@@ -6,7 +6,10 @@ import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { formatCurrency, cn } from '@/lib/utils'
+import { ConfiguracionCalendario } from '@/types/configuracion.types'
+import { Disponibilidad } from '@/features/admin/calendario/types'
 import { VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
+import { PrecioDia } from '../../types'
 
 interface FechaVisitaSectionProps {
   register: UseFormRegister<VentaMostradorFormValues>
@@ -16,11 +19,11 @@ interface FechaVisitaSectionProps {
   plazasDisponibles?: number
   estaBloqueado: boolean
   esHoy: boolean
-  precioDia: any
+  precioDia?: PrecioDia
   fueraDeHorario: boolean
   hayEventoPrivado: boolean
-  confCal: any
-  disponibilidad: any
+  confCal?: ConfiguracionCalendario
+  disponibilidad?: Disponibilidad
 }
 
 export const FechaVisitaSection = ({
@@ -49,10 +52,7 @@ export const FechaVisitaSection = ({
               type="date"
               {...register('fechaVisita')}
               min={format(new Date(), 'yyyy-MM-dd')}
-              max={format(
-                addDays(new Date(), diasMaxFecha),
-                'yyyy-MM-dd'
-              )}
+              max={format(addDays(new Date(), diasMaxFecha), 'yyyy-MM-dd')}
               className={cn(
                 'h-9 text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700',
                 estaBloqueado && 'border-red-500 dark:border-red-600'
@@ -77,7 +77,8 @@ export const FechaVisitaSection = ({
             </span>
             {plazasDisponibles != null && !estaBloqueado && (
               <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500">
-                {plazasDisponibles} lugar{plazasDisponibles !== 1 ? 'es' : ''} disponible{plazasDisponibles !== 1 ? 's' : ''}
+                {plazasDisponibles} lugar{plazasDisponibles !== 1 ? 'es' : ''}{' '}
+                disponible{plazasDisponibles !== 1 ? 's' : ''}
               </span>
             )}
           </div>
@@ -108,7 +109,8 @@ export const FechaVisitaSection = ({
             Sin tarifa configurada
           </AlertTitle>
           <AlertDescription className="text-[10px] leading-tight">
-            No hay tarifa activa para esta fecha. Configura una tarifa antes de registrar la venta.
+            No hay tarifa activa para esta fecha. Configura una tarifa antes de
+            registrar la venta.
           </AlertDescription>
         </Alert>
       )}
