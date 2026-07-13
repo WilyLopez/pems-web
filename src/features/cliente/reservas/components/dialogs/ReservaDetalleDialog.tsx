@@ -1,20 +1,34 @@
 import { useState } from 'react'
 import Image from 'next/image'
-import { format, addDays } from 'date-fns'
+import { format, addDays, startOfDay, isBefore, isAfter } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
   AlertTriangle,
   Download,
   ChevronLeft,
-  Wallet,
   Clock,
   Upload,
   AlertCircle,
   CheckCircle2,
 } from 'lucide-react'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogHeader,
+  DialogDescription,
+  DialogTrigger,
+} from '@/components/ui/Dialog'
 import { Textarea } from '@/components/ui/Textarea'
-import { cn, formatDate, formatCurrency } from '@/lib/utils'
+import {
+  cn,
+  formatDate,
+  formatCurrency,
+  esFechaHoyEnZonaNegocio,
+  yaPasoLaHoraEnZonaNegocio,
+} from '@/lib/utils'
+import { useConfiguracionCalendario } from '@/hooks/useCalendario'
+import { useDisponibilidadRango } from '@/hooks/useDisponibilidad'
 import { Reserva } from '@/features/cliente/shared/types'
 import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
 
@@ -167,25 +181,31 @@ function DetalleReserva({
   const yaUsoReprogramacion =
     puedeReprogramarAccion && esActiva && reserva.vecesReprogramada > 0
   const puedeCancelar = puedeCancelarAccion && esActiva
+  const rechazado =
+    puedePagarAccion &&
+    reserva.estado === 'PENDIENTE' &&
+    !reserva.referenciaPago &&
+    !!reserva.motivoRechazoPago
   const faltaPagar =
     puedePagarAccion &&
     reserva.estado === 'PENDIENTE' &&
-    !reserva.referenciaPago
+    !reserva.referenciaPago &&
+    !rechazado
   const enRevision = reserva.estado === 'PENDIENTE' && !!reserva.referenciaPago
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-w-0">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100">
         <DialogTitle className="text-lg font-black text-gray-900">
           Detalle de reserva
         </DialogTitle>
       </div>
 
-      <div className="flex flex-col items-center gap-2 py-6 bg-gradient-to-b from-brand-azul/5 to-transparent">
+      <div className="flex flex-col items-center gap-2 py-6 bg-gray-50">
         <img
           src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(reserva.numeroTicket)}`}
           alt={reserva.numeroTicket}
-          className="rounded-2xl border-2 border-brand-azul/20 bg-white p-2 shadow-card"
+          className="rounded-2xl border border-gray-200 bg-white p-2"
           width={180}
           height={180}
         />
@@ -224,13 +244,37 @@ function DetalleReserva({
         )}
       </div>
 
+      {rechazado && (
+        <div className="mx-5 mb-4 space-y-2">
+          <div className="flex items-start gap-2 bg-brand-rosa/5 border border-brand-rosa/20 rounded-xl px-3 py-2.5">
+            <AlertTriangle className="h-4 w-4 text-brand-rosa shrink-0 mt-0.5" />
+            <p className="text-xs text-gray-700">
+              <span className="font-bold">Tu comprobante fue rechazado.</span>{' '}
+              {reserva.motivoRechazoPago}
+            </p>
+          </div>
+          <button
+            onClick={onPagar}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-brand-rosa text-white rounded-xl text-sm font-bold hover:bg-brand-rosa/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa/50 focus-visible:ring-offset-1"
+          >
+            Volver a intentar
+          </button>
+        </div>
+      )}
+
       {faltaPagar && (
         <div className="mx-5 mb-4">
           <button
             onClick={onPagar}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-[#6E2FEC] text-white rounded-xl text-sm font-bold hover:bg-[#6E2FEC]/90 transition-colors shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-brand-rosa text-white rounded-xl text-sm font-bold hover:bg-brand-rosa/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa/50 focus-visible:ring-offset-1"
           >
-            <Wallet className="h-4 w-4" />
+            <Image
+              src="/metodo-pago-yape.png"
+              alt=""
+              width={16}
+              height={16}
+              className="rounded-sm"
+            />
             Pagar ahora con Yape
           </button>
         </div>
@@ -241,15 +285,6 @@ function DetalleReserva({
           <Clock className="h-4 w-4 text-brand-azul shrink-0 mt-0.5" />
           <p className="text-xs text-brand-azul/90">
             Tu comprobante está en revisión. Te avisaremos apenas se valide.
-          </p>
-        </div>
-      )}
-
-      {reserva.estado === 'PENDIENTE' && !faltaPagar && !enRevision && (
-        <div className="mx-5 mb-4 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-          <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-800">
-            Presenta este ticket en caja para confirmar tu ingreso.
           </p>
         </div>
       )}
@@ -267,7 +302,7 @@ function DetalleReserva({
         <a
           href={`${process.env.NEXT_PUBLIC_API_URL}/reservas/${reserva.id}/pdf`}
           download
-          className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-brand-azul text-white rounded-xl text-sm font-bold hover:bg-brand-azul/90 transition-colors"
+          className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-brand-azul text-white rounded-xl text-sm font-bold hover:bg-brand-azul/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/50 focus-visible:ring-offset-1"
         >
           <Download className="h-4 w-4" />
           Descargar ticket PDF
@@ -277,7 +312,7 @@ function DetalleReserva({
             {puedeReprogramar && (
               <button
                 onClick={onReprogramar}
-                className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:border-brand-azul/40 hover:text-brand-azul transition-all"
+                className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:border-brand-azul/40 hover:text-brand-azul transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/40"
               >
                 Reprogramar
               </button>
@@ -311,49 +346,109 @@ interface SubVistaProps {
 }
 
 function SelectorFechaCompacto({
+  idSede,
   fechaSeleccionada,
   onSelect,
 }: {
+  idSede: number
   fechaSeleccionada: string | null
   onSelect: (fecha: string) => void
 }) {
-  const hoy = new Date()
-  const dias = Array.from({ length: 14 }, (_, i) => addDays(hoy, i + 1))
+  const { data: config } = useConfiguracionCalendario(idSede)
+  const diasMin = config?.diasMinReservaPublica ?? 0
+  const diasMax = config?.diasMaxReservaPublica ?? 14
+  const horaCierre = config?.horaCierre ?? '20:00'
+
+  const hoy = startOfDay(new Date())
+  const dias = Array.from({ length: diasMax + 1 }, (_, i) => addDays(hoy, i))
+
+  const { data: disponibilidades, isLoading } = useDisponibilidadRango(
+    idSede,
+    format(hoy, 'yyyy-MM-dd'),
+    format(addDays(hoy, diasMax), 'yyyy-MM-dd')
+  )
+
+  const getDisp = (dia: Date) =>
+    disponibilidades?.find((d) => d.fecha === format(dia, 'yyyy-MM-dd'))
 
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-gray-600">
         Selecciona la nueva fecha
       </p>
-      <div className="flex gap-2 overflow-x-auto pb-1 snap-x scrollbar-hide">
-        {dias.map((dia) => {
-          const fechaStr = format(dia, 'yyyy-MM-dd')
-          const seleccionado = fechaSeleccionada === fechaStr
-          return (
-            <button
-              key={fechaStr}
-              type="button"
-              onClick={() => onSelect(fechaStr)}
-              className={cn(
-                'flex flex-col items-center min-w-[52px] rounded-xl p-2 border snap-start transition-all shrink-0',
-                seleccionado
-                  ? 'bg-brand-azul text-white border-brand-azul'
-                  : 'bg-white text-gray-700 border-gray-200 hover:border-brand-azul/40'
-              )}
-            >
-              <span className="text-[10px] uppercase font-semibold">
-                {format(dia, 'EEE', { locale: es })}
-              </span>
-              <span className="text-lg font-black leading-tight">
-                {format(dia, 'd')}
-              </span>
-              <span className="text-[10px]">
-                {format(dia, 'MMM', { locale: es })}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+      <p className="text-[11px] text-gray-400">
+        Hasta {diasMax} días de anticipación. Solo se muestran fechas con cupo
+        disponible.
+      </p>
+      {isLoading ? (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-[68px] min-w-[52px] shrink-0 animate-pulse rounded-xl bg-gray-100"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex gap-2 overflow-x-auto pb-1 snap-x scrollbar-hide">
+          {dias.map((dia) => {
+            const fechaStr = format(dia, 'yyyy-MM-dd')
+            const disp = getDisp(dia)
+            const minDia = startOfDay(addDays(hoy, diasMin))
+            const maxDia = startOfDay(addDays(hoy, diasMax))
+            const fueraDeRango = isBefore(dia, minDia) || isAfter(dia, maxDia)
+            const cerroHoy =
+              esFechaHoyEnZonaNegocio(fechaStr) &&
+              yaPasoLaHoraEnZonaNegocio(horaCierre)
+            const disabled =
+              fueraDeRango || !disp || !disp.disponiblePublico || cerroHoy
+            const seleccionado = fechaSeleccionada === fechaStr
+
+            return (
+              <button
+                key={fechaStr}
+                type="button"
+                disabled={disabled}
+                onClick={() => onSelect(fechaStr)}
+                className={cn(
+                  'flex flex-col items-center min-w-[52px] rounded-xl p-2 border snap-start transition-all shrink-0',
+                  seleccionado && 'bg-brand-azul text-white border-brand-azul',
+                  !seleccionado &&
+                    !disabled &&
+                    'bg-white text-gray-700 border-gray-200 hover:border-brand-azul/40',
+                  disabled &&
+                    'opacity-40 cursor-not-allowed bg-gray-50 border-gray-100 text-gray-400'
+                )}
+              >
+                <span className="text-[10px] uppercase font-semibold">
+                  {format(dia, 'EEE', { locale: es })}
+                </span>
+                <span className="text-lg font-black leading-tight">
+                  {format(dia, 'd')}
+                </span>
+                <span className="text-[10px]">
+                  {format(dia, 'MMM', { locale: es })}
+                </span>
+                {!disabled && disp && (
+                  <span
+                    className={cn(
+                      'text-[8px] font-bold mt-0.5 leading-none',
+                      seleccionado ? 'text-white/90' : 'text-green-600'
+                    )}
+                  >
+                    {disp.plazasDisponibles} pl.
+                  </span>
+                )}
+                {disabled && !fueraDeRango && disp?.aforoCompleto && (
+                  <span className="text-[8px] font-bold text-red-400 mt-0.5 leading-none">
+                    Lleno
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -378,11 +473,12 @@ function ReprogramarReserva({
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-w-0">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center gap-2">
         <button
           onClick={onVolver}
-          className="text-gray-400 hover:text-gray-600"
+          aria-label="Volver"
+          className="text-gray-400 hover:text-gray-600 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/40"
           type="button"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -400,6 +496,7 @@ function ReprogramarReserva({
         </div>
 
         <SelectorFechaCompacto
+          idSede={reserva.idSede}
           fechaSeleccionada={nuevaFecha}
           onSelect={setNuevaFecha}
         />
@@ -416,7 +513,7 @@ function ReprogramarReserva({
       <div className="px-5 pb-5 pt-2 border-t border-gray-100 grid grid-cols-2 gap-2">
         <button
           onClick={onVolver}
-          className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700"
+          className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/40"
           type="button"
         >
           Volver
@@ -424,7 +521,7 @@ function ReprogramarReserva({
         <button
           onClick={confirmar}
           disabled={!nuevaFecha || isReprogramando}
-          className="py-2.5 rounded-xl bg-brand-azul text-white text-sm font-bold disabled:opacity-50 hover:bg-brand-azul/90 transition-colors"
+          className="py-2.5 rounded-xl bg-brand-azul text-white text-sm font-bold disabled:opacity-50 hover:bg-brand-azul/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/50 focus-visible:ring-offset-1"
           type="button"
         >
           {isReprogramando ? 'Reprogramando...' : 'Confirmar'}
@@ -464,11 +561,12 @@ function CancelarReserva({
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-w-0">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center gap-2">
         <button
           onClick={onVolver}
-          className="text-gray-400 hover:text-gray-600"
+          aria-label="Volver"
+          className="text-gray-400 hover:text-gray-600 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/40"
           type="button"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -519,7 +617,7 @@ function CancelarReserva({
       <div className="px-5 pb-5 pt-2 border-t border-gray-100 grid grid-cols-2 gap-2">
         <button
           onClick={onVolver}
-          className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700"
+          className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/40"
           type="button"
         >
           No cancelar
@@ -527,7 +625,7 @@ function CancelarReserva({
         <button
           onClick={confirmar}
           disabled={isCancelando}
-          className="py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-50 hover:bg-red-700 transition-colors"
+          className="py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-50 hover:bg-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50 focus-visible:ring-offset-1"
           type="button"
         >
           {isCancelando ? 'Cancelando...' : 'Sí, cancelar'}
@@ -570,11 +668,12 @@ function PagarReserva({
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-w-0">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100 flex items-center gap-2">
         <button
           onClick={onVolver}
-          className="text-gray-400 hover:text-gray-600"
+          aria-label="Volver"
+          className="text-gray-400 hover:text-gray-600 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/40"
           type="button"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -585,19 +684,65 @@ function PagarReserva({
       </div>
 
       <div className="px-5 py-4 space-y-4">
-        <div className="p-4 bg-[#6E2FEC]/5 border border-[#6E2FEC]/20 rounded-2xl space-y-3">
+        {reserva.motivoRechazoPago && !reserva.referenciaPago && (
+          <div className="flex items-start gap-2 bg-brand-rosa/5 border border-brand-rosa/20 rounded-xl px-3 py-2.5">
+            <AlertTriangle className="h-4 w-4 text-brand-rosa shrink-0 mt-0.5" />
+            <p className="text-xs text-gray-700">
+              <span className="font-bold">Comprobante anterior rechazado.</span>{' '}
+              {reserva.motivoRechazoPago}
+            </p>
+          </div>
+        )}
+
+        <div className="p-4 bg-gray-50 border border-gray-100 rounded-2xl space-y-3">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white border border-purple-100 shadow-sm flex items-center justify-center shrink-0 overflow-hidden relative">
-              <Image
-                src="/qr-yape.png"
-                alt="QR Yape"
-                width={64}
-                height={64}
-                className="object-contain"
-              />
-            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Ampliar código QR de Yape"
+                  className="w-16 h-16 rounded-2xl bg-white border border-gray-200 shadow-sm flex items-center justify-center shrink-0 overflow-hidden relative cursor-pointer hover:ring-2 hover:ring-brand-rosa/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa/50"
+                >
+                  <Image
+                    src="/qr-yape.png"
+                    alt="QR Yape"
+                    width={64}
+                    height={64}
+                    className="object-contain"
+                  />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-sm rounded-3xl p-6 text-center">
+                <DialogHeader>
+                  <DialogTitle className="text-base font-black text-gray-900">
+                    Código QR Yape
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-gray-500">
+                    Escanea para realizar el pago de tu reserva
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="my-4 flex justify-center">
+                  <div className="p-3 bg-white border border-gray-200 rounded-3xl shadow-sm">
+                    <Image
+                      src="/qr-yape.png"
+                      alt="QR Yape ampliado"
+                      width={240}
+                      height={240}
+                      className="object-contain rounded-2xl"
+                    />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
             <div className="flex-1">
-              <p className="text-xs font-bold text-gray-700">
+              <p className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                <Image
+                  src="/metodo-pago-yape.png"
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="rounded-sm"
+                />
                 Escanea el QR o yapea al número del local
               </p>
               <p className="text-xs text-gray-500 mt-0.5">
@@ -613,13 +758,13 @@ function PagarReserva({
 
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
-            <Upload className="h-3.5 w-3.5 text-[#6E2FEC]" />
+            <Upload className="h-3.5 w-3.5 text-brand-rosa" />
             Comprobante de pago Yape <span className="text-red-500">*</span>
           </label>
           <input
             type="file"
             accept="image/*"
-            className="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[11px] file:font-black file:bg-[#6E2FEC]/10 file:text-[#6E2FEC] hover:file:bg-[#6E2FEC]/20 cursor-pointer"
+            className="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[11px] file:font-black file:bg-brand-rosa/10 file:text-brand-rosa hover:file:bg-brand-rosa/20 cursor-pointer"
             onChange={(e) => setComprobante(e.target.files?.[0] ?? null)}
           />
           {intentoEnvio && !comprobante && (
@@ -641,7 +786,7 @@ function PagarReserva({
       <div className="px-5 pb-5 pt-2 border-t border-gray-100 grid grid-cols-2 gap-2">
         <button
           onClick={onVolver}
-          className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700"
+          className="py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-azul/40"
           type="button"
         >
           Volver
@@ -649,7 +794,7 @@ function PagarReserva({
         <button
           onClick={confirmar}
           disabled={isSubiendo}
-          className="py-2.5 rounded-xl bg-[#6E2FEC] text-white text-sm font-bold disabled:opacity-50 hover:bg-[#6E2FEC]/90 transition-colors"
+          className="py-2.5 rounded-xl bg-brand-rosa text-white text-sm font-bold disabled:opacity-50 hover:bg-brand-rosa/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rosa/50 focus-visible:ring-offset-1"
           type="button"
         >
           {isSubiendo ? 'Enviando...' : 'Enviar comprobante'}
