@@ -24,9 +24,10 @@ export function useMiCuentaData(clientePerfilId?: number) {
     mutationFn: (values: InfoPersonalValues) =>
       clienteService.actualizar(clientePerfilId!, {
         nombres: values.nombres,
-        apellidoPaterno: values.apellidoPaterno,
+        apellidoPaterno: values.apellidoPaterno || undefined,
         apellidoMaterno: values.apellidoMaterno || undefined,
-        telefono: values.telefono,
+        telefono: values.telefono || undefined,
+        fechaNacimiento: values.fechaNacimiento || undefined,
       }),
     onSuccess: () => {
       toast.success('Datos personales actualizados correctamente.')

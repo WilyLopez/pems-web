@@ -1,15 +1,14 @@
 import { Star, Check, TrendingUp } from 'lucide-react'
-import { Cliente, EventoPrivado } from '../../../shared/types'
+import { Cliente } from '../../../shared/types'
 import { Separator } from '@/components/ui/Separator'
-import { cn, formatCurrency } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils'
 import { FRECUENTE_THRESHOLD } from '../../../shared/constants'
 
 interface BeneficiosVipProps {
   cliente: Cliente
-  eventos: EventoPrivado[]
 }
 
-export function BeneficiosVip({ cliente, eventos }: BeneficiosVipProps) {
+export function BeneficiosVip({ cliente }: BeneficiosVipProps) {
   const visitas = cliente.contadorVisitas
 
   if (cliente.esVip) {

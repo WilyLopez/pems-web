@@ -48,6 +48,7 @@ export interface ActualizarClientePayload {
   telefono?: string
   numeroDocumento?: string
   correo?: string
+  fechaNacimiento?: string
   aceptaComunicaciones?: boolean
 }
 
