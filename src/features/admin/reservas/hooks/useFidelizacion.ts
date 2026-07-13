@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { fidelizacionApi } from '../services/fidelizacion.api'
+import { ApiError } from '@/types/api.types'
 
 export const FIDELIZACION_KEYS = {
   CONFIG: 'fidelizacion-config',
@@ -23,8 +24,8 @@ export function useActualizarFidelizacionConfig(idSede?: number) {
       qc.invalidateQueries({ queryKey: [FIDELIZACION_KEYS.CONFIG, idSede] })
       toast.success('Configuración de fidelización actualizada.')
     },
-    onError: (err: any) => {
-      toast.error(err?.message ?? 'No se pudo actualizar la configuración.')
+    onError: (err: ApiError) => {
+      toast.error(err.message ?? 'No se pudo actualizar la configuración.')
     },
   })
 }

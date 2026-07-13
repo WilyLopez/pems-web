@@ -62,7 +62,7 @@ const cobrarSchema = z.object({
 type CobrarFormValues = z.infer<typeof cobrarSchema>
 
 interface CobrarReservaDrawerProps {
-  reserva: any
+  reserva: Reserva | null
   onClose: (success?: boolean) => void
 }
 
@@ -116,7 +116,7 @@ export const CobrarReservaDrawer = ({
       reserva.precioHistorico,
       [{ nombreNino: reserva.nombreNino, edadNino: reserva.edadNino }],
       undefined, // No manejamos cambio de promo aquí por simplicidad del flujo de cobro rápido
-      formValues.pagos as any,
+      formValues.pagos,
       formValues.efectivoRecibido
     )
   }, [reserva, formValues.pagos, formValues.efectivoRecibido])

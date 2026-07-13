@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import { authService } from '@/services/auth.service'
 import { toast } from 'sonner'
 import { RegistroFormValues } from '../schemas/auth.schema'
+import { ApiError } from '@/types/api.types'
 
 export function useRegistro() {
   const router = useRouter()
@@ -13,9 +14,9 @@ export function useRegistro() {
         nombre: values.nombre,
         correo: values.correo,
         password: values.contrasena,
-        telefono: values.telefono,
+        telefono: values.telefono || undefined,
         tipoDocumento: 'DNI',
-        numeroDocumento: values.dni || '',
+        numeroDocumento: values.dni || undefined,
       })
     },
     onSuccess: () => {
@@ -24,7 +25,7 @@ export function useRegistro() {
       )
       router.push('/auth/login')
     },
-    onError: (err: any) => {
+    onError: (err: ApiError) => {
       const hasFieldErrors =
         (err.erroresCampo && err.erroresCampo.length > 0) ||
         (err.errorsCampo && err.errorsCampo.length > 0)

@@ -2,6 +2,11 @@ import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tansta
 import { toast } from 'sonner'
 import { reservasApi } from '../services/reservas.api'
 import { BuscarReservasParams } from '../types'
+import { ApiError } from '@/types/api.types'
+
+function mensajeError(err: ApiError, fallback: string): string {
+  return err.message ?? fallback
+}
 
 export const RESERVAS_KEYS = {
   ADMIN_LIST: 'reservas-admin-list',
@@ -43,12 +48,8 @@ export function useCancelarReserva() {
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
       toast.success('Reserva cancelada.')
     },
-    onError: (err: any) => {
-      toast.error(
-        err?.response?.data?.mensaje ??
-          err?.message ??
-          'No se pudo cancelar la reserva.'
-      )
+    onError: (err: ApiError) => {
+      toast.error(mensajeError(err, 'No se pudo cancelar la reserva.'))
     },
   })
 }
@@ -62,12 +63,8 @@ export function useConfirmarIngreso() {
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
       toast.success(`Ingreso registrado para ticket ${reserva.numeroTicket}`)
     },
-    onError: (err: any) => {
-      toast.error(
-        err?.response?.data?.mensaje ??
-          err?.message ??
-          'No se pudo registrar el ingreso.'
-      )
+    onError: (err: ApiError) => {
+      toast.error(mensajeError(err, 'No se pudo registrar el ingreso.'))
     },
   })
 }
@@ -81,12 +78,8 @@ export function useConfirmarPago() {
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
       toast.success('Pago confirmado. Reserva en estado CONFIRMADA.')
     },
-    onError: (err: any) => {
-      toast.error(
-        err?.response?.data?.mensaje ??
-          err?.message ??
-          'No se pudo confirmar el pago.'
-      )
+    onError: (err: ApiError) => {
+      toast.error(mensajeError(err, 'No se pudo confirmar el pago.'))
     },
   })
 }
@@ -100,12 +93,8 @@ export function useEliminarReserva() {
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
       toast.success('Reserva eliminada con éxito.')
     },
-    onError: (err: any) => {
-      toast.error(
-        err?.response?.data?.mensaje ??
-          err?.message ??
-          'No se pudo eliminar la reserva.'
-      )
+    onError: (err: ApiError) => {
+      toast.error(mensajeError(err, 'No se pudo eliminar la reserva.'))
     },
   })
 }
@@ -120,12 +109,8 @@ export function useRechazarPago() {
       qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
       toast.success('Pago rechazado. Se ha notificado al cliente.')
     },
-    onError: (err: any) => {
-      toast.error(
-        err?.response?.data?.mensaje ??
-          err?.message ??
-          'No se pudo rechazar el pago.'
-      )
+    onError: (err: ApiError) => {
+      toast.error(mensajeError(err, 'No se pudo rechazar el pago.'))
     },
   })
 }

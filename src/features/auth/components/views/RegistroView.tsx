@@ -29,6 +29,7 @@ import { registroSchema, RegistroFormValues } from '../../schemas/auth.schema'
 import { useRegistro } from '../../hooks/useRegistro'
 import { legalService } from '@/services/legal.service'
 import { ContenidoLegal } from '@/types/legal.types'
+import { ApiError } from '@/types/api.types'
 import { sanitizeLegalHtml } from '@/lib/sanitize'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -111,22 +112,20 @@ export function RegistroView() {
 
   const onSubmit = (values: RegistroFormValues) => {
     registroMutation.mutate(values, {
-      onError: (err: any) => {
+      onError: (err: ApiError) => {
         const fieldErrors = err.erroresCampo || err.errorsCampo
-        if (fieldErrors && fieldErrors.length > 0) {
-          fieldErrors.forEach((error: any) => {
-            if (error.campo === 'correo') {
-              setError('correo', { type: 'manual', message: error.mensaje })
-            } else if (error.campo === 'numeroDocumento') {
-              setError('dni', { type: 'manual', message: error.mensaje })
-            } else if (error.campo) {
-              setError(error.campo as any, {
-                type: 'manual',
-                message: error.mensaje,
-              })
-            }
-          })
-        }
+        fieldErrors?.forEach((error) => {
+          if (error.campo === 'correo') {
+            setError('correo', { type: 'manual', message: error.mensaje })
+          } else if (error.campo === 'numeroDocumento') {
+            setError('dni', { type: 'manual', message: error.mensaje })
+          } else if (error.campo && error.campo in values) {
+            setError(error.campo as keyof RegistroFormValues, {
+              type: 'manual',
+              message: error.mensaje,
+            })
+          }
+        })
       },
     })
   }
@@ -220,8 +219,12 @@ export function RegistroView() {
                   <Input
                     id="nombre"
                     placeholder="Juan Pérez"
-                    className="h-11 rounded-xl pl-9"
-                    {...register('nombre')}
+                    className="h-11 rounded-xl pl-9 uppercase"
+                    {...register('nombre', {
+                      onChange: (e) => {
+                        e.target.value = e.target.value.toUpperCase()
+                      },
+                    })}
                   />
                 </div>
               </Field>
@@ -317,7 +320,7 @@ export function RegistroView() {
                   placeholder="987654321"
                   icon={<Phone />}
                   error={errors.telefono?.message}
-                  required
+                  hint="Opcional"
                 >
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
