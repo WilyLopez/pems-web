@@ -120,7 +120,12 @@ export function InfoPersonalForm({
           <CampoLectura label="Teléfono" valor={cliente.telefono} />
           <CampoLectura
             label="Documento"
-            valor={`${cliente.tipoDocumentoCodigo}: ${cliente.numeroDocumento}`}
+            valor={
+              cliente.numeroDocumento
+                ? `${cliente.tipoDocumentoCodigo}: ${cliente.numeroDocumento}`
+                : null
+            }
+            vacio="Sin registrar"
           />
         </div>
       ) : (
@@ -219,7 +224,7 @@ export function InfoPersonalForm({
               </p>
               <div className="h-11 rounded-xl bg-gray-50 border border-gray-200 px-3 flex items-center">
                 <span className="text-sm text-gray-500">
-                  {cliente.numeroDocumento}
+                  {cliente.numeroDocumento || 'Sin registrar'}
                 </span>
               </div>
             </div>

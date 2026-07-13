@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 
 interface PerfilCompletadoProps {
   cliente: Cliente
+  onCompletarDni?: () => void
 }
 
 function calcularCompletitud(cliente: Cliente): {
@@ -23,9 +24,13 @@ function calcularCompletitud(cliente: Cliente): {
   }
 }
 
-export function PerfilCompletado({ cliente }: PerfilCompletadoProps) {
+export function PerfilCompletado({
+  cliente,
+  onCompletarDni,
+}: PerfilCompletadoProps) {
   const { porcentaje, pendientes } = calcularCompletitud(cliente)
   const completo = porcentaje === 100
+  const faltaDni = !cliente.numeroDocumento
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 space-y-3">
@@ -67,6 +72,14 @@ export function PerfilCompletado({ cliente }: PerfilCompletadoProps) {
               <span className="text-xs text-gray-500">{p}</span>
             </div>
           ))}
+          {faltaDni && onCompletarDni && (
+            <button
+              onClick={onCompletarDni}
+              className="w-full mt-2 py-2 rounded-xl bg-brand-azul/10 text-brand-azul text-xs font-bold hover:bg-brand-azul/15 transition-colors"
+            >
+              Completar ahora
+            </button>
+          )}
         </div>
       )}
     </div>

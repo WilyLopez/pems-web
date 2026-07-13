@@ -9,6 +9,7 @@ import { useMiCuentaReservas } from '../../hooks/useMiCuentaReservas'
 import { InfoPersonalForm } from '../forms/InfoPersonalForm'
 import { PreferenciasForm } from '../forms/PreferenciasForm'
 import { PhotoUploadDialog } from '../dialogs/PhotoUploadDialog'
+import { CompletarDniModal } from '../dialogs/CompletarDniModal'
 import { EventoPrivado, Reserva } from '../../../shared/types'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/common/Errorstate'
@@ -53,6 +54,7 @@ function MiCuentaSkeleton() {
 export function MiCuentaView() {
   const { clientePerfilId, isAuthenticated } = useAuth()
   const [modalFotoAbierto, setModalFotoAbierto] = useState(false)
+  const [modalDniAbierto, setModalDniAbierto] = useState(false)
 
   const {
     cliente,
@@ -67,6 +69,8 @@ export function MiCuentaView() {
     isUploadingPhoto,
     deletePhotoAsync,
     isDeletingPhoto,
+    completarDocumentoAsync,
+    isCompletandoDocumento,
   } = useMiCuentaData(clientePerfilId ?? undefined)
 
   const {
@@ -182,7 +186,10 @@ export function MiCuentaView() {
             </p>
           </div>
         </div>
-        <button className="w-full sm:w-auto shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition-colors">
+        <button
+          onClick={() => setModalDniAbierto(true)}
+          className="w-full sm:w-auto shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold py-2.5 px-5 rounded-xl transition-colors"
+        >
           Completar ahora
         </button>
       </div>
@@ -223,7 +230,7 @@ export function MiCuentaView() {
           </TabsList>
 
           <TabsContent value="resumen" className="space-y-4">
-            <PerfilCompletado cliente={cliente} />
+            <PerfilCompletado cliente={cliente} onCompletarDni={() => setModalDniAbierto(true)} />
             <BeneficiosVip cliente={cliente} eventos={eventos} />
             <QuickActions />
             <ProximoEvento reservas={reservas} eventos={eventos} />
@@ -252,7 +259,7 @@ export function MiCuentaView() {
 
       <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="space-y-5">
-          <PerfilCompletado cliente={cliente} />
+          <PerfilCompletado cliente={cliente} onCompletarDni={() => setModalDniAbierto(true)} />
           <BeneficiosVip cliente={cliente} eventos={eventos} />
           <QuickActions />
         </div>
@@ -283,6 +290,13 @@ export function MiCuentaView() {
         isUploading={isUploadingPhoto}
         onDelete={deletePhotoAsync}
         isDeleting={isDeletingPhoto}
+      />
+
+      <CompletarDniModal
+        open={modalDniAbierto}
+        onClose={() => setModalDniAbierto(false)}
+        onSave={completarDocumentoAsync}
+        isSaving={isCompletandoDocumento}
       />
     </div>
   )

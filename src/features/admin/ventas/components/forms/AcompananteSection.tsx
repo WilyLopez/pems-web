@@ -159,7 +159,7 @@ export const AcompananteSection = ({
                 )
                 setValue(
                   'acompanante.dni',
-                  clienteComoAcompanante.numeroDocumento,
+                  clienteComoAcompanante.numeroDocumento || '',
                   {
                     shouldValidate: true,
                     shouldDirty: true,

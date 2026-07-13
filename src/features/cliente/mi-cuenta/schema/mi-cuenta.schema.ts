@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import { NOMBRE_REGEX, telefonoOpcionalField } from '@/lib/validations/campos'
+import {
+  NOMBRE_REGEX,
+  telefonoOpcionalField,
+  dniField,
+} from '@/lib/validations/campos'
 
 export const infoPersonalSchema = z.object({
   nombres: z
@@ -22,3 +26,9 @@ export const infoPersonalSchema = z.object({
 })
 
 export type InfoPersonalValues = z.infer<typeof infoPersonalSchema>
+
+export const completarDniSchema = z.object({
+  dni: dniField,
+})
+
+export type CompletarDniValues = z.infer<typeof completarDniSchema>
