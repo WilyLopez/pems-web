@@ -4,6 +4,7 @@ import { PartyPopper, Plus } from 'lucide-react'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { PaqueteEvento } from '@/types/comercial.types'
 import { ExtraPaquete, ServicioCotizacion, Turno } from '@/types/evento.types'
+import { nombreServicioSeleccionado } from '../../lib/servicio-precio'
 import { Camino } from '../../../shared/types'
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
   extras: ExtraPaquete[]
   extrasSeleccionados: number[]
   serviciosCotizacion: number[]
+  variantesSeleccionadas: Record<number, number>
   servicios: ServicioCotizacion[]
   presupuestoEstimado: number
   presupuestoCliente?: number | null
@@ -52,6 +54,7 @@ export function ResumenEnVivo({
   extras,
   extrasSeleccionados,
   serviciosCotizacion,
+  variantesSeleccionadas,
   servicios,
   presupuestoEstimado,
   presupuestoCliente,
@@ -66,7 +69,12 @@ export function ResumenEnVivo({
     .filter(Boolean) as string[]
 
   const nombresServicios = serviciosCotizacion
-    .map((id) => servicios.find((s) => s.id === id)?.nombre)
+    .map((id) => {
+      const servicio = servicios.find((s) => s.id === id)
+      return servicio
+        ? nombreServicioSeleccionado(servicio, variantesSeleccionadas[id])
+        : null
+    })
     .filter(Boolean) as string[]
 
   const tieneContenido = tipoEvento || camino || fecha

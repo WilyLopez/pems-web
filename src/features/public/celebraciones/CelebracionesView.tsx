@@ -7,6 +7,7 @@ import { GaleriaPublica } from '@/features/public/shared/components/GaleriaPubli
 import { CelebracionesHero } from './components/CelebracionesHero'
 import { TiposEvento, TipoEventoItem } from './components/TiposEvento'
 import { Paquetes } from './components/Paquetes'
+import { Servicios } from './components/Servicios'
 import { Pasos } from './components/Pasos'
 import { CtaInstituciones } from './components/CtaInstituciones'
 import { CelebracionesCta } from './components/CelebracionesCta'
@@ -70,6 +71,7 @@ export function CelebracionesView() {
         loading={loadingPaquetes}
         whatsappUrl={whatsappUrl}
       />
+      <Servicios />
       <GaleriaPublica id="momentos" />
       <Pasos />
       <CtaInstituciones whatsappUrl={whatsappUrl} />

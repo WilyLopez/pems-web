@@ -21,6 +21,13 @@ function FilaDetalle({ label, valor }: FilaDetalleProps) {
   )
 }
 
+function formatDuracion(duracionMinutos?: number | null): string {
+  if (!duracionMinutos) return 'Todo el día'
+  if (duracionMinutos % 60 === 0)
+    return `${duracionMinutos / 60} hora${duracionMinutos === 60 ? '' : 's'}`
+  return `${duracionMinutos} minutos`
+}
+
 export interface DetalleReservaProps {
   reserva: Reserva
   onReprogramar: () => void
@@ -62,6 +69,11 @@ export function DetalleReserva({
     !rechazado
   const enRevision = reserva.estado === 'PENDIENTE' && !!reserva.referenciaPago
 
+  const permanenciaLabel =
+    reserva.ingresado && reserva.permanenciaFinAt
+      ? `Hasta las ${formatDate(reserva.permanenciaFinAt, 'HH:mm')}`
+      : formatDuracion(reserva.duracionHistoricaMinutos)
+
   return (
     <div className="flex flex-col min-w-0">
       <div className="px-5 pt-5 pb-3 border-b border-gray-100">
@@ -92,6 +104,7 @@ export function DetalleReserva({
           label="Fecha"
           valor={formatDate(reserva.fechaEvento, "d 'de' MMMM yyyy")}
         />
+        <FilaDetalle label="Permanencia" valor={permanenciaLabel} />
         <FilaDetalle
           label="Niño"
           valor={`${reserva.nombreNino} · ${reserva.edadNino} años`}

@@ -7,6 +7,7 @@ export interface PrecioPublicoResponse {
   tipoDia: string
   descripcion: string
   precio: number
+  duracionMinutos?: number | null
 }
 
 export function usePublicPrecios(idSede: number) {

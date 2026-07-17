@@ -4,6 +4,7 @@ import { PartyPopper, ChevronUp, Plus, X } from 'lucide-react'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { PaqueteEvento } from '@/types/comercial.types'
 import { ExtraPaquete, ServicioCotizacion, Turno } from '@/types/evento.types'
+import { nombreServicioSeleccionado } from '../../lib/servicio-precio'
 import { Camino } from '../../../shared/types'
 import {
   Sheet,
@@ -21,6 +22,7 @@ interface Props {
   extras: ExtraPaquete[]
   extrasSeleccionados: number[]
   serviciosCotizacion: number[]
+  variantesSeleccionadas: Record<number, number>
   servicios: ServicioCotizacion[]
   presupuestoEstimado: number
   presupuestoCliente?: number | null
@@ -36,6 +38,7 @@ export function ResumenMovilExpandible({
   extras,
   extrasSeleccionados,
   serviciosCotizacion,
+  variantesSeleccionadas,
   servicios,
   presupuestoEstimado,
   presupuestoCliente,
@@ -47,7 +50,12 @@ export function ResumenMovilExpandible({
     .filter(Boolean) as string[]
 
   const nombresServicios = serviciosCotizacion
-    .map((id) => servicios.find((s) => s.id === id)?.nombre)
+    .map((id) => {
+      const servicio = servicios.find((s) => s.id === id)
+      return servicio
+        ? nombreServicioSeleccionado(servicio, variantesSeleccionadas[id])
+        : null
+    })
     .filter(Boolean) as string[]
 
   const resumenCorto = [

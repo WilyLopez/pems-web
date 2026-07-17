@@ -1,4 +1,5 @@
 import { PagedResponse } from '@/types/api.types'
+import { ServicioVariante, ServicioImagen } from '@/types/comercial.types'
 
 export type EstadoEvento =
   | 'SOLICITADA'
@@ -106,6 +107,14 @@ export interface ServicioCotizacion {
   descripcion?: string
   precioReferencial: number
   icono?: string
+  destacado: boolean
+  categoriaId?: number
+  categoriaNombre?: string
+  tieneVariantes: boolean
+  precioDesde?: number
+  variantes: ServicioVariante[]
+  imagenPrincipal?: string
+  imagenes: ServicioImagen[]
 }
 
 export interface SolicitarEventoPayload {
@@ -124,6 +133,7 @@ export interface SolicitarEventoPayload {
   presupuestoEstimado?: number
   origenContacto?: string
   idsServiciosCotizacion?: number[]
+  variantesSeleccionadas?: Record<number, number>
   esCotizacionPersonalizada?: boolean
 }
 
