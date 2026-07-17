@@ -28,4 +28,18 @@ export const accesosApi = {
     )
     return data.data
   },
+
+  registrarSalida: async (idReserva: number): Promise<TicketDetalle> => {
+    const { data } = await api.post<ApiResponse<TicketDetalle>>(
+      `/reservas/control-acceso/${idReserva}/salida`
+    )
+    return data.data
+  },
+
+  revertirIngreso: async (idReserva: number): Promise<TicketDetalle> => {
+    const { data } = await api.post<ApiResponse<TicketDetalle>>(
+      `/reservas/control-acceso/${idReserva}/revertir-ingreso`
+    )
+    return data.data
+  },
 }

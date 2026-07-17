@@ -28,3 +28,24 @@ export function useEditarFechaTicket() {
     },
   })
 }
+
+export function useRegistrarSalida() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (idReserva: number) => accesosApi.registrarSalida(idReserva),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.ADMIN_LIST] })
+    },
+  })
+}
+
+export function useRevertirIngreso() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (idReserva: number) => accesosApi.revertirIngreso(idReserva),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.ADMIN_LIST] })
+      qc.invalidateQueries({ queryKey: [RESERVAS_KEYS.METRICS] })
+    },
+  })
+}
