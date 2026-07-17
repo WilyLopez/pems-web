@@ -18,6 +18,11 @@ import {
   ActualizarNovedadPayload,
   BeneficioPaquete,
   ServicioCotizacion,
+  ServicioVariante,
+  ServicioImagen,
+  CategoriaServicio,
+  CrearCategoriaServicioPayload,
+  ActualizarCategoriaServicioPayload,
 } from '@/types/comercial.types'
 
 export const comercialService = {
@@ -135,6 +140,43 @@ export const comercialService = {
     },
   },
 
+  categoriasServicio: {
+    listarActivas: async (): Promise<CategoriaServicio[]> => {
+      const { data } = await api.get<ApiResponse<CategoriaServicio[]>>(
+        '/categorias-servicio'
+      )
+      return data.data
+    },
+    listarAdmin: async (): Promise<CategoriaServicio[]> => {
+      const { data } = await api.get<ApiResponse<CategoriaServicio[]>>(
+        '/categorias-servicio/admin'
+      )
+      return data.data
+    },
+    crear: async (
+      payload: CrearCategoriaServicioPayload
+    ): Promise<CategoriaServicio> => {
+      const { data } = await api.post<ApiResponse<CategoriaServicio>>(
+        '/categorias-servicio',
+        payload
+      )
+      return data.data
+    },
+    actualizar: async (
+      id: number,
+      payload: ActualizarCategoriaServicioPayload
+    ): Promise<CategoriaServicio> => {
+      const { data } = await api.put<ApiResponse<CategoriaServicio>>(
+        `/categorias-servicio/${id}`,
+        payload
+      )
+      return data.data
+    },
+    eliminar: async (id: number): Promise<void> => {
+      await api.delete(`/categorias-servicio/${id}`)
+    },
+  },
+
   serviciosCotizacion: {
     listarActivos: async (): Promise<ServicioCotizacion[]> => {
       const { data } = await api.get<ApiResponse<ServicioCotizacion[]>>(
@@ -169,6 +211,96 @@ export const comercialService = {
     },
     eliminar: async (id: number): Promise<void> => {
       await api.delete(`/servicios-cotizacion/${id}`)
+    },
+
+    variantes: {
+      listar: async (idServicio: number): Promise<ServicioVariante[]> => {
+        const { data } = await api.get<ApiResponse<ServicioVariante[]>>(
+          `/servicios-cotizacion/${idServicio}/variantes`
+        )
+        return data.data
+      },
+      crear: async (
+        idServicio: number,
+        payload: Omit<ServicioVariante, 'id' | 'idServicio'>
+      ): Promise<ServicioVariante> => {
+        const { data } = await api.post<ApiResponse<ServicioVariante>>(
+          `/servicios-cotizacion/${idServicio}/variantes`,
+          payload
+        )
+        return data.data
+      },
+      actualizar: async (
+        idServicio: number,
+        id: number,
+        payload: Omit<ServicioVariante, 'id' | 'idServicio'>
+      ): Promise<ServicioVariante> => {
+        const { data } = await api.put<ApiResponse<ServicioVariante>>(
+          `/servicios-cotizacion/${idServicio}/variantes/${id}`,
+          payload
+        )
+        return data.data
+      },
+      eliminar: async (idServicio: number, id: number): Promise<void> => {
+        await api.delete(`/servicios-cotizacion/${idServicio}/variantes/${id}`)
+      },
+      reordenar: async (
+        idServicio: number,
+        id: number,
+        nuevoOrden: number
+      ): Promise<void> => {
+        await api.patch(
+          `/servicios-cotizacion/${idServicio}/variantes/${id}/orden?nuevoOrden=${nuevoOrden}`
+        )
+      },
+    },
+
+    imagenes: {
+      listar: async (idServicio: number): Promise<ServicioImagen[]> => {
+        const { data } = await api.get<ApiResponse<ServicioImagen[]>>(
+          `/servicios-cotizacion/${idServicio}/imagenes`
+        )
+        return data.data
+      },
+      subir: async (
+        idServicio: number,
+        archivo: File,
+        opciones?: { idVariante?: number; altTexto?: string; orden?: number }
+      ): Promise<ServicioImagen> => {
+        const form = new FormData()
+        form.append('archivo', archivo)
+        if (opciones?.idVariante != null)
+          form.append('idVariante', String(opciones.idVariante))
+        if (opciones?.altTexto) form.append('altTexto', opciones.altTexto)
+        if (opciones?.orden != null)
+          form.append('orden', String(opciones.orden))
+        const { data } = await api.post<ApiResponse<ServicioImagen>>(
+          `/servicios-cotizacion/${idServicio}/imagenes`,
+          form,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        )
+        return data.data
+      },
+      eliminar: async (idServicio: number, id: number): Promise<void> => {
+        await api.delete(`/servicios-cotizacion/${idServicio}/imagenes/${id}`)
+      },
+      reordenar: async (
+        idServicio: number,
+        id: number,
+        nuevoOrden: number
+      ): Promise<void> => {
+        await api.patch(
+          `/servicios-cotizacion/${idServicio}/imagenes/${id}/orden?nuevoOrden=${nuevoOrden}`
+        )
+      },
+      marcarPrincipal: async (
+        idServicio: number,
+        id: number
+      ): Promise<void> => {
+        await api.patch(
+          `/servicios-cotizacion/${idServicio}/imagenes/${id}/principal`
+        )
+      },
     },
   },
 
