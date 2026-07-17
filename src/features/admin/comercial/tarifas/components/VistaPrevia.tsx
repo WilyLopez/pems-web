@@ -5,11 +5,23 @@ import { Clock, Zap, ChevronRight } from 'lucide-react'
 interface VistaPreviaProps {
   precioSemana: number | null
   precioFinDeSemana: number | null
+  duracionSemana?: number
+  duracionFinDeSemana?: number
+}
+
+function descripcionPermanencia(duracionMinutos?: number): string {
+  if (!duracionMinutos)
+    return 'Acceso ilimitado a todas las zonas de juego durante todo el día'
+  if (duracionMinutos % 60 === 0)
+    return `Acceso a todas las zonas de juego por sesión de ${duracionMinutos / 60} hora${duracionMinutos === 60 ? '' : 's'}`
+  return `Acceso a todas las zonas de juego por sesión de ${duracionMinutos} minutos`
 }
 
 export function VistaPrevia({
   precioSemana,
   precioFinDeSemana,
+  duracionSemana,
+  duracionFinDeSemana,
 }: VistaPreviaProps) {
   const precios = [
     {
@@ -23,21 +35,20 @@ export function VistaPrevia({
       badgeClass:
         'bg-brand-azul/10 text-brand-azul border-brand-azul/20 hover:bg-brand-azul/10',
       borderClass: 'border-brand-azul/30 bg-brand-azul/5',
-      desc: 'Acceso ilimitado a todas las zonas de juego durante todo el día',
+      desc: descripcionPermanencia(duracionSemana),
       iconColor: 'text-brand-azul',
     },
     {
-      tipo: 'Fin de Semana',
+      tipo: 'Fines de Semana y Feriados',
       icon: Zap,
       precio:
         precioFinDeSemana != null
           ? `S/ ${precioFinDeSemana.toFixed(2)}`
           : 'Sin configurar',
-      badge: 'Shows incluidos',
-      badgeClass:
-        'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20 hover:bg-brand-rosa/10',
+      badge: undefined,
+      badgeClass: '',
       borderClass: 'border-brand-rosa/40 bg-brand-rosa/5',
-      desc: 'Acceso a todas las zonas de juego por sesión de 2 horas',
+      desc: descripcionPermanencia(duracionFinDeSemana),
       iconColor: 'text-brand-rosa',
     },
   ]
@@ -75,12 +86,14 @@ export function VistaPrevia({
                     <Icon className={`h-5 w-5 ${iconColor}`} />
                   </div>
                   <h4 className="text-lg font-black text-gray-900">{tipo}</h4>
-                  <Badge
-                    variant="outline"
-                    className={`mt-2 text-xs font-semibold ${badgeClass}`}
-                  >
-                    {badge}
-                  </Badge>
+                  {badge && (
+                    <Badge
+                      variant="outline"
+                      className={`mt-2 text-xs font-semibold ${badgeClass}`}
+                    >
+                      {badge}
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-end gap-1">
                   <span className="text-3xl font-black text-gray-900">
