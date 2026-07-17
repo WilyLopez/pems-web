@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { Label } from '@/components/ui/Label'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/Dialog'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { galeriaService } from '@/services/galeria.service'
+import { mediaService } from '@/services/media.service'
 
 const TAMANO_MAX_BYTES = 5 * 1024 * 1024
 
@@ -28,7 +28,7 @@ export function ImageUploadField({ label, tipo, value, onChange }: Props) {
   async function subirArchivo(file: File) {
     setUploading(true)
     try {
-      const result = await galeriaService.subir(file, `${tipo}-${Date.now()}`)
+      const result = await mediaService.upload(file, 'logos')
       onChange(result.url)
       toast.success('Imagen subida.')
     } catch {
