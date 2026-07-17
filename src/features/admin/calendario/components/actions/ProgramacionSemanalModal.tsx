@@ -22,6 +22,7 @@ import {
   Zap,
   X,
   CalendarCheck,
+  ImagePlus,
 } from 'lucide-react'
 
 import {
@@ -44,10 +45,16 @@ interface ProgramacionSemanalModalProps {
   idSede: number
   open: boolean
   onClose: () => void
+  onGenerarBanner?: () => void
 }
 
 export const ProgramacionSemanalModal = React.memo(
-  ({ idSede, open, onClose }: ProgramacionSemanalModalProps) => {
+  ({
+    idSede,
+    open,
+    onClose,
+    onGenerarBanner,
+  }: ProgramacionSemanalModalProps) => {
     const [semanaBase, setSemanaBase] = useState(() => new Date())
     const hoy = startOfDay(new Date())
 
@@ -293,6 +300,17 @@ export const ProgramacionSemanalModal = React.memo(
                       )
                     })}
                   </div>
+
+                  {onGenerarBanner && (
+                    <Button
+                      variant="outline"
+                      onClick={onGenerarBanner}
+                      className="w-full rounded-xl gap-2 border-brand-rosa/30 text-brand-rosa hover:bg-brand-rosa/5 font-semibold"
+                    >
+                      <ImagePlus className="h-4 w-4" />
+                      Generar banner de esta semana
+                    </Button>
+                  )}
 
                   {esSemanaActual && !yaProgramada && (
                     <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-100 rounded-xl px-3.5 py-3">

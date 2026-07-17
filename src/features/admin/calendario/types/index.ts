@@ -152,6 +152,7 @@ export interface Tarifa {
   id: number
   tipoDia: TipoDia
   precio: number
+  duracionMinutos?: number | null
   vigenciaDesde: string
   vigenciaHasta?: string
   activo: boolean
