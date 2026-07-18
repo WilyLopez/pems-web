@@ -31,6 +31,10 @@ const STYLES: Record<string, string> = {
   RESPONDER: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400',
   MARCAR_SPAM:
     'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+  RESETEAR_PASSWORD:
+    'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+  ACTIVAR_CUENTA:
+    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
 }
 
 export function AccionBadge({ accion }: { accion: string }) {

@@ -41,3 +41,9 @@ export const editarUsuarioSchema = z.object({
 })
 
 export type EditarUsuarioFormValues = z.infer<typeof editarUsuarioSchema>
+
+export const cambiarRolSchema = z.object({
+  nuevoRol: z.enum(['ADMIN', 'CAJERO']),
+})
+
+export type CambiarRolFormValues = z.infer<typeof cambiarRolSchema>

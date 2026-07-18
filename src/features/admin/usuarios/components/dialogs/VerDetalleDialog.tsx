@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useUsuariosNav } from '../../hooks/useUsuariosNav'
 import { useUsuariosList } from '../../hooks/useUsuariosData'
+import { HistorialAuditoriaUsuario } from './HistorialAuditoriaUsuario'
 
 function initials(nombre: string) {
   return nombre
@@ -152,6 +153,8 @@ export function VerDetalleDialog() {
             />
           )}
         </div>
+
+        <HistorialAuditoriaUsuario staffId={usuario.id} />
       </DialogContent>
     </Dialog>
   )

@@ -1,10 +1,6 @@
 export type OrigenCliente = 'WEB' | 'MOSTRADOR' | 'ADMIN' | 'IMPORTACION'
 export type SegmentoCliente =
-  | 'NUEVO'
-  | 'FRECUENTE'
-  | 'VIP'
-  | 'CORPORATIVO'
-  | 'INACTIVO'
+  'NUEVO' | 'FRECUENTE' | 'VIP' | 'CORPORATIVO' | 'INACTIVO'
 
 export type FiltroCliente =
   | 'todos'
@@ -29,6 +25,7 @@ export interface Cliente {
   nombreCompleto: string
   correo?: string
   telefono?: string
+  activo: boolean
   esVip: boolean
   descuentoVip?: number
   contadorVisitas: number

@@ -52,4 +52,12 @@ export const clientesApi = {
   registrarVisita: async (id: number): Promise<void> => {
     await api.post(`/clientes/${id}/visitas`)
   },
+
+  activar: async (id: number): Promise<void> => {
+    await api.post(`/clientes/${id}/activar`)
+  },
+
+  desactivar: async (id: number): Promise<void> => {
+    await api.post(`/clientes/${id}/desactivar`)
+  },
 }

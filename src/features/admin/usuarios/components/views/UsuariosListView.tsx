@@ -17,6 +17,7 @@ import { VerDetalleDialog } from '../dialogs/VerDetalleDialog'
 import { EditarUsuarioDialog } from '../dialogs/EditarUsuarioDialog'
 import { CambiarRolDialog } from '../dialogs/CambiarRolDialog'
 import { ResetPasswordDialog } from '../dialogs/ResetPasswordDialog'
+import { ActivarUsuarioDialog } from '../dialogs/ActivarUsuarioDialog'
 import { DesactivarUsuarioDialog } from '../dialogs/DesactivarUsuarioDialog'
 import { DesbloquearUsuarioDialog } from '../dialogs/DesbloquearUsuarioDialog'
 
@@ -105,6 +106,7 @@ export function UsuariosListView() {
       <EditarUsuarioDialog />
       <CambiarRolDialog />
       <ResetPasswordDialog />
+      <ActivarUsuarioDialog />
       <DesactivarUsuarioDialog />
       <DesbloquearUsuarioDialog />
     </div>

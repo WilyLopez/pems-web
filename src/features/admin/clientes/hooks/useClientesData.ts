@@ -50,6 +50,20 @@ export function useMutacionesCliente(clienteId?: number | null) {
     onError: () => toast.error('No se pudo actualizar el estado VIP.'),
   })
 
+  const toggleActivo = useMutation({
+    mutationFn: ({ id, activo }: { id: number; activo: boolean }) =>
+      activo ? clientesApi.desactivar(id) : clientesApi.activar(id),
+    onSuccess: (_, variables) => {
+      invalidarTodo()
+      toast.success(
+        variables.activo
+          ? 'Cliente desactivado correctamente.'
+          : 'Cliente activado correctamente.'
+      )
+    },
+    onError: () => toast.error('No se pudo actualizar el estado del cliente.'),
+  })
+
   const registrarVisita = useMutation({
     mutationFn: (id: number) => clientesApi.registrarVisita(id),
     onSuccess: () => {
@@ -74,5 +88,5 @@ export function useMutacionesCliente(clienteId?: number | null) {
     onError: () => toast.error('No se pudo registrar el cliente.'),
   })
 
-  return { toggleVip, registrarVisita, crearCliente }
+  return { toggleVip, toggleActivo, registrarVisita, crearCliente }
 }

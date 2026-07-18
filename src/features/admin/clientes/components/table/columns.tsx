@@ -7,6 +7,7 @@ import {
   OrigenBadge,
   SegmentoBadge,
   VisitasBadge,
+  EstadoBadge,
 } from '../ui/ClienteBadges'
 import { Button } from '@/components/ui/Button'
 import { formatDate } from '@/lib/utils'
@@ -89,6 +90,15 @@ export const createColumns = (
       </span>
     ),
     cell: ({ row }) => <SegmentoBadge segmento={row.original.segmentoCodigo} />,
+  },
+  {
+    accessorKey: 'activo',
+    header: () => (
+      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        Estado
+      </span>
+    ),
+    cell: ({ row }) => <EstadoBadge activo={row.original.activo} />,
   },
   {
     accessorKey: 'contadorVisitas',

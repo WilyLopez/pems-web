@@ -24,6 +24,7 @@ import {
 } from '../../hooks/useUsuariosData'
 import { getEstadoAdmin } from '../../types'
 import { MAX_ADMINS_FRONTEND, MAX_CAJEROS_FRONTEND } from '../../constants'
+import { cambiarRolSchema } from '../../schema/usuario.schema'
 
 type Paso = 'elegir' | 'confirmar'
 
@@ -40,6 +41,7 @@ export function CambiarRolDialog() {
 
   const [nuevoRol, setNuevoRol] = useState<string>('')
   const [paso, setPaso] = useState<Paso>('elegir')
+  const [error, setError] = useState<string | null>(null)
 
   const open = modal === 'rol'
   const usuario = usuarios.find((u) => u.id === userId) || null
@@ -57,12 +59,32 @@ export function CambiarRolDialog() {
   const handleClose = () => {
     setNuevoRol('')
     setPaso('elegir')
+    setError(null)
     closeModal()
   }
 
+  const handleSiguiente = () => {
+    const resultado = cambiarRolSchema.safeParse({ nuevoRol })
+    if (!resultado.success) {
+      setError('Selecciona un rol válido.')
+      return
+    }
+    setError(null)
+    setPaso('confirmar')
+  }
+
   const handleConfirmar = () => {
-    if (!usuario || !nuevoRol) return
-    cambiarRol.mutate({ id: usuario.id, nuevoRol }, { onSuccess: handleClose })
+    if (!usuario) return
+    const resultado = cambiarRolSchema.safeParse({ nuevoRol })
+    if (!resultado.success) {
+      setError('Selecciona un rol válido.')
+      setPaso('elegir')
+      return
+    }
+    cambiarRol.mutate(
+      { id: usuario.id, nuevoRol: resultado.data.nuevoRol },
+      { onSuccess: handleClose }
+    )
   }
 
   if (!usuario) return null
@@ -110,12 +132,14 @@ export function CambiarRolDialog() {
               Cajeros: {cajerosActivos}/{MAX_CAJEROS_FRONTEND} activos
             </p>
 
+            {error && <p className="text-xs text-destructive">{error}</p>}
+
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>
               <Button
-                onClick={() => setPaso('confirmar')}
+                onClick={handleSiguiente}
                 disabled={
                   !nuevoRol ||
                   (nuevoRol === 'ADMIN' && adminLleno) ||
