@@ -8,13 +8,14 @@ import {
   QrCode,
   Camera,
   CameraOff,
-  CheckCircle2,
   XCircle,
   Loader2,
   RotateCcw,
   Search,
   AlertTriangle,
   LogIn,
+  LogOut,
+  Undo2,
   Banknote,
 } from 'lucide-react'
 
@@ -24,7 +25,10 @@ import { useAuth } from '@/hooks/useAuth'
 import {
   useMarcarEntrada,
   useEditarFechaTicket,
+  useRegistrarSalida,
+  useRevertirIngreso,
 } from '../../hooks/useAccesosData'
+import { PermanenciaBadge } from './PermanenciaBadge'
 import { useConfiguracionCalendario } from '@/hooks/useConfiguracion'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -73,12 +77,20 @@ function TicketDetalleCard({
   onReset,
   onMarcarEntrada,
   loadingEntrada,
+  onRegistrarSalida,
+  loadingSalida,
+  onRevertirIngreso,
+  loadingRevertir,
   onCobrarExitoso,
 }: {
   ticket: TicketDetalle
   onReset: () => void
   onMarcarEntrada: (id: number) => void
   loadingEntrada: boolean
+  onRegistrarSalida: (id: number) => void
+  loadingSalida: boolean
+  onRevertirIngreso: (id: number) => void
+  loadingRevertir: boolean
   onCobrarExitoso?: () => void
 }) {
   const [editandoFecha, setEditandoFecha] = useState(false)
@@ -90,6 +102,7 @@ function TicketDetalleCard({
   const diasMaxFecha = confCal?.diasMaxReservaPublica ?? 14
 
   const puedeCobrar = tienePermiso('reserva.confirmar_pago') || tienePermiso('pos.vender')
+  const puedeRevertirIngreso = tienePermiso('reserva.editar')
   const [showCobrar, setShowCobrar] = useState(false)
 
   const reservaMapeada: Reserva = {
@@ -253,11 +266,39 @@ function TicketDetalleCard({
         )}
 
         {ticket.yaIngreso ? (
-          <div className="flex items-center gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-            <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" />
-            <p className="text-sm font-medium text-blue-800">
-              Ingreso ya registrado.
-            </p>
+          <div className="space-y-2">
+            <PermanenciaBadge
+              permanenciaVigente={ticket.permanenciaVigente}
+              permanenciaFinAt={ticket.permanenciaFinAt}
+            />
+            {ticket.permanenciaVigente && (
+              <button
+                onClick={() => onRegistrarSalida(ticket.idReserva)}
+                disabled={loadingSalida}
+                className="w-full flex items-center justify-center gap-2 h-10 border border-input rounded-xl text-sm font-medium text-muted-foreground hover:bg-accent disabled:opacity-50 transition-colors"
+              >
+                {loadingSalida ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <LogOut className="h-4 w-4" />
+                )}
+                Registrar salida
+              </button>
+            )}
+            {puedeRevertirIngreso && (
+              <button
+                onClick={() => onRevertirIngreso(ticket.idReserva)}
+                disabled={loadingRevertir}
+                className="w-full flex items-center justify-center gap-2 h-9 text-xs font-medium text-muted-foreground hover:text-destructive disabled:opacity-50 transition-colors"
+              >
+                {loadingRevertir ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Undo2 className="h-3.5 w-3.5" />
+                )}
+                Revertir ingreso
+              </button>
+            )}
           </div>
         ) : ticket.estado === 'PENDIENTE' ? (
           <div className="space-y-3">
@@ -340,6 +381,8 @@ export const AccesoPublicoView = () => {
   const [camaraError, setCamaraError] = useState<string | null>(null)
 
   const marcarEntrada = useMarcarEntrada()
+  const registrarSalida = useRegistrarSalida()
+  const revertirIngreso = useRevertirIngreso()
 
   const handleTicket = useCallback(async (raw: string) => {
     const txt = raw.trim()
@@ -481,6 +524,30 @@ export const AccesoPublicoView = () => {
             })
           }}
           loadingEntrada={marcarEntrada.isPending}
+          onRegistrarSalida={(id) => {
+            registrarSalida.mutate(id, {
+              onSuccess: (updated) => setTicket(updated),
+              onError: (err: unknown) =>
+                toast.error(
+                  err instanceof Error
+                    ? err.message
+                    : 'No se pudo registrar la salida.'
+                ),
+            })
+          }}
+          loadingSalida={registrarSalida.isPending}
+          onRevertirIngreso={(id) => {
+            revertirIngreso.mutate(id, {
+              onSuccess: (updated) => setTicket(updated),
+              onError: (err: unknown) =>
+                toast.error(
+                  err instanceof Error
+                    ? err.message
+                    : 'No se pudo revertir el ingreso.'
+                ),
+            })
+          }}
+          loadingRevertir={revertirIngreso.isPending}
         />
       </div>
     )

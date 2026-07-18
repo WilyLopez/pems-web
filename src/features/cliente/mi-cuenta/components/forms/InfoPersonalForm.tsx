@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
-import { User, Phone, Loader2, Save, Pencil } from 'lucide-react'
+import { User, Phone, Cake, Loader2, Save, Pencil } from 'lucide-react'
 import {
   infoPersonalSchema,
   InfoPersonalValues,
+  fechaMaximaNacimiento,
 } from '../../schema/mi-cuenta.schema'
 import { Cliente } from '@/features/cliente/shared/types'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { cn } from '@/lib/utils'
+import { cn, formatDate } from '@/lib/utils'
 import { SectionCard } from '../../../shared/components/SectionCard'
 
 interface InfoPersonalFormProps {
   cliente: Cliente
-  onSave: (values: InfoPersonalValues) => Promise<any>
+  onSave: (values: InfoPersonalValues) => Promise<unknown>
   isSaving: boolean
 }
 
@@ -63,6 +64,7 @@ export function InfoPersonalForm({
       apellidoPaterno: cliente.apellidoPaterno ?? '',
       apellidoMaterno: cliente.apellidoMaterno ?? '',
       telefono: cliente.telefono ?? '',
+      fechaNacimiento: cliente.fechaNacimiento ?? '',
     },
   })
 
@@ -72,6 +74,7 @@ export function InfoPersonalForm({
       apellidoPaterno: cliente.apellidoPaterno ?? '',
       apellidoMaterno: cliente.apellidoMaterno ?? '',
       telefono: cliente.telefono ?? '',
+      fechaNacimiento: cliente.fechaNacimiento ?? '',
     })
   }, [cliente, reset])
 
@@ -81,6 +84,7 @@ export function InfoPersonalForm({
       apellidoPaterno: cliente.apellidoPaterno ?? '',
       apellidoMaterno: cliente.apellidoMaterno ?? '',
       telefono: cliente.telefono ?? '',
+      fechaNacimiento: cliente.fechaNacimiento ?? '',
     })
     setEditando(false)
   }
@@ -120,7 +124,21 @@ export function InfoPersonalForm({
           <CampoLectura label="Teléfono" valor={cliente.telefono} />
           <CampoLectura
             label="Documento"
-            valor={`${cliente.tipoDocumentoCodigo}: ${cliente.numeroDocumento}`}
+            valor={
+              cliente.numeroDocumento
+                ? `${cliente.tipoDocumentoCodigo}: ${cliente.numeroDocumento}`
+                : null
+            }
+            vacio="Sin registrar"
+          />
+          <CampoLectura
+            label="Fecha de nacimiento"
+            valor={
+              cliente.fechaNacimiento
+                ? formatDate(cliente.fechaNacimiento, "d 'de' MMMM yyyy")
+                : null
+            }
+            vacio="Sin registrar"
           />
         </div>
       ) : (
@@ -189,6 +207,8 @@ export function InfoPersonalForm({
                 <Input
                   id="telefono"
                   placeholder="987654321"
+                  maxLength={9}
+                  inputMode="numeric"
                   className="h-11 rounded-xl pl-9"
                   {...register('telefono')}
                 />
@@ -196,6 +216,29 @@ export function InfoPersonalForm({
               {errors.telefono && (
                 <p className="text-xs font-medium text-red-500 mt-1">
                   {errors.telefono.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="fechaNacimiento"
+                className="text-sm font-semibold"
+              >
+                Fecha de nacimiento
+              </Label>
+              <div className="relative">
+                <Cake className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="fechaNacimiento"
+                  type="date"
+                  max={fechaMaximaNacimiento()}
+                  className="h-11 rounded-xl pl-9"
+                  {...register('fechaNacimiento')}
+                />
+              </div>
+              {errors.fechaNacimiento && (
+                <p className="text-xs font-medium text-red-500 mt-1">
+                  {errors.fechaNacimiento.message}
                 </p>
               )}
             </div>
@@ -219,7 +262,7 @@ export function InfoPersonalForm({
               </p>
               <div className="h-11 rounded-xl bg-gray-50 border border-gray-200 px-3 flex items-center">
                 <span className="text-sm text-gray-500">
-                  {cliente.numeroDocumento}
+                  {cliente.numeroDocumento || 'Sin registrar'}
                 </span>
               </div>
             </div>

@@ -26,9 +26,7 @@ export function useRegistro() {
       router.push('/auth/login')
     },
     onError: (err: ApiError) => {
-      const hasFieldErrors =
-        (err.erroresCampo && err.erroresCampo.length > 0) ||
-        (err.errorsCampo && err.errorsCampo.length > 0)
+      const hasFieldErrors = err.erroresCampo && err.erroresCampo.length > 0
 
       if (!hasFieldErrors) {
         const msg = err.message ?? 'No se pudo crear la cuenta.'

@@ -12,7 +12,7 @@ export function ProfileHeader({ cliente, onAvatarClick }: ProfileHeaderProps) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-      <div className="h-24 sm:h-28 bg-gradient-to-r from-gray-900 via-gray-800 to-slate-700" />
+      <div className="h-24 sm:h-28 bg-gradient-to-r from-brand-azul/20 via-brand-rosa/15 to-brand-amarillo/20" />
       <div className="px-5 sm:px-6 pb-5 sm:pb-6 -mt-12 sm:-mt-14">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div className="flex items-end gap-4">

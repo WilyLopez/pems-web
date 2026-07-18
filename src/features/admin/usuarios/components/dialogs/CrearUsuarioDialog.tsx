@@ -157,7 +157,7 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
         },
         onError: (err) => {
           const apiError = err as unknown as ApiError
-          const errCampos = apiError.erroresCampo ?? apiError.errorsCampo ?? []
+          const errCampos = apiError.erroresCampo ?? []
           const correoErr = errCampos.find((c) => c.campo === 'correo')
           if (correoErr) {
             setError('correo', { message: correoErr.mensaje })

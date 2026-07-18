@@ -111,6 +111,8 @@ interface BannerFormDrawerProps {
   open: boolean
   onClose: () => void
   banner?: Banner | null
+  imagenInicial?: MediaValue
+  tituloInicial?: string
 }
 
 const RUTAS_COMUNES = [
@@ -127,6 +129,8 @@ export function BannerFormDrawer({
   open,
   onClose,
   banner,
+  imagenInicial,
+  tituloInicial,
 }: BannerFormDrawerProps) {
   const [imagenMovilDistinta, setImagenMovilDistinta] = useState(false)
   const [selectedRouteType, setSelectedRouteType] = useState<string>('none')
@@ -197,6 +201,28 @@ export function BannerFormDrawer({
       } else {
         setSelectedRouteType('none')
       }
+    } else if (!banner && open && imagenInicial) {
+      reset({
+        tipoBanner: undefined,
+        titulo: tituloInicial ?? '',
+        descripcion: '',
+        imagenUrl: imagenInicial.url,
+        imagenMovilUrl: undefined,
+        colorOverlay: '#000000',
+        overlayOpacity: 0,
+        enlaceDestino: '',
+        textoBoton: '',
+        soloMovil: false,
+        soloDesktop: false,
+        prioridad: 0,
+        fechaInicio: new Date().toISOString().split('T')[0],
+        fechaFin: '',
+        orden: 0,
+      })
+      setImagenMovilDistinta(false)
+      setSelectedRouteType('none')
+      setImagenMedia(imagenInicial)
+      setImagenMovilMedia(null)
     } else if (!open) {
       reset()
       setImagenMovilDistinta(false)
@@ -204,7 +230,7 @@ export function BannerFormDrawer({
       setImagenMedia(null)
       setImagenMovilMedia(null)
     }
-  }, [banner, open, reset])
+  }, [banner, open, reset, imagenInicial, tituloInicial])
 
   async function onSubmit(values: FormValues) {
     setUploading(true)

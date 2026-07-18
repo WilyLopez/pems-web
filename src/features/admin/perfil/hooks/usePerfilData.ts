@@ -41,7 +41,11 @@ export function usePerfilData(targetUserId?: number | null) {
     mutationFn: (values: {
       contrasenaActual: string
       contrasenaNueva: string
-    }) => api.put(`/usuarios-admin/${id}/contrasena`, values),
+    }) =>
+      api.patch('/usuarios/me/password', {
+        passwordActual: values.contrasenaActual,
+        nuevoPassword: values.contrasenaNueva,
+      }),
     onSuccess: () => {
       toast.success('Contraseña actualizada correctamente.')
     },

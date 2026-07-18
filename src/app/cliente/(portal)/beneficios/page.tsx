@@ -1,10 +1,7 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
 import { useMiCuentaData } from '@/features/cliente/mi-cuenta/hooks/useMiCuentaData'
-import { eventoService } from '@/services/evento.service'
-import { clienteKeys } from '@/features/cliente/shared/queryKeys'
 import { BeneficiosVip } from '@/features/cliente/mi-cuenta/components/ui/BeneficiosVip'
 import { ErrorState } from '@/components/common/Errorstate'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -33,34 +30,14 @@ function BeneficiosSkeleton() {
 }
 
 export default function BeneficiosPage() {
-  const { clientePerfilId, isAuthenticated } = useAuth()
+  const { clientePerfilId } = useAuth()
 
   const {
     cliente,
-    isLoading: isProfileLoading,
-    isError: isProfileError,
-    refetch: refetchProfile,
+    isLoading,
+    isError,
+    refetch,
   } = useMiCuentaData(clientePerfilId ?? undefined)
-
-  const {
-    data: eventosData,
-    isLoading: isEventosLoading,
-    isError: isEventosError,
-    refetch: refetchEventos,
-  } = useQuery({
-    queryKey: clienteKeys.eventos.list({ page: 0, size: 50 }),
-    queryFn: () => eventoService.listar({ page: 0, size: 50 }),
-    enabled: isAuthenticated && !!clientePerfilId,
-    staleTime: 5 * 60 * 1000,
-  })
-
-  const isLoading = isProfileLoading || isEventosLoading
-  const isError = isProfileError || isEventosError
-
-  const handleRetry = () => {
-    refetchProfile()
-    refetchEventos()
-  }
 
   if (isLoading) return <BeneficiosSkeleton />
 
@@ -68,12 +45,10 @@ export default function BeneficiosPage() {
     return (
       <ErrorState
         message="Ocurrió un error al cargar tus beneficios. Por favor, intenta de nuevo."
-        onRetry={handleRetry}
+        onRetry={refetch}
       />
     )
   }
-
-  const eventos = eventosData?.content ?? []
 
   return (
     <div className="space-y-6">
@@ -90,7 +65,7 @@ export default function BeneficiosPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         <div className="space-y-4 md:col-span-1">
-          <BeneficiosVip cliente={cliente} eventos={eventos} />
+          <BeneficiosVip cliente={cliente} />
 
           <div className="bg-gradient-to-br from-indigo-900 to-brand-azul text-white rounded-2xl p-5 shadow-sm border border-indigo-950/20 space-y-4">
             <div className="flex items-center gap-2">

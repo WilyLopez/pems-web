@@ -11,43 +11,50 @@ interface Tarifa {
   tipo: string
   icon: LucideIcon
   precio: string
-  badge: string
+  badge?: string
   badgeClass: string
   borderClass: string
   desc: string
+}
+
+function descripcionPermanencia(duracionMinutos?: number | null): string {
+  if (!duracionMinutos)
+    return 'Acceso ilimitado a todas las zonas de juego durante todo el día'
+  if (duracionMinutos % 60 === 0)
+    return `Acceso a todas las zonas de juego por sesión de ${duracionMinutos / 60} hora${duracionMinutos === 60 ? '' : 's'}`
+  return `Acceso a todas las zonas de juego por sesión de ${duracionMinutos} minutos`
 }
 
 export function JuegosPrecios() {
   const { idSedeActiva } = useSedesPublicas()
   const { data: preciosData } = usePublicPrecios(idSedeActiva ?? 0)
 
-  const precioSemana = preciosData?.find((p) => p.tipoDia === 'SEMANA')?.precio
-  const precioFds = preciosData?.find(
+  const tarifaSemana = preciosData?.find((p) => p.tipoDia === 'SEMANA')
+  const tarifaFds = preciosData?.find(
     (p) => p.tipoDia === 'FIN_SEMANA_FERIADO'
-  )?.precio
+  )
 
   const precios: Tarifa[] = [
     {
       tipo: 'Lunes a Viernes',
       icon: Clock,
       precio:
-        precioSemana != null
-          ? `S/ ${Number(precioSemana).toFixed(2)}`
+        tarifaSemana != null
+          ? `S/ ${Number(tarifaSemana.precio).toFixed(2)}`
           : 'S/ 25',
       badge: 'Tarifa regular',
       badgeClass: 'bg-brand-azul/10 text-brand-azul border-brand-azul/20',
       borderClass: 'border-brand-azul/30 bg-brand-azul/5',
-      desc: 'Acceso ilimitado a todas las zonas de juego durante todo el día',
+      desc: descripcionPermanencia(tarifaSemana?.duracionMinutos),
     },
     {
-      tipo: 'Fin de Semana',
+      tipo: 'Fines de Semana y Feriados',
       icon: Zap,
       precio:
-        precioFds != null ? `S/ ${Number(precioFds).toFixed(2)}` : 'S/ 35',
-      badge: 'Shows incluidos',
+        tarifaFds != null ? `S/ ${Number(tarifaFds.precio).toFixed(2)}` : 'S/ 35',
       badgeClass: 'bg-brand-rosa/10 text-brand-rosa border-brand-rosa/20',
       borderClass: 'border-brand-rosa/40 bg-brand-rosa/5',
-      desc: 'Acceso a todas las zonas de juego por sesión de 2 horas',
+      desc: descripcionPermanencia(tarifaFds?.duracionMinutos),
     },
   ]
 
@@ -81,9 +88,11 @@ export function JuegosPrecios() {
                     <Icon className="h-5 w-5 text-brand-azul" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900">{tipo}</h3>
-                  <Badge className={`mt-2 text-xs ${badgeClass}`}>
-                    {badge}
-                  </Badge>
+                  {badge && (
+                    <Badge className={`mt-2 text-xs ${badgeClass}`}>
+                      {badge}
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-end gap-1">
                   <span className="text-5xl font-black text-brand-azul-dark">

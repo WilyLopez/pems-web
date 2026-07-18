@@ -13,4 +13,6 @@ export interface TicketDetalle {
   montoPagado: number
   estadoPago: string
   codigoQr?: string
+  permanenciaVigente: boolean
+  permanenciaFinAt?: string
 }

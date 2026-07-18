@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   X,
@@ -15,6 +16,8 @@ import {
   Star,
   RefreshCw,
   Loader2,
+  UserX,
+  UserCheck,
 } from 'lucide-react'
 import { Cliente } from '../../types'
 import { useMutacionesCliente } from '../../hooks/useClientesData'
@@ -24,7 +27,9 @@ import {
   VisitasBadge,
   OrigenBadge,
   SegmentoBadge,
+  EstadoBadge,
 } from './ClienteBadges'
+import { ConfirmarEstadoClienteDialog } from './ConfirmarEstadoClienteDialog'
 import { DetalleRow } from './DetalleRow'
 import { StatCard } from './StatCard'
 import { Button } from '@/components/ui/Button'
@@ -39,7 +44,10 @@ interface ClienteDrawerProps {
 
 export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
   const router = useRouter()
-  const { toggleVip, registrarVisita } = useMutacionesCliente(cliente?.id)
+  const { toggleVip, toggleActivo, registrarVisita } = useMutacionesCliente(
+    cliente?.id
+  )
+  const [confirmarEstadoOpen, setConfirmarEstadoOpen] = useState(false)
 
   const handleToggleVip = () => {
     if (!cliente) return
@@ -50,6 +58,14 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
           onClose()
         },
       }
+    )
+  }
+
+  const handleToggleActivo = () => {
+    if (!cliente) return
+    toggleActivo.mutate(
+      { id: cliente.id, activo: cliente.activo },
+      { onSuccess: () => setConfirmarEstadoOpen(false) }
     )
   }
 
@@ -99,6 +115,7 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
               <div className="flex items-center gap-2 flex-wrap pt-0.5">
                 <OrigenBadge origen={cliente.origen} />
                 <SegmentoBadge segmento={cliente.segmentoCodigo} />
+                <EstadoBadge activo={cliente.activo} />
               </div>
             </div>
           </div>
@@ -164,6 +181,25 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
                 )}
                 Registrar visita manual
               </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  'rounded-xl gap-1.5 text-xs font-semibold col-span-2',
+                  cliente.activo
+                    ? 'border-red-200 text-red-600 hover:bg-red-50'
+                    : 'border-green-200 text-green-700 hover:bg-green-50'
+                )}
+                onClick={() => setConfirmarEstadoOpen(true)}
+              >
+                {cliente.activo ? (
+                  <UserX className="h-3.5 w-3.5" />
+                ) : (
+                  <UserCheck className="h-3.5 w-3.5" />
+                )}
+                {cliente.activo ? 'Desactivar cliente' : 'Activar cliente'}
+              </Button>
             </div>
           </div>
 
@@ -212,6 +248,14 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
           </div>
         </div>
       </aside>
+
+      <ConfirmarEstadoClienteDialog
+        cliente={cliente}
+        open={confirmarEstadoOpen}
+        isPending={toggleActivo.isPending}
+        onOpenChange={setConfirmarEstadoOpen}
+        onConfirm={handleToggleActivo}
+      />
     </>
   )
 }

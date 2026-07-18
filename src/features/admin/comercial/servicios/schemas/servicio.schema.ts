@@ -12,6 +12,8 @@ export const servicioSchema = z.object({
     .optional(),
   icono: z.string().max(30).optional(),
   activo: z.boolean().default(true),
+  destacado: z.boolean().default(false),
+  categoriaId: z.number().optional(),
   orden: z.coerce.number().default(0),
 })
 

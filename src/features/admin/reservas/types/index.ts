@@ -28,6 +28,8 @@ export interface Reserva {
   vecesReprogramada: number
   ingresado: boolean
   fechaIngreso: string | null
+  duracionHistoricaMinutos?: number | null
+  permanenciaFinAt?: string | null
   codigoQr: string
   medioPago: string | null
   referenciaPago?: string | null

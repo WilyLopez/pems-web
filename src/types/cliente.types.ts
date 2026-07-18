@@ -9,7 +9,7 @@ export type SegmentoCliente =
 export interface Cliente {
   id: number
   tipoDocumentoCodigo: string
-  numeroDocumento: string
+  numeroDocumento: string | null
   nombres: string
   apellidoPaterno?: string
   apellidoMaterno?: string
@@ -46,7 +46,9 @@ export interface ActualizarClientePayload {
   apellidoPaterno?: string
   apellidoMaterno?: string
   telefono?: string
+  numeroDocumento?: string
   correo?: string
+  fechaNacimiento?: string
   aceptaComunicaciones?: boolean
 }
 

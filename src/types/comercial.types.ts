@@ -51,6 +51,26 @@ export interface BeneficioPaquete {
   fechaCreacion?: string
 }
 
+export interface ServicioVariante {
+  id: number
+  idServicio: number
+  nombre: string
+  descripcion?: string
+  precio: number
+  activo: boolean
+  orden: number
+}
+
+export interface ServicioImagen {
+  id: number
+  idServicio: number
+  idVariante?: number | null
+  url: string
+  altTexto?: string
+  orden: number
+  esPrincipal: boolean
+}
+
 export interface ServicioCotizacion {
   id: number
   nombre: string
@@ -58,7 +78,36 @@ export interface ServicioCotizacion {
   precioReferencial?: number
   icono?: string
   activo: boolean
+  destacado: boolean
+  categoriaId?: number
+  categoriaNombre?: string
   orden: number
+  fechaCreacion?: string
+  fechaActualizacion?: string
+  tieneVariantes: boolean
+  precioDesde?: number
+  variantes: ServicioVariante[]
+  imagenPrincipal?: string
+  imagenes: ServicioImagen[]
+}
+
+export interface CategoriaServicio {
+  id: number
+  nombre: string
+  orden: number
+  activo: boolean
+  fechaCreacion?: string
+  fechaActualizacion?: string
+}
+
+export interface CrearCategoriaServicioPayload {
+  nombre: string
+  activo?: boolean
+  orden?: number
+}
+
+export interface ActualizarCategoriaServicioPayload extends CrearCategoriaServicioPayload {
+  activo: boolean
 }
 
 export interface ZonaJuego {

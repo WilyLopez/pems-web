@@ -6,11 +6,13 @@ export interface PrecioPublico {
   tipoDia: string
   descripcion: string
   precio: number
+  duracionMinutos?: number | null
 }
 
 export interface ConfigurarTarifaPayload {
   tipoDia: string
   precio: number
+  duracionMinutos?: number
   vigenciaDesde: string
   vigenciaHasta?: string
 }

@@ -44,6 +44,8 @@ export function useSolicitarEventoWizard(
     setDescripcion,
     serviciosCotizacion,
     toggleServicio,
+    variantesSeleccionadas,
+    setVarianteServicio,
     presupuestoCliente,
     setPresupuestoCliente,
     fechaSel,
@@ -214,6 +216,11 @@ export function useSolicitarEventoWizard(
           camino === 'cotizacion' && serviciosCotizacion.length > 0
             ? serviciosCotizacion
             : undefined,
+        variantesSeleccionadas:
+          camino === 'cotizacion' &&
+          Object.keys(variantesSeleccionadas).length > 0
+            ? variantesSeleccionadas
+            : undefined,
         presupuestoEstimado: presupuestoCliente ?? undefined,
         aforoDeclarado: invitados ?? undefined,
         contactoAdicional: telefonoAdicional || undefined,
@@ -259,6 +266,8 @@ export function useSolicitarEventoWizard(
     setDescripcion,
     serviciosCotizacion,
     toggleServicio,
+    variantesSeleccionadas,
+    setVarianteServicio,
     presupuestoCliente,
     setPresupuestoCliente,
     fechaSel,

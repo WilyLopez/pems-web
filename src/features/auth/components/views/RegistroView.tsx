@@ -113,7 +113,7 @@ export function RegistroView() {
   const onSubmit = (values: RegistroFormValues) => {
     registroMutation.mutate(values, {
       onError: (err: ApiError) => {
-        const fieldErrors = err.erroresCampo || err.errorsCampo
+        const fieldErrors = err.erroresCampo
         fieldErrors?.forEach((error) => {
           if (error.campo === 'correo') {
             setError('correo', { type: 'manual', message: error.mensaje })

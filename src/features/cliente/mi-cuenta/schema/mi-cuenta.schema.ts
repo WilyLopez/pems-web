@@ -1,5 +1,24 @@
 import { z } from 'zod'
-import { NOMBRE_REGEX, telefonoOpcionalField } from '@/lib/validations/campos'
+import {
+  NOMBRE_REGEX,
+  telefonoOpcionalField,
+  dniField,
+} from '@/lib/validations/campos'
+
+export function fechaMaximaNacimiento(): string {
+  const limite = new Date()
+  limite.setFullYear(limite.getFullYear() - 12)
+  return limite.toISOString().split('T')[0]
+}
+
+const fechaNacimientoField = z
+  .string()
+  .optional()
+  .or(z.literal(''))
+  .refine(
+    (v) => !v || v <= fechaMaximaNacimiento(),
+    'Debes tener al menos 12 años'
+  )
 
 export const infoPersonalSchema = z.object({
   nombres: z
@@ -9,9 +28,10 @@ export const infoPersonalSchema = z.object({
     .regex(NOMBRE_REGEX, 'Solo se permiten letras y espacios'),
   apellidoPaterno: z
     .string()
-    .min(1, 'El apellido paterno es obligatorio')
     .max(100, 'El apellido paterno no puede superar los 100 caracteres')
-    .regex(NOMBRE_REGEX, 'Solo se permiten letras y espacios'),
+    .regex(NOMBRE_REGEX, 'Solo se permiten letras y espacios')
+    .optional()
+    .or(z.literal('')),
   apellidoMaterno: z
     .string()
     .max(100, 'El apellido materno no puede superar los 100 caracteres')
@@ -19,6 +39,13 @@ export const infoPersonalSchema = z.object({
     .optional()
     .or(z.literal('')),
   telefono: telefonoOpcionalField,
+  fechaNacimiento: fechaNacimientoField,
 })
 
 export type InfoPersonalValues = z.infer<typeof infoPersonalSchema>
+
+export const completarDniSchema = z.object({
+  dni: dniField,
+})
+
+export type CompletarDniValues = z.infer<typeof completarDniSchema>

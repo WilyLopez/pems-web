@@ -11,6 +11,7 @@ interface WizardEventoState {
   otrasIdeas: string
   descripcion: string
   serviciosCotizacion: number[]
+  variantesSeleccionadas: Record<number, number>
   presupuestoCliente: number | null
   fechaSel: string | null
   idTurno: number | null
@@ -28,6 +29,7 @@ interface WizardEventoState {
   setOtrasIdeas: (v: string) => void
   setDescripcion: (v: string) => void
   toggleServicio: (id: number) => void
+  setVarianteServicio: (idServicio: number, idVariante: number | null) => void
   setPresupuestoCliente: (v: number | null) => void
   setFecha: (v: string | null) => void
   setIdTurno: (v: number | null) => void
@@ -47,6 +49,7 @@ const initialState = {
   otrasIdeas: '',
   descripcion: '',
   serviciosCotizacion: [] as number[],
+  variantesSeleccionadas: {} as Record<number, number>,
   presupuestoCliente: null,
   fechaSel: null,
   idTurno: null,
@@ -75,11 +78,24 @@ export const useWizardEventoStore = create<WizardEventoState>()(
       setOtrasIdeas: (otrasIdeas) => set({ otrasIdeas }),
       setDescripcion: (descripcion) => set({ descripcion }),
       toggleServicio: (id) =>
-        set((s) => ({
-          serviciosCotizacion: s.serviciosCotizacion.includes(id)
-            ? s.serviciosCotizacion.filter((x) => x !== id)
-            : [...s.serviciosCotizacion, id],
-        })),
+        set((s) => {
+          const yaSeleccionado = s.serviciosCotizacion.includes(id)
+          const variantesSeleccionadas = { ...s.variantesSeleccionadas }
+          if (yaSeleccionado) delete variantesSeleccionadas[id]
+          return {
+            serviciosCotizacion: yaSeleccionado
+              ? s.serviciosCotizacion.filter((x) => x !== id)
+              : [...s.serviciosCotizacion, id],
+            variantesSeleccionadas,
+          }
+        }),
+      setVarianteServicio: (idServicio, idVariante) =>
+        set((s) => {
+          const variantesSeleccionadas = { ...s.variantesSeleccionadas }
+          if (idVariante === null) delete variantesSeleccionadas[idServicio]
+          else variantesSeleccionadas[idServicio] = idVariante
+          return { variantesSeleccionadas }
+        }),
       setPresupuestoCliente: (presupuestoCliente) =>
         set({ presupuestoCliente }),
       setFecha: (fechaSel) => set({ fechaSel }),
@@ -91,7 +107,7 @@ export const useWizardEventoStore = create<WizardEventoState>()(
       reset: () => set(initialState),
     }),
     {
-      name: 'kikilala-wizard-evento',
+      name: 'kikilala-wizard-evento-v2',
       storage: createJSONStorage(() => sessionStorage),
     }
   )

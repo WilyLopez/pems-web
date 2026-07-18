@@ -43,7 +43,6 @@ import {
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ErrorState } from '@/components/common/Errorstate'
 import { formatDateTime } from '@/lib/utils'
-import { useMutacionesUsuario } from '../../hooks/useUsuariosData'
 import { useUsuariosNav } from '../../hooks/useUsuariosNav'
 import { cn } from '@/lib/utils'
 
@@ -93,17 +92,16 @@ interface UsuarioRowProps {
 
 function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
   const { openModal } = useUsuariosNav()
-  const { activarUsuario } = useMutacionesUsuario()
 
   const estado = getEstadoAdmin(usuario)
   const isSelf = currentUserId === usuario.id
   const isSuperadminRow = usuario.rol === 'SUPERADMIN'
   const isAdminRow = usuario.rol === 'ADMIN'
-  
+
   // Solo los SuperAdmins pueden modificar a otros Admins/SuperAdmins.
   // Los Admins normales solo pueden modificarse a sí mismos o a Cajeros.
   const canManage = isSuperAdmin || isSelf || (!isSuperadminRow && !isAdminRow)
-  
+
   // Para activar/desactivar (los usuarios no pueden desactivarse a sí mismos)
   const canToggle = canManage && !isSelf
 
@@ -180,8 +178,7 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
             <Button
               variant="outline"
               size="sm"
-              disabled={activarUsuario.isPending}
-              onClick={() => activarUsuario.mutate(usuario.id)}
+              onClick={() => openModal('activar', usuario.id)}
               className="text-xs text-green-600 border-green-200 hover:bg-green-50"
             >
               <UserCheck className="mr-1.5 h-3.5 w-3.5" />
@@ -200,7 +197,7 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
             <DropdownMenuItem onClick={() => openModal('ver', usuario.id)}>
               <Eye className="mr-2 h-4 w-4" /> Ver detalle
             </DropdownMenuItem>
-            
+
             {canManage && (
               <DropdownMenuItem onClick={() => openModal('editar', usuario.id)}>
                 <Pencil className="mr-2 h-4 w-4" /> Editar
@@ -224,8 +221,8 @@ function UsuarioRow({ usuario, currentUserId, isSuperAdmin }: UsuarioRowProps) {
                 </DropdownMenuItem>
               </>
             )}
-            
-            {canManage && (
+
+            {canManage && !isSelf && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

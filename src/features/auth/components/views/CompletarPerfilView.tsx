@@ -46,7 +46,7 @@ export function CompletarPerfilView() {
   const onSubmit = (values: CompletarPerfilFormValues) => {
     mutation.mutate(values, {
       onError: (err: ApiError) => {
-        const fieldErrors = err.erroresCampo || err.errorsCampo
+        const fieldErrors = err.erroresCampo
         fieldErrors?.forEach((e) => {
           if (e.campo === 'numeroDocumento') {
             setError('dni', { type: 'manual', message: e.mensaje })
@@ -77,8 +77,8 @@ export function CompletarPerfilView() {
             Completa tu perfil
           </h1>
           <p className="text-sm text-gray-500">
-            Solo necesitamos un par de datos para que puedas reservar y gestionar
-            tus eventos.
+            Solo necesitamos un par de datos para que puedas reservar y
+            gestionar tus eventos.
           </p>
         </div>
 
@@ -148,7 +148,9 @@ export function CompletarPerfilView() {
                 />
               </div>
               {errors.telefono && (
-                <p className="text-xs text-red-500">{errors.telefono.message}</p>
+                <p className="text-xs text-red-500">
+                  {errors.telefono.message}
+                </p>
               )}
             </div>
           </div>

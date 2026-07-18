@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { format, parseISO, differenceInDays } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useForm } from 'react-hook-form'
@@ -24,6 +24,9 @@ import {
 import { TipoBloqueo } from '../../types'
 import { ConfigurarCalendarioModal } from '../actions/ConfigurarCalendarioModal'
 import { ProgramacionSemanalModal } from '../actions/ProgramacionSemanalModal'
+import { BannerSemanalModal } from '../actions/banner-semanal/BannerSemanalModal'
+import { BannerFormDrawer } from '@/components/admin/banners/BannerFormDrawer'
+import { MediaValue } from '@/types/media.types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
@@ -95,6 +98,7 @@ interface CalendarioAccionesProps {
 export const CalendarioAcciones = React.memo(
   ({ idSede }: CalendarioAccionesProps) => {
     const { modal, openModal } = useCalendarNav()
+    const [bannerPrefill, setBannerPrefill] = useState<MediaValue | null>(null)
 
     const bloquear = useBloquearFechas()
     const crearFeriado = useCrearFeriado()
@@ -246,6 +250,24 @@ export const CalendarioAcciones = React.memo(
           idSede={idSede}
           open={modal === 'programacion'}
           onClose={() => openModal(null)}
+          onGenerarBanner={() => openModal('bannerSemanal')}
+        />
+
+        <BannerSemanalModal
+          idSede={idSede}
+          open={modal === 'bannerSemanal'}
+          onClose={() => openModal(null)}
+          onUsarComoBanner={(media) => {
+            setBannerPrefill(media)
+            openModal(null)
+          }}
+        />
+
+        <BannerFormDrawer
+          open={!!bannerPrefill}
+          onClose={() => setBannerPrefill(null)}
+          imagenInicial={bannerPrefill ?? undefined}
+          tituloInicial="Programación semanal"
         />
 
         {/* Modal: Bloquear fechas */}

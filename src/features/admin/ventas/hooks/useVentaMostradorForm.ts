@@ -156,7 +156,7 @@ export function useVentaMostradorForm() {
         shouldDirty: true,
         shouldTouch: true,
       })
-      setValue('acompanante.dni', cliente.numeroDocumento, {
+      setValue('acompanante.dni', cliente.numeroDocumento || '', {
         shouldValidate: true,
         shouldDirty: true,
         shouldTouch: true,

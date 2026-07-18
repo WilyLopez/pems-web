@@ -18,7 +18,7 @@ export function useCompletarPerfil() {
       window.location.assign('/cliente')
     },
     onError: (err: ApiError) => {
-      const fieldErrors = err.erroresCampo || err.errorsCampo
+      const fieldErrors = err.erroresCampo
       if (!fieldErrors || fieldErrors.length === 0) {
         toast.error(err.message ?? 'No se pudo completar tu perfil.')
       }

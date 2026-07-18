@@ -24,19 +24,40 @@ export default function TarifasPage() {
     null
   )
   const [precioFdsLocal, setPrecioFdsLocal] = useState<number | null>(null)
+  const [duracionSemanaLocal, setDuracionSemanaLocal] = useState<
+    number | undefined
+  >(undefined)
+  const [duracionFdsLocal, setDuracionFdsLocal] = useState<number | undefined>(
+    undefined
+  )
 
   useEffect(() => {
-    if (tarifaSemana) setPrecioSemanaLocal(Number(tarifaSemana.precio))
+    if (tarifaSemana) {
+      setPrecioSemanaLocal(Number(tarifaSemana.precio))
+      setDuracionSemanaLocal(tarifaSemana.duracionMinutos ?? undefined)
+    }
   }, [tarifaSemana])
 
   useEffect(() => {
-    if (tarifaFds) setPrecioFdsLocal(Number(tarifaFds.precio))
+    if (tarifaFds) {
+      setPrecioFdsLocal(Number(tarifaFds.precio))
+      setDuracionFdsLocal(tarifaFds.duracionMinutos ?? undefined)
+    }
   }, [tarifaFds])
 
   const hoy = format(new Date(), 'yyyy-MM-dd')
 
-  const handleGuardar = (tipoDiaCodigo: string, precio: number) => {
-    configurar.mutate({ tipoDia: tipoDiaCodigo, precio, vigenciaDesde: hoy })
+  const handleGuardar = (
+    tipoDiaCodigo: string,
+    precio: number,
+    duracionMinutos?: number
+  ) => {
+    configurar.mutate({
+      tipoDia: tipoDiaCodigo,
+      precio,
+      duracionMinutos,
+      vigenciaDesde: hoy,
+    })
   }
 
   return (
@@ -63,17 +84,23 @@ export default function TarifasPage() {
               precioActual={
                 tarifaSemana ? Number(tarifaSemana.precio) : undefined
               }
+              duracionActual={tarifaSemana?.duracionMinutos ?? undefined}
               onPrecioChange={setPrecioSemanaLocal}
-              onGuardar={(precio) => handleGuardar('SEMANA', precio)}
+              onDuracionChange={setDuracionSemanaLocal}
+              onGuardar={(precio, duracionMinutos) =>
+                handleGuardar('SEMANA', precio, duracionMinutos)
+              }
               isLoading={configurar.isPending}
             />
             <TarifaCard
               titulo="Fines de semana y feriados"
               subtitulo="Sábados, Domingos y Feriados"
               precioActual={tarifaFds ? Number(tarifaFds.precio) : undefined}
+              duracionActual={tarifaFds?.duracionMinutos ?? undefined}
               onPrecioChange={setPrecioFdsLocal}
-              onGuardar={(precio) =>
-                handleGuardar('FIN_SEMANA_FERIADO', precio)
+              onDuracionChange={setDuracionFdsLocal}
+              onGuardar={(precio, duracionMinutos) =>
+                handleGuardar('FIN_SEMANA_FERIADO', precio, duracionMinutos)
               }
               isLoading={configurar.isPending}
             />
@@ -81,6 +108,8 @@ export default function TarifasPage() {
           <VistaPrevia
             precioSemana={precioSemanaLocal}
             precioFinDeSemana={precioFdsLocal}
+            duracionSemana={duracionSemanaLocal}
+            duracionFinDeSemana={duracionFdsLocal}
           />
         </div>
       )}

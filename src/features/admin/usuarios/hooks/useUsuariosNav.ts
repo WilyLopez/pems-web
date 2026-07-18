@@ -9,6 +9,7 @@ export type ModalType =
   | 'editar'
   | 'rol'
   | 'reset'
+  | 'activar'
   | 'desactivar'
   | 'desbloquear'
 
