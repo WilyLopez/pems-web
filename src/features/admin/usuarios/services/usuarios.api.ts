@@ -7,13 +7,9 @@ export interface CrearUsuarioPayload {
   correo: string
   rol: string
   telefono?: string
-  generarPassword: boolean
-  password?: string
 }
 
-export interface CrearUsuarioResponse extends UsuarioAdmin {
-  passwordTemporal?: string
-}
+export type CrearUsuarioResponse = UsuarioAdmin
 
 export interface ActualizarUsuarioPayload {
   nombre: string
