@@ -1,17 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
-import {
-  Check,
-  CheckCircle2,
-  Copy,
-  Loader2,
-  UserPlus,
-  Wand2,
-  XCircle,
-} from 'lucide-react'
+import { CheckCircle2, Loader2, Mail, UserPlus, XCircle } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -36,7 +27,6 @@ import { useMutacionesUsuario } from '../../hooks/useUsuariosData'
 import {
   crearUsuarioSchema,
   CrearUsuarioFormValues,
-  PW_RULES,
 } from '../../schema/usuario.schema'
 
 interface CrearUsuarioDialogProps {
@@ -72,39 +62,9 @@ function FieldIcon({
   )
 }
 
-function StrengthIndicator({ password }: { password: string }) {
-  if (!password) return null
-  return (
-    <ul className="mt-1.5 space-y-1">
-      {PW_RULES.map((rule) => {
-        const ok = rule.test(password)
-        return (
-          <li
-            key={rule.key}
-            className={cn(
-              'flex items-center gap-1.5 text-xs transition-colors',
-              ok ? 'text-green-600' : 'text-gray-400'
-            )}
-          >
-            {ok ? (
-              <Check className="h-3 w-3 shrink-0" />
-            ) : (
-              <XCircle className="h-3 w-3 shrink-0" />
-            )}
-            {rule.label}
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
 export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
   const { modal, closeModal } = useUsuariosNav()
   const { crearUsuario } = useMutacionesUsuario()
-  const [passwordCreado, setPasswordCreado] = useState<string | null>(null)
-  const [correoCreado, setCorreoCreado] = useState<string>('')
-  const [copiado, setCopiado] = useState(false)
 
   const open = modal === 'nuevo'
 
@@ -119,41 +79,22 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
   } = useForm<CrearUsuarioFormValues>({
     resolver: zodResolver(crearUsuarioSchema),
     mode: 'onChange',
-    defaultValues: { rol: 'ADMIN', generarPassword: true },
+    defaultValues: { rol: 'ADMIN' },
   })
-
-  const generarPassword = watch('generarPassword')
-  const passwordValue = watch('password') ?? ''
-  const correoActual = watch('correo') ?? ''
 
   const handleClose = () => {
     reset()
-    setPasswordCreado(null)
-    setCorreoCreado('')
-    setCopiado(false)
     closeModal()
-  }
-
-  const handleCopiar = () => {
-    if (!passwordCreado) return
-    navigator.clipboard.writeText(passwordCreado)
-    setCopiado(true)
-    setTimeout(() => setCopiado(false), 2000)
   }
 
   const onSubmit = (values: CrearUsuarioFormValues) => {
     crearUsuario.mutate(
       { idSede, payload: values },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           toast.success('Usuario creado correctamente.')
-          toast.info(`Credenciales enviadas a ${values.correo}`)
-          if (data?.passwordTemporal) {
-            setCorreoCreado(values.correo)
-            setPasswordCreado(data.passwordTemporal)
-          } else {
-            handleClose()
-          }
+          toast.info(`Se envió un enlace de activación a ${values.correo}`)
+          handleClose()
         },
         onError: (err) => {
           const apiError = err as unknown as ApiError
@@ -176,60 +117,6 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
   } = register('nombre')
 
   const { onChange: onTelefonoChange, ...telefonoRest } = register('telefono')
-
-  if (passwordCreado) {
-    return (
-      <Dialog open={open} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-base text-green-700">
-              Usuario creado correctamente
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4 pt-1">
-            <p className="text-sm text-muted-foreground">
-              Comparte esta contraseña temporal con el usuario.{' '}
-              <strong>Solo se muestra una vez.</strong>
-            </p>
-            {correoCreado && (
-              <p className="text-xs text-muted-foreground">
-                También fue enviada a <strong>{correoCreado}</strong>.
-              </p>
-            )}
-
-            <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-              <span className="flex-1 font-mono text-base font-bold tracking-widest text-green-800 select-all">
-                {passwordCreado}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-green-700 hover:text-green-900"
-                onClick={handleCopiar}
-              >
-                {copiado ? (
-                  <Check className="h-4 w-4 text-green-600" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-
-            <p className="text-xs text-muted-foreground">
-              El usuario deberá cambiar esta contraseña en su primer inicio de
-              sesión.
-            </p>
-
-            <div className="flex justify-end">
-              <Button onClick={handleClose}>Cerrar</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    )
-  }
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
@@ -357,63 +244,13 @@ export function CrearUsuarioDialog({ idSede }: CrearUsuarioDialogProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Contraseña</Label>
-
-            <div className="flex overflow-hidden rounded-lg border border-gray-200 text-xs">
-              <button
-                type="button"
-                onClick={() => setValue('generarPassword', true)}
-                className={cn(
-                  'flex flex-1 items-center justify-center gap-1.5 py-2 transition-colors border-none',
-                  generarPassword
-                    ? 'bg-primary text-white font-medium'
-                    : 'bg-white text-muted-foreground hover:bg-gray-50'
-                )}
-              >
-                <Wand2 className="h-3.5 w-3.5" />
-                Generar automáticamente
-              </button>
-              <button
-                type="button"
-                onClick={() => setValue('generarPassword', false)}
-                className={cn(
-                  'flex flex-1 items-center justify-center gap-1.5 py-2 transition-colors border-none',
-                  !generarPassword
-                    ? 'bg-primary text-white font-medium'
-                    : 'bg-white text-muted-foreground hover:bg-gray-50'
-                )}
-              >
-                Definir manualmente
-              </button>
-            </div>
-
-            {generarPassword && (
-              <p className="text-xs text-muted-foreground px-1">
-                Se generará una contraseña segura y será enviada a{' '}
-                <strong>{correoActual || 'el correo ingresado'}</strong>.
-              </p>
-            )}
-
-            {!generarPassword && (
-              <div className="space-y-1.5">
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  className={cn(
-                    passwordValue &&
-                      !PW_RULES.every((r) => r.test(passwordValue)) &&
-                      'border-red-400 focus-visible:ring-red-300',
-                    passwordValue &&
-                      PW_RULES.every((r) => r.test(passwordValue)) &&
-                      'border-green-400 focus-visible:ring-green-300'
-                  )}
-                  {...register('password')}
-                />
-                <StrengthIndicator password={passwordValue} />
-              </div>
-            )}
+          <div className="flex items-start gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5">
+            <Mail className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
+            <p className="text-xs text-muted-foreground">
+              Se enviará un enlace de activación a{' '}
+              <strong>{watch('correo') || 'el correo ingresado'}</strong> para
+              que el usuario defina su propia contraseña.
+            </p>
           </div>
 
           <div className="flex justify-end gap-2 pt-1">
