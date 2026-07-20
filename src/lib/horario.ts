@@ -18,6 +18,37 @@ export function formatHora12h(hora?: string): string {
   return `${hour12}:${m} ${ampm}`
 }
 
+function minutosDesdeMedianoche(hora: string): number {
+  const [h, m] = hora.split(':').map(Number)
+  return (Number.isNaN(h) ? 0 : h) * 60 + (Number.isNaN(m) ? 0 : m)
+}
+
+export function estaDentroDeHorarioAtencion(
+  horaApertura?: string,
+  horaCierre?: string,
+  ahora: Date = new Date()
+): boolean {
+  if (!horaApertura || !horaCierre) return true
+  const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes()
+  return (
+    minutosAhora >= minutosDesdeMedianoche(horaApertura) &&
+    minutosAhora <= minutosDesdeMedianoche(horaCierre)
+  )
+}
+
+export function mensajeFueraDeHorario(
+  horaApertura?: string,
+  horaCierre?: string,
+  ahora: Date = new Date()
+): string {
+  if (!horaApertura || !horaCierre) return ''
+  const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes()
+  const aunNoAbre = minutosAhora < minutosDesdeMedianoche(horaApertura)
+  return aunNoAbre
+    ? `El local aún no abre. Abre a las ${formatHora12h(horaApertura)}.`
+    : `El local ya cerró. Cerró a las ${formatHora12h(horaCierre)}.`
+}
+
 export function formatDiasOperacion(diasOperacion?: string): string {
   const dias = (diasOperacion ?? '')
     .split(',')
