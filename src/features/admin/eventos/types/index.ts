@@ -1,11 +1,14 @@
 import { PagedResponse } from '@/types/api.types'
-import { ServicioVariante, ServicioImagen } from '@/types/comercial.types'
+import {
+  ServicioVariante,
+  ServicioImagen,
+  TipoEvento,
+} from '@/types/comercial.types'
+import { Cliente } from '@/features/admin/clientes/types'
+import { NuevoEventoFormValues } from '../schema/nuevoEvento.schema'
 
 export type EstadoEvento =
-  | 'SOLICITADA'
-  | 'CONFIRMADA'
-  | 'COMPLETADA'
-  | 'CANCELADA'
+  'SOLICITADA' | 'CONFIRMADA' | 'EN_CURSO' | 'COMPLETADA' | 'CANCELADA'
 
 export interface ChecklistItem {
   id: number
@@ -22,6 +25,8 @@ export interface EventoExtra {
   idExtra?: number
   nombreExtra?: string
   nombreLibre?: string
+  cantidad: number
+  notas?: string
 }
 
 export type EstadoCuota = 'PENDIENTE' | 'PAGADO' | 'VENCIDO'
@@ -115,6 +120,13 @@ export interface ServicioCotizacion {
   variantes: ServicioVariante[]
   imagenPrincipal?: string
   imagenes: ServicioImagen[]
+}
+
+export interface EventoDraft {
+  formValues: Partial<NuevoEventoFormValues>
+  clienteSel: Cliente | null
+  clienteSearch: string
+  tipoEventoSel: TipoEvento | null
 }
 
 export interface SolicitarEventoPayload {

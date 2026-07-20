@@ -13,6 +13,11 @@ const CONFIG: Record<EstadoEvento, { label: string; className: string }> = {
     className:
       'bg-green-100 text-green-800 border-green-200 hover:bg-green-100',
   },
+  EN_CURSO: {
+    label: 'En curso',
+    className:
+      'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-100',
+  },
   COMPLETADA: {
     label: 'Completada',
     className: 'bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100',

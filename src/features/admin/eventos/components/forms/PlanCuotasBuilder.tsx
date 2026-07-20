@@ -45,34 +45,40 @@ function generarPreview(
   const limite = new Date(fechaLimitePago)
   if (limite <= hoy) return []
 
+  const hayAdelanto = montoAdelanto > 0
   const restante = precioTotal - montoAdelanto
-  const cuotasRestantes = numeroCuotas - 1
+  const primerNumeroPendiente = hayAdelanto ? 2 : 1
+  const cantidadPendientes = hayAdelanto ? numeroCuotas - 1 : numeroCuotas
   const diasTotal = Math.floor((limite.getTime() - hoy.getTime()) / 86_400_000)
 
-  const montoPorCuota = Math.floor((restante / cuotasRestantes) * 100) / 100
+  const montoPorCuota = Math.floor((restante / cantidadPendientes) * 100) / 100
   const montoUltima =
-    Math.round((restante - montoPorCuota * (cuotasRestantes - 1)) * 100) / 100
+    Math.round((restante - montoPorCuota * (cantidadPendientes - 1)) * 100) /
+    100
 
-  const cuotas: CuotaPreview[] = [
-    {
+  const cuotas: CuotaPreview[] = []
+
+  if (hayAdelanto) {
+    cuotas.push({
       numero: 1,
       monto: montoAdelanto,
       fechaVencimiento: hoy.toISOString().split('T')[0],
       esAdelanto: true,
-    },
-  ]
+    })
+  }
 
-  for (let i = 2; i <= numeroCuotas; i++) {
+  for (let i = 0; i < cantidadPendientes; i++) {
+    const esUltima = i === cantidadPendientes - 1
     const diasOffset =
-      cuotasRestantes === 1
+      cantidadPendientes === 1
         ? diasTotal
-        : Math.round((diasTotal * (i - 1)) / cuotasRestantes)
+        : Math.round((diasTotal * (i + 1)) / cantidadPendientes)
     const fecha = new Date(hoy)
     fecha.setDate(fecha.getDate() + diasOffset)
 
     cuotas.push({
-      numero: i,
-      monto: i === numeroCuotas ? montoUltima : montoPorCuota,
+      numero: primerNumeroPendiente + i,
+      monto: esUltima ? montoUltima : montoPorCuota,
       fechaVencimiento: fecha.toISOString().split('T')[0],
       esAdelanto: false,
     })

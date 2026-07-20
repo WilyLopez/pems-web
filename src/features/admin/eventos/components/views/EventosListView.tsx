@@ -25,6 +25,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { useEventos, useEventosKpis } from '../../hooks/useEventos'
 import { useTiposEventoAdmin } from '@/features/admin/comercial/tipos-evento/hooks/useTiposEvento'
 import { EventoPrivado, EstadoEvento } from '../../types'
+import { buildWhatsAppLink } from '../../shared/buildWhatsAppLink'
 import { EventoEstadoBadge } from '../ui/EventoEstadoBadge'
 import { EventoAlertasBadges } from '../ui/EventoAlertasBadges'
 import { ConfirmarEventoModal } from '@/components/admin/eventos/ConfirmarEventoModal'
@@ -442,11 +443,16 @@ export function EventosListView() {
             )}
             {e.telefonoCliente && (
               <a
-                href={`https://wa.me/51${e.telefonoCliente.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${e.nombreCliente}, le contactamos sobre su evento del ${formatDate(e.fechaEvento)}.`)}`}
+                href={buildWhatsAppLink(
+                  e.telefonoCliente,
+                  e.nombreCliente,
+                  e.fechaEvento
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition-colors"
                 title="WhatsApp"
+                aria-label={`Enviar WhatsApp a ${e.nombreCliente}`}
               >
                 <MessageCircle className="h-3.5 w-3.5" />
               </a>

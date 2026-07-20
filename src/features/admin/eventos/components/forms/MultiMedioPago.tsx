@@ -97,6 +97,7 @@ export function MultiMedioPago({
             size="icon"
             disabled={disabled || value.length <= 1}
             onClick={() => quitar(idx)}
+            aria-label="Quitar medio de pago"
             className="h-10 w-10 rounded-xl text-gray-400 hover:text-destructive shrink-0"
           >
             <Trash2 className="h-4 w-4" />
