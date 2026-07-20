@@ -20,15 +20,16 @@ export interface WizardValidationErrors {
   otrasIdeas?: string
 }
 
-const BACKEND_FIELD_MAP: Partial<Record<string, keyof WizardValidationErrors>> = {
-  descripcionPersonalizada: 'descripcion',
-  aforoDeclarado: 'invitados',
-  nombreNino: 'nombreNino',
-  edadCumple: 'edadCumple',
-  contactoAdicional: 'telefonoAdicional',
-  presupuestoEstimado: 'presupuestoCliente',
-  extrasLibres: 'otrasIdeas',
-}
+const BACKEND_FIELD_MAP: Partial<Record<string, keyof WizardValidationErrors>> =
+  {
+    descripcionPersonalizada: 'descripcion',
+    aforoDeclarado: 'invitados',
+    nombreNino: 'nombreNino',
+    edadCumple: 'edadCumple',
+    contactoAdicional: 'telefonoAdicional',
+    presupuestoEstimado: 'presupuestoCliente',
+    extrasLibres: 'otrasIdeas',
+  }
 
 export function useSolicitarEventoWizard(
   idUsuario: number | null,
@@ -69,6 +70,8 @@ export function useSolicitarEventoWizard(
     setEdadCumple: setEdadCumpleStore,
     invitados,
     setInvitados: setInvitadosStore,
+    invitadosTocado,
+    setInvitadosTocado,
     telefonoAdicional,
     setTelefonoAdicional: setTelefonoAdicionalStore,
     reset: resetStore,
@@ -102,6 +105,11 @@ export function useSolicitarEventoWizard(
   }
   const setInvitados = (value: number | null) => {
     clearServerError('invitados')
+    setInvitadosTocado(true)
+    setInvitadosStore(value)
+  }
+
+  const sugerirInvitados = (value: number) => {
     setInvitadosStore(value)
   }
   const setTelefonoAdicional = (value: string) => {
@@ -315,8 +323,9 @@ export function useSolicitarEventoWizard(
         return
       }
 
-      const nuevosErrores: Partial<Record<keyof WizardValidationErrors, string>> =
-        {}
+      const nuevosErrores: Partial<
+        Record<keyof WizardValidationErrors, string>
+      > = {}
       let errorTurno: string | null = null
       let errorGenerico: string | null = null
 
@@ -325,7 +334,9 @@ export function useSolicitarEventoWizard(
           errorTurno = error.mensaje
           return
         }
-        const localField = error.campo ? BACKEND_FIELD_MAP[error.campo] : undefined
+        const localField = error.campo
+          ? BACKEND_FIELD_MAP[error.campo]
+          : undefined
         if (localField) {
           nuevosErrores[localField] = error.mensaje
         } else {
@@ -389,6 +400,8 @@ export function useSolicitarEventoWizard(
     setEdadCumple,
     invitados,
     setInvitados,
+    invitadosTocado,
+    sugerirInvitados,
     telefonoAdicional,
     setTelefonoAdicional,
     validationErrors: displayedValidationErrors,

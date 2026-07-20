@@ -29,7 +29,12 @@ import {
   useRevertirIngreso,
 } from '../../hooks/useAccesosData'
 import { PermanenciaBadge } from './PermanenciaBadge'
+import { CalendarioCambioFechaTicket } from './CalendarioCambioFechaTicket'
 import { useConfiguracionCalendario } from '@/hooks/useConfiguracion'
+import {
+  estaDentroDeHorarioAtencion,
+  mensajeFueraDeHorario,
+} from '@/lib/horario'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -100,8 +105,13 @@ function TicketDetalleCard({
   const { idSede, tienePermiso } = useAuth()
   const { data: confCal } = useConfiguracionCalendario(idSede ?? null)
   const diasMaxFecha = confCal?.diasMaxReservaPublica ?? 14
+  const dentroDeHorario = estaDentroDeHorarioAtencion(
+    confCal?.horaApertura,
+    confCal?.horaCierre
+  )
 
-  const puedeCobrar = tienePermiso('reserva.confirmar_pago') || tienePermiso('pos.vender')
+  const puedeCobrar =
+    tienePermiso('reserva.confirmar_pago') || tienePermiso('pos.vender')
   const puedeRevertirIngreso = tienePermiso('reserva.editar')
   const [showCobrar, setShowCobrar] = useState(false)
 
@@ -223,6 +233,19 @@ function TicketDetalleCard({
           </div>
         )}
 
+        {ticket.esHoy && !ticket.yaIngreso && !dentroDeHorario && (
+          <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800">
+              No se puede registrar el ingreso:{' '}
+              {mensajeFueraDeHorario(
+                confCal?.horaApertura,
+                confCal?.horaCierre
+              )}
+            </p>
+          </div>
+        )}
+
         {!ticket.yaIngreso && !editandoFecha && (
           <div className="flex justify-end">
             <button
@@ -237,12 +260,16 @@ function TicketDetalleCard({
         {editandoFecha && (
           <div className="rounded-xl border border-input bg-muted/40 p-4 space-y-3">
             <Label className="text-sm font-medium">Nueva fecha de visita</Label>
-            <Input
-              type="date"
-              value={nuevaFecha}
-              min={format(new Date(), 'yyyy-MM-dd')}
-              max={format(addDays(new Date(), diasMaxFecha), 'yyyy-MM-dd')}
-              onChange={(e) => setNuevaFecha(e.target.value)}
+            <p className="text-xs text-muted-foreground -mt-1">
+              Los días ocupados por un evento privado, bloqueados o sin aforo
+              disponible aparecen deshabilitados.
+            </p>
+            <CalendarioCambioFechaTicket
+              idSede={idSede ?? 0}
+              fechaSel={nuevaFecha}
+              onSeleccionarFecha={setNuevaFecha}
+              fechaMin={format(new Date(), 'yyyy-MM-dd')}
+              fechaMax={format(addDays(new Date(), diasMaxFecha), 'yyyy-MM-dd')}
             />
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -305,7 +332,9 @@ function TicketDetalleCard({
             <div className="flex items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
               <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
               <p className="text-sm text-amber-800">
-                {puedeCobrar ? 'El ticket requiere cobro antes de ingresar.' : 'Cobrar en caja antes de permitir el ingreso.'}
+                {puedeCobrar
+                  ? 'El ticket requiere cobro antes de ingresar.'
+                  : 'Cobrar en caja antes de permitir el ingreso.'}
               </p>
             </div>
             {puedeCobrar && (
@@ -335,6 +364,18 @@ function TicketDetalleCard({
           <button
             disabled
             title="Cambia la fecha del ticket antes de registrar el ingreso"
+            className="w-full flex items-center justify-center gap-2 h-11 bg-muted text-muted-foreground rounded-xl font-semibold text-sm cursor-not-allowed"
+          >
+            <LogIn className="h-4 w-4" />
+            Registrar ingreso
+          </button>
+        ) : !dentroDeHorario ? (
+          <button
+            disabled
+            title={mensajeFueraDeHorario(
+              confCal?.horaApertura,
+              confCal?.horaCierre
+            )}
             className="w-full flex items-center justify-center gap-2 h-11 bg-muted text-muted-foreground rounded-xl font-semibold text-sm cursor-not-allowed"
           >
             <LogIn className="h-4 w-4" />

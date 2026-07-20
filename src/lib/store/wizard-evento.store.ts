@@ -18,6 +18,7 @@ interface WizardEventoState {
   nombreNino: string
   edadCumple: number | null
   invitados: number | null
+  invitadosTocado: boolean
   telefonoAdicional: string
 
   setPaso: (paso: 1 | 2 | 3 | 4) => void
@@ -36,6 +37,7 @@ interface WizardEventoState {
   setNombreNino: (v: string) => void
   setEdadCumple: (v: number | null) => void
   setInvitados: (v: number | null) => void
+  setInvitadosTocado: (v: boolean) => void
   setTelefonoAdicional: (v: string) => void
   reset: () => void
 }
@@ -56,6 +58,7 @@ const initialState = {
   nombreNino: '',
   edadCumple: null,
   invitados: null,
+  invitadosTocado: false,
   telefonoAdicional: '',
 }
 
@@ -103,6 +106,7 @@ export const useWizardEventoStore = create<WizardEventoState>()(
       setNombreNino: (nombreNino) => set({ nombreNino }),
       setEdadCumple: (edadCumple) => set({ edadCumple }),
       setInvitados: (invitados) => set({ invitados }),
+      setInvitadosTocado: (invitadosTocado) => set({ invitadosTocado }),
       setTelefonoAdicional: (telefonoAdicional) => set({ telefonoAdicional }),
       reset: () => set(initialState),
     }),
