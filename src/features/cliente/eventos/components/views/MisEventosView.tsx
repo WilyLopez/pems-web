@@ -14,7 +14,8 @@ import { Badge } from '@/components/ui/Badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import { EventoPrivado } from '@/features/cliente/shared/types'
-import { formatTipoEvento } from '@/features/cliente/shared/constants'
+import { useTiposEventoPublico } from '@/hooks/useComercial'
+import { resolverNombreTipoEvento } from '@/features/cliente/shared/hooks/useTipoEventoNombre'
 
 function EventoCardSkeleton() {
   return (
@@ -34,6 +35,7 @@ export function MisEventosView() {
   const { isAuthenticated } = useAuth()
   const { eventos, isLoading, isError, refetch } =
     useMisEventosData(isAuthenticated)
+  const { data: tiposEvento } = useTiposEventoPublico()
 
   const confirmados = eventos.filter((e) => e.estado === 'CONFIRMADA')
   const solicitudes = eventos.filter((e) => e.estado === 'SOLICITADA')
@@ -98,7 +100,7 @@ export function MisEventosView() {
                         {dias === 0 ? '¡hoy!' : `${dias} días!`}
                       </p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {formatTipoEvento(e.tipoEvento)} ·{' '}
+                        {resolverNombreTipoEvento(e.tipoEvento, tiposEvento)} ·{' '}
                         {formatDate(e.fechaEvento)}
                         {e.montoSaldo && e.montoSaldo > 0 ? (
                           <span className="ml-2 text-amber-700 font-semibold">

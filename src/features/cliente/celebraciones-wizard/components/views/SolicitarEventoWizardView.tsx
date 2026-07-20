@@ -184,11 +184,8 @@ export function SolicitarEventoWizardView() {
     isLoading: isTurnosLoading,
   } = useTurnos(idSede)
   const { data: servicios = [] } = useServiciosCotizacion()
-  const { data: disponibilidades } = useDisponibilidadRango(
-    idSede,
-    fechaMin,
-    fechaMax
-  )
+  const { data: disponibilidades, isLoading: isDisponibilidadDiaLoading } =
+    useDisponibilidadRango(idSede, fechaMin, fechaMax)
 
   const tipoEventoSeleccionado = useMemo(
     () => tiposEvento.find((t) => t.codigo === tipoEvento) ?? null,
@@ -413,6 +410,7 @@ export function SolicitarEventoWizardView() {
                 fechasOcupadas={fechasOcupadas}
                 isTurnosError={isTurnosError}
                 isTurnosLoading={isTurnosLoading}
+                isDisponibilidadDiaLoading={isDisponibilidadDiaLoading}
                 turnos={turnos}
                 disponibilidadDia={disponibilidadDia}
                 idTurno={idTurno}

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { useWhatsAppUrl } from '@/hooks/useConfigPublica'
 import { formatDate } from '@/lib/utils'
 import { EventoPrivado } from '../../../shared/types'
-import { formatTipoEvento } from '../../../shared/constants'
+import { useTipoEventoNombre } from '../../../shared/hooks/useTipoEventoNombre'
 
 const ESTADO_CONFIG: Record<string, { label: string; className: string }> = {
   SOLICITADA: {
@@ -36,7 +36,7 @@ export function SuccessWizardView({ evento }: SuccessViewProps) {
   const whatsappUrl = useWhatsAppUrl(
     'Hola, acabo de solicitar un evento y quiero confirmar los detalles'
   )
-  const tipoLabel = formatTipoEvento(evento.tipoEvento)
+  const tipoLabel = useTipoEventoNombre(evento.tipoEvento)
   const estadoConfig = ESTADO_CONFIG[evento.estado] ?? {
     label: evento.estado,
     className: 'bg-gray-100 text-gray-700 border-gray-200',

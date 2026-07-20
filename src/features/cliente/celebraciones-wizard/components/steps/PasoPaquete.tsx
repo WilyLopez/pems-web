@@ -6,10 +6,10 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+import { FormField } from '@/components/ui/FormField'
 import { PaqueteEvento } from '@/types/comercial.types'
 import { ExtraPaquete } from '@/types/evento.types'
 import { WizardValidationErrors } from '../../hooks/useSolicitarEventoWizard'
-import { FieldError } from '../ui/FieldError'
 
 interface Props {
   paqueteSeleccionado: PaqueteEvento | null
@@ -157,67 +157,82 @@ export function PasoPaquete({
         </div>
       )}
 
-      <div className="space-y-1.5">
-        <Label className="text-sm font-semibold">
-          ¿Algo más en mente?{' '}
-          <span className="text-gray-400 font-normal">(opcional)</span>
-        </Label>
-        <textarea
-          value={otrasIdeas}
-          onChange={(e) => setOtrasIdeas(e.target.value)}
-          placeholder="Cuéntanos cualquier idea adicional para tu evento"
-          rows={3}
-          maxLength={500}
-          className={cn(
-            'w-full text-sm border rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-brand-rosa bg-white min-h-[80px]',
-            validationErrors.otrasIdeas ? 'border-red-400' : 'border-gray-200'
-          )}
-        />
-        <div className="flex items-start justify-between gap-2 text-xs">
-          <FieldError message={validationErrors.otrasIdeas} />
-          <span
-            className={cn(
-              'text-gray-400 shrink-0 ml-auto',
-              otrasIdeas.length > 450 && 'text-amber-600 font-semibold'
-            )}
-          >
-            {otrasIdeas.length}/500
-          </span>
-        </div>
-      </div>
+      <FormField
+        id="otrasIdeas"
+        label={
+          <>
+            ¿Algo más en mente?{' '}
+            <span className="text-gray-400 font-normal">(opcional)</span>
+          </>
+        }
+        error={validationErrors.otrasIdeas}
+      >
+        {(fieldProps) => (
+          <>
+            <textarea
+              {...fieldProps}
+              value={otrasIdeas}
+              onChange={(e) => setOtrasIdeas(e.target.value)}
+              placeholder="Cuéntanos cualquier idea adicional para tu evento"
+              rows={3}
+              maxLength={500}
+              className={cn(
+                'w-full text-sm border rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-brand-rosa bg-white min-h-[80px]',
+                validationErrors.otrasIdeas
+                  ? 'border-red-400'
+                  : 'border-gray-200'
+              )}
+            />
+            <div className="flex justify-end text-xs">
+              <span
+                className={cn(
+                  'text-gray-400',
+                  otrasIdeas.length > 450 && 'text-amber-600 font-semibold'
+                )}
+              >
+                {otrasIdeas.length}/500
+              </span>
+            </div>
+          </>
+        )}
+      </FormField>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="presupuesto-paq" className="text-sm font-semibold">
-          ¿Cuál es tu presupuesto aproximado?{' '}
-          <span className="text-gray-400 font-normal">(opcional)</span>
-        </Label>
-        <p className="text-xs text-gray-400">
-          Nos ayuda a preparar una propuesta ajustada a tus posibilidades.
-        </p>
-        <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500 select-none">
-            S/
-          </span>
-          <Input
-            id="presupuesto-paq"
-            type="number"
-            placeholder="Ej: 1500"
-            min={1}
-            max={50000}
-            value={presupuestoCliente ?? ''}
-            onChange={(e) =>
-              setPresupuestoCliente(
-                e.target.value ? parseFloat(e.target.value) : null
-              )
-            }
-            className={cn(
-              'h-11 rounded-xl pl-9',
-              validationErrors.presupuestoCliente && 'border-red-400'
-            )}
-          />
-        </div>
-        <FieldError message={validationErrors.presupuestoCliente} />
-      </div>
+      <FormField
+        id="presupuesto-paq"
+        label={
+          <>
+            ¿Cuál es tu presupuesto aproximado?{' '}
+            <span className="text-gray-400 font-normal">(opcional)</span>
+          </>
+        }
+        hint="Nos ayuda a preparar una propuesta ajustada a tus posibilidades."
+        error={validationErrors.presupuestoCliente}
+      >
+        {(fieldProps) => (
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500 select-none">
+              S/
+            </span>
+            <Input
+              {...fieldProps}
+              type="number"
+              placeholder="Ej: 1500"
+              min={1}
+              max={50000}
+              value={presupuestoCliente ?? ''}
+              onChange={(e) =>
+                setPresupuestoCliente(
+                  e.target.value ? parseFloat(e.target.value) : null
+                )
+              }
+              className={cn(
+                'h-11 rounded-xl pl-9',
+                validationErrors.presupuestoCliente && 'border-red-400'
+              )}
+            />
+          </div>
+        )}
+      </FormField>
 
       <div className="space-y-2 pt-1">
         {!canAdvance2 && Object.keys(validationErrors).length > 0 && (

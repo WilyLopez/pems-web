@@ -29,7 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { Separator } from '@/components/ui/Separator'
 import { formatDate, formatCurrency } from '@/lib/utils'
-import { formatTipoEvento } from '@/features/cliente/shared/constants'
+import { useTipoEventoNombre } from '@/features/cliente/shared/hooks/useTipoEventoNombre'
 import { ResenaEventoCard } from '@/features/cliente/resenas/components/ResenaEventoCard'
 import { downloadFile } from '@/utils/download.utils'
 
@@ -49,6 +49,7 @@ export function DetalleEventoView() {
   const { nombre } = useAuth()
 
   const { data: evento, isLoading, isError } = useDetalleEventoData(id)
+  const nombreTipo = useTipoEventoNombre(evento?.tipoEvento ?? '')
 
   const eventoConfirmadoOCompletado = evento
     ? ['CONFIRMADA', 'COMPLETADA'].includes(evento.estado)
@@ -117,9 +118,7 @@ export function DetalleEventoView() {
 
         <div className="flex flex-wrap items-start gap-3">
           <div>
-            <h1 className="text-2xl font-black text-gray-900">
-              {formatTipoEvento(evento.tipoEvento)}
-            </h1>
+            <h1 className="text-2xl font-black text-gray-900">{nombreTipo}</h1>
             <p className="text-sm text-gray-400 mt-0.5">
               {formatDate(evento.fechaEvento)}
             </p>

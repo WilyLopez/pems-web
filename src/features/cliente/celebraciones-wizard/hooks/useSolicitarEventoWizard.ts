@@ -6,6 +6,7 @@ import { eventoService } from '@/services/evento.service'
 import { toast } from 'sonner'
 import { EventoPrivado } from '../../shared/types'
 import { PaqueteEvento } from '@/types/comercial.types'
+import { ApiError } from '@/types/api.types'
 import { NOMBRE_REGEX, TELEFONO_CELULAR_REGEX } from '@/lib/validations/campos'
 import { useWizardEventoStore } from '@/lib/store/wizard-evento.store'
 
@@ -17,6 +18,16 @@ export interface WizardValidationErrors {
   telefonoAdicional?: string
   presupuestoCliente?: string
   otrasIdeas?: string
+}
+
+const BACKEND_FIELD_MAP: Partial<Record<string, keyof WizardValidationErrors>> = {
+  descripcionPersonalizada: 'descripcion',
+  aforoDeclarado: 'invitados',
+  nombreNino: 'nombreNino',
+  edadCumple: 'edadCumple',
+  contactoAdicional: 'telefonoAdicional',
+  presupuestoEstimado: 'presupuestoCliente',
+  extrasLibres: 'otrasIdeas',
 }
 
 export function useSolicitarEventoWizard(
@@ -39,27 +50,27 @@ export function useSolicitarEventoWizard(
     setExtras,
     toggleExtra,
     otrasIdeas,
-    setOtrasIdeas,
+    setOtrasIdeas: setOtrasIdeasStore,
     descripcion,
-    setDescripcion,
+    setDescripcion: setDescripcionStore,
     serviciosCotizacion,
     toggleServicio,
     variantesSeleccionadas,
     setVarianteServicio,
     presupuestoCliente,
-    setPresupuestoCliente,
+    setPresupuestoCliente: setPresupuestoClienteStore,
     fechaSel,
     setFecha,
     idTurno,
     setIdTurno,
     nombreNino,
-    setNombreNino,
+    setNombreNino: setNombreNinoStore,
     edadCumple,
-    setEdadCumple,
+    setEdadCumple: setEdadCumpleStore,
     invitados,
-    setInvitados,
+    setInvitados: setInvitadosStore,
     telefonoAdicional,
-    setTelefonoAdicional,
+    setTelefonoAdicional: setTelefonoAdicionalStore,
     reset: resetStore,
   } = useWizardEventoStore()
 
@@ -68,6 +79,47 @@ export function useSolicitarEventoWizard(
   )
   const [modalAnticipacion, setModalAnticipacion] = useState(false)
   const [eventoCreado, setEventoCreado] = useState<EventoPrivado | null>(null)
+  const [serverErrors, setServerErrors] = useState<
+    Partial<Record<keyof WizardValidationErrors, string>>
+  >({})
+
+  function clearServerError(campo: keyof WizardValidationErrors) {
+    setServerErrors((prev) => {
+      if (!(campo in prev)) return prev
+      const next = { ...prev }
+      delete next[campo]
+      return next
+    })
+  }
+
+  const setNombreNino = (value: string) => {
+    clearServerError('nombreNino')
+    setNombreNinoStore(value)
+  }
+  const setEdadCumple = (value: number | null) => {
+    clearServerError('edadCumple')
+    setEdadCumpleStore(value)
+  }
+  const setInvitados = (value: number | null) => {
+    clearServerError('invitados')
+    setInvitadosStore(value)
+  }
+  const setTelefonoAdicional = (value: string) => {
+    clearServerError('telefonoAdicional')
+    setTelefonoAdicionalStore(value)
+  }
+  const setDescripcion = (value: string) => {
+    clearServerError('descripcion')
+    setDescripcionStore(value)
+  }
+  const setOtrasIdeas = (value: string) => {
+    clearServerError('otrasIdeas')
+    setOtrasIdeasStore(value)
+  }
+  const setPresupuestoCliente = (value: number | null) => {
+    clearServerError('presupuestoCliente')
+    setPresupuestoClienteStore(value)
+  }
 
   const validationErrors = useMemo<WizardValidationErrors>(() => {
     const errors: WizardValidationErrors = {}
@@ -107,6 +159,19 @@ export function useSolicitarEventoWizard(
         errors.edadCumple = `La edad debe estar entre ${edadMin} y ${edadMax} años`
     }
 
+    if (tipoEvento === 'CUMPLEANOS') {
+      const tieneNombre = !!nombreNino && nombreNino.trim().length > 0
+      const tieneEdad = edadCumple !== null
+
+      if (tieneNombre && !tieneEdad && !errors.edadCumple) {
+        errors.edadCumple =
+          'La edad es obligatoria si indicas el nombre del cumpleañero/a'
+      }
+      if (tieneEdad && !tieneNombre && !errors.nombreNino) {
+        errors.nombreNino = 'El nombre es obligatorio si indicas la edad'
+      }
+    }
+
     if (telefonoAdicional && !TELEFONO_CELULAR_REGEX.test(telefonoAdicional)) {
       errors.telefonoAdicional =
         'Debe ser un celular de 9 dígitos que comience con 9'
@@ -132,7 +197,13 @@ export function useSolicitarEventoWizard(
     presupuestoCliente,
     edadMin,
     edadMax,
+    tipoEvento,
   ])
+
+  const displayedValidationErrors = useMemo<WizardValidationErrors>(
+    () => ({ ...validationErrors, ...serverErrors }),
+    [validationErrors, serverErrors]
+  )
 
   const canAdvance1 = tipoEvento !== null && camino !== null
 
@@ -153,11 +224,10 @@ export function useSolicitarEventoWizard(
     if (!basico) return false
     if (!invitados || invitados <= 0) return false
     if (camino !== 'cotizacion' && invitados > 500) return false
-    if (
-      tipoEvento === 'CUMPLEANOS' &&
-      (!nombreNino || nombreNino.trim().length < 2)
-    )
-      return false
+    if (tipoEvento === 'CUMPLEANOS') {
+      if (!nombreNino || nombreNino.trim().length < 2) return false
+      if (edadCumple === null) return false
+    }
     if (nombreNino && !NOMBRE_REGEX.test(nombreNino)) return false
     if (telefonoAdicional && !TELEFONO_CELULAR_REGEX.test(telefonoAdicional))
       return false
@@ -182,6 +252,7 @@ export function useSolicitarEventoWizard(
     setEventoCreado(null)
     setPaqueteDetalle(null)
     setModalAnticipacion(false)
+    setServerErrors({})
   }
 
   const solicitarMutation = useMutation({
@@ -235,9 +306,47 @@ export function useSolicitarEventoWizard(
     onSuccess: (evento) => {
       setEventoCreado(evento)
       resetStore()
+      setServerErrors({})
     },
-    onError: (err: { message?: string }) => {
-      toast.error(err?.message ?? 'No se pudo enviar la solicitud.')
+    onError: (err: ApiError) => {
+      const fieldErrors = err.erroresCampo ?? []
+      if (fieldErrors.length === 0) {
+        toast.error(err.message ?? 'No se pudo enviar la solicitud.')
+        return
+      }
+
+      const nuevosErrores: Partial<Record<keyof WizardValidationErrors, string>> =
+        {}
+      let errorTurno: string | null = null
+      let errorGenerico: string | null = null
+
+      fieldErrors.forEach((error) => {
+        if (error.campo === 'idTurno') {
+          errorTurno = error.mensaje
+          return
+        }
+        const localField = error.campo ? BACKEND_FIELD_MAP[error.campo] : undefined
+        if (localField) {
+          nuevosErrores[localField] = error.mensaje
+        } else {
+          errorGenerico = error.mensaje
+        }
+      })
+
+      if (Object.keys(nuevosErrores).length > 0) {
+        setServerErrors((prev) => ({ ...prev, ...nuevosErrores }))
+      }
+
+      if (errorTurno) {
+        toast.error(errorTurno, {
+          action: {
+            label: 'Volver a elegir turno',
+            onClick: () => setPaso(3),
+          },
+        })
+      } else if (errorGenerico) {
+        toast.error(errorGenerico)
+      }
     },
   })
 
@@ -282,7 +391,7 @@ export function useSolicitarEventoWizard(
     setInvitados,
     telefonoAdicional,
     setTelefonoAdicional,
-    validationErrors,
+    validationErrors: displayedValidationErrors,
     eventoCreado,
     solicitar: solicitarMutation.mutate,
     isSubmitting: solicitarMutation.isPending,
