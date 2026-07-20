@@ -12,6 +12,7 @@ import {
   SolicitarEventoPayload,
 } from '../types'
 import { eventosKeys } from '../shared/queryKeys'
+import { ApiError } from '@/types/api.types'
 
 export const EVENTOS_KEY = 'eventos'
 
@@ -93,8 +94,12 @@ export function useSolicitarEvento() {
       qc.invalidateQueries({ queryKey: eventosKeys.lists() })
       toast.success('Evento solicitado correctamente.')
     },
-    onError: (err: { message?: string }) =>
-      toast.error(err?.message ?? 'No se pudo solicitar el evento.'),
+    onError: (err: ApiError) => {
+      const hasFieldErrors = !!err.erroresCampo?.length
+      if (!hasFieldErrors) {
+        toast.error(err.message ?? 'No se pudo solicitar el evento.')
+      }
+    },
   })
 }
 

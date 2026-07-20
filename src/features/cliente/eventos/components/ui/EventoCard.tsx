@@ -11,11 +11,12 @@ import { EventoPrivado } from '@/features/cliente/shared/types'
 import { EstadoBadge } from '@/features/cliente/shared/components/EstadoBadge'
 import { Badge } from '@/components/ui/Badge'
 import { cn, formatDate, formatCurrency } from '@/lib/utils'
-import { formatTipoEvento } from '@/features/cliente/shared/constants'
+import { useTipoEventoNombre } from '@/features/cliente/shared/hooks/useTipoEventoNombre'
 import { differenceInDays, startOfDay } from 'date-fns'
 import { parseLocalDate } from '@/features/cliente/shared/utils/reserva'
 
 export function EventoCard({ evento }: { evento: EventoPrivado }) {
+  const nombreTipo = useTipoEventoNombre(evento.tipoEvento)
   const hoy = startOfDay(new Date())
   const diasRestantes = differenceInDays(
     parseLocalDate(evento.fechaEvento),
@@ -34,9 +35,7 @@ export function EventoCard({ evento }: { evento: EventoPrivado }) {
               <PartyPopper className="h-5 w-5 text-brand-rosa" />
             </div>
             <div className="min-w-0">
-              <p className="font-bold text-gray-900 truncate">
-                {formatTipoEvento(evento.tipoEvento)}
-              </p>
+              <p className="font-bold text-gray-900 truncate">{nombreTipo}</p>
               <EstadoBadge estado={evento.estado} compact />
             </div>
           </div>

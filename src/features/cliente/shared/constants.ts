@@ -1,16 +1,3 @@
-const TIPO_EVENTO_LABEL: Record<string, string> = {
-  CUMPLEANOS: 'Cumpleaños',
-  BABY_SHOWER: 'Baby shower',
-  FIN_ANIO_ESCOLAR: 'Fin de año escolar',
-  TEMATICO: 'Evento temático',
-  SALIDA_ESCOLAR: 'Salida escolar',
-  FAMILIAR: 'Celebración familiar',
-}
-
-export function formatTipoEvento(codigo: string): string {
-  return TIPO_EVENTO_LABEL[codigo] ?? codigo
-}
-
 /** Visitas necesarias para alcanzar el segmento "FRECUENTE" */
 export const FRECUENTE_THRESHOLD = 5
 

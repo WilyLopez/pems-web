@@ -71,6 +71,7 @@ export function PasoTipoEvento({
                 key={t.codigo}
                 type="button"
                 onClick={() => onSeleccionarTipo(t.codigo)}
+                aria-pressed={tipoEvento === t.codigo}
                 className={cn(
                   'px-4 py-3 sm:py-2.5 rounded-xl text-sm font-semibold border-2 transition-all flex items-center gap-2 justify-center sm:justify-start min-h-[44px]',
                   tipoEvento === t.codigo
@@ -132,6 +133,7 @@ export function PasoTipoEvento({
                 <button
                   type="button"
                   onClick={onSeleccionarCotizacion}
+                  aria-pressed={camino === 'cotizacion'}
                   className={cn(
                     'p-5 rounded-2xl border-2 text-left transition-all flex flex-col gap-3 bg-white min-h-[160px] sm:min-h-0',
                     camino === 'cotizacion'

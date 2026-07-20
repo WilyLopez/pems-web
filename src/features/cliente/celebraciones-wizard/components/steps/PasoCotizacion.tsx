@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+import { FormField } from '@/components/ui/FormField'
 import { ServicioCotizacion } from '@/types/evento.types'
 import { WizardValidationErrors } from '../../hooks/useSolicitarEventoWizard'
 import { FieldError } from '../ui/FieldError'
@@ -72,39 +73,47 @@ export function PasoCotizacion({
         </p>
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-sm font-semibold">
-          Describe tu evento <span className="text-destructive">*</span>
-        </Label>
-        <textarea
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
-          placeholder="Cuéntanos qué tipo de celebración imaginas, la temática, el ambiente que buscas..."
-          rows={4}
-          maxLength={1000}
-          className={cn(
-            'w-full text-sm border rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-brand-rosa bg-white min-h-[80px] sm:min-h-[100px]',
-            validationErrors.descripcion ? 'border-red-400' : 'border-gray-200'
-          )}
-        />
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs">
-          <FieldError message={validationErrors.descripcion} />
-          {!validationErrors.descripcion && descripcion.length >= 30 && (
-            <span className="flex items-center gap-1 text-green-600 font-medium">
-              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-              Descripción completa
-            </span>
-          )}
-          <span
-            className={cn(
-              'text-gray-400 ml-auto shrink-0',
-              descripcion.length > 950 && 'text-amber-600 font-semibold'
-            )}
-          >
-            {descripcion.length}/1000
-          </span>
-        </div>
-      </div>
+      <FormField
+        id="descripcion"
+        label="Describe tu evento"
+        required
+        error={validationErrors.descripcion}
+      >
+        {(fieldProps) => (
+          <>
+            <textarea
+              {...fieldProps}
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              placeholder="Cuéntanos qué tipo de celebración imaginas, la temática, el ambiente que buscas..."
+              rows={4}
+              maxLength={1000}
+              className={cn(
+                'w-full text-sm border rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-brand-rosa bg-white min-h-[80px] sm:min-h-[100px]',
+                validationErrors.descripcion
+                  ? 'border-red-400'
+                  : 'border-gray-200'
+              )}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs">
+              {!validationErrors.descripcion && descripcion.length >= 30 && (
+                <span className="flex items-center gap-1 text-green-600 font-medium">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  Descripción completa
+                </span>
+              )}
+              <span
+                className={cn(
+                  'text-gray-400 ml-auto shrink-0',
+                  descripcion.length > 950 && 'text-amber-600 font-semibold'
+                )}
+              >
+                {descripcion.length}/1000
+              </span>
+            </div>
+          </>
+        )}
+      </FormField>
 
       <div className="space-y-2">
         <Label className="text-sm font-semibold">
@@ -222,38 +231,42 @@ export function PasoCotizacion({
         </div>
       )}
 
-      <div className="space-y-1.5">
-        <Label htmlFor="presupuesto-coti" className="text-sm font-semibold">
-          ¿Cuál es tu presupuesto aproximado?{' '}
-          <span className="text-gray-400 font-normal">(opcional)</span>
-        </Label>
-        <p className="text-xs text-gray-400">
-          Nos ayuda a preparar una propuesta ajustada a tus posibilidades.
-        </p>
-        <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500 select-none">
-            S/
-          </span>
-          <Input
-            id="presupuesto-coti"
-            type="number"
-            placeholder="Ej: 1500"
-            min={1}
-            max={50000}
-            value={presupuestoCliente ?? ''}
-            onChange={(e) =>
-              setPresupuestoCliente(
-                e.target.value ? parseFloat(e.target.value) : null
-              )
-            }
-            className={cn(
-              'h-11 rounded-xl pl-9',
-              validationErrors.presupuestoCliente && 'border-red-400'
-            )}
-          />
-        </div>
-        <FieldError message={validationErrors.presupuestoCliente} />
-      </div>
+      <FormField
+        id="presupuesto-coti"
+        label={
+          <>
+            ¿Cuál es tu presupuesto aproximado?{' '}
+            <span className="text-gray-400 font-normal">(opcional)</span>
+          </>
+        }
+        hint="Nos ayuda a preparar una propuesta ajustada a tus posibilidades."
+        error={validationErrors.presupuestoCliente}
+      >
+        {(fieldProps) => (
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500 select-none">
+              S/
+            </span>
+            <Input
+              {...fieldProps}
+              type="number"
+              placeholder="Ej: 1500"
+              min={1}
+              max={50000}
+              value={presupuestoCliente ?? ''}
+              onChange={(e) =>
+                setPresupuestoCliente(
+                  e.target.value ? parseFloat(e.target.value) : null
+                )
+              }
+              className={cn(
+                'h-11 rounded-xl pl-9',
+                validationErrors.presupuestoCliente && 'border-red-400'
+              )}
+            />
+          </div>
+        )}
+      </FormField>
 
       <div className="space-y-2 pt-1">
         {!canAdvance2 && descripcion.length < 30 && (

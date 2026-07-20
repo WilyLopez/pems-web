@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import {
   format,
@@ -18,16 +18,25 @@ import {
   isToday,
 } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, PartyPopper } from 'lucide-react'
+import {
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  PartyPopper,
+} from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useDisponibilidadRango } from '@/hooks/useDisponibilidad'
 import { useConfiguracionCalendario } from '@/hooks/useCalendario'
 import { useTurnos } from '../../hooks/useEventos'
 import { Disponibilidad } from '@/features/admin/calendario/types'
+import { Turno } from '../../types'
+import { TURNO_DISP } from '../../utils/turnoDisponibilidad'
 import { BotonTurno } from '@/components/admin/eventos/BotonTurno'
+import { StepperCreacionEvento } from '../StepperCreacionEvento'
 import { Breadcrumbs } from '@/components/common/Breadcrumbs'
 import { PageHeader } from '@/components/common/PageHeader'
 import { ErrorState } from '@/components/common/Errorstate'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ADMIN_ROUTES } from '@/config/routes'
@@ -35,15 +44,119 @@ import { cn } from '@/lib/utils'
 
 const DAYS_HEADER = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
-const TURNO_DISP: Record<string, (d: Disponibilidad) => boolean> = {
-  T1: (d) => d.turnoT1Disponible,
-  T2: (d) => d.turnoT2Disponible,
+interface AvisoFecha {
+  tipo: 'fuera-ventana' | 'no-disponible' | 'turno-no-disponible'
+  mensaje: string
 }
+
+interface ResolucionSeleccion {
+  fechaSel: string | null
+  idTurnoSel: number | null
+  avisoFecha: AvisoFecha | null
+  fueraDeVentana: boolean
+}
+
+/**
+ * Resuelve fecha/turno recibidos por query param contra la ventana de
+ * anticipación y la disponibilidad real — nunca se confían tal cual.
+ * `forzarFueraDeVentana` solo se activa explícitamente por un admin.
+ */
+function resolverSeleccionDesdeParametros(params: {
+  fecha: string
+  idTurnoParam: string | null
+  turnoCodeParam: string | null
+  forzarFueraDeVentana: boolean
+  turnos: Turno[]
+  disponibilidades: Disponibilidad[]
+  minDate: string
+  maxDate: string
+  diasMin: number
+  diasMax: number
+}): ResolucionSeleccion {
+  const {
+    fecha,
+    idTurnoParam,
+    turnoCodeParam,
+    forzarFueraDeVentana,
+    turnos,
+    disponibilidades,
+    minDate,
+    maxDate,
+    diasMin,
+    diasMax,
+  } = params
+
+  const dentroVentana = fecha >= minDate && fecha <= maxDate
+  if (!dentroVentana && !forzarFueraDeVentana) {
+    return {
+      fechaSel: null,
+      idTurnoSel: null,
+      fueraDeVentana: false,
+      avisoFecha: {
+        tipo: 'fuera-ventana',
+        mensaje: `La fecha solicitada (${format(parseISO(fecha), "d 'de' MMMM yyyy", { locale: es })}) excede la ventana de anticipación permitida (mínimo ${diasMin}, máximo ${diasMax} días). Selecciona otra fecha en el calendario.`,
+      },
+    }
+  }
+
+  const dispDia = disponibilidades.find((d) => d.fecha === fecha)
+  const tieneDisp = dispDia
+    ? dispDia.turnoT1Disponible || dispDia.turnoT2Disponible
+    : false
+
+  if (!tieneDisp) {
+    return {
+      fechaSel: null,
+      idTurnoSel: null,
+      fueraDeVentana: false,
+      avisoFecha: {
+        tipo: 'no-disponible',
+        mensaje: `La fecha solicitada (${format(parseISO(fecha), "d 'de' MMMM yyyy", { locale: es })}) ya no está disponible. Selecciona otra fecha en el calendario.`,
+      },
+    }
+  }
+
+  const turnoResuelto = idTurnoParam
+    ? turnos.find((t) => t.id === parseInt(idTurnoParam))
+    : turnoCodeParam
+      ? turnos.find((t) => t.codigo === turnoCodeParam)
+      : undefined
+
+  const turnoDisponible =
+    turnoResuelto && dispDia
+      ? (TURNO_DISP[turnoResuelto.codigo]?.(dispDia) ?? false)
+      : false
+
+  if ((idTurnoParam || turnoCodeParam) && !turnoDisponible) {
+    return {
+      fechaSel: fecha,
+      idTurnoSel: null,
+      fueraDeVentana: !dentroVentana,
+      avisoFecha: {
+        tipo: 'turno-no-disponible',
+        mensaje:
+          'El turno solicitado ya no está disponible para esta fecha. Elige otro turno abajo.',
+      },
+    }
+  }
+
+  return {
+    fechaSel: fecha,
+    idTurnoSel: turnoResuelto?.id ?? null,
+    fueraDeVentana: !dentroVentana,
+    avisoFecha: null,
+  }
+}
+
+type Seleccion =
+  | { origen: 'ninguna' }
+  | { origen: 'usuario'; fecha: string; idTurno: number | null }
+  | { origen: 'parametros'; forzarFueraDeVentana: boolean }
 
 export function NuevoEventoView() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { idSede } = useAuth()
+  const { idSede, isAdmin } = useAuth()
 
   const { data: config } = useConfiguracionCalendario(idSede ?? 0)
   const { data: turnos, isLoading: loadingTurnos } = useTurnos(idSede ?? 0)
@@ -53,14 +166,16 @@ export function NuevoEventoView() {
 
   const fechaParam = searchParams.get('fecha')
   const idTurnoParam = searchParams.get('idTurno')
+  const turnoCodeParam = searchParams.get('turno')
 
   const [currentDate, setCurrentDate] = useState(() => {
     if (fechaParam) return parseISO(fechaParam)
     return addDays(new Date(), diasMin)
   })
-  const [fechaSel, setFechaSel] = useState<string | null>(fechaParam)
-  const [idTurnoSel, setIdTurnoSel] = useState<number | null>(
-    idTurnoParam ? parseInt(idTurnoParam) : null
+  const [seleccion, setSeleccion] = useState<Seleccion>(() =>
+    fechaParam
+      ? { origen: 'parametros', forzarFueraDeVentana: false }
+      : { origen: 'ninguna' }
   )
 
   const minDate = format(addDays(new Date(), diasMin), 'yyyy-MM-dd')
@@ -77,6 +192,59 @@ export function NuevoEventoView() {
 
   const { data: disponibilidades, isLoading: loadingDisp } =
     useDisponibilidadRango(idSede ?? 0, inicio, fin)
+
+  const { fechaSel, idTurnoSel, avisoFecha, fueraDeVentana } =
+    useMemo((): ResolucionSeleccion => {
+      if (seleccion.origen === 'ninguna') {
+        return {
+          fechaSel: null,
+          idTurnoSel: null,
+          avisoFecha: null,
+          fueraDeVentana: false,
+        }
+      }
+      if (seleccion.origen === 'usuario') {
+        return {
+          fechaSel: seleccion.fecha,
+          idTurnoSel: seleccion.idTurno,
+          avisoFecha: null,
+          fueraDeVentana: false,
+        }
+      }
+      if (!fechaParam || loadingDisp || loadingTurnos) {
+        return {
+          fechaSel: null,
+          idTurnoSel: null,
+          avisoFecha: null,
+          fueraDeVentana: false,
+        }
+      }
+      return resolverSeleccionDesdeParametros({
+        fecha: fechaParam,
+        idTurnoParam,
+        turnoCodeParam,
+        forzarFueraDeVentana: seleccion.forzarFueraDeVentana,
+        turnos: turnos ?? [],
+        disponibilidades: disponibilidades ?? [],
+        minDate,
+        maxDate,
+        diasMin,
+        diasMax,
+      })
+    }, [
+      seleccion,
+      fechaParam,
+      idTurnoParam,
+      turnoCodeParam,
+      loadingDisp,
+      loadingTurnos,
+      turnos,
+      disponibilidades,
+      minDate,
+      maxDate,
+      diasMin,
+      diasMax,
+    ])
 
   if (!idSede) {
     return (
@@ -124,6 +292,50 @@ export function NuevoEventoView() {
         title="Nuevo evento privado"
         description="Selecciona la fecha y el turno para el evento"
       />
+      <StepperCreacionEvento pasoActual={1} />
+
+      {avisoFecha && (
+        <Alert className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 py-3">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle className="text-xs font-bold">
+            {avisoFecha.tipo === 'fuera-ventana'
+              ? 'Fecha fuera de la ventana permitida'
+              : avisoFecha.tipo === 'no-disponible'
+                ? 'Fecha no disponible'
+                : 'Turno no disponible'}
+          </AlertTitle>
+          <AlertDescription className="text-[11px] leading-tight space-y-2 text-amber-800 dark:text-amber-300">
+            <p>{avisoFecha.mensaje}</p>
+            {avisoFecha.tipo === 'fuera-ventana' && isAdmin && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs rounded-lg border-amber-300 dark:border-amber-700"
+                onClick={() =>
+                  setSeleccion({
+                    origen: 'parametros',
+                    forzarFueraDeVentana: true,
+                  })
+                }
+              >
+                Continuar de todos modos (fuera de la ventana estándar, requiere
+                rol administrador)
+              </Button>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {fueraDeVentana && fechaSel && (
+        <Alert className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 py-3">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="text-[11px] leading-tight text-blue-800 dark:text-blue-300">
+            Estás creando este evento fuera de la ventana estándar de
+            anticipación, como administrador.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 space-y-4">
@@ -195,15 +407,20 @@ export function NuevoEventoView() {
                 const f = format(day, 'yyyy-MM-dd')
                 const seleccionado = fechaSel === f
                 const hoy = isToday(day)
+                const etiquetaDia = format(day, "d 'de' MMMM", { locale: es })
 
                 return (
                   <button
                     key={day.toISOString()}
                     disabled={!habilitado}
-                    onClick={() => {
-                      setFechaSel(f)
-                      setIdTurnoSel(null)
-                    }}
+                    aria-label={`${etiquetaDia}, ${habilitado ? 'disponible' : 'no disponible'}`}
+                    onClick={() =>
+                      setSeleccion({
+                        origen: 'usuario',
+                        fecha: f,
+                        idTurno: null,
+                      })
+                    }
                     className={cn(
                       'h-12 w-full rounded-xl border text-sm font-bold transition-all',
                       seleccionado
@@ -262,7 +479,13 @@ export function NuevoEventoView() {
                           turnoKey={turno.codigo as 'T1' | 'T2'}
                           disponible={disponible}
                           seleccionado={idTurnoSel === turno.id}
-                          onClick={() => setIdTurnoSel(turno.id)}
+                          onClick={() =>
+                            setSeleccion({
+                              origen: 'usuario',
+                              fecha: fechaSel,
+                              idTurno: turno.id,
+                            })
+                          }
                         />
                       )
                     })}

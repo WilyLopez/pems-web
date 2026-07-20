@@ -57,6 +57,11 @@ export function buildNuevoEventoSchema(config: EventoSchemaConfig) {
         .max(config.edadMaxCumple, `Máximo ${config.edadMaxCumple} años`)
         .optional(),
       idPaquete: z.number().int().positive().optional(),
+      idsExtras: z.array(z.number().int().positive()).optional(),
+      idsServiciosCotizacion: z.array(z.number().int().positive()).optional(),
+      variantesSeleccionadas: z
+        .record(z.string(), z.number().int().positive())
+        .optional(),
       origenContacto: z
         .enum(['PRESENCIAL', 'TELEFONO', 'WHATSAPP', 'WEB'])
         .optional(),
@@ -72,23 +77,25 @@ export function buildNuevoEventoSchema(config: EventoSchemaConfig) {
       observaciones: z.string().max(2000).optional().or(z.literal('')),
     })
     .superRefine((data, ctx) => {
+      const esCumpleanos = data.tipoEvento === 'CUMPLEANOS'
       const tieneNombre = !!data.nombreNino?.trim()
       const tieneEdad = data.edadCumple !== undefined
 
-      if (tieneNombre && !tieneEdad) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            'La edad es requerida cuando se especifica el nombre del niño',
-          path: ['edadCumple'],
-        })
-      }
-      if (tieneEdad && !tieneNombre) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'El nombre es requerido cuando se especifica la edad',
-          path: ['nombreNino'],
-        })
+      if (esCumpleanos) {
+        if (!tieneNombre) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'El nombre del niño es obligatorio para cumpleaños',
+            path: ['nombreNino'],
+          })
+        }
+        if (!tieneEdad) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'La edad que cumple es obligatoria para cumpleaños',
+            path: ['edadCumple'],
+          })
+        }
       }
     })
 }

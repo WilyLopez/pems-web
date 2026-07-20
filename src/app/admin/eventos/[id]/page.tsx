@@ -3,11 +3,18 @@
 import { Suspense } from 'react'
 import { useParams } from 'next/navigation'
 import { EventoDetalleView } from '@/features/admin/eventos/components/views/EventoDetalleView'
+import { ErrorState } from '@/components/common/Errorstate'
 import { Skeleton } from '@/components/ui/Skeleton'
 
 function EventoDetalleContent() {
   const params = useParams()
-  return <EventoDetalleView idEvento={parseInt(params.id as string)} />
+  const idEvento = Number(params.id)
+
+  if (!Number.isInteger(idEvento) || idEvento <= 0) {
+    return <ErrorState message="El identificador del evento no es válido." />
+  }
+
+  return <EventoDetalleView idEvento={idEvento} />
 }
 
 export default function EventoDetallePage() {
