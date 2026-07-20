@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Check, PartyPopper, X, Users, Clock } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
 import { fixMediaUrl } from '@/lib/media'
@@ -31,10 +32,12 @@ function GaleriaPaquete({ paquete }: { paquete: PaqueteEvento }) {
 
   return (
     <div className="relative h-44 sm:h-52 w-full bg-gray-100 overflow-hidden shrink-0">
-      <img
+      <Image
         src={fixMediaUrl(imagenes[activa])}
         alt={paquete.nombre}
-        className="w-full h-full object-cover"
+        fill
+        sizes="(max-width: 640px) 100vw, 512px"
+        className="object-cover"
       />
       {imagenes.length > 1 && (
         <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">

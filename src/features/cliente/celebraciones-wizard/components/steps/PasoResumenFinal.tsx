@@ -35,6 +35,7 @@ interface Props {
   aceptaLegal: boolean
   setAceptaLegal: (value: boolean) => void
   isSubmitting: boolean
+  datosValidos: boolean
   onAtras: () => void
   onSolicitar: () => void
 }
@@ -61,6 +62,7 @@ export function PasoResumenFinal({
   aceptaLegal,
   setAceptaLegal,
   isSubmitting,
+  datosValidos,
   onAtras,
   onSolicitar,
 }: Props) {
@@ -234,7 +236,7 @@ export function PasoResumenFinal({
         </Button>
         <Button
           className="flex-1 bg-brand-rosa hover:bg-brand-rosa/90 text-white rounded-xl font-black text-base gap-2 h-12"
-          disabled={isSubmitting || !aceptaLegal}
+          disabled={isSubmitting || !aceptaLegal || !datosValidos}
           onClick={onSolicitar}
         >
           {isSubmitting ? (

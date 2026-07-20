@@ -75,7 +75,7 @@ export function PasoCotizacion({
 
       <FormField
         id="descripcion"
-        label="Describe tu evento"
+        label="Describe tu evento (mínimo 30 caracteres)"
         required
         error={validationErrors.descripcion}
       >

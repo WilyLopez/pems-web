@@ -1,15 +1,14 @@
 'use client'
 
-import { useMemo, useEffect, useRef, useState } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { addDays, format } from 'date-fns'
-import { toast } from 'sonner'
 
 import { useSolicitarEventoWizard } from '../../hooks/useSolicitarEventoWizard'
-import { precioServicioEfectivo } from '../../lib/servicio-precio'
+import { useDatosDerivadosWizard } from '../../hooks/useDatosDerivadosWizard'
+import { useWizardTimerOrquestado } from '../../hooks/useWizardTimerOrquestado'
 import { useSedesPublicas } from '@/features/public/shared/hooks/useSedesPublicas'
-import { useWizardTimer } from '../../hooks/useWizardTimer'
 import { usePaquetesPublico, useTiposEventoPublico } from '@/hooks/useComercial'
 import {
   useExtrasPaquete,
@@ -35,8 +34,6 @@ import { PasoPaquete } from '../steps/PasoPaquete'
 import { PasoCotizacion } from '../steps/PasoCotizacion'
 import { PasoFechaDetalles } from '../steps/PasoFechaDetalles'
 import { PasoResumenFinal } from '../steps/PasoResumenFinal'
-
-const WIZARD_DURATION = 600
 
 export function SolicitarEventoWizardView() {
   const router = useRouter()
@@ -103,6 +100,8 @@ export function SolicitarEventoWizardView() {
     setEdadCumple,
     invitados,
     setInvitados,
+    invitadosTocado,
+    sugerirInvitados,
     telefonoAdicional,
     setTelefonoAdicional,
     eventoCreado,
@@ -121,57 +120,17 @@ export function SolicitarEventoWizardView() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }, [paso])
 
-  const [timerExpired, setTimerExpired] = useState(false)
   const [aceptaLegal, setAceptaLegal] = useState(false)
-  const prevPasoRef = useRef<1 | 2 | 3 | 4>(1)
 
   const {
     secondsLeft,
-    progress: timerProgress,
-    phase: timerPhase,
-    displayTime: timerDisplay,
-    restart: restartTimer,
-    pause: pauseTimer,
-    resume: resumeTimer,
-  } = useWizardTimer({
-    durationSeconds: WIZARD_DURATION,
-    sessionKey: 'evento_wizard_timer',
-    startPaused: true,
-    onExpire: () => setTimerExpired(true),
-  })
-
-  useEffect(() => {
-    const prev = prevPasoRef.current
-    prevPasoRef.current = paso
-
-    if (paso === 2 && prev === 1) {
-      restartTimer()
-    } else if (paso === 1) {
-      pauseTimer()
-    } else {
-      resumeTimer()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paso])
-
-  useEffect(() => {
-    if (paqueteDetalle) pauseTimer()
-    else if (paso > 1) resumeTimer()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paqueteDetalle])
-
-  useEffect(() => {
-    if (secondsLeft === 180) {
-      toast.warning('Te quedan 3 minutos para completar tu solicitud', {
-        duration: 8000,
-      })
-    }
-    if (secondsLeft === 60) {
-      toast.error('Solo queda 1 minuto. Completa tu solicitud pronto.', {
-        duration: 15000,
-      })
-    }
-  }, [secondsLeft])
+    timerProgress,
+    timerPhase,
+    timerDisplay,
+    restartTimer,
+    timerExpired,
+    setTimerExpired,
+  } = useWizardTimerOrquestado(paso, !!paqueteDetalle)
 
   const { data: paquetesAll = [], isLoading: isLoadingPaquetes } =
     usePaquetesPublico()
@@ -187,59 +146,31 @@ export function SolicitarEventoWizardView() {
   const { data: disponibilidades, isLoading: isDisponibilidadDiaLoading } =
     useDisponibilidadRango(idSede, fechaMin, fechaMax)
 
-  const tipoEventoSeleccionado = useMemo(
-    () => tiposEvento.find((t) => t.codigo === tipoEvento) ?? null,
-    [tiposEvento, tipoEvento]
-  )
-  const tipoEventoLabel = tipoEventoSeleccionado
-    ? tipoEventoSeleccionado.nombre
-    : null
-
-  const paquetesFiltrados = useMemo(() => {
-    if (!tipoEvento) return paquetesAll
-    return paquetesAll.filter(
-      (p) => !p.tipoEventoCodigo || p.tipoEventoCodigo === tipoEvento
-    )
-  }, [paquetesAll, tipoEvento])
-
-  const disponibilidadDia = useMemo(
-    () => disponibilidades?.find((d) => d.fecha === fechaSel),
-    [disponibilidades, fechaSel]
-  )
-
-  const fechasOcupadas = useMemo(() => {
-    if (!disponibilidades) return new Set<string>()
-    return new Set(
-      disponibilidades.filter((d) => !d.disponiblePrivado).map((d) => d.fecha)
-    )
-  }, [disponibilidades])
-
-  const paqueteSeleccionado =
-    paquetesAll.find((p) => p.id === idPaquete) ?? null
-  const turnoSeleccionado = turnos.find((t) => t.id === idTurno) ?? null
-
-  const presupuestoEstimado = useMemo(
-    () =>
-      servicios
-        .filter((s) => serviciosCotizacion.includes(s.id))
-        .reduce(
-          (sum, s) =>
-            sum + precioServicioEfectivo(s, variantesSeleccionadas[s.id]),
-          0
-        ),
-    [serviciosCotizacion, servicios, variantesSeleccionadas]
-  )
-
-  const serviciosConVariantePendiente = useMemo(
-    () =>
-      servicios.filter(
-        (s) =>
-          serviciosCotizacion.includes(s.id) &&
-          s.tieneVariantes &&
-          !variantesSeleccionadas[s.id]
-      ),
-    [servicios, serviciosCotizacion, variantesSeleccionadas]
-  )
+  const {
+    tipoEventoLabel,
+    paquetesFiltrados,
+    disponibilidadDia,
+    fechasOcupadas,
+    paqueteSeleccionado,
+    turnoSeleccionado,
+    presupuestoEstimado,
+    serviciosConVariantePendiente,
+    limitePersonas,
+    invitadosExcedeLimite,
+  } = useDatosDerivadosWizard({
+    tiposEvento,
+    tipoEvento,
+    paquetesAll,
+    idPaquete,
+    fechaSel,
+    disponibilidades,
+    turnos,
+    idTurno,
+    servicios,
+    serviciosCotizacion,
+    variantesSeleccionadas,
+    invitados,
+  })
 
   useEffect(() => {
     if (
@@ -252,11 +183,6 @@ export function SolicitarEventoWizardView() {
       setIdPaquete(null)
     }
   }, [tipoEvento, paquetesFiltrados.length, isLoadingPaquetes])
-
-  const limitePersonas = paqueteSeleccionado?.limitepersonas ?? null
-  const invitadosExcedeLimite = Boolean(
-    limitePersonas && invitados && invitados > limitePersonas
-  )
 
   function intentarSeleccionarFecha(valor: string) {
     if (!valor) {
@@ -351,6 +277,9 @@ export function SolicitarEventoWizardView() {
                 onSeleccionarPaquete={(paquete: PaqueteEvento) => {
                   setCamino('paquete')
                   setIdPaquete(paquete.id)
+                  if (paquete.limitepersonas && !invitadosTocado) {
+                    sugerirInvitados(paquete.limitepersonas)
+                  }
                 }}
                 onVerDetallePaquete={setPaqueteDetalle}
                 onSeleccionarCotizacion={() => {
@@ -424,6 +353,7 @@ export function SolicitarEventoWizardView() {
                 edadMax={edadMax}
                 invitados={invitados}
                 setInvitados={setInvitados}
+                invitadosTocado={invitadosTocado}
                 invitadosExcedeLimite={invitadosExcedeLimite}
                 limitePersonas={limitePersonas}
                 camino={camino}
@@ -459,6 +389,12 @@ export function SolicitarEventoWizardView() {
                 aceptaLegal={aceptaLegal}
                 setAceptaLegal={setAceptaLegal}
                 isSubmitting={isSubmitting}
+                datosValidos={
+                  canAdvance1 &&
+                  canAdvance2 &&
+                  canAdvance3 &&
+                  serviciosConVariantePendiente.length === 0
+                }
                 onAtras={() => setPaso(3)}
                 onSolicitar={() => solicitar()}
               />
@@ -513,6 +449,10 @@ export function SolicitarEventoWizardView() {
         onElegir={(id) => {
           setCamino('paquete')
           setIdPaquete(id)
+          const paquete = paquetesAll.find((p) => p.id === id)
+          if (paquete?.limitepersonas && !invitadosTocado) {
+            sugerirInvitados(paquete.limitepersonas)
+          }
         }}
       />
 

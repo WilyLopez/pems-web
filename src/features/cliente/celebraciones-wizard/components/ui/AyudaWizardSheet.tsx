@@ -74,7 +74,7 @@ export function AyudaWizardSheet() {
       <SheetTrigger asChild>
         <button
           type="button"
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-brand-rosa/5 hover:border-brand-rosa/30 hover:text-brand-rosa transition-all lg:bottom-6 lg:right-6 bottom-[72px]"
+          className="fixed bottom-[136px] right-4 z-40 lg:bottom-6 lg:right-24 flex items-center gap-2 bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-brand-rosa/5 hover:border-brand-rosa/30 hover:text-brand-rosa transition-all"
         >
           <HelpCircle className="h-4 w-4" />
           Ayuda
