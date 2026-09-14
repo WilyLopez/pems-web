@@ -7,6 +7,7 @@ import {
   ShoppingCart,
   CalendarDays,
   Users,
+  ScanLine,
   LogOut,
   Globe,
 } from 'lucide-react'
@@ -21,6 +22,7 @@ const mainNav = [
   { href: '/cajero/ventas', label: 'Ventas', icon: ShoppingCart },
   { href: '/cajero/reservas', label: 'Reservas', icon: CalendarDays },
   { href: '/cajero/clientes', label: 'Clientes', icon: Users },
+  { href: '/cajero/accesos', label: 'Accesos', icon: ScanLine },
 ]
 
 export function CajeroSidebar() {

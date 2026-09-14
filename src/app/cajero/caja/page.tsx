@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Plus, ShoppingCart } from 'lucide-react'
+import { Plus, ShoppingCart, ScanLine } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import {
   useCajaHoy,
@@ -45,29 +45,38 @@ export default function CajeroCajaPage() {
           description="Apertura, movimientos y cierre de tu sesión de caja"
         />
 
-        {estaAbierta && caja && (
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowMov(true)}
-              className="gap-1.5"
-            >
-              <Plus className="h-4 w-4" />
-              Movimiento
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
-            >
-              <Link href="/cajero/ventas/nueva">
-                <ShoppingCart className="h-4 w-4" />
-                Nueva venta
-              </Link>
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="outline" className="gap-1.5">
+            <Link href="/cajero/accesos">
+              <ScanLine className="h-4 w-4" />
+              Control de acceso
+            </Link>
+          </Button>
+
+          {estaAbierta && caja && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowMov(true)}
+                className="gap-1.5"
+              >
+                <Plus className="h-4 w-4" />
+                Movimiento
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="gap-1.5 bg-brand-azul hover:bg-brand-azul/90 text-white"
+              >
+                <Link href="/cajero/ventas/nueva">
+                  <ShoppingCart className="h-4 w-4" />
+                  Nueva venta
+                </Link>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
