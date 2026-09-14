@@ -51,7 +51,7 @@ const SheetContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed z-50 bg-white shadow-xl transition ease-in-out duration-300',
+        'fixed z-50 bg-white dark:bg-gray-900 shadow-xl transition ease-in-out duration-300',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:duration-300',
         sideClasses[side],
         className
@@ -70,7 +70,7 @@ const SheetHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex items-center justify-between px-5 py-4 border-b border-gray-100',
+      'flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800',
       className
     )}
     {...props}
@@ -84,7 +84,10 @@ const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-base font-bold text-gray-900', className)}
+    className={cn(
+      'text-base font-bold text-gray-900 dark:text-gray-100',
+      className
+    )}
     {...props}
   />
 ))
@@ -96,7 +99,7 @@ function SheetCloseButton({ className, ...props }: SheetCloseButtonProps) {
   return (
     <SheetClose
       className={cn(
-        'w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors',
+        'w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
         className
       )}
       {...props}

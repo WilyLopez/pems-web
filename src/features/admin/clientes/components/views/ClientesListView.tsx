@@ -14,26 +14,28 @@ import { ClienteDrawer } from '../ui/ClienteDrawer'
 import { NuevoClienteModal } from '../forms/NuevoClienteModal'
 import { useClientesList, useClienteDetail } from '../../hooks/useClientesData'
 import { useClientesNav } from '../../hooks/useClientesNav'
-import { OrigenCliente } from '../../types'
+import { FiltroCliente, OrigenCliente } from '../../types'
 
 interface ClientesListViewProps {
   origenCreacion?: OrigenCliente
   mostrarAcciones?: boolean
-  mostrarFiltroVerificados?: boolean
+  filtrosOcultos?: FiltroCliente[]
 }
 
 export function ClientesListView({
   origenCreacion = 'ADMIN',
   mostrarAcciones = true,
-  mostrarFiltroVerificados = true,
+  filtrosOcultos = [],
 }: ClientesListViewProps = {}) {
   const {
     page,
+    size,
     search,
     filtro,
     drawerId,
     modal,
     setPage,
+    setSize,
     setSearch,
     setFiltro,
     openDrawer,
@@ -92,7 +94,7 @@ export function ClientesListView({
         total={data?.totalElements}
         onSearchChange={setSearch}
         onFiltroChange={setFiltro}
-        mostrarFiltroVerificados={mostrarFiltroVerificados}
+        filtrosOcultos={filtrosOcultos}
       />
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
@@ -103,17 +105,21 @@ export function ClientesListView({
           emptyMessage="No se encontraron clientes con los filtros aplicados."
           onRowClick={(c) => openDrawer(c.id)}
         />
-      </div>
 
-      {data && data.totalPages > 1 && (
-        <DataTablePagination
-          page={data.page}
-          totalPages={data.totalPages}
-          totalElements={data.totalElements}
-          size={data.size}
-          onPageChange={setPage}
-        />
-      )}
+        {data && data.totalElements > 0 && (
+          <div className="border-t border-gray-100 px-4 py-3 bg-gray-50/50">
+            <DataTablePagination
+              page={data.page}
+              totalPages={data.totalPages}
+              totalElements={data.totalElements}
+              size={data.size}
+              onPageChange={setPage}
+              onSizeChange={setSize}
+              pageSizeOptions={[10, 15, 25, 50]}
+            />
+          </div>
+        )}
+      </div>
 
       <ClienteDrawer
         cliente={selectedCliente}

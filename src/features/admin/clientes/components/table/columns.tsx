@@ -2,15 +2,9 @@ import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, Eye } from 'lucide-react'
 import { Cliente } from '../../types'
 import { ClienteAvatar } from '../ui/ClienteAvatar'
-import {
-  VipBadge,
-  OrigenBadge,
-  SegmentoBadge,
-  VisitasBadge,
-  EstadoBadge,
-} from '../ui/ClienteBadges'
+import { VipBadge, VisitasBadge, EstadoBadge } from '../ui/ClienteBadges'
 import { Button } from '@/components/ui/Button'
-import { formatDate } from '@/lib/utils'
+import { formatDate, toTitleCase } from '@/lib/utils'
 
 export const createColumns = (
   onVerPerfil: (cliente: Cliente) => void
@@ -28,8 +22,11 @@ export const createColumns = (
     ),
     cell: ({ row }) => {
       const c = row.original
+      const detalle = c.correo
+        ? `${c.tipoDocumentoCodigo} ${c.numeroDocumento} · ${c.correo}`
+        : `${c.tipoDocumentoCodigo} ${c.numeroDocumento}`
       return (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 max-w-[240px]">
           <ClienteAvatar
             nombre={c.nombreCompleto}
             fotoPerfil={undefined}
@@ -37,10 +34,10 @@ export const createColumns = (
             size="sm"
           />
           <div className="min-w-0">
-            <p className="font-semibold text-sm text-gray-900 truncate">
-              {c.nombreCompleto}
+            <p className="font-medium text-sm text-gray-900 truncate">
+              {toTitleCase(c.nombreCompleto)}
             </p>
-            <p className="text-xs text-gray-400 truncate">{c.correo}</p>
+            <p className="text-xs text-gray-400 truncate">{detalle}</p>
           </div>
         </div>
       )
@@ -53,11 +50,12 @@ export const createColumns = (
         Telefono
       </span>
     ),
-    cell: ({ row }) => (
-      <span className="text-sm text-gray-700">
-        {row.original.telefono ?? '—'}
-      </span>
-    ),
+    cell: ({ row }) =>
+      row.original.telefono ? (
+        <span className="text-sm text-gray-700">{row.original.telefono}</span>
+      ) : (
+        <span className="text-xs text-gray-400 italic">Sin registro</span>
+      ),
   },
   {
     accessorKey: 'esVip',
@@ -72,24 +70,6 @@ export const createColumns = (
       ) : (
         <span className="text-gray-300 text-xs">—</span>
       ),
-  },
-  {
-    accessorKey: 'origen',
-    header: () => (
-      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-        Origen
-      </span>
-    ),
-    cell: ({ row }) => <OrigenBadge origen={row.original.origen} />,
-  },
-  {
-    accessorKey: 'segmentoCodigo',
-    header: () => (
-      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-        Segmento
-      </span>
-    ),
-    cell: ({ row }) => <SegmentoBadge segmento={row.original.segmentoCodigo} />,
   },
   {
     accessorKey: 'activo',

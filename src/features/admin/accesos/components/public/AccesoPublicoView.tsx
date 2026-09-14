@@ -87,6 +87,7 @@ function TicketDetalleCard({
   onRevertirIngreso,
   loadingRevertir,
   onCobrarExitoso,
+  puedeReprogramar = true,
 }: {
   ticket: TicketDetalle
   onReset: () => void
@@ -97,6 +98,7 @@ function TicketDetalleCard({
   onRevertirIngreso: (id: number) => void
   loadingRevertir: boolean
   onCobrarExitoso?: () => void
+  puedeReprogramar?: boolean
 }) {
   const [editandoFecha, setEditandoFecha] = useState(false)
   const [nuevaFecha, setNuevaFecha] = useState(format(new Date(), 'yyyy-MM-dd'))
@@ -228,7 +230,10 @@ function TicketDetalleCard({
             <p className="text-sm text-amber-800">
               Este ticket es para el{' '}
               <strong>{formatDate(ticket.fechaVisita, "d 'de' MMMM")}</strong>,
-              no para hoy. Cambia la fecha para poder registrar el ingreso.
+              no para hoy.{' '}
+              {puedeReprogramar
+                ? 'Cambia la fecha para poder registrar el ingreso.'
+                : 'Solicita a un administrador que cambie la fecha para poder registrar el ingreso.'}
             </p>
           </div>
         )}
@@ -246,7 +251,7 @@ function TicketDetalleCard({
           </div>
         )}
 
-        {!ticket.yaIngreso && !editandoFecha && (
+        {puedeReprogramar && !ticket.yaIngreso && !editandoFecha && (
           <div className="flex justify-end">
             <button
               onClick={() => setEditandoFecha(true)}
@@ -257,7 +262,7 @@ function TicketDetalleCard({
           </div>
         )}
 
-        {editandoFecha && (
+        {puedeReprogramar && editandoFecha && (
           <div className="rounded-xl border border-input bg-muted/40 p-4 space-y-3">
             <Label className="text-sm font-medium">Nueva fecha de visita</Label>
             <p className="text-xs text-muted-foreground -mt-1">
@@ -408,7 +413,13 @@ function TicketDetalleCard({
   )
 }
 
-export const AccesoPublicoView = () => {
+interface AccesoPublicoViewProps {
+  puedeReprogramar?: boolean
+}
+
+export const AccesoPublicoView = ({
+  puedeReprogramar = true,
+}: AccesoPublicoViewProps = {}) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -552,6 +563,7 @@ export const AccesoPublicoView = () => {
         <TicketDetalleCard
           ticket={ticket}
           onReset={reset}
+          puedeReprogramar={puedeReprogramar}
           onCobrarExitoso={() => handleTicket(ticket.numeroTicket)}
           onMarcarEntrada={(id) => {
             marcarEntrada.mutate(id, {

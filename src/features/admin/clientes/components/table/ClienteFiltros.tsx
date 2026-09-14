@@ -88,7 +88,7 @@ interface ClienteFiltrosProps {
   total?: number
   onSearchChange: (v: string) => void
   onFiltroChange: (f: FiltroCliente) => void
-  mostrarFiltroVerificados?: boolean
+  filtrosOcultos?: FiltroCliente[]
 }
 
 export function ClienteFiltros({
@@ -97,11 +97,9 @@ export function ClienteFiltros({
   total,
   onSearchChange,
   onFiltroChange,
-  mostrarFiltroVerificados = true,
+  filtrosOcultos = [],
 }: ClienteFiltrosProps) {
-  const filtrosVisibles = mostrarFiltroVerificados
-    ? FILTROS
-    : FILTROS.filter((f) => f.key !== 'verificados')
+  const filtrosVisibles = FILTROS.filter((f) => !filtrosOcultos.includes(f.key))
 
   return (
     <div className="space-y-3">

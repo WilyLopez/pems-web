@@ -54,8 +54,8 @@ function NotificacionItem({ n, onClickItem }: NotificacionItemProps) {
       className={cn(
         'flex gap-3 px-5 py-4 transition-colors cursor-pointer',
         !n.leida
-          ? 'bg-brand-azul/[0.03] hover:bg-brand-azul/[0.06]'
-          : 'hover:bg-gray-50'
+          ? 'bg-brand-azul/[0.03] hover:bg-brand-azul/[0.06] dark:bg-brand-azul/[0.08] dark:hover:bg-brand-azul/[0.12]'
+          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
       )}
     >
       <div className="relative shrink-0 mt-0.5">
@@ -70,7 +70,7 @@ function NotificacionItem({ n, onClickItem }: NotificacionItemProps) {
         {!n.leida && (
           <span
             className={cn(
-              'absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full ring-2 ring-white',
+              'absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full ring-2 ring-white dark:ring-gray-900',
               DOT_COLOR[n.tipo]
             )}
           />
@@ -81,16 +81,18 @@ function NotificacionItem({ n, onClickItem }: NotificacionItemProps) {
         <p
           className={cn(
             'text-sm leading-snug',
-            n.leida ? 'text-gray-600' : 'text-gray-900 font-semibold'
+            n.leida
+              ? 'text-gray-600 dark:text-gray-400'
+              : 'text-gray-900 dark:text-gray-100 font-semibold'
           )}
         >
           {n.titulo}
         </p>
-        <p className="text-xs text-gray-500 mt-0.5 leading-relaxed line-clamp-2">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed line-clamp-2">
           {n.mensaje}
         </p>
         <div className="flex items-center gap-2 mt-1.5">
-          <span className="text-[10px] text-gray-400">
+          <span className="text-[10px] text-gray-400 dark:text-gray-500">
             {formatDistanceToNow(n.fecha, { addSuffix: true, locale: es })}
           </span>
           <span
@@ -108,7 +110,7 @@ function NotificacionItem({ n, onClickItem }: NotificacionItemProps) {
         <a
           href={n.href}
           onClick={(e) => e.stopPropagation()}
-          className="shrink-0 mt-1 text-gray-300 hover:text-brand-azul transition-colors"
+          className="shrink-0 mt-1 text-gray-300 dark:text-gray-600 hover:text-brand-azul transition-colors"
         >
           <ExternalLink className="h-3.5 w-3.5" />
         </a>
@@ -188,7 +190,7 @@ export function NotificacionesSheet() {
             </div>
           </SheetHeader>
 
-          <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 overflow-x-auto shrink-0 scrollbar-none">
+          <div className="flex gap-1.5 px-4 py-2.5 border-b border-gray-100 dark:border-gray-800 overflow-x-auto shrink-0 scrollbar-none">
             {FILTROS.map((f) => (
               <button
                 key={f.value}
@@ -197,7 +199,7 @@ export function NotificacionesSheet() {
                   'shrink-0 rounded-full text-[11px] font-semibold px-3 py-1 transition-colors',
                   filtro === f.value
                     ? 'bg-brand-azul text-white'
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 )}
               >
                 {f.label}
@@ -206,17 +208,17 @@ export function NotificacionesSheet() {
           </div>
 
           <div
-            className="flex-1 overflow-y-auto divide-y divide-gray-50 min-h-0"
+            className="flex-1 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800 min-h-0"
             aria-live="polite"
           >
             {cargando && notificaciones.length === 0 ? (
               <div className="flex items-center justify-center py-16">
-                <RefreshCw className="h-5 w-5 text-gray-300 animate-spin" />
+                <RefreshCw className="h-5 w-5 text-gray-300 dark:text-gray-700 animate-spin" />
               </div>
             ) : filtradas.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-2">
-                <Bell className="h-8 w-8 text-gray-200" />
-                <p className="text-sm text-gray-400">
+                <Bell className="h-8 w-8 text-gray-200 dark:text-gray-700" />
+                <p className="text-sm text-gray-400 dark:text-gray-500">
                   {filtro === 'no-leidas'
                     ? 'No tienes notificaciones sin leer.'
                     : 'Sin notificaciones.'}
@@ -251,7 +253,7 @@ export function NotificacionesSheet() {
             )}
           </div>
 
-          <div className="border-t border-gray-100 px-4 py-3 shrink-0">
+          <div className="border-t border-gray-100 dark:border-gray-800 px-4 py-3 shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -273,8 +275,8 @@ export function NotificacionesSheet() {
         onOpenChange={(open) => !open && setNotificacionSeleccionada(null)}
       >
         {notificacionSeleccionada && (
-          <DialogContent className="sm:max-w-md rounded-2xl border border-gray-100 p-6 shadow-2xl">
-            <DialogHeader className="flex flex-row items-center gap-3 border-b border-gray-100 pb-4 mb-4">
+          <DialogContent className="sm:max-w-md rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-2xl">
+            <DialogHeader className="flex flex-row items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-4 mb-4">
               <div
                 className={cn(
                   'h-10 w-10 rounded-xl flex items-center justify-center shrink-0',
@@ -286,13 +288,13 @@ export function NotificacionesSheet() {
                 })}
               </div>
               <div className="flex-1 min-w-0">
-                <DialogTitle className="text-base font-bold text-gray-900 leading-tight">
+                <DialogTitle className="text-base font-bold text-gray-900 dark:text-gray-100 leading-tight">
                   {notificacionSeleccionada.titulo}
                 </DialogTitle>
                 <DialogDescription className="sr-only">
                   Detalles de la notificación
                 </DialogDescription>
-                <span className="text-[10px] text-gray-400 mt-1 block">
+                <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 block">
                   {formatDistanceToNow(notificacionSeleccionada.fecha, {
                     addSuffix: true,
                     locale: es,
@@ -302,12 +304,12 @@ export function NotificacionesSheet() {
             </DialogHeader>
 
             <div className="space-y-4">
-              <div className="text-sm text-gray-600 leading-relaxed bg-gray-50/50 p-4 rounded-xl border border-gray-100/50">
+              <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed bg-gray-50/50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100/50 dark:border-gray-800">
                 {notificacionSeleccionada.mensaje}
               </div>
             </div>
 
-            <DialogFooter className="mt-6 flex flex-row justify-end gap-2 border-t border-gray-100 pt-4">
+            <DialogFooter className="mt-6 flex flex-row justify-end gap-2 border-t border-gray-100 dark:border-gray-800 pt-4">
               {notificacionSeleccionada.href && (
                 <a
                   href={notificacionSeleccionada.href}

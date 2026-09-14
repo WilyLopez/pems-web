@@ -87,6 +87,16 @@ export function getInitials(name: string) {
     .substring(0, 2)
 }
 
+export function toTitleCase(text: string) {
+  if (!text) return ''
+  return text
+    .toLowerCase()
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
 /**
  * Converts an absolute backend file URL to a root-relative path so it goes
  * through the Next.js rewrite proxy (/files/** → backend/files/**).
