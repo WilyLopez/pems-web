@@ -12,10 +12,10 @@ export const CLIENTES_KEYS = {
 } as const
 
 export function useClientesList() {
-  const { page, search, filtro } = useClientesNav()
+  const { page, size, search, filtro } = useClientesNav()
   return useQuery({
-    queryKey: [CLIENTES_KEYS.LIST, page, search, filtro],
-    queryFn: () => clientesApi.listar(buildParams(filtro, page, 15, search)),
+    queryKey: [CLIENTES_KEYS.LIST, page, size, search, filtro],
+    queryFn: () => clientesApi.listar(buildParams(filtro, page, size, search)),
     placeholderData: (previousData) => previousData,
   })
 }

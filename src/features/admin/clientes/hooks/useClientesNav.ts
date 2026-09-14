@@ -14,6 +14,11 @@ export function useClientesNav() {
     return p ? parseInt(p, 10) : 0
   }, [searchParams])
 
+  const size = useMemo(() => {
+    const s = searchParams.get('size')
+    return s ? parseInt(s, 10) : 15
+  }, [searchParams])
+
   const search = searchParams.get('search') || ''
   const filtro = (searchParams.get('filtro') || 'todos') as FiltroCliente
 
@@ -41,11 +46,14 @@ export function useClientesNav() {
 
   return {
     page,
+    size,
     search,
     filtro,
     drawerId,
     modal,
     setPage: (p: number) => updateParams({ page: p > 0 ? p.toString() : null }),
+    setSize: (s: number) =>
+      updateParams({ size: s !== 15 ? s.toString() : null, page: null }),
     setSearch: (s: string) => updateParams({ search: s || null, page: null }),
     setFiltro: (f: FiltroCliente) =>
       updateParams({ filtro: f !== 'todos' ? f : null, page: null }),
