@@ -60,11 +60,11 @@ export const NotificacionesMenu = memo(function NotificacionesMenu() {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9 rounded-xl hover:bg-gray-100 transition-colors"
+            className="relative h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <Bell
               className={cn(
-                'h-[18px] w-[18px] text-gray-500',
+                'h-[18px] w-[18px] text-gray-500 dark:text-gray-400',
                 noLeidas > 0 && 'bell-ring-active text-brand-rosa'
               )}
             />
@@ -76,10 +76,10 @@ export const NotificacionesMenu = memo(function NotificacionesMenu() {
 
         <DropdownMenuContent
           align="end"
-          className="w-80 p-0 rounded-2xl overflow-hidden shadow-card-hover"
+          className="w-80 p-0 rounded-2xl overflow-hidden shadow-card-hover dark:bg-gray-900 dark:border-gray-800"
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="font-bold text-sm text-gray-900">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+            <span className="font-bold text-sm text-gray-900 dark:text-gray-100">
               Notificaciones
             </span>
             {noLeidas > 0 && (
@@ -98,11 +98,13 @@ export const NotificacionesMenu = memo(function NotificacionesMenu() {
             )}
           </div>
 
-          <div className="max-h-[340px] overflow-y-auto divide-y divide-gray-50">
+          <div className="max-h-[340px] overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800">
             {notificaciones.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
-                <Bell className="h-5 w-5 text-gray-300" />
-                <p className="text-xs text-gray-400">Sin notificaciones</p>
+                <Bell className="h-5 w-5 text-gray-300 dark:text-gray-700" />
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  Sin notificaciones
+                </p>
               </div>
             ) : (
               notificaciones.map((n) => {
@@ -112,8 +114,8 @@ export const NotificacionesMenu = memo(function NotificacionesMenu() {
                     key={n.id}
                     onClick={() => marcarLeida(n.id)}
                     className={cn(
-                      'flex gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer',
-                      !n.leida && 'bg-brand-azul/[0.03]'
+                      'flex gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer',
+                      !n.leida && 'bg-brand-azul/[0.03] dark:bg-brand-azul/[0.08]'
                     )}
                   >
                     <div
@@ -127,17 +129,17 @@ export const NotificacionesMenu = memo(function NotificacionesMenu() {
                         className={cn(
                           'text-xs leading-snug',
                           n.leida
-                            ? 'text-gray-600'
-                            : 'text-gray-900 font-semibold'
+                            ? 'text-gray-600 dark:text-gray-400'
+                            : 'text-gray-900 dark:text-gray-100 font-semibold'
                         )}
                       >
                         {n.titulo}
                       </p>
-                      <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
                         {n.mensaje}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] text-gray-400">
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500">
                           {formatDistanceToNow(n.fecha, {
                             addSuffix: true,
                             locale: es,
@@ -165,10 +167,10 @@ export const NotificacionesMenu = memo(function NotificacionesMenu() {
             )}
           </div>
 
-          <div className="p-2 border-t border-gray-100">
+          <div className="p-2 border-t border-gray-100 dark:border-gray-800">
             <button
               onClick={() => setPanelAbierto(true)}
-              className="block w-full text-center text-xs text-brand-azul font-semibold py-2 rounded-xl hover:bg-brand-azul/8 transition-colors"
+              className="block w-full text-center text-xs text-brand-azul font-semibold py-2 rounded-xl hover:bg-brand-azul/8 dark:hover:bg-brand-azul/15 transition-colors"
             >
               Ver todas las notificaciones
             </button>
