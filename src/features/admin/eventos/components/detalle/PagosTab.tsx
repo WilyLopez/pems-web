@@ -6,7 +6,10 @@ import { useRegistrarSaldo } from '../../hooks/useEventos'
 import { EventoCuota, EventoPrivado } from '../../types'
 import { PagarCuotaDialog } from '../dialogs/PagarCuotaDialog'
 import { MediosPagoSelect } from '@/features/admin/config/components/MediosPagoSelect'
-import { useMiSesionCaja, CajaRequeridaAlert } from '@/features/admin/finanzas'
+import {
+  useCajaActivaSede,
+  CajaRequeridaAlert,
+} from '@/features/admin/finanzas'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Separator } from '@/components/ui/Separator'
@@ -19,17 +22,16 @@ interface PagosTabProps {
 
 export function PagosTab({ evento, idEvento }: PagosTabProps) {
   const registrarSaldo = useRegistrarSaldo()
-  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
-    useMiSesionCaja()
+  const { data: cajaActiva, isLoading: cargandoCaja } = useCajaActivaSede(
+    evento.idSede
+  )
   const [montoSaldo, setMontoSaldo] = useState('')
   const [medioPagoSaldo, setMedioPagoSaldo] = useState('')
   const [cuotaSeleccionada, setCuotaSeleccionada] =
     useState<EventoCuota | null>(null)
 
-  const sinCajaAdministrativa =
-    !cargandoSesionCaja && miSesionCaja?.tipo !== 'ADMINISTRATIVA'
-  const efectivoSaldoBloqueado =
-    medioPagoSaldo === 'EFECTIVO' && sinCajaAdministrativa
+  const sinCajaAbierta = !cargandoCaja && !cajaActiva
+  const efectivoSaldoBloqueado = medioPagoSaldo === 'EFECTIVO' && sinCajaAbierta
   const montoSaldoExcedeSaldo =
     !!montoSaldo && parseFloat(montoSaldo) > (evento.montoSaldo ?? 0)
 
@@ -231,7 +233,7 @@ export function PagosTab({ evento, idEvento }: PagosTabProps) {
                       </p>
                     )}
                     {efectivoSaldoBloqueado && (
-                      <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas tu Caja Administrativa abierta." />
+                      <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas que haya una caja abierta en esta sede." />
                     )}
                   </div>
                 )}
@@ -247,7 +249,7 @@ export function PagosTab({ evento, idEvento }: PagosTabProps) {
       <PagarCuotaDialog
         cuota={cuotaSeleccionada}
         idEvento={idEvento}
-        sinCajaAdministrativa={sinCajaAdministrativa}
+        sinCajaAbierta={sinCajaAbierta}
         onClose={() => setCuotaSeleccionada(null)}
       />
     </div>

@@ -19,14 +19,14 @@ import { formatCurrency } from '@/lib/utils'
 interface PagarCuotaDialogProps {
   cuota: EventoCuota | null
   idEvento: number
-  sinCajaAdministrativa: boolean
+  sinCajaAbierta: boolean
   onClose: () => void
 }
 
 export function PagarCuotaDialog({
   cuota,
   idEvento,
-  sinCajaAdministrativa,
+  sinCajaAbierta,
   onClose,
 }: PagarCuotaDialogProps) {
   const registrarCuota = useRegistrarPagoCuota()
@@ -43,7 +43,7 @@ export function PagarCuotaDialog({
   }
 
   const efectivoCuotaBloqueado =
-    sinCajaAdministrativa &&
+    sinCajaAbierta &&
     pagosCuota.some((p) => p.medioPago === 'EFECTIVO' && p.monto > 0)
 
   return (
@@ -68,7 +68,7 @@ export function PagarCuotaDialog({
               totalEsperado={cuota.monto}
             />
             {efectivoCuotaBloqueado && (
-              <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas tu Caja Administrativa abierta." />
+              <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas que haya una caja abierta en esta sede." />
             )}
           </div>
         )}

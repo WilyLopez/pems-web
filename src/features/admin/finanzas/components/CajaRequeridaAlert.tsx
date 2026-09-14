@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { Wallet } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 
@@ -17,8 +16,6 @@ export function CajaRequeridaAlert({
   className,
   hrefCaja = '/admin/finanzas/caja',
 }: CajaRequeridaAlertProps) {
-  const { isAdmin } = useAuth()
-
   return (
     <div
       className={cn(
@@ -35,9 +32,7 @@ export function CajaRequeridaAlert({
           variant="outline"
           className="border-amber-300 text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:text-amber-200 dark:hover:bg-amber-900/40"
         >
-          <Link href={hrefCaja}>
-            {isAdmin ? 'Abrir Caja Administrativa' : 'Abrir mi caja'}
-          </Link>
+          <Link href={hrefCaja}>Abrir caja</Link>
         </Button>
       </div>
     </div>
