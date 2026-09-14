@@ -27,6 +27,7 @@ const BREADCRUMB_MAP: Record<string, string> = {
   reservas: 'Reservas',
   clientes: 'Clientes',
   accesos: 'Accesos',
+  calendario: 'Calendario',
 }
 
 function getBreadcrumb(pathname: string): { label: string; href: string }[] {

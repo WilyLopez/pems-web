@@ -6,6 +6,7 @@ import {
   Wallet,
   ShoppingCart,
   CalendarDays,
+  Calendar,
   Users,
   ScanLine,
   LogOut,
@@ -23,6 +24,7 @@ const mainNav = [
   { href: '/cajero/reservas', label: 'Reservas', icon: CalendarDays },
   { href: '/cajero/clientes', label: 'Clientes', icon: Users },
   { href: '/cajero/accesos', label: 'Accesos', icon: ScanLine },
+  { href: '/cajero/calendario', label: 'Calendario', icon: Calendar },
 ]
 
 export function CajeroSidebar() {

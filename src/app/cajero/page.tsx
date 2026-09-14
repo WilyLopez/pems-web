@@ -5,6 +5,7 @@ import {
   ShoppingCart,
   ScanLine,
   CalendarDays,
+  Calendar,
   Lock,
   Unlock,
   PartyPopper,
@@ -23,6 +24,7 @@ const ACCESOS_RAPIDOS = [
   { href: '/cajero/ventas/nueva', label: 'Nueva venta', icon: ShoppingCart },
   { href: '/cajero/accesos', label: 'Control de acceso', icon: ScanLine },
   { href: '/cajero/reservas', label: 'Reservas de hoy', icon: CalendarDays },
+  { href: '/cajero/calendario', label: 'Calendario', icon: Calendar },
 ]
 
 export default function CajeroHomePage() {
@@ -130,7 +132,7 @@ export default function CajeroHomePage() {
         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2.5 px-1">
           Accesos rápidos
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {ACCESOS_RAPIDOS.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
