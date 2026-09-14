@@ -17,6 +17,7 @@ export interface CobrarReservaPayload {
   efectivoRecibido?: number
   actaFirmada: boolean
   notas?: string
+  idempotencyKey?: string
 }
 
 export const ventasApi = {
@@ -49,6 +50,7 @@ export const ventasApi = {
     if (filtros.hasta) params.append('hasta', filtros.hasta)
     if (filtros.search) params.append('search', filtros.search)
     if (filtros.tipo) params.append('tipo', filtros.tipo)
+    if (filtros.usuarioId) params.append('usuarioId', filtros.usuarioId)
     if (filtros.page !== undefined)
       params.append('page', filtros.page.toString())
     if (filtros.size !== undefined)

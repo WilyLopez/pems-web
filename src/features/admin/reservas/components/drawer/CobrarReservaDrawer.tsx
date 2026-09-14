@@ -66,11 +66,21 @@ interface CobrarReservaDrawerProps {
   onClose: (success?: boolean) => void
 }
 
+function generarIdempotencyKey() {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
 export const CobrarReservaDrawer = ({
   reserva,
   onClose,
 }: CobrarReservaDrawerProps) => {
   const cobrarMutation = useCobrarReserva()
+  const idempotencyKey = useMemo(
+    () => generarIdempotencyKey(),
+    [reserva?.id]
+  )
 
   const {
     control,
@@ -131,6 +141,7 @@ export const CobrarReservaDrawer = ({
           efectivoRecibido: data.efectivoRecibido,
           actaFirmada: data.actaFirmada,
           notas: data.notas,
+          idempotencyKey,
         },
       })
       onClose(true)
