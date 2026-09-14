@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@/lib/resolver'
 import { z } from 'zod'
+import { Loader2 } from 'lucide-react'
 import {
   movimientoCajaSchema,
   useCajaMutations,
@@ -101,7 +102,9 @@ export function RegistrarMovimientoModal({
               </SelectContent>
             </Select>
             {errors.tipo && (
-              <p className="text-xs text-red-500">{errors.tipo.message}</p>
+              <p className="text-xs text-red-500 dark:text-red-400">
+                {errors.tipo.message}
+              </p>
             )}
           </div>
 
@@ -141,7 +144,9 @@ export function RegistrarMovimientoModal({
               placeholder="Descripción del movimiento"
             />
             {errors.concepto && (
-              <p className="text-xs text-red-500">{errors.concepto.message}</p>
+              <p className="text-xs text-red-500 dark:text-red-400">
+                {errors.concepto.message}
+              </p>
             )}
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -149,7 +154,9 @@ export function RegistrarMovimientoModal({
               <Label>Monto (S/)</Label>
               <Input type="number" step="0.01" min="0" {...register('monto')} />
               {errors.monto && (
-                <p className="text-xs text-red-500">{errors.monto.message}</p>
+                <p className="text-xs text-red-500 dark:text-red-400">
+                  {errors.monto.message}
+                </p>
               )}
             </div>
             <div className="space-y-1">
@@ -187,9 +194,16 @@ export function RegistrarMovimientoModal({
               type="submit"
               size="sm"
               disabled={registrarMovimiento.isPending}
-              className="bg-brand-azul hover:bg-brand-azul/90 text-white"
+              className="bg-brand-azul hover:bg-brand-azul/90 text-white gap-1.5"
             >
-              Registrar
+              {registrarMovimiento.isPending ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Guardando…
+                </>
+              ) : (
+                'Registrar'
+              )}
             </Button>
           </div>
         </form>

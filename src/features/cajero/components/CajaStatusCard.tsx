@@ -42,25 +42,26 @@ export function CajaStatusCard({ caja }: Props) {
       label: 'Saldo inicial',
       value: caja.saldoInicial,
       icon: TrendingUp,
-      color: 'bg-gray-100 text-gray-600',
+      color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300',
     },
     {
       label: 'Total ingresos',
       value: caja.totalIngresos,
       icon: TrendingUp,
-      color: 'bg-emerald-100 text-emerald-700',
+      color:
+        'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400',
     },
     {
       label: 'Total egresos',
       value: caja.totalEgresos,
       icon: TrendingDown,
-      color: 'bg-red-100 text-red-600',
+      color: 'bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400',
     },
     {
       label: estaAbierta ? 'Saldo esperado' : 'Saldo contado',
       value: estaAbierta ? saldoEsperado : (caja.saldoFinal ?? saldoEsperado),
       icon: TrendingUp,
-      color: 'bg-brand-azul/10 text-brand-azul',
+      color: 'bg-brand-azul/10 dark:bg-brand-azul/20 text-brand-azul',
     },
   ]
 
@@ -68,16 +69,25 @@ export function CajaStatusCard({ caja }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <p className="text-sm font-medium text-gray-500 capitalize" suppressHydrationWarning>
+          <p
+            className="text-sm font-medium text-gray-500 dark:text-gray-400 capitalize"
+            suppressHydrationWarning
+          >
             {formatFecha(caja.fecha)}
           </p>
           {estaAbierta ? (
-            <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1" suppressHydrationWarning>
+            <p
+              className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1"
+              suppressHydrationWarning
+            >
               <Clock className="h-3 w-3" />
               Abierta desde las {formatHora(caja.fechaApertura)}
             </p>
           ) : (
-            <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1" suppressHydrationWarning>
+            <p
+              className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1"
+              suppressHydrationWarning
+            >
               <Clock className="h-3 w-3" />
               Cerrada a las{' '}
               {caja.fechaCierre ? formatHora(caja.fechaCierre) : '—'}
@@ -88,8 +98,8 @@ export function CajaStatusCard({ caja }: Props) {
           className={cn(
             'inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full',
             estaAbierta
-              ? 'bg-emerald-100 text-emerald-700'
-              : 'bg-gray-100 text-gray-600'
+              ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
           )}
         >
           {estaAbierta ? (
@@ -108,7 +118,7 @@ export function CajaStatusCard({ caja }: Props) {
         {metricas.map(({ label, value, icon: Icon, color }) => (
           <div
             key={label}
-            className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3"
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 space-y-3"
           >
             <div
               className={cn(
@@ -119,10 +129,12 @@ export function CajaStatusCard({ caja }: Props) {
               <Icon className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900">
+              <p className="text-lg font-black text-gray-900 dark:text-gray-100">
                 {formatCurrency(value)}
               </p>
-              <p className="text-xs font-semibold text-gray-500">{label}</p>
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                {label}
+              </p>
             </div>
           </div>
         ))}
@@ -133,8 +145,8 @@ export function CajaStatusCard({ caja }: Props) {
           className={cn(
             'flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold',
             caja.diferencia >= 0
-              ? 'bg-emerald-50 text-emerald-700'
-              : 'bg-red-50 text-red-600'
+              ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400'
+              : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
           )}
         >
           <span>Diferencia al cierre</span>
@@ -146,7 +158,9 @@ export function CajaStatusCard({ caja }: Props) {
       )}
 
       {caja.observaciones && (
-        <p className="text-xs text-gray-400 px-1">{caja.observaciones}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 px-1">
+          {caja.observaciones}
+        </p>
       )}
     </div>
   )

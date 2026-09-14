@@ -18,6 +18,7 @@ import {
   Loader2,
   UserX,
   UserCheck,
+  Pencil,
 } from 'lucide-react'
 import { Cliente } from '../../types'
 import { useMutacionesCliente } from '../../hooks/useClientesData'
@@ -30,6 +31,7 @@ import {
   EstadoBadge,
 } from './ClienteBadges'
 import { ConfirmarEstadoClienteDialog } from './ConfirmarEstadoClienteDialog'
+import { EditarClienteModal } from '../forms/EditarClienteModal'
 import { DetalleRow } from './DetalleRow'
 import { StatCard } from './StatCard'
 import { Button } from '@/components/ui/Button'
@@ -40,14 +42,20 @@ import { cn } from '@/lib/utils'
 interface ClienteDrawerProps {
   cliente: Cliente | null
   onClose: () => void
+  mostrarAcciones?: boolean
 }
 
-export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
+export function ClienteDrawer({
+  cliente,
+  onClose,
+  mostrarAcciones = true,
+}: ClienteDrawerProps) {
   const router = useRouter()
   const { toggleVip, toggleActivo, registrarVisita } = useMutacionesCliente(
     cliente?.id
   )
   const [confirmarEstadoOpen, setConfirmarEstadoOpen] = useState(false)
+  const [editarOpen, setEditarOpen] = useState(false)
 
   const handleToggleVip = () => {
     if (!cliente) return
@@ -141,67 +149,79 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
             />
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">
-              Acciones
-            </p>
+          {mostrarAcciones && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-3">
+                Acciones
+              </p>
 
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  'rounded-xl gap-1.5 text-xs font-semibold',
-                  cliente.esVip
-                    ? 'border-yellow-200 text-yellow-700 hover:bg-yellow-50'
-                    : 'border-brand-amarillo/40 text-yellow-700 hover:bg-brand-amarillo/10'
-                )}
-                onClick={handleToggleVip}
-                disabled={toggleVip.isPending}
-              >
-                {toggleVip.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Crown className="h-3.5 w-3.5" />
-                )}
-                {cliente.esVip ? 'Quitar VIP' : 'Hacer VIP'}
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl gap-1.5 text-xs font-semibold col-span-2"
+                  onClick={() => setEditarOpen(true)}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Editar datos
+                </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl gap-1.5 text-xs font-semibold col-span-2 border-brand-azul/30 text-brand-azul hover:bg-brand-azul/8"
-                onClick={handleRegistrarVisita}
-                disabled={registrarVisita.isPending}
-              >
-                {registrarVisita.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-3.5 w-3.5" />
-                )}
-                Registrar visita manual
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    'rounded-xl gap-1.5 text-xs font-semibold',
+                    cliente.esVip
+                      ? 'border-yellow-200 text-yellow-700 hover:bg-yellow-50'
+                      : 'border-brand-amarillo/40 text-yellow-700 hover:bg-brand-amarillo/10'
+                  )}
+                  onClick={handleToggleVip}
+                  disabled={toggleVip.isPending}
+                >
+                  {toggleVip.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Crown className="h-3.5 w-3.5" />
+                  )}
+                  {cliente.esVip ? 'Quitar VIP' : 'Hacer VIP'}
+                </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  'rounded-xl gap-1.5 text-xs font-semibold col-span-2',
-                  cliente.activo
-                    ? 'border-red-200 text-red-600 hover:bg-red-50'
-                    : 'border-green-200 text-green-700 hover:bg-green-50'
-                )}
-                onClick={() => setConfirmarEstadoOpen(true)}
-              >
-                {cliente.activo ? (
-                  <UserX className="h-3.5 w-3.5" />
-                ) : (
-                  <UserCheck className="h-3.5 w-3.5" />
-                )}
-                {cliente.activo ? 'Desactivar cliente' : 'Activar cliente'}
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl gap-1.5 text-xs font-semibold col-span-2 border-brand-azul/30 text-brand-azul hover:bg-brand-azul/8"
+                  onClick={handleRegistrarVisita}
+                  disabled={registrarVisita.isPending}
+                >
+                  {registrarVisita.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  )}
+                  Registrar visita manual
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    'rounded-xl gap-1.5 text-xs font-semibold col-span-2',
+                    cliente.activo
+                      ? 'border-red-200 text-red-600 hover:bg-red-50'
+                      : 'border-green-200 text-green-700 hover:bg-green-50'
+                  )}
+                  onClick={() => setConfirmarEstadoOpen(true)}
+                >
+                  {cliente.activo ? (
+                    <UserX className="h-3.5 w-3.5" />
+                  ) : (
+                    <UserCheck className="h-3.5 w-3.5" />
+                  )}
+                  {cliente.activo ? 'Desactivar cliente' : 'Activar cliente'}
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="bg-white rounded-2xl border border-gray-100 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">
@@ -255,6 +275,12 @@ export function ClienteDrawer({ cliente, onClose }: ClienteDrawerProps) {
         isPending={toggleActivo.isPending}
         onOpenChange={setConfirmarEstadoOpen}
         onConfirm={handleToggleActivo}
+      />
+
+      <EditarClienteModal
+        cliente={cliente}
+        open={editarOpen}
+        onOpenChange={setEditarOpen}
       />
     </>
   )

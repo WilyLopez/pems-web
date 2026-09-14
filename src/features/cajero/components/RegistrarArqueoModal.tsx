@@ -70,10 +70,12 @@ export function RegistrarArqueoModal({ open, onOpenChange, caja }: Props) {
           <DialogTitle>Arqueo de caja</DialogTitle>
         </DialogHeader>
 
-        <div className="bg-gray-50 rounded-xl p-3 text-sm">
+        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">Saldo esperado</span>
-            <span className="font-black text-gray-900">
+            <span className="text-gray-500 dark:text-gray-400">
+              Saldo esperado
+            </span>
+            <span className="font-black text-gray-900 dark:text-gray-100">
               {formatCurrency(saldoEsperado)}
             </span>
           </div>
@@ -90,7 +92,7 @@ export function RegistrarArqueoModal({ open, onOpenChange, caja }: Props) {
               {...register('saldoContado')}
             />
             {errors.saldoContado && (
-              <p className="text-xs text-red-500">
+              <p className="text-xs text-red-500 dark:text-red-400">
                 {errors.saldoContado.message}
               </p>
             )}
@@ -101,8 +103,8 @@ export function RegistrarArqueoModal({ open, onOpenChange, caja }: Props) {
               className={cn(
                 'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold',
                 diferencia >= 0
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'bg-red-50 text-red-600'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400'
+                  : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
               )}
             >
               <span>Diferencia</span>

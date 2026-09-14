@@ -10,7 +10,8 @@ export async function proxy(request: NextRequest) {
   const isAuthRoute = pathname.startsWith('/auth')
   const isAdminRoute = pathname.startsWith('/admin')
   const isClienteRoute = pathname.startsWith('/cliente')
-  const isProtected = isAdminRoute || isClienteRoute
+  const isCajeroRoute = pathname.startsWith('/cajero')
+  const isProtected = isAdminRoute || isClienteRoute || isCajeroRoute
 
   if (isProtected && !user) {
     const loginUrl = new URL('/auth/login', request.url)

@@ -30,6 +30,14 @@ import { esFechaHoyEnZonaNegocio, yaPasoLaHoraEnZonaNegocio } from '@/lib/utils'
 
 const LOCAL_STORAGE_KEY = 'pems_venta_mostrador_form'
 const LOCAL_STORAGE_CLIENTE_KEY = 'pems_venta_mostrador_cliente'
+const IDEMPOTENCY_KEY_STORAGE = 'pems_venta_mostrador_idempotency_key'
+const ENVIANDO_STORAGE = 'pems_venta_mostrador_enviando'
+
+function generarIdempotencyKey() {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
 
 export function useVentaMostradorForm() {
   const { idSede } = useAuth()
@@ -44,6 +52,8 @@ export function useVentaMostradorForm() {
     'IDLE' | 'BUSCANDO' | 'ENCONTRADO' | 'NO_ENCONTRADO'
   >('IDLE')
   const [borradorRecuperado, setBorradorRecuperado] = useState(false)
+  const [idempotencyKey, setIdempotencyKey] = useState('')
+  const [envioInterrumpido, setEnvioInterrumpido] = useState(false)
 
   const setCliente = (c: Cliente | null) => {
     setClienteRaw(c)
@@ -129,6 +139,14 @@ export function useVentaMostradorForm() {
           setCliente(parsed)
         } catch {}
       }
+
+      let key = localStorage.getItem(IDEMPOTENCY_KEY_STORAGE)
+      if (!key) {
+        key = generarIdempotencyKey()
+        localStorage.setItem(IDEMPOTENCY_KEY_STORAGE, key)
+      }
+      setIdempotencyKey(key)
+      setEnvioInterrumpido(localStorage.getItem(ENVIANDO_STORAGE) === 'true')
     }
   }, [reset])
 
@@ -338,6 +356,23 @@ export function useVentaMostradorForm() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(LOCAL_STORAGE_KEY)
       localStorage.removeItem(LOCAL_STORAGE_CLIENTE_KEY)
+      localStorage.removeItem(ENVIANDO_STORAGE)
+      const nuevaKey = generarIdempotencyKey()
+      localStorage.setItem(IDEMPOTENCY_KEY_STORAGE, nuevaKey)
+      setIdempotencyKey(nuevaKey)
+      setEnvioInterrumpido(false)
+    }
+  }
+
+  const marcarEnviando = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(ENVIANDO_STORAGE, 'true')
+    }
+  }
+
+  const marcarEnvioFinalizado = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(ENVIANDO_STORAGE)
     }
   }
 
@@ -390,5 +425,9 @@ export function useVentaMostradorForm() {
     setStatusBusqueda,
     borradorRecuperado,
     setBorradorRecuperado,
+    idempotencyKey,
+    envioInterrumpido,
+    marcarEnviando,
+    marcarEnvioFinalizado,
   }
 }

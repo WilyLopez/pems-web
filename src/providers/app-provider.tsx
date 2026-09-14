@@ -8,15 +8,15 @@ import { TooltipProvider } from '@/components/ui/Tooltip'
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <QueryProvider>
+    <QueryProvider>
+      <AuthProvider>
         <ThemeProvider>
           <TooltipProvider>
             {children}
             <SesionGuard />
           </TooltipProvider>
         </ThemeProvider>
-      </QueryProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </QueryProvider>
   )
 }

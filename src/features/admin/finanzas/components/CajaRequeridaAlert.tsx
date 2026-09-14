@@ -9,11 +9,13 @@ import { cn } from '@/lib/utils'
 interface CajaRequeridaAlertProps {
   mensaje: string
   className?: string
+  hrefCaja?: string
 }
 
 export function CajaRequeridaAlert({
   mensaje,
   className,
+  hrefCaja = '/admin/finanzas/caja',
 }: CajaRequeridaAlertProps) {
   const { isAdmin } = useAuth()
 
@@ -33,7 +35,7 @@ export function CajaRequeridaAlert({
           variant="outline"
           className="border-amber-300 text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:text-amber-200 dark:hover:bg-amber-900/40"
         >
-          <Link href="/admin/finanzas/caja">
+          <Link href={hrefCaja}>
             {isAdmin ? 'Abrir Caja Administrativa' : 'Abrir mi caja'}
           </Link>
         </Button>

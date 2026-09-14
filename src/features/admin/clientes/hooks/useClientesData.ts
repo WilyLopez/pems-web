@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { clientesApi } from '../services/clientes.api'
+import { clientesApi, ActualizarClientePayload } from '../services/clientes.api'
 import { buildParams } from '../utils/clientes.utils'
 import { useClientesNav } from './useClientesNav'
 import { ClienteFormValues } from '../schema/cliente.schema'
@@ -73,6 +73,21 @@ export function useMutacionesCliente(clienteId?: number | null) {
     onError: () => toast.error('No se pudo registrar la visita.'),
   })
 
+  const actualizarCliente = useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: ActualizarClientePayload
+    }) => clientesApi.actualizar(id, payload),
+    onSuccess: () => {
+      invalidarTodo()
+      toast.success('Cliente actualizado correctamente.')
+    },
+    onError: () => toast.error('No se pudo actualizar el cliente.'),
+  })
+
   const crearCliente = useMutation({
     mutationFn: ({
       values,
@@ -88,5 +103,11 @@ export function useMutacionesCliente(clienteId?: number | null) {
     onError: () => toast.error('No se pudo registrar el cliente.'),
   })
 
-  return { toggleVip, toggleActivo, registrarVisita, crearCliente }
+  return {
+    toggleVip,
+    toggleActivo,
+    registrarVisita,
+    crearCliente,
+    actualizarCliente,
+  }
 }

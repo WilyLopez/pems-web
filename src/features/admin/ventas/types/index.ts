@@ -1,11 +1,7 @@
 import { Reserva } from '../../reservas/types'
 
 export type MetodoPago =
-  | 'EFECTIVO'
-  | 'YAPE'
-  | 'TARJETA'
-  | 'PLIN'
-  | 'TRANSFERENCIA'
+  'EFECTIVO' | 'YAPE' | 'TARJETA' | 'PLIN' | 'TRANSFERENCIA'
 
 export interface NinoVenta {
   nombreNino: string
@@ -33,6 +29,7 @@ export interface RegistrarVentaMostradorPayload {
   efectivoRecibido?: number
   actaFirmada: boolean
   notas?: string
+  idempotencyKey?: string
 }
 
 export interface TicketResumen {
@@ -75,6 +72,7 @@ export interface VentaFiltros {
   hasta?: string
   tipo?: string
   search?: string
+  usuarioId?: string
   page?: number
   size?: number
 }

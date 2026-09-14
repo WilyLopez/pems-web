@@ -48,11 +48,15 @@ import { VUELTO_SOSPECHOSO } from '../../utils/ventas.utils'
 interface VentaMostradorViewProps {
   onClose?: () => void
   desdeCaja?: boolean
+  hrefCaja?: string
+  volverCajaHref?: string
 }
 
 export const VentaMostradorView = ({
   onClose,
   desdeCaja,
+  hrefCaja = '/admin/finanzas/caja',
+  volverCajaHref = '/admin/finanzas/caja',
 }: VentaMostradorViewProps) => {
   const router = useRouter()
   const [showClienteModal, setShowClienteModal] = useState(false)
@@ -109,14 +113,23 @@ export const VentaMostradorView = ({
     statusBusqueda,
     borradorRecuperado,
     setBorradorRecuperado,
+    idempotencyKey,
+    envioInterrumpido,
+    marcarEnviando,
+    marcarEnvioFinalizado,
   } = formProps
 
   useEffect(() => {
-    if (borradorRecuperado) {
+    if (!borradorRecuperado) return
+    if (envioInterrumpido) {
+      toast.warning(
+        'Recuperamos un borrador que se estaba enviando cuando se interrumpió. Si vuelves a confirmar, verificaremos que no se duplique.'
+      )
+    } else {
       toast.success('Borrador recuperado automáticamente')
-      setBorradorRecuperado(false)
     }
-  }, [borradorRecuperado, setBorradorRecuperado])
+    setBorradorRecuperado(false)
+  }, [borradorRecuperado, envioInterrumpido, setBorradorRecuperado])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -146,6 +159,7 @@ export const VentaMostradorView = ({
   const ejecutarRegistro = async (formData: VentaMostradorFormValues) => {
     if (!idSede) return
 
+    marcarEnviando()
     try {
       const res = await registrar.mutateAsync({
         tipoVenta: 'RESERVA',
@@ -163,6 +177,7 @@ export const VentaMostradorView = ({
           ? formData.efectivoRecibido
           : undefined,
         actaFirmada: formData.actaFirmada,
+        idempotencyKey,
       })
 
       setVentaExitosa(res)
@@ -184,7 +199,9 @@ export const VentaMostradorView = ({
       })
       setCliente(null)
       setVentaAnonima(false)
-    } catch {}
+    } catch {
+      marcarEnvioFinalizado()
+    }
   }
 
   const onSubmit = (formData: VentaMostradorFormValues) => {
@@ -208,6 +225,7 @@ export const VentaMostradorView = ({
       <CajaRequeridaAlert
         mensaje="Para registrar ventas necesitas tener tu caja abierta."
         className="max-w-xl"
+        hrefCaja={hrefCaja}
       />
     )
   }
@@ -463,7 +481,7 @@ export const VentaMostradorView = ({
           venta={ventaExitosa}
           defaultCorreo={cliente?.correo ?? ''}
           desdeCaja={desdeCaja}
-          onVolverCaja={() => router.push('/admin/finanzas/caja')}
+          onVolverCaja={() => router.push(volverCajaHref)}
         />
       </form>
     </FormProvider>
