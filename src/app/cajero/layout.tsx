@@ -52,7 +52,7 @@ export default async function CajeroLayout({
       <div className="flex-1 flex flex-col min-w-0">
         <CajeroTopBar />
 
-        <main className="flex-1 px-4 py-6 pb-24 lg:pb-8 lg:px-8 max-w-5xl w-full mx-auto">
+        <main className="flex-1 px-4 py-6 pb-24 lg:pb-8 lg:px-8 w-full">
           {children}
         </main>
       </div>
