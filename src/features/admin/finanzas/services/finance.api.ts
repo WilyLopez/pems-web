@@ -4,6 +4,7 @@ import {
   AnularMovimientoPayload,
   AperturaCaja,
   ArqueoCaja,
+  CajaActiva,
   CerrarCajaPayload,
   CerrarCajaForzadoPayload,
   CrearTipoEgresoPayload,
@@ -437,6 +438,18 @@ export const financeApi = {
     try {
       const { data } = await api.get<ApiResponse<AperturaCaja | null>>(
         `/caja/sedes/${idSede}/mi-sesion`
+      )
+      return data.data ?? null
+    } catch (err: any) {
+      if (err?.response?.status === 404) return null
+      throw err
+    }
+  },
+
+  obtenerCajaActiva: async (idSede: number): Promise<CajaActiva | null> => {
+    try {
+      const { data } = await api.get<ApiResponse<CajaActiva | null>>(
+        `/caja/sedes/${idSede}/activa`
       )
       return data.data ?? null
     } catch (err: any) {

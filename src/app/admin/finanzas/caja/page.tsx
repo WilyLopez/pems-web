@@ -2,14 +2,15 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Plus, ShoppingCart, Receipt } from 'lucide-react'
+import { Plus, ShoppingCart, Receipt, Eye } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import {
-  useCajaHoy,
+  useCajaActivaSede,
   useMovimientosCaja,
   useArqueosCaja,
   RegistrarMovimientoModal,
   AnularMovimientoModal,
+  VerCajaModal,
   MovimientoCaja,
 } from '@/features/admin/finanzas'
 import {
@@ -26,20 +27,22 @@ import { PageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/Button'
 
 export default function CajaPage() {
-  const { idSede } = useAuth()
+  const { idSede, user } = useAuth()
   const hoy = new Date().toISOString().slice(0, 10)
 
   const [showMov, setShowMov] = useState(false)
   const [showArqueo, setShowArqueo] = useState(false)
+  const [showVerCaja, setShowVerCaja] = useState(false)
   const [movimientoAnular, setMovimientoAnular] =
     useState<MovimientoCaja | null>(null)
 
-  const { data: caja, isLoading } = useCajaHoy(idSede ?? undefined)
+  const { data: caja, isLoading } = useCajaActivaSede(idSede ?? undefined)
 
   const { data: movimientos = [] } = useMovimientosCaja(caja?.id)
   const { data: arqueos = [] } = useArqueosCaja(caja?.id)
 
   const estaAbierta = caja?.estado === 'ABIERTA'
+  const esMiPropiaCaja = !!caja && caja.usuarioId === user?.id
 
   return (
     <div className="space-y-6">
@@ -69,6 +72,17 @@ export default function CajaPage() {
         <TabsContent value="caja-dia" className="space-y-6 mt-0">
           {estaAbierta && caja && (
             <div className="flex justify-end items-center gap-2">
+              {!esMiPropiaCaja && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowVerCaja(true)}
+                  className="gap-1.5"
+                >
+                  <Eye className="h-4 w-4" />
+                  Ver Caja
+                </Button>
+              )}
               <Button asChild size="sm" variant="outline" className="gap-1.5">
                 <Link href={`/admin/finanzas/caja/movimientos?fecha=${hoy}`}>
                   <Receipt className="h-4 w-4" />
@@ -187,6 +201,11 @@ export default function CajaPage() {
                   <AnularMovimientoModal
                     movimiento={movimientoAnular}
                     onClose={() => setMovimientoAnular(null)}
+                  />
+                  <VerCajaModal
+                    open={showVerCaja}
+                    onOpenChange={setShowVerCaja}
+                    caja={caja}
                   />
                 </>
               )}

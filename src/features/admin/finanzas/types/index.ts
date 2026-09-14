@@ -236,6 +236,27 @@ export interface ResumenCaja extends AperturaCaja {
   arqueos: ArqueoCaja[]
 }
 
+export interface CajaActiva {
+  id: number
+  idSede: number
+  usuarioId: string
+  nombreCajero?: string
+  tipo: TipoSesionCaja
+  estado: EstadoCaja
+  fecha: string
+  saldoInicial: number
+  totalIngresos: number
+  totalEgresos: number
+  saldoEsperado?: number
+  fechaApertura: string
+  observaciones?: string
+  cantidadVentas: number
+  totalVendido: number
+  desglosePorMedioPago: Record<string, number>
+  movimientos: MovimientoCaja[]
+  arqueos: ArqueoCaja[]
+}
+
 export interface RegistrarArqueoPayload {
   saldoContado: number
   observaciones?: string

@@ -12,7 +12,7 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { useCajaHoy } from '@/features/admin/finanzas'
+import { useCajaActivaSede } from '@/features/admin/finanzas'
 import { useMetricasReservas } from '@/features/admin/reservas/hooks/useReservasData'
 import { useDisponibilidad } from '@/features/admin/calendario/hooks/useCalendarData'
 import { ReservasMetrics } from '@/features/admin/reservas/components/ui/ReservasMetrics'
@@ -31,7 +31,7 @@ export default function CajeroHomePage() {
   const { idSede, nombre } = useAuth()
   const hoy = fechaHoyEnZonaNegocio()
 
-  const { data: caja, isLoading: cargandoCaja } = useCajaHoy(
+  const { data: caja, isLoading: cargandoCaja } = useCajaActivaSede(
     idSede ?? undefined
   )
   const { data: metricas } = useMetricasReservas(idSede ?? undefined, hoy)
