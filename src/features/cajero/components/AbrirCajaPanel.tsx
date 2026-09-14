@@ -41,14 +41,16 @@ export function AbrirCajaPanel({ idSede, onSuccess }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 max-w-sm mx-auto text-center space-y-5">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 max-w-sm mx-auto text-center space-y-5">
       <div className="flex flex-col items-center gap-2">
-        <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
-          <Unlock className="h-6 w-6 text-emerald-600" />
+        <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/40 rounded-2xl flex items-center justify-center">
+          <Unlock className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
         </div>
         <div>
-          <h3 className="text-base font-bold text-gray-900">Abrir caja</h3>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
+            Abrir caja
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             Registra el saldo inicial para comenzar el día
           </p>
         </div>
@@ -65,7 +67,7 @@ export function AbrirCajaPanel({ idSede, onSuccess }: Props) {
             {...register('saldoInicial')}
           />
           {errors.saldoInicial && (
-            <p className="text-xs text-red-500">
+            <p className="text-xs text-red-500 dark:text-red-400">
               {errors.saldoInicial.message}
             </p>
           )}

@@ -49,22 +49,24 @@ export function AnularMovimientoModal({
         </DialogHeader>
         {movimiento && (
           <div className="space-y-4">
-            <div className="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3 text-sm space-y-1">
+            <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 px-4 py-3 text-sm space-y-1">
               <div className="flex justify-between">
-                <span className="text-gray-500">Concepto</span>
-                <span className="font-medium text-gray-900 text-right max-w-[240px] truncate">
+                <span className="text-gray-500 dark:text-gray-400">
+                  Concepto
+                </span>
+                <span className="font-medium text-gray-900 dark:text-gray-100 text-right max-w-[240px] truncate">
                   {movimiento.concepto}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Monto</span>
-                <span className="font-semibold">
+                <span className="text-gray-500 dark:text-gray-400">Monto</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
                   {movimiento.tipo === 'EGRESO' ? '-' : '+'}
                   {formatCurrency(movimiento.monto)}
                 </span>
               </div>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               El movimiento no se elimina: se registra un contraasiento que
               revierte su efecto en los totales de la caja.
             </p>

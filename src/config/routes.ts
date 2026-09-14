@@ -61,8 +61,16 @@ export const ADMIN_ROUTES = {
   cmsNovedades: '/admin/cms/novedades',
 } as const
 
+// ─── Cajero ───────────────────────────────────────────────────────────────────
+export const CAJERO_ROUTES = {
+  home: '/cajero',
+  caja: '/cajero/caja',
+  ventas: '/cajero/ventas',
+} as const
+
 // ─── Rutas protegidas por rol ─────────────────────────────────────────────────
 export const PROTECTED_ROUTES = {
   admin: '/admin',
   cliente: '/cliente',
+  cajero: '/cajero',
 } as const

@@ -16,7 +16,7 @@ export function getDashboardUrl(
       !roles.includes('ADMIN') &&
       !roles.includes('SUPERADMIN')
     ) {
-      return '/admin/ventas'
+      return '/cajero'
     }
     return '/admin/dashboard'
   }

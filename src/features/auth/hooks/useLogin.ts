@@ -12,7 +12,11 @@ import { toast } from 'sonner'
 import { LoginFormValues } from '../schemas/auth.schema'
 
 function isValidRedirect(url: string, tipoPerfil: string): boolean {
-  if (tipoPerfil === 'STAFF' && url.startsWith('/admin')) return true
+  if (
+    tipoPerfil === 'STAFF' &&
+    (url.startsWith('/admin') || url.startsWith('/cajero'))
+  )
+    return true
   if (tipoPerfil === 'CLIENTE' && url.startsWith('/cliente')) return true
   return false
 }

@@ -1,7 +1,9 @@
-export type Rol = 'ADMIN' | 'CLIENTE'
+export type Rol = 'SUPERADMIN' | 'ADMIN' | 'CAJERO' | 'CLIENTE'
 
 export const ROLES = {
+  SUPERADMIN: 'SUPERADMIN',
   ADMIN: 'ADMIN',
+  CAJERO: 'CAJERO',
   CLIENTE: 'CLIENTE',
 } as const
 
