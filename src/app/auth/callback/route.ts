@@ -5,6 +5,7 @@ import {
   COOKIE_TIPO_PERFIL,
   COOKIE_MAX_AGE,
   getDashboardUrl,
+  esRolAdmin,
 } from '@/lib/auth-utils'
 
 function getRedirectUrl(
@@ -14,7 +15,10 @@ function getRedirectUrl(
   next: string | null
 ): string {
   if (next) {
-    if (tipoPerfil === 'STAFF' && next.startsWith('/admin')) return next
+    if (tipoPerfil === 'STAFF') {
+      if (esRolAdmin(roles) && next.startsWith('/admin')) return next
+      if (!esRolAdmin(roles) && next.startsWith('/cajero')) return next
+    }
     if (tipoPerfil === 'CLIENTE' && next.startsWith('/cliente')) return next
   }
 

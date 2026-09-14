@@ -23,6 +23,10 @@ export function getDashboardUrl(
   return '/auth/login'
 }
 
+export function esRolAdmin(roles: string[]): boolean {
+  return roles.includes('ADMIN') || roles.includes('SUPERADMIN')
+}
+
 export function getRolPrincipal(roles: string[]): string {
   if (roles.includes('SUPERADMIN')) return 'SUPERADMIN'
   if (roles.includes('ADMIN')) return 'ADMIN'

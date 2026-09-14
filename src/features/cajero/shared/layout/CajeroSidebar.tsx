@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  Home,
   Wallet,
   ShoppingCart,
   CalendarDays,
@@ -19,6 +20,7 @@ import { Separator } from '@/components/ui/Separator'
 import { cn, getInitials, fileUrl } from '@/lib/utils'
 
 const mainNav = [
+  { href: '/cajero', label: 'Inicio', icon: Home, exact: true },
   { href: '/cajero/caja', label: 'Caja', icon: Wallet },
   { href: '/cajero/ventas', label: 'Ventas', icon: ShoppingCart },
   { href: '/cajero/reservas', label: 'Reservas', icon: CalendarDays },
@@ -34,8 +36,10 @@ export function CajeroSidebar() {
   const fotoUrl = fileUrl(fotoPerfilUrl)
   const nombreMostrar = nombre || correo?.split('@')[0] || ''
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + '/')
+  const isActive = (href: string, exact?: boolean) =>
+    exact
+      ? pathname === href
+      : pathname === href || pathname.startsWith(href + '/')
 
   return (
     <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 bg-white dark:bg-gray-900 border-r border-gray-100/80 dark:border-gray-800">
@@ -51,8 +55,8 @@ export function CajeroSidebar() {
           Navegación
         </p>
 
-        {mainNav.map(({ href, label, icon: Icon }) => {
-          const active = isActive(href)
+        {mainNav.map(({ href, label, icon: Icon, exact }) => {
+          const active = isActive(href, exact)
           return (
             <Link
               key={href}

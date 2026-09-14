@@ -34,7 +34,7 @@ export function CajeroThemeRoot({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
+    <div className="h-screen w-screen flex overflow-hidden bg-gray-50 dark:bg-gray-950">
       {children}
     </div>
   )

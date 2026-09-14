@@ -5,19 +5,23 @@ import { useAuthStore } from '@/lib/store/auth.store'
 import { authService } from '@/services/auth.service'
 import {
   getDashboardUrl,
+  esRolAdmin,
   COOKIE_TIPO_PERFIL,
   COOKIE_MAX_AGE,
 } from '@/lib/auth-utils'
 import { toast } from 'sonner'
 import { LoginFormValues } from '../schemas/auth.schema'
 
-function isValidRedirect(url: string, tipoPerfil: string): boolean {
-  if (
-    tipoPerfil === 'STAFF' &&
-    (url.startsWith('/admin') || url.startsWith('/cajero'))
-  )
-    return true
-  if (tipoPerfil === 'CLIENTE' && url.startsWith('/cliente')) return true
+function isValidRedirect(
+  url: string,
+  tipoPerfil: string,
+  roles: string[]
+): boolean {
+  if (tipoPerfil === 'STAFF') {
+    if (esRolAdmin(roles)) return url.startsWith('/admin')
+    return url.startsWith('/cajero')
+  }
+  if (tipoPerfil === 'CLIENTE') return url.startsWith('/cliente')
   return false
 }
 
@@ -94,7 +98,7 @@ export function useLogin() {
       }
 
       const redirectUrl = searchParams.get('redirect')
-      if (redirectUrl && isValidRedirect(redirectUrl, tipoPerfil)) {
+      if (redirectUrl && isValidRedirect(redirectUrl, tipoPerfil, roles)) {
         router.push(redirectUrl)
       } else {
         router.push(getDashboardUrl(roles, tipoPerfil))

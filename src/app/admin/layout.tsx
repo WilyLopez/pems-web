@@ -4,6 +4,7 @@ import { AdminSidebar } from '@/features/admin/shared/layout/AdminSidebar'
 import { AdminNavbar } from '@/features/admin/shared/layout/AdminNavbar'
 import { AdminThemeRoot } from '@/features/admin/shared/layout/AdminThemeRoot'
 import { NotificacionesSheet } from '@/features/admin/shared/components/NotificacionesSheet'
+import { esRolAdmin } from '@/lib/auth-utils'
 
 export default async function AdminLayout({
   children,
@@ -20,6 +21,8 @@ export default async function AdminLayout({
     redirect('/auth/login?redirect=/admin/dashboard')
   }
 
+  let redirectTo: string | null = null
+
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/health/me`, {
       headers: { Authorization: `Bearer ${session.access_token}` },
@@ -28,17 +31,21 @@ export default async function AdminLayout({
     })
 
     if (res.status === 401 || res.status === 403) {
-      redirect('/auth/login?redirect=/admin/dashboard')
-    }
-
-    if (res.ok) {
+      redirectTo = '/auth/login?redirect=/admin/dashboard'
+    } else if (res.ok) {
       const { data } = await res.json()
       if (data.tipoPerfil !== 'STAFF') {
-        redirect('/cliente')
+        redirectTo = '/cliente'
+      } else if (!esRolAdmin(data.roles ?? [])) {
+        redirectTo = '/cajero'
       }
     }
   } catch (error) {
     console.error('Error al validar perfil STAFF en el backend:', error)
+  }
+
+  if (redirectTo) {
+    redirect(redirectTo)
   }
 
   return (
