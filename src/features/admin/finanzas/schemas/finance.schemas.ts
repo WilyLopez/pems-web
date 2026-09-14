@@ -29,15 +29,25 @@ export const cerrarCajaForzadoSchema = z.object({
   observaciones: z.string().optional(),
 })
 
-export const movimientoCajaSchema = z.object({
-  tipo: z.enum(['INGRESO', 'EGRESO'], { message: 'Selecciona tipo' }),
-  concepto: z.string().min(2, 'El concepto es obligatorio'),
-  monto: z.coerce.number().positive('El monto debe ser mayor a 0'),
-  medioPago: z.string().optional(),
-  categoriaRetiro: z
-    .enum(['SERVICIOS', 'PROVEEDORES', 'PERSONAL', 'OPERATIVO', 'OTRO'])
-    .optional(),
-})
+export const movimientoCajaSchema = z
+  .object({
+    tipo: z.enum(['INGRESO', 'EGRESO'], { message: 'Selecciona tipo' }),
+    concepto: z.string().min(2, 'El concepto es obligatorio'),
+    monto: z.coerce.number().positive('El monto debe ser mayor a 0'),
+    medioPago: z.string().optional(),
+    categoriaRetiro: z
+      .enum(['SERVICIOS', 'PROVEEDORES', 'PERSONAL', 'OPERATIVO', 'OTRO'])
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.tipo === 'EGRESO' && !data.categoriaRetiro) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecciona la categoría del retiro',
+        path: ['categoriaRetiro'],
+      })
+    }
+  })
 
 export const ingresoManualSchema = z.object({
   tipoIngresoCodigo: z.string().min(1, 'Selecciona un tipo'),
@@ -89,8 +99,6 @@ export const gastoOperativoSchema = z.object({
 })
 
 export const arqueoSchema = z.object({
-  saldoContado: z.coerce
-    .number()
-    .min(0, 'El saldo contado no puede ser negativo'),
+  saldoContado: saldoContadoSchema,
   observaciones: z.string().optional(),
 })
