@@ -14,8 +14,17 @@ import { ClienteDrawer } from '../ui/ClienteDrawer'
 import { NuevoClienteModal } from '../forms/NuevoClienteModal'
 import { useClientesList, useClienteDetail } from '../../hooks/useClientesData'
 import { useClientesNav } from '../../hooks/useClientesNav'
+import { OrigenCliente } from '../../types'
 
-export function ClientesListView() {
+interface ClientesListViewProps {
+  origenCreacion?: OrigenCliente
+  mostrarAcciones?: boolean
+}
+
+export function ClientesListView({
+  origenCreacion = 'ADMIN',
+  mostrarAcciones = true,
+}: ClientesListViewProps = {}) {
   const {
     page,
     search,
@@ -102,11 +111,16 @@ export function ClientesListView() {
         />
       )}
 
-      <ClienteDrawer cliente={selectedCliente} onClose={closeDrawer} />
+      <ClienteDrawer
+        cliente={selectedCliente}
+        onClose={closeDrawer}
+        mostrarAcciones={mostrarAcciones}
+      />
 
       <NuevoClienteModal
         open={modal === 'nuevo'}
         onOpenChange={(open) => (open ? openNuevoModal() : closeNuevoModal())}
+        origen={origenCreacion}
       />
     </div>
   )

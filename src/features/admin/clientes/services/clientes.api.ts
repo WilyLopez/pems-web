@@ -3,6 +3,16 @@ import { Cliente, ListarClientesParams, OrigenCliente } from '../types'
 import { ApiResponse, PagedResponse } from '@/types/api.types'
 import { ClienteFormValues } from '../schema/cliente.schema'
 
+export interface ActualizarClientePayload {
+  nombres: string
+  apellidoPaterno: string
+  apellidoMaterno?: string
+  telefono?: string
+  correo?: string
+  fechaNacimiento?: string
+  aceptaComunicaciones: boolean
+}
+
 export const clientesApi = {
   listar: async (
     params: ListarClientesParams = {}
@@ -55,6 +65,17 @@ export const clientesApi = {
 
   activar: async (id: number): Promise<void> => {
     await api.post(`/clientes/${id}/activar`)
+  },
+
+  actualizar: async (
+    id: number,
+    payload: ActualizarClientePayload
+  ): Promise<Cliente> => {
+    const { data } = await api.put<ApiResponse<Cliente>>(
+      `/clientes/${id}`,
+      payload
+    )
+    return data.data
   },
 
   desactivar: async (id: number): Promise<void> => {
