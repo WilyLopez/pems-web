@@ -13,7 +13,7 @@ export default function NuevaVentaPage() {
   const desdeCaja = searchParams.get('from') === 'caja'
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-full flex-col gap-5">
       <Breadcrumbs
         items={[
           ...(desdeCaja
@@ -36,7 +36,9 @@ export default function NuevaVentaPage() {
           </Button>
         )}
       </div>
-      <VentaMostradorView desdeCaja={desdeCaja} />
+      <div className="flex flex-1 flex-col justify-center">
+        <VentaMostradorView desdeCaja={desdeCaja} />
+      </div>
     </div>
   )
 }

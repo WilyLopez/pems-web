@@ -88,6 +88,7 @@ interface ClienteFiltrosProps {
   total?: number
   onSearchChange: (v: string) => void
   onFiltroChange: (f: FiltroCliente) => void
+  mostrarFiltroVerificados?: boolean
 }
 
 export function ClienteFiltros({
@@ -96,7 +97,12 @@ export function ClienteFiltros({
   total,
   onSearchChange,
   onFiltroChange,
+  mostrarFiltroVerificados = true,
 }: ClienteFiltrosProps) {
+  const filtrosVisibles = mostrarFiltroVerificados
+    ? FILTROS
+    : FILTROS.filter((f) => f.key !== 'verificados')
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3">
@@ -129,7 +135,7 @@ export function ClienteFiltros({
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        {FILTROS.map(({ key, label, icon: Icon, activeClass }) => (
+        {filtrosVisibles.map(({ key, label, icon: Icon, activeClass }) => (
           <button
             key={key}
             onClick={() => onFiltroChange(key)}
