@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'
 import { useThemeStore } from '@/lib/store/theme.store'
-import { NotificacionesSheet } from '@/features/admin/shared/components/NotificacionesSheet'
 
 function applyCajeroTheme(theme: string) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -37,7 +36,6 @@ export function CajeroThemeRoot({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-950">
       {children}
-      <NotificacionesSheet />
     </div>
   )
 }

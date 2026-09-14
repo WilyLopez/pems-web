@@ -5,8 +5,6 @@ import { usePathname } from 'next/navigation'
 import { ChevronRight, LogOut, Moon, Sun } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
-import { useNotificaciones } from '@/hooks/useNotificaciones'
-import { NotificacionesMenu } from '@/features/admin/shared/components/NotificacionesMenu'
 import { Logo } from '@/components/brand/Logo'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
@@ -47,7 +45,6 @@ export function CajeroTopBar() {
   const { nombre, correo, fotoPerfilUrl, logout } = useAuth()
   const { resolved, toggle } = useTheme()
   const breadcrumb = getBreadcrumb(pathname)
-  useNotificaciones()
 
   const fotoUrl = fileUrl(fotoPerfilUrl)
   const nombreMostrar = nombre || correo?.split('@')[0] || ''
@@ -99,8 +96,6 @@ export function CajeroTopBar() {
             <Moon className="h-4 w-4" />
           )}
         </Button>
-
-        <NotificacionesMenu />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
