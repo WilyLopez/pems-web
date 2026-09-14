@@ -49,10 +49,10 @@ export default async function CajeroLayout({
     <CajeroThemeRoot>
       <CajeroSidebar />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <CajeroTopBar />
 
-        <main className="flex-1 px-4 py-6 pb-24 lg:pb-8 lg:px-8 w-full">
+        <main className="flex-1 overflow-y-auto px-4 py-6 pb-24 lg:pb-8 lg:px-8 w-full">
           {children}
         </main>
       </div>
