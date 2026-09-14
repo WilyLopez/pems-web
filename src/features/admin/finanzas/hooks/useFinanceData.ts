@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useAuthStore } from '@/lib/store/auth.store'
 import { financeApi } from '../services/finance.api'
 import {
   AbrirCajaPayload,
@@ -102,7 +103,8 @@ export const FINANCE_KEYS = {
     [...FINANCE_KEYS.CAJA(), 'detail', idSede, fecha] as const,
   CAJA_HOY: (idSede: number | undefined) =>
     [...FINANCE_KEYS.CAJA(), 'hoy', idSede] as const,
-  MI_SESION: () => [...FINANCE_KEYS.CAJA(), 'mi-sesion'] as const,
+  MI_SESION: (idUsuario: number | null | undefined) =>
+    [...FINANCE_KEYS.CAJA(), 'mi-sesion', idUsuario] as const,
   CAJAS_RANGO: (
     idSede: number | undefined,
     inicio: string | undefined,
@@ -223,9 +225,7 @@ export function useEgresoMutations() {
       invalidarEgresos()
     },
     onError: (err: any) =>
-      toast.error(
-        err?.message ?? 'No se pudo anular el egreso.'
-      ),
+      toast.error(err?.message ?? 'No se pudo anular el egreso.'),
   })
 
   const aprobar = useMutation({
@@ -235,9 +235,7 @@ export function useEgresoMutations() {
       invalidarEgresos()
     },
     onError: (err: any) =>
-      toast.error(
-        err?.message ?? 'No se pudo aprobar el egreso.'
-      ),
+      toast.error(err?.message ?? 'No se pudo aprobar el egreso.'),
   })
 
   const rechazar = useMutation({
@@ -253,9 +251,7 @@ export function useEgresoMutations() {
       invalidarEgresos()
     },
     onError: (err: any) =>
-      toast.error(
-        err?.message ?? 'No se pudo rechazar el egreso.'
-      ),
+      toast.error(err?.message ?? 'No se pudo rechazar el egreso.'),
   })
 
   return { registrar, anular, aprobar, rechazar }
@@ -563,9 +559,7 @@ export function useIngresoMutations() {
       invalidar()
     },
     onError: (err: any) =>
-      toast.error(
-        err?.message ?? 'No se pudo anular el ingreso.'
-      ),
+      toast.error(err?.message ?? 'No se pudo anular el ingreso.'),
   })
 
   return { registrar, anular }
@@ -590,9 +584,11 @@ export function useCajaHoy(idSede: number | undefined) {
 }
 
 export function useMiSesionCaja() {
+  const idUsuario = useAuthStore((s) => s.idUsuario)
   return useQuery({
-    queryKey: FINANCE_KEYS.MI_SESION(),
+    queryKey: FINANCE_KEYS.MI_SESION(idUsuario),
     queryFn: financeApi.obtenerMiSesion,
+    enabled: !!idUsuario,
     staleTime: 1000 * 30,
     refetchInterval: 1000 * 60,
   })
@@ -614,6 +610,14 @@ export function useArqueosCaja(idApertura: number | undefined) {
   return useQuery({
     queryKey: FINANCE_KEYS.ARQUEOS_CAJA(idApertura),
     queryFn: () => financeApi.listarArqueosCaja(idApertura!),
+    enabled: !!idApertura,
+  })
+}
+
+export function useResumenCaja(idApertura: number | undefined) {
+  return useQuery({
+    queryKey: FINANCE_KEYS.RESUMEN_CAJA(idApertura),
+    queryFn: () => financeApi.generarResumenCaja(idApertura!),
     enabled: !!idApertura,
   })
 }
@@ -642,6 +646,10 @@ export function useArqueoMutations() {
   return { registrar }
 }
 
+function esSesionExpirada(error: any) {
+  return error?.status === 401
+}
+
 export function useCajaMutations() {
   const qc = useQueryClient()
 
@@ -664,7 +672,9 @@ export function useCajaMutations() {
     },
     onError: (error: any) => {
       invalidar()
-      toast.error(error?.message ?? 'No se pudo abrir la caja.')
+      if (!esSesionExpirada(error)) {
+        toast.error(error?.message ?? 'No se pudo abrir la caja.')
+      }
     },
   })
 
@@ -682,7 +692,9 @@ export function useCajaMutations() {
     },
     onError: (error: any) => {
       invalidar()
-      toast.error(error?.message ?? 'No se pudo cerrar la caja.')
+      if (!esSesionExpirada(error)) {
+        toast.error(error?.message ?? 'No se pudo cerrar la caja.')
+      }
     },
   })
 
@@ -700,7 +712,9 @@ export function useCajaMutations() {
     },
     onError: (error: any) => {
       invalidar()
-      toast.error(error?.message ?? 'No se pudo cerrar la caja.')
+      if (!esSesionExpirada(error)) {
+        toast.error(error?.message ?? 'No se pudo cerrar la caja.')
+      }
     },
   })
 
@@ -716,7 +730,11 @@ export function useCajaMutations() {
       toast.success('Movimiento registrado.')
       invalidar()
     },
-    onError: () => toast.error('No se pudo registrar el movimiento.'),
+    onError: (error: any) => {
+      if (!esSesionExpirada(error)) {
+        toast.error(error?.message ?? 'No se pudo registrar el movimiento.')
+      }
+    },
   })
 
   const anularMovimiento = useMutation({
@@ -731,10 +749,11 @@ export function useCajaMutations() {
       toast.success('Movimiento anulado con contraasiento.')
       invalidar()
     },
-    onError: (err: any) =>
-      toast.error(
-        err?.message ?? 'No se pudo anular el movimiento.'
-      ),
+    onError: (error: any) => {
+      if (!esSesionExpirada(error)) {
+        toast.error(error?.message ?? 'No se pudo anular el movimiento.')
+      }
+    },
   })
 
   return { abrir, cerrar, cerrarForzado, registrarMovimiento, anularMovimiento }
