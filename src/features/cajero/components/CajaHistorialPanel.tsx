@@ -169,7 +169,6 @@ export function CajaHistorialPanel({ idSede }: Props) {
             <TableHeader>
               <TableRow className="bg-gray-50/50 text-gray-500 text-xs font-semibold uppercase">
                 <TableHead>Fecha</TableHead>
-                <TableHead>Tipo</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Apertura / Cierre</TableHead>
                 <TableHead className="text-right">Inicial</TableHead>
@@ -188,14 +187,6 @@ export function CajaHistorialPanel({ idSede }: Props) {
                   <TableRow key={c.id} className="hover:bg-gray-50/70 transition-colors">
                     <TableCell className="font-bold text-gray-800" suppressHydrationWarning>
                       {formatFechaLocal(c.fecha)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="secondary"
-                        className="rounded-full px-2 py-0.5 text-[10px] font-bold border-0 bg-blue-100 text-blue-700 hover:bg-blue-100"
-                      >
-                        {c.tipo === 'ADMINISTRATIVA' ? 'ADMIN' : 'CAJERO'}
-                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge

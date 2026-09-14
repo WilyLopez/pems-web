@@ -37,7 +37,10 @@ import {
   PlanCuotasBuilder,
   PlanCuotasValue,
 } from '@/features/admin/eventos/components/forms/PlanCuotasBuilder'
-import { useMiSesionCaja, CajaRequeridaAlert } from '@/features/admin/finanzas'
+import {
+  useCajaActivaSede,
+  CajaRequeridaAlert,
+} from '@/features/admin/finanzas'
 
 type Paso = 1 | 2 | 3
 
@@ -131,12 +134,12 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
 
   const confirmar = useConfirmarEvento()
   const cargarContrato = useCargarContrato()
-  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
-    useMiSesionCaja()
-  const sinCajaAdministrativa =
-    !cargandoSesionCaja && miSesionCaja?.tipo !== 'ADMINISTRATIVA'
+  const { data: cajaActiva, isLoading: cargandoCaja } = useCajaActivaSede(
+    evento.idSede
+  )
+  const sinCajaAbierta = !cargandoCaja && !cajaActiva
   const adelantoEfectivoBloqueado =
-    sinCajaAdministrativa &&
+    sinCajaAbierta &&
     pagosAdelanto.some((p) => p.medioPago === 'EFECTIVO' && p.monto > 0)
 
   const {
@@ -195,7 +198,7 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
       }
       if (adelantoEfectivoBloqueado) {
         setPagoError(
-          'Para registrar el adelanto en efectivo necesitas tu Caja Administrativa abierta.'
+          'Para registrar el adelanto en efectivo necesitas que haya una caja abierta en esta sede.'
         )
         return
       }
@@ -446,7 +449,7 @@ export function ConfirmarEventoModal({ evento, open, onClose }: Props) {
                   totalEsperado={montoAdelanto}
                 />
                 {adelantoEfectivoBloqueado && (
-                  <CajaRequeridaAlert mensaje="Para registrar el adelanto en efectivo necesitas tu Caja Administrativa abierta." />
+                  <CajaRequeridaAlert mensaje="Para registrar el adelanto en efectivo necesitas que haya una caja abierta en esta sede." />
                 )}
               </div>
             )}

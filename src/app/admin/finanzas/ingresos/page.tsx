@@ -21,7 +21,7 @@ import {
   useIngresosPorRango,
   useIngresoMutations,
   useTiposIngreso,
-  useMiSesionCaja,
+  useCajaActivaSede,
   ingresoManualSchema,
   RegistroIngreso,
   TiposIngresoManager,
@@ -218,16 +218,14 @@ export default function IngresosPage() {
     defaultValues: { fecha: new Date().toISOString().slice(0, 10) },
   })
 
-  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
-    useMiSesionCaja()
+  const { data: cajaActiva, isLoading: cargandoCaja } =
+    useCajaActivaSede(idSede ?? undefined)
   const medioPagoSeleccionado = watch('medioPago')
-  const requiereCajaAdministrativa =
-    medioPagoSeleccionado === 'EFECTIVO' &&
-    !cargandoSesionCaja &&
-    miSesionCaja?.tipo !== 'ADMINISTRATIVA'
+  const requiereCajaAbierta =
+    medioPagoSeleccionado === 'EFECTIVO' && !cargandoCaja && !cajaActiva
 
   function onSubmit(values: FormValues) {
-    if (!idSede || requiereCajaAdministrativa) return
+    if (!idSede || requiereCajaAbierta) return
     registrar.mutate(
       { idSede, payload: { ...values } },
       {
@@ -726,8 +724,8 @@ export default function IngresosPage() {
                 placeholder="Observaciones…"
               />
             </div>
-            {requiereCajaAdministrativa && (
-              <CajaRequeridaAlert mensaje="Para registrar ingresos en efectivo necesitas tu Caja Administrativa abierta." />
+            {requiereCajaAbierta && (
+              <CajaRequeridaAlert mensaje="Para registrar ingresos en efectivo necesitas que haya una caja abierta en esta sede." />
             )}
             <div className="flex justify-end gap-2 pt-1">
               <Button
@@ -741,7 +739,7 @@ export default function IngresosPage() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={registrar.isPending || requiereCajaAdministrativa}
+                disabled={registrar.isPending || requiereCajaAbierta}
                 className="bg-brand-azul hover:bg-brand-azul/90 text-white"
               >
                 Registrar

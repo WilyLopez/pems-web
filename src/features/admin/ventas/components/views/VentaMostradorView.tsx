@@ -39,7 +39,10 @@ import {
   DialogDescription,
 } from '@/components/ui/Dialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { useMiSesionCaja, CajaRequeridaAlert } from '@/features/admin/finanzas'
+import {
+  useCajaActivaSede,
+  CajaRequeridaAlert,
+} from '@/features/admin/finanzas'
 import { formatCurrency, cn } from '@/lib/utils'
 import { PagoLinea, VentaMostradorResponse } from '../../types'
 import { VentaMostradorFormValues } from '../../schema/ventaMostrador.schema'
@@ -65,8 +68,6 @@ export const VentaMostradorView = ({
     useState<VentaMostradorResponse | null>(null)
 
   const formProps = useVentaMostradorForm()
-  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
-    useMiSesionCaja()
 
   const {
     methods,
@@ -118,6 +119,10 @@ export const VentaMostradorView = ({
     marcarEnviando,
     marcarEnvioFinalizado,
   } = formProps
+
+  const { data: cajaActiva, isLoading: cargandoCaja } = useCajaActivaSede(
+    idSede ?? undefined
+  )
 
   useEffect(() => {
     if (!borradorRecuperado) return
@@ -220,10 +225,10 @@ export const VentaMostradorView = ({
     methods.reset()
   }
 
-  if (!cargandoSesionCaja && !miSesionCaja) {
+  if (!cargandoCaja && !cajaActiva) {
     return (
       <CajaRequeridaAlert
-        mensaje="Para registrar ventas necesitas tener tu caja abierta."
+        mensaje="Para registrar ventas necesitas que haya una caja abierta en esta sede."
         className="max-w-xl"
         hrefCaja={hrefCaja}
       />

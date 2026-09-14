@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Plus, ShoppingCart, ScanLine } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import {
-  useCajaHoy,
+  useCajaActivaSede,
   useResumenCaja,
   RegistrarMovimientoModal,
   AnularMovimientoModal,
@@ -30,7 +30,7 @@ export default function CajeroCajaPage() {
   const [movimientoAnular, setMovimientoAnular] =
     useState<MovimientoCaja | null>(null)
 
-  const { data: caja, isLoading } = useCajaHoy(idSede ?? undefined)
+  const { data: caja, isLoading } = useCajaActivaSede(idSede ?? undefined)
   const { data: resumen } = useResumenCaja(caja?.id)
 
   const movimientos = resumen?.movimientos ?? []

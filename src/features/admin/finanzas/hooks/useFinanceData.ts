@@ -103,6 +103,8 @@ export const FINANCE_KEYS = {
     [...FINANCE_KEYS.CAJA(), 'detail', idSede, fecha] as const,
   CAJA_HOY: (idSede: number | undefined) =>
     [...FINANCE_KEYS.CAJA(), 'hoy', idSede] as const,
+  CAJA_ACTIVA: (idSede: number | undefined) =>
+    [...FINANCE_KEYS.CAJA(), 'activa', idSede] as const,
   MI_SESION: (idUsuario: number | null | undefined) =>
     [...FINANCE_KEYS.CAJA(), 'mi-sesion', idUsuario] as const,
   CAJAS_RANGO: (
@@ -577,6 +579,16 @@ export function useCajaHoy(idSede: number | undefined) {
   return useQuery({
     queryKey: FINANCE_KEYS.CAJA_HOY(idSede),
     queryFn: () => financeApi.obtenerCajaHoy(idSede!),
+    enabled: !!idSede,
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 60,
+  })
+}
+
+export function useCajaActivaSede(idSede: number | undefined) {
+  return useQuery({
+    queryKey: FINANCE_KEYS.CAJA_ACTIVA(idSede),
+    queryFn: () => financeApi.obtenerCajaActiva(idSede!),
     enabled: !!idSede,
     staleTime: 1000 * 30,
     refetchInterval: 1000 * 60,

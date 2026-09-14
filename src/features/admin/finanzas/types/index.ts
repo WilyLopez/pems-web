@@ -163,7 +163,6 @@ export type CategoriaIngreso =
   | 'INGRESO_MANUAL'
   | 'OTRO'
 export type EstadoCaja = 'ABIERTA' | 'CERRADA'
-export type TipoSesionCaja = 'CAJERO' | 'ADMINISTRATIVA'
 export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO'
 export type NaturalezaMovimientoCaja = 'NORMAL' | 'CONTRAASIENTO'
 export type CategoriaRetiro =
@@ -204,7 +203,6 @@ export interface AperturaCaja {
   id: number
   idSede: number
   usuarioId: string
-  tipo: TipoSesionCaja
   fecha: string
   saldoInicial: number
   saldoFinal?: number
@@ -232,6 +230,26 @@ export interface ArqueoCaja {
 }
 
 export interface ResumenCaja extends AperturaCaja {
+  movimientos: MovimientoCaja[]
+  arqueos: ArqueoCaja[]
+}
+
+export interface CajaActiva {
+  id: number
+  idSede: number
+  usuarioId: string
+  nombreCajero?: string
+  estado: EstadoCaja
+  fecha: string
+  saldoInicial: number
+  totalIngresos: number
+  totalEgresos: number
+  saldoEsperado?: number
+  fechaApertura: string
+  observaciones?: string
+  cantidadVentas: number
+  totalVendido: number
+  desglosePorMedioPago: Record<string, number>
   movimientos: MovimientoCaja[]
   arqueos: ArqueoCaja[]
 }

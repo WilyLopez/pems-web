@@ -37,7 +37,7 @@ import {
   DENOMINACIONES_EFECTIVO,
 } from '@/features/admin/ventas/utils/ventas.utils'
 import {
-  useMiSesionCaja,
+  useCajaActivaSede,
   CajaRequeridaAlert,
 } from '@/features/admin/finanzas'
 import { cn } from '@/lib/utils'
@@ -100,11 +100,12 @@ export const CobrarReservaDrawer = ({
 
   const formValues = watch()
 
-  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
-    useMiSesionCaja()
+  const { data: cajaActiva, isLoading: cargandoCaja } = useCajaActivaSede(
+    reserva?.idSede
+  )
   const efectivoBloqueado =
-    !cargandoSesionCaja &&
-    !miSesionCaja &&
+    !cargandoCaja &&
+    !cajaActiva &&
     (formValues.pagos ?? []).some(
       (p) => p.medioPago === 'EFECTIVO' && Number(p.monto) > 0
     )
@@ -368,7 +369,7 @@ export const CobrarReservaDrawer = ({
               </div>
             )}
             {efectivoBloqueado && (
-              <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas tener tu caja abierta." />
+              <CajaRequeridaAlert mensaje="Para cobrar en efectivo necesitas que haya una caja abierta en esta sede." />
             )}
             <Button
               type="submit"

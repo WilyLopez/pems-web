@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select'
-import { useTiposEgreso, useEgresoMutations, useMiSesionCaja } from '../hooks/useFinanceData'
+import { useTiposEgreso, useEgresoMutations, useCajaActivaSede } from '../hooks/useFinanceData'
 import { egresoSchema } from '../schemas/finance.schemas'
 import { CajaRequeridaAlert } from './CajaRequeridaAlert'
 import { MEDIOS_PAGO } from '@/lib/finance-constants'
@@ -37,8 +37,8 @@ interface Props {
 export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
   const { data: tipos = [] } = useTiposEgreso()
   const { registrar } = useEgresoMutations()
-  const { data: miSesionCaja, isLoading: cargandoSesionCaja } =
-    useMiSesionCaja()
+  const { data: cajaActiva, isLoading: cargandoCaja } =
+    useCajaActivaSede(idSede)
 
   const {
     register,
@@ -62,10 +62,8 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
 
   const esRecurrente = watch('esRecurrente')
   const medioPagoSeleccionado = watch('medioPago')
-  const requiereCajaAdministrativa =
-    medioPagoSeleccionado === 'EFECTIVO' &&
-    !cargandoSesionCaja &&
-    miSesionCaja?.tipo !== 'ADMINISTRATIVA'
+  const requiereCajaAbierta =
+    medioPagoSeleccionado === 'EFECTIVO' && !cargandoCaja && !cajaActiva
 
   useEffect(() => {
     if (open) {
@@ -82,7 +80,7 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
   }, [open, reset])
 
   function onSubmit(data: FormValues) {
-    if (requiereCajaAdministrativa) return
+    if (requiereCajaAbierta) return
     const payload = {
       tipoEgresoCodigo: data.tipoEgresoCodigo,
       monto: data.monto,
@@ -179,8 +177,8 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
             )}
           </div>
 
-          {requiereCajaAdministrativa && (
-            <CajaRequeridaAlert mensaje="Para registrar egresos en efectivo necesitas tu Caja Administrativa abierta." />
+          {requiereCajaAbierta && (
+            <CajaRequeridaAlert mensaje="Para registrar egresos en efectivo necesitas que haya una caja abierta en esta sede." />
           )}
 
           <div className="flex items-center gap-2">
@@ -255,7 +253,7 @@ export function RegistrarEgresoModal({ open, onOpenChange, idSede }: Props) {
             </Button>
             <Button
               type="submit"
-              disabled={registrar.isPending || requiereCajaAdministrativa}
+              disabled={registrar.isPending || requiereCajaAbierta}
               className="bg-brand-azul hover:bg-brand-azul/90 text-white"
             >
               {registrar.isPending ? 'Guardando...' : 'Registrar'}
