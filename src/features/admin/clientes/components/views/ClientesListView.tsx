@@ -57,7 +57,7 @@ export function ClientesListView({
   if (isError) return <ErrorState onRetry={refetch} />
 
   return (
-    <div className="space-y-5">
+    <div className="max-w-6xl mx-auto space-y-5">
       <Breadcrumbs items={[{ label: 'Clientes' }]} />
 
       <PageHeader
@@ -101,6 +101,7 @@ export function ClientesListView({
           data={data?.content ?? []}
           isLoading={isLoading}
           emptyMessage="No se encontraron clientes con los filtros aplicados."
+          onRowClick={(c) => openDrawer(c.id)}
         />
       </div>
 
