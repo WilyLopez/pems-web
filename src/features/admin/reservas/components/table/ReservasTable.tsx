@@ -22,6 +22,7 @@ interface ReservasTableProps {
   onSizeChange: (size: number) => void
   onViewReserva: (id: number) => void
   onActionReserva: (action: string, id: number) => void
+  puedeCancelar?: boolean
 }
 
 export const ReservasTable = React.memo(
@@ -34,15 +35,25 @@ export const ReservasTable = React.memo(
     onSizeChange,
     onViewReserva,
     onActionReserva,
+    puedeCancelar = true,
   }: ReservasTableProps) => {
     const columns = useMemo(
-      () => getColumns({ onView: onViewReserva, onAction: onActionReserva }),
-      [onViewReserva, onActionReserva]
+      () =>
+        getColumns({
+          onView: onViewReserva,
+          onAction: onActionReserva,
+          puedeCancelar,
+        }),
+      [onViewReserva, onActionReserva, puedeCancelar]
     )
 
     return (
       <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
-        <DataTable columns={columns} data={data?.content ?? []} isLoading={isLoading} />
+        <DataTable
+          columns={columns}
+          data={data?.content ?? []}
+          isLoading={isLoading}
+        />
 
         {data?.totalElements !== undefined && (
           <div className="flex flex-col md:flex-row items-center justify-between px-6 py-4 bg-gray-50/50 border-t border-gray-100 gap-4">

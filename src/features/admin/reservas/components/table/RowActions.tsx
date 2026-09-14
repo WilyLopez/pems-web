@@ -28,12 +28,13 @@ interface RowActionsProps {
   reserva: Reserva
   onView: (id: number) => void
   onAction: (modal: string, id: number) => void
+  puedeCancelar?: boolean
 }
 
 export const RowActions = React.memo(
-  ({ reserva, onView, onAction }: RowActionsProps) => {
+  ({ reserva, onView, onAction, puedeCancelar = true }: RowActionsProps) => {
     const [descargando, setDescargando] = React.useState(false)
-    const cancelable = reservaHelpers.canCancel(reserva)
+    const cancelable = puedeCancelar && reservaHelpers.canCancel(reserva)
     const esYapePendiente = reservaHelpers.needsYapeValidation(reserva)
     const necesitaCobro = reservaHelpers.needsCobro(reserva)
 
@@ -45,7 +46,7 @@ export const RowActions = React.memo(
 
     const esEstadoValido = reserva.estado === 'CONFIRMADA'
     const deshabilitarIngreso = !esFechaDeHoy || !esEstadoValido
-    const puedeEliminar = reserva.ventaId === null
+    const puedeEliminar = puedeCancelar && reserva.ventaId === null
 
     const handleDescargarTicket = async () => {
       setDescargando(true)
@@ -82,17 +83,18 @@ export const RowActions = React.memo(
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="rounded-xl min-w-[150px]">
-            {reserva.ventaId !== null && !reserva.ingresado && reserva.estado === 'CONFIRMADA' && (
-              <DropdownMenuItem
-                disabled={deshabilitarIngreso}
-                onClick={() => onAction('ingreso', reserva.id)}
-                className="text-gray-700 focus:text-green-600 focus:bg-green-50 rounded-lg cursor-pointer"
-              >
-                <LogIn className="h-4 w-4 mr-2" />
-                Registrar ingreso
-              </DropdownMenuItem>
-            )}
-
+            {reserva.ventaId !== null &&
+              !reserva.ingresado &&
+              reserva.estado === 'CONFIRMADA' && (
+                <DropdownMenuItem
+                  disabled={deshabilitarIngreso}
+                  onClick={() => onAction('ingreso', reserva.id)}
+                  className="text-gray-700 focus:text-green-600 focus:bg-green-50 rounded-lg cursor-pointer"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Registrar ingreso
+                </DropdownMenuItem>
+              )}
 
             {esYapePendiente && (
               <DropdownMenuItem

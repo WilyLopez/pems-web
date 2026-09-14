@@ -13,7 +13,15 @@ import { VentasTable } from '../table/VentasTable'
 import { VentasFilters } from '../table/VentasFilters'
 import { VentaDetailDrawer } from '../modals/VentaDetailDrawer'
 
-export const VentasListView = () => {
+interface VentasListViewProps {
+  hrefNuevaVenta?: string
+  usuarioId?: string
+}
+
+export const VentasListView = ({
+  hrefNuevaVenta = '/admin/ventas/nueva',
+  usuarioId,
+}: VentasListViewProps = {}) => {
   const { idSede } = useAuth()
   const router = useRouter()
   const {
@@ -41,6 +49,7 @@ export const VentasListView = () => {
     tipo: tipo || undefined,
     desde: desde || undefined,
     hasta: hasta || undefined,
+    usuarioId,
   })
 
   return (
@@ -53,7 +62,7 @@ export const VentasListView = () => {
           description="Historial de transacciones y registro de ventas en caja"
         />
         <Button
-          onClick={() => router.push('/admin/ventas/nueva')}
+          onClick={() => router.push(hrefNuevaVenta)}
           className="shrink-0 gap-2 bg-brand-azul hover:bg-brand-azul/90 text-white h-10 px-5 rounded-xl font-bold text-sm"
         >
           <PlusCircle className="h-4 w-4" />

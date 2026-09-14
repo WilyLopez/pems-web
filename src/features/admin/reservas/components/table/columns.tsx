@@ -9,11 +9,13 @@ import { cn } from '@/lib/utils'
 interface GetColumnsProps {
   onView: (id: number) => void
   onAction: (modal: string, id: number) => void
+  puedeCancelar?: boolean
 }
 
 export const getColumns = ({
   onView,
   onAction,
+  puedeCancelar = true,
 }: GetColumnsProps): ColumnDef<Reserva>[] => [
   {
     accessorKey: 'numeroTicket',
@@ -23,7 +25,8 @@ export const getColumns = ({
     cell: ({ row }) => {
       const ticket = row.original.numeroTicket
       const parts = ticket.split('-')
-      const ticketCorto = parts.length >= 4 ? `${parts[0]}-${parts[1]}-...-${parts[3]}` : ticket
+      const ticketCorto =
+        parts.length >= 4 ? `${parts[0]}-${parts[1]}-...-${parts[3]}` : ticket
       return (
         <span
           title={ticket}
@@ -155,7 +158,12 @@ export const getColumns = ({
       </span>
     ),
     cell: ({ row }) => (
-      <RowActions reserva={row.original} onView={onView} onAction={onAction} />
+      <RowActions
+        reserva={row.original}
+        onView={onView}
+        onAction={onAction}
+        puedeCancelar={puedeCancelar}
+      />
     ),
   },
 ]
