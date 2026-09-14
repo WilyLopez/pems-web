@@ -19,11 +19,13 @@ import { OrigenCliente } from '../../types'
 interface ClientesListViewProps {
   origenCreacion?: OrigenCliente
   mostrarAcciones?: boolean
+  mostrarFiltroVerificados?: boolean
 }
 
 export function ClientesListView({
   origenCreacion = 'ADMIN',
   mostrarAcciones = true,
+  mostrarFiltroVerificados = true,
 }: ClientesListViewProps = {}) {
   const {
     page,
@@ -90,6 +92,7 @@ export function ClientesListView({
         total={data?.totalElements}
         onSearchChange={setSearch}
         onFiltroChange={setFiltro}
+        mostrarFiltroVerificados={mostrarFiltroVerificados}
       />
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
