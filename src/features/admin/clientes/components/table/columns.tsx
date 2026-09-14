@@ -22,8 +22,11 @@ export const createColumns = (
     ),
     cell: ({ row }) => {
       const c = row.original
+      const detalle = c.correo
+        ? `${c.tipoDocumentoCodigo} ${c.numeroDocumento} · ${c.correo}`
+        : `${c.tipoDocumentoCodigo} ${c.numeroDocumento}`
       return (
-        <div className="flex items-center gap-3 max-w-[220px]">
+        <div className="flex items-center gap-3 max-w-[240px]">
           <ClienteAvatar
             nombre={c.nombreCompleto}
             fotoPerfil={undefined}
@@ -34,7 +37,7 @@ export const createColumns = (
             <p className="font-medium text-sm text-gray-900 truncate">
               {toTitleCase(c.nombreCompleto)}
             </p>
-            <p className="text-xs text-gray-400 truncate">{c.correo}</p>
+            <p className="text-xs text-gray-400 truncate">{detalle}</p>
           </div>
         </div>
       )

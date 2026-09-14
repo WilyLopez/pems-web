@@ -14,18 +14,18 @@ import { ClienteDrawer } from '../ui/ClienteDrawer'
 import { NuevoClienteModal } from '../forms/NuevoClienteModal'
 import { useClientesList, useClienteDetail } from '../../hooks/useClientesData'
 import { useClientesNav } from '../../hooks/useClientesNav'
-import { OrigenCliente } from '../../types'
+import { FiltroCliente, OrigenCliente } from '../../types'
 
 interface ClientesListViewProps {
   origenCreacion?: OrigenCliente
   mostrarAcciones?: boolean
-  mostrarFiltroVerificados?: boolean
+  filtrosOcultos?: FiltroCliente[]
 }
 
 export function ClientesListView({
   origenCreacion = 'ADMIN',
   mostrarAcciones = true,
-  mostrarFiltroVerificados = true,
+  filtrosOcultos = [],
 }: ClientesListViewProps = {}) {
   const {
     page,
@@ -94,7 +94,7 @@ export function ClientesListView({
         total={data?.totalElements}
         onSearchChange={setSearch}
         onFiltroChange={setFiltro}
-        mostrarFiltroVerificados={mostrarFiltroVerificados}
+        filtrosOcultos={filtrosOcultos}
       />
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">

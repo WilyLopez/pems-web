@@ -7,7 +7,7 @@ export default function CajeroClientesPage() {
     <ClientesListView
       origenCreacion="MOSTRADOR"
       mostrarAcciones={false}
-      mostrarFiltroVerificados={false}
+      filtrosOcultos={['verificados', 'web', 'presenciales', 'admin']}
     />
   )
 }
